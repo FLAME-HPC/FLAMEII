@@ -48,14 +48,14 @@
 			<Add directory="/home/lsc/work/f661-exe_applyfunc/include" />
 			<Add directory="/home/lsc/work/src/boost_1_48_0" />
 		</Compiler>
-		<Unit filename="execution_task.cpp" />
-		<Unit filename="execution_task.hpp" />
 		<Unit filename="include/flame.h" />
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/exe/execution_engine.cpp" />
 		<Unit filename="src/exe/execution_engine.hpp" />
+		<Unit filename="src/exe/execution_task.cpp" />
+		<Unit filename="src/exe/execution_task.hpp" />
 		<Unit filename="src/exe/execution_thread.cpp" />
 		<Unit filename="src/exe/execution_thread.hpp" />
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
