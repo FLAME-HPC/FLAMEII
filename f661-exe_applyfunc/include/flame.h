@@ -9,13 +9,26 @@
  */
 #ifndef FLAME_H
 #define FLAME_H
+
+//#include "src/c_api/memory_access.hpp"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*! Macro to define agent transition functions */
-#define FLAME_AGENT_FUNC(funcName) int funcName(void)
+/*
+#define FLAME_AGENT_FUNC(funcName) int funcName(FLAME_afunc_idx IDX_000_001, FLAME_afunc_mem MEM_000_001)
+#define flame_get_mem_dbl(k) flame_get_mem_dbl_actual(IDX_000_001, MEM_000_001, k)
+#define flame_set_mem_dbl(k, v) flame_set_mem_dbl_actual(IDX_000_001, MEM_000_001, k, v)
+#define flame_get_mem_int(k) flame_get_mem_int_actual(IDX_000_001, MEM_000_001, k)
+#define flame_set_mem_int(k, v) flame_set_mem_int_actual(IDX_000_001, MEM_000_001, k, v)
+*/
 
+// Note: This is a mock implementation which only handles one agent memory var
+#define FLAME_AGENT_FUNC(funcName) int funcName(int* mem)
+
+/*! Function pointer type for agent transition functions */
+typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 
 
 #ifdef __cplusplus
