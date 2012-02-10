@@ -10,6 +10,10 @@
 #include "execution_task.hpp"
 namespace flame { namespace exe { namespace multicore {
 
+/* TODO(lsc): Include vector size and bounds. Store func/mem ptr as separate
+ *   object; store using boost::shared_ptr. That way, we can split tasks into
+ *   subtasks by replicating the ptrs and changing the boinds.
+ */
 ExecutionTask::ExecutionTask(AgentFuncPtr func_ptr, MemVectorPtr mem_ptr) {
     fptr_ = func_ptr;
     mptr_ = mem_ptr;

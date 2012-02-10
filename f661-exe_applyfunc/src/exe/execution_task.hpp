@@ -29,9 +29,6 @@ class ExecutionTask {
         MemVectorIteratorPair get_mem_iter(void);
         AgentFuncPtr get_func_ptr(void);
     private:
-        // TODO(lsc): Store task data as separate structure referenced using
-        //       boost::shared_ptr so that we can split tasks into subtasks
-        //       while sharing the same data
         AgentFuncPtr fptr_;
         MemVectorPtr mptr_;
 };
