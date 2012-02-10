@@ -32,4 +32,4 @@ typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 #ifdef __cplusplus
 }
 #endif
-#endif  // INCLUDE_FLAME_H_
+#endif  /* INCLUDE_FLAME_H_ */

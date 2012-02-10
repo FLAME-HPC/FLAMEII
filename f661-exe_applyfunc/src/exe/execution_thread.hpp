@@ -22,5 +22,5 @@ class ExecutionThread {
         ExecutionThread();
         void RunTask(ExecutionTask task);
 };
-}}}
+}}}  // namespace flame::exe::multicore
 #endif  // EXE__EXECUTION_THREAD_H

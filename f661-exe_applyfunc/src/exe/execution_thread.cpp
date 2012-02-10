@@ -22,4 +22,4 @@ void ExecutionThread::RunTask(ExecutionTask task) {
         agent_function(&i[0]);
     }
 }
-}}}
+}}}  // namespace flame::exe::multicore

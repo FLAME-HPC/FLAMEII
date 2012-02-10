@@ -26,4 +26,4 @@ MemVectorIteratorPair ExecutionTask::get_mem_iter() {
 AgentFuncPtr ExecutionTask::get_func_ptr(void) {
     return fptr_;
 }
-}}}
+}}}  // namespace flame::exe::multicore

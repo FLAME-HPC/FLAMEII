@@ -10,7 +10,6 @@
 #include "execution_engine.hpp"
 
 namespace flame { namespace exe { namespace multicore {
-
 ExecutionEngine::ExecutionEngine() {
     thread_started_ = false;
 }

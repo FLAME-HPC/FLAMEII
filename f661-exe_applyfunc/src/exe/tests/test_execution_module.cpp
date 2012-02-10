@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_run_function) {
     exe::ExecutionEngine e;
     e.RegisterFunction("incr_mem", &incr_mem);
 
-    MemVectorPtr mem(new MemVector());
+    exe::MemVectorPtr mem(new exe::MemVector());
     mem->push_back(1);
     mem->push_back(2);
     mem->push_back(3);

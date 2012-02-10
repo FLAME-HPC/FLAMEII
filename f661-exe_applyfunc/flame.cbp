@@ -44,7 +44,7 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add directory="/home/lsc/work/f661-exe_applyfunc/include" />
+			<Add directory="/home/lsc/work/f661-exe_applyfunc/" />
 			<Add directory="/home/lsc/work/src/boost_1_48_0" />
 		</Compiler>
 		<Unit filename="include/flame.h" />

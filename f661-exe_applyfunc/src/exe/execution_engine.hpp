@@ -12,14 +12,12 @@
 
 #include "include/flame.h"
 #include "execution_thread.hpp"
-
 #include "boost/unordered_map.hpp"
 
 namespace flame { namespace exe { namespace multicore {
 
 /*! Datatype used to store function name */
 typedef  const char* AgentFuncName;
-
 
 class ExecutionEngine {
     public:
@@ -33,6 +31,5 @@ class ExecutionEngine {
         bool thread_started_;
         ExecutionThread thread_;
 };
-
 }}}  // namespace flame::exe::multicore
 #endif  // EXE__EXECUTIONENGINE_H

@@ -9,19 +9,17 @@
  */
 #ifndef EXE__EXECUTION_TASK_HPP
 #define EXE__EXECUTION_TASK_HPP
-
 #include <vector>
 #include <utility>  // for std::pair
-#include "include/flame.h"
 #include "boost/shared_ptr.hpp"
+#include "include/flame.h"
+
+namespace flame { namespace exe { namespace multicore {
 
 typedef std::vector<int> MemVector;
 typedef MemVector::iterator MemVectorIterator;
 typedef boost::shared_ptr<MemVector> MemVectorPtr;
 typedef std::pair<MemVectorIterator, MemVectorIterator> MemVectorIteratorPair;
-
-
-namespace flame { namespace exe { namespace multicore {
 
 class ExecutionTask {
     public:
@@ -32,5 +30,5 @@ class ExecutionTask {
         AgentFuncPtr fptr_;
         MemVectorPtr mptr_;
 };
-}}}
+}}}  // namespace flame::exe::multicore
 #endif  // EXE__EXECUTION_TASK_HPP
