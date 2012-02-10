@@ -13,7 +13,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="/home/lsc/work/f661-exe_applyfunc/" />
 				</Compiler>
 				<Linker>
 					<Add library="boost_unit_test_framework" />

@@ -1,3 +1,12 @@
+/*!
+ * \file src/exe/tests/test_execution_module.cpp
+ * \author Shawn Chin
+ * \date 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief Test suite for the execution module
+ */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>

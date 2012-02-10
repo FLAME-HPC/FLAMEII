@@ -1,5 +1,5 @@
 /*!
- * \file flame.h
+ * \file include/flame.h
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,10 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Header file for FLAME2 User API
  */
-#ifndef FLAME_H
-#define FLAME_H
-
-//#include "src/c_api/memory_access.hpp"
+#ifndef INCLUDE_FLAME_H_
+#define INCLUDE_FLAME_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +32,4 @@ typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 #ifdef __cplusplus
 }
 #endif
-#endif /* FLAME_H */
+#endif  // INCLUDE_FLAME_H_
