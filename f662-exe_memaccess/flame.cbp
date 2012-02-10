@@ -44,20 +44,20 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add directory="/home/lsc/work/f661-exe_applyfunc/" />
+			<Add directory="." />
 			<Add directory="/home/lsc/work/src/boost_1_48_0" />
 		</Compiler>
 		<Unit filename="include/flame.h" />
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
-		<Unit filename="src/exe/execution_engine.cpp" />
-		<Unit filename="src/exe/execution_engine.hpp" />
-		<Unit filename="src/exe/execution_task.cpp" />
-		<Unit filename="src/exe/execution_task.hpp" />
-		<Unit filename="src/exe/execution_thread.cpp" />
-		<Unit filename="src/exe/execution_thread.hpp" />
-		<Unit filename="src/exe/tests/test_execution_module.cpp">
+		<Unit filename="src/exe/multicore/execution_engine.cpp" />
+		<Unit filename="src/exe/multicore/execution_engine.hpp" />
+		<Unit filename="src/exe/multicore/execution_task.cpp" />
+		<Unit filename="src/exe/multicore/execution_task.hpp" />
+		<Unit filename="src/exe/multicore/execution_thread.cpp" />
+		<Unit filename="src/exe/multicore/execution_thread.hpp" />
+		<Unit filename="src/exe/multicore/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Extensions>
