@@ -16,8 +16,8 @@ namespace m = flame::mem;
 BOOST_AUTO_TEST_SUITE(MemModule)
 
 BOOST_AUTO_TEST_CASE(test_register_var) {
-
-    m::AgentMemory am("circle", 1000);
+    int size_hint = 1000;
+    m::AgentMemory am("circle", size_hint);
 
     am.RegisterVar<int>("x_int");
     am.RegisterVar<double>("y_dbl");
@@ -28,6 +28,10 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
     BOOST_CHECK_THROW(am.GetMemoryVector<int>("y_dbl"), std::domain_error);
     // retrieve vector properly
     BOOST_CHECK_NO_THROW(am.GetMemoryVector<int>("x_int"));
+
+    // Check allocated capacity
+    BOOST_CHECK_EQUAL(am.GetMemoryVector<int>("x_int").capacity(), size_hint);
+    BOOST_CHECK_EQUAL(am.GetMemoryVector<double>("y_dbl").capacity(), size_hint);
 
     // modify and access vectors directly
     am.GetMemoryVector<int>("x_int").push_back(10);
