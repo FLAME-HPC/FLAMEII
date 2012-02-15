@@ -1,15 +1,18 @@
 #ifndef MEM__AGENT_MEMORY_HPP
 #define MEM__AGENT_MEMORY_HPP
+#include <map>
 #include <vector>
-#include <cassert>
+#include <stdexcept>
 #include "boost/any.hpp"
-#include "boost/unordered_map.hpp"
+// #include "boost/unordered_map.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
 //! Map container used to store memory vectors
-typedef boost::unordered_map<std::string, boost::any> MemoryMap;
+typedef std::map<std::string, boost::any> MemoryMap;
+// typedef boost::unordered_map<std::string, boost::any> MemoryMap;
+
 //! Key-Value pair for MemoryMap
 typedef std::pair<std::string, boost::any> MemoryMapValue;
 
