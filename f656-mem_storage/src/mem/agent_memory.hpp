@@ -19,7 +19,7 @@ typedef std::pair<std::string, boost::any> MemoryMapValue;
 class AgentMemory
 {
   public:
-    AgentMemory(std::string agent_name, int pop_size)
+    AgentMemory(std::string agent_name, size_t pop_size)
         : agent_name_(agent_name),
           population_size_(pop_size) {};
 

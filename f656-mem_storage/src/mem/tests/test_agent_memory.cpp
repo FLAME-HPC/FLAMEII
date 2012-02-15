@@ -16,7 +16,7 @@ namespace m = flame::mem;
 BOOST_AUTO_TEST_SUITE(MemModule)
 
 BOOST_AUTO_TEST_CASE(test_register_var) {
-  unsigned int size_hint = 1000;
+  size_t size_hint = 1000;
   m::AgentMemory am("circle", size_hint);
 
   am.RegisterVar<int>("x_int");
@@ -36,14 +36,14 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
   // modify and access vectors directly
   am.GetMemoryVector<int>("x_int").push_back(10);
   am.GetMemoryVector<int>("x_int").push_back(20);
-  BOOST_CHECK_EQUAL(am.GetMemoryVector<int>("x_int").size(), (unsigned int)2);
+  BOOST_CHECK_EQUAL(am.GetMemoryVector<int>("x_int").size(), (size_t)2);
 
   // get reference to memory vector
   std::vector<int> &v = am.GetMemoryVector<int>("x_int");
   v.push_back(30);
   v.push_back(40);
   BOOST_CHECK_EQUAL(v.size(), (unsigned int)4);
-  BOOST_CHECK_EQUAL(am.GetMemoryVector<int>("x_int").size(), (unsigned int)4);
+  BOOST_CHECK_EQUAL(am.GetMemoryVector<int>("x_int").size(), (size_t)4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
