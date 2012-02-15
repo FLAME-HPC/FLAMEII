@@ -16,7 +16,7 @@ namespace m = flame::mem;
 BOOST_AUTO_TEST_SUITE(MemModule)
 
 BOOST_AUTO_TEST_CASE(test_register_var) {
-    int size_hint = 1000;
+    unsigned int size_hint = 1000;
     m::AgentMemory am("circle", size_hint);
 
     am.RegisterVar<int>("x_int");
