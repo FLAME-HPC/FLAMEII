@@ -1,5 +1,14 @@
-#ifndef MEM__AGENT_MEMORY_HPP
-#define MEM__AGENT_MEMORY_HPP
+/*!
+ * \file src/mem/agent_memory.hpp
+ * \author Shawn Chin
+ * \date 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief AgentMemory: management and storage class for per-agent memory vectors
+ */
+#ifndef MEM__AGENT_MEMORY_HPP_
+#define MEM__AGENT_MEMORY_HPP_
 #include <map>
 #include <vector>
 #include <stdexcept>
@@ -19,9 +28,9 @@ typedef std::pair<std::string, boost::any> MemoryMapValue;
 class AgentMemory
 {
   public:
-    AgentMemory(std::string agent_name, size_t pop_size)
+    AgentMemory(std::string agent_name, size_t pop_size_hint)
         : agent_name_(agent_name),
-          population_size_(pop_size) {};
+          population_size_(pop_size_hint) {};
 
     template <class T>
     void RegisterVar(std::string var_name) {
@@ -35,7 +44,7 @@ class AgentMemory
 
       ret = mem_map_.insert(MemoryMapValue(var_name, vec_ptr));
       if (!ret.second) {  // Ensure that this is an insertion, not replacement
-        throw std::invalid_argument("variable with that name already registered");
+        throw std::invalid_argument("var with that name already registered");
       }
     }
 
@@ -63,4 +72,4 @@ class AgentMemory
     MemoryMap mem_map_;
 };
 }}  // namespace flame::mem
-#endif // MEM__AGENT_MEMORY_HPP
+#endif // MEM__AGENT_MEMORY_HPP_

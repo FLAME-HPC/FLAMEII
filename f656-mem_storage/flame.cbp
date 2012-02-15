@@ -61,7 +61,12 @@
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/mem/agent_memory.hpp" />
+		<Unit filename="src/mem/memory_manager.cpp" />
+		<Unit filename="src/mem/memory_manager.hpp" />
 		<Unit filename="src/mem/tests/test_agent_memory.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mem/tests/test_memory_manager.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Extensions>
