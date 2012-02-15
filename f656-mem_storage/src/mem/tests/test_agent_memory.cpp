@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
   am.RegisterVar<double>("y_dbl");
 
   // retrieve vector that does not exist
-  BOOST_CHECK_THROW(am.GetMemoryVector<int>("z"), std::out_of_range);
+  BOOST_CHECK_THROW(am.GetMemoryVector<int>("z"), std::invalid_argument);
   // retrieve vector with wrong type
   BOOST_CHECK_THROW(am.GetMemoryVector<int>("y_dbl"), std::domain_error);
   // retrieve vector properly
