@@ -44,7 +44,7 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add directory="/home/lsc/work/f661-exe_applyfunc/" />
+			<Add directory="." />
 			<Add directory="/home/lsc/work/src/boost_1_48_0" />
 		</Compiler>
 		<Unit filename="include/flame.h" />
@@ -58,6 +58,15 @@
 		<Unit filename="src/exe/execution_thread.cpp" />
 		<Unit filename="src/exe/execution_thread.hpp" />
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mem/agent_memory.hpp" />
+		<Unit filename="src/mem/memory_manager.cpp" />
+		<Unit filename="src/mem/memory_manager.hpp" />
+		<Unit filename="src/mem/tests/test_agent_memory.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mem/tests/test_memory_manager.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Extensions>
