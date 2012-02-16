@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include "boost/any.hpp"
 // #include "boost/unordered_map.hpp"
-#include "boost/shared_ptr.hpp"
+// #include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
@@ -37,33 +37,31 @@ class AgentMemory
       typedef std::vector<T> vector_T;
       std::pair<MemoryMap::iterator, bool> ret;
 
-      // Store allocated memory vector in a shared_ptr so deallocation is
-      // automatically handled when all all pointers go out of scope
-      boost::shared_ptr<vector_T> vec_ptr(new vector_T);
-      vec_ptr->reserve(population_size_);
-
-      ret = mem_map_.insert(MemoryMapValue(var_name, vec_ptr));
+      ret = mem_map_.insert(MemoryMapValue(var_name, vector_T()));
       if (!ret.second) {  // Ensure that this is an insertion, not replacement
         throw std::invalid_argument("var with that name already registered");
       }
+
+      // reserve capacity within inserted vector
+      vector_T &vec = boost::any_cast<vector_T&>(ret.first->second);
+      vec.reserve(population_size_);
     }
 
     template <class T>
     std::vector<T>& GetMemoryVector(std::string const& var_name) {
       typedef std::vector<T> vector_T;
-      typedef boost::shared_ptr<vector_T> ptr_T;
 
       const MemoryMap::iterator it = mem_map_.find(var_name);
       if (it == mem_map_.end()) {  // key not found
         throw std::invalid_argument("Invalid agent memory variable");
       }
 
-      boost::any val = it->second;  // get actual map value
-      if (val.type() != typeid(ptr_T)) {
+      try {
+        return boost::any_cast<vector_T&>(it->second);
+      }
+      catch(boost::bad_any_cast E) {
         throw std::domain_error("Invalid type used");
       }
-
-      return *boost::any_cast<ptr_T>(val);
     }
 
   private:
