@@ -10,6 +10,8 @@
 #ifndef MEM__MEMORY_MANAGER_HPP_
 #define MEM__MEMORY_MANAGER_HPP_
 #include <map>
+#include <string>
+#include <vector>
 #include "agent_memory.hpp"
 
 namespace flame { namespace mem {
@@ -17,8 +19,7 @@ namespace flame { namespace mem {
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
-class MemoryManager
-{
+class MemoryManager {
   public:
     void RegisterAgent(std::string agent_name, size_t pop_size_hint);
 
@@ -44,9 +45,10 @@ class MemoryManager
                                     std::string const& var_name) {
       return GetAgent(agent_name).GetMemoryVector<T>(var_name);
     }
+
   private:
     AgentMemory& GetAgent(std::string const& agent_name);
     AgentMap agent_map_;
 };
 }}  // namespace flame::mem
-#endif // MEM__MEMORY_MANAGER_HPP_
+#endif  // MEM__MEMORY_MANAGER_HPP_

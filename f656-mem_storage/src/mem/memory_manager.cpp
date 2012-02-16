@@ -8,6 +8,8 @@
  * \brief MemoryManager: management and storage class for agent data
  */
 #include "memory_manager.hpp"
+#include <utility>
+#include <string>
 
 namespace flame { namespace mem {
 

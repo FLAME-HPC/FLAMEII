@@ -10,6 +10,8 @@
 #ifndef MEM__AGENT_MEMORY_HPP_
 #define MEM__AGENT_MEMORY_HPP_
 #include <map>
+#include <string>
+#include <utility>  // for std::pair
 #include <vector>
 #include <stdexcept>
 #include "boost/any.hpp"
@@ -25,12 +27,11 @@ typedef std::map<std::string, boost::any> MemoryMap;
 //! Key-Value pair for MemoryMap
 typedef std::pair<std::string, boost::any> MemoryMapValue;
 
-class AgentMemory
-{
+class AgentMemory {
   public:
     AgentMemory(std::string agent_name, size_t pop_size_hint)
         : agent_name_(agent_name),
-          population_size_(pop_size_hint) {};
+          population_size_(pop_size_hint) {}
 
     template <class T>
     void RegisterVar(std::string var_name) {
@@ -70,4 +71,4 @@ class AgentMemory
     MemoryMap mem_map_;
 };
 }}  // namespace flame::mem
-#endif // MEM__AGENT_MEMORY_HPP_
+#endif  // MEM__AGENT_MEMORY_HPP_

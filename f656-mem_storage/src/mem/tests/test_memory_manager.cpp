@@ -8,8 +8,9 @@
  * \brief Test suite for the memory module
  */
 #define BOOST_TEST_DYN_LINK
-#include <vector>
 #include <boost/test/unit_test.hpp>
+#include <vector>
+#include <string>
 #include "../memory_manager.hpp"
 
 namespace m = flame::mem;
