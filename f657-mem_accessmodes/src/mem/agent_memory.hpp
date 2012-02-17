@@ -28,6 +28,7 @@ typedef std::map<std::string, boost::any> MemoryMap;
 typedef std::pair<std::string, boost::any> MemoryMapValue;
 
 class AgentMemory {
+
   public:
     AgentMemory(std::string agent_name, size_t pop_size_hint)
         : agent_name_(agent_name),
@@ -58,7 +59,7 @@ class AgentMemory {
       }
 
       try {
-        return boost::any_cast<vector_T&>(it->second);
+        return boost::any_cast<std::vector<T>&>(it->second);
       }
       catch(boost::bad_any_cast E) {
         throw std::domain_error("Invalid type used");
