@@ -34,7 +34,7 @@ class AgentMemory {
           population_size_(pop_size_hint) {}
 
     template <class T>
-    void RegisterVar(std::string var_name) {
+    void RegisterVar(std::string const& var_name) {
       typedef std::vector<T> vector_T;
       std::pair<MemoryMap::iterator, bool> ret;
 

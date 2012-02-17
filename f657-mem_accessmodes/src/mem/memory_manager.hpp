@@ -21,16 +21,17 @@ typedef std::map<std::string, AgentMemory> AgentMap;
 
 class MemoryManager {
   public:
-    void RegisterAgent(std::string agent_name, size_t pop_size_hint);
+    void RegisterAgent(std::string const& agent_name, size_t pop_size_hint);
 
     template <class T>
-    void RegisterAgentVar(std::string agent_name, std::string var_name) {
+    void RegisterAgentVar(std::string const& agent_name,
+                          std::string const& var_name) {
       AgentMemory &agent = GetAgent(agent_name);
       agent.RegisterVar<T>(var_name);
     }
 
     template <class T>
-    void RegisterAgentVar(std::string agent_name,
+    void RegisterAgentVar(std::string const& agent_name,
                           std::vector<std::string> var_names) {
       AgentMemory &agent = GetAgent(agent_name);
 
