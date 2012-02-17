@@ -23,14 +23,14 @@ class MemoryManager {
   public:
     void RegisterAgent(std::string const& agent_name, size_t pop_size_hint);
 
-    template <class T>
+    template <typename T>
     void RegisterAgentVar(std::string const& agent_name,
                           std::string const& var_name) {
       AgentMemory &agent = GetAgent(agent_name);
       agent.RegisterVar<T>(var_name);
     }
 
-    template <class T>
+    template <typename T>
     void RegisterAgentVar(std::string const& agent_name,
                           std::vector<std::string> var_names) {
       AgentMemory &agent = GetAgent(agent_name);
@@ -41,7 +41,7 @@ class MemoryManager {
       }
     }
 
-    template <class T>
+    template <typename T>
     std::vector<T>& GetMemoryVector(std::string const& agent_name,
                                     std::string const& var_name) {
       return GetAgent(agent_name).GetMemoryVector<T>(var_name);

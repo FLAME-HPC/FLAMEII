@@ -33,7 +33,7 @@ class AgentMemory {
         : agent_name_(agent_name),
           population_size_(pop_size_hint) {}
 
-    template <class T>
+    template <typename T>
     void RegisterVar(std::string const& var_name) {
       typedef std::vector<T> vector_T;
       std::pair<MemoryMap::iterator, bool> ret;
@@ -48,7 +48,7 @@ class AgentMemory {
       vec.reserve(population_size_);
     }
 
-    template <class T>
+    template <typename T>
     std::vector<T>& GetMemoryVector(std::string const& var_name) {
       typedef std::vector<T> vector_T;
 
