@@ -15,18 +15,19 @@ namespace flame { namespace mem {
 
 //! Base for vector classes that can be used as proxy object for
 //! agent memory vectors.
-class VectorBase {};
+class VectorWrapperBase {};
 
 //! Proxy object for memory vector which provides Read-Write access
 template <typename T>
-class VectorRW : VectorBase {
+class VectorWriter : VectorWrapperBase {
   public:
-    VectorRW(std::vector<T> &vec) : vec_(vec) {}
+    VectorWriter(std::vector<T> &vec) : vec_(vec) {}
     typedef typename std::vector<T>::iterator iterator;
-    iterator begin() { return vec_.begin(); }
-    iterator end() { return vec_.end(); }
-    bool empty() { return vec_.empty(); }
-    size_t size() { return vec_.size(); }
+
+    iterator begin() const { return vec_.begin(); }
+    iterator end() const { return vec_.end(); }
+    bool empty() const { return vec_.empty(); }
+    size_t size() const { return vec_.size(); }
 
   private:
     typename std::vector<T> &vec_;
@@ -34,14 +35,15 @@ class VectorRW : VectorBase {
 
 //! Proxy object for memory vector which provides Readonly access
 template <typename T>
-class VectorRO : VectorBase {
+class VectorReader : VectorWrapperBase {
   public:
-    VectorRO(std::vector<T> &vec) : vec_(vec) {}
+    VectorReader(std::vector<T> &vec) : vec_(vec) {}
     typedef typename std::vector<T>::const_iterator iterator;
-    iterator begin() { return vec_.begin(); }
-    iterator end() { return vec_.end(); }
-    bool empty() { return vec_.empty(); }
-    size_t size() { return vec_.size(); }
+
+    iterator begin() const { return vec_.begin(); }
+    iterator end() const { return vec_.end(); }
+    bool empty() const { return vec_.empty(); }
+    size_t size() const { return vec_.size(); }
 
   private:
     typename std::vector<T> const& vec_;

@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-#include "memory_vector.hpp"
+#include "vector_wrapper.hpp"
 
 namespace flame { namespace mem {
 
@@ -45,12 +45,28 @@ class MemoryManager {
       }
     }
 
+    template <typename T>
+    VectorReader<T> GetReader(std::string const& agent_name,
+                              std::string const& var_name) {
+        std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
+        return VectorReader<T>(vec);
+    }
+
+    template <typename T>
+    VectorWriter<T> GetWriter(std::string const& agent_name,
+                              std::string const& var_name) {
+        std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
+        return VectorWriter<T>(vec);
+    }
+
+    /*
     template <typename T, template <typename> class U>
     U<T> GetVector(std::string const& agent_name, std::string const& var_name) {
       typedef U<T> U_T;
       BOOST_STATIC_ASSERT((boost::is_base_of<VectorBase, U_T>::value));
       return U_T(GetAgent(agent_name).GetMemoryVector<T>(var_name));
     }
+    */
 
   private:
     AgentMemory& GetAgent(std::string const& agent_name);

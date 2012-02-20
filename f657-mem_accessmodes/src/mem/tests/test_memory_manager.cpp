@@ -40,18 +40,17 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   mgr.RegisterAgentVar<int>("Square", "val");
 
   // retrieve vector from non-existent agent
-  BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Triangle", "val")),
+  BOOST_CHECK_THROW((mgr.GetReader<int>("Triangle", "val")),
                     std::invalid_argument);
   // retrieve unregistered vector from agent
-  BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "dummy")),
+  BOOST_CHECK_THROW((mgr.GetReader<int>("Circle", "dummy")),
                     std::invalid_argument);
   // retrieve valid vector with wrong type
-  BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "x")),
-                    std::domain_error);
+  BOOST_CHECK_THROW((mgr.GetReader<int>("Circle", "x")), std::domain_error);
   // retrieve valid vector
-  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")));
-  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRO>("Square", "val")));
-  BOOST_CHECK_NO_THROW((mgr.GetVector<double, m::VectorRO>("Circle", "y")));
+  BOOST_CHECK_NO_THROW((mgr.GetReader<int>("Circle", "val")));
+  BOOST_CHECK_NO_THROW((mgr.GetReader<int>("Square", "val")));
+  BOOST_CHECK_NO_THROW((mgr.GetReader<double>("Circle", "y")));
 }
 
 BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
@@ -59,7 +58,7 @@ BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
   mgr.RegisterAgent("Circle", 10);
   mgr.RegisterAgentVar<int>("Circle", "val");
 
-  m::VectorRO<int> ro = mgr.GetVector<int, m::VectorRO>("Circle", "val");
+  m::VectorReader<int> ro = mgr.GetReader<int>("Circle", "val");
   BOOST_CHECK(ro.begin() == ro.end());
   BOOST_CHECK(ro.empty());
   BOOST_CHECK_EQUAL(ro.size(), (size_t)0);
@@ -82,7 +81,7 @@ struct F {  // test fixture
 };
 
 BOOST_FIXTURE_TEST_CASE(test_vector_access_readonly, F) {
-  m::VectorRO<int> ro = mgr.GetVector<int, m::VectorRO>("Circle", "val");
+  m::VectorReader<int> ro = mgr.GetReader<int>("Circle", "val");
   // check iteration using RO method
   BOOST_CHECK(ro.begin() != ro.end());
   BOOST_CHECK(!ro.empty());
@@ -96,12 +95,12 @@ BOOST_FIXTURE_TEST_CASE(test_vector_access_readonly, F) {
 BOOST_FIXTURE_TEST_CASE(test_vector_access_readwrite, F) {
   // check iteration using RW method
   int expected[] = {1, 2, 3};
-  m::VectorRW<int> rw = mgr.GetVector<int, m::VectorRW>("Circle", "val");
+  m::VectorWriter<int> rw = mgr.GetWriter<int>("Circle", "val");
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected+3, rw.begin(), rw.end());
   BOOST_CHECK(typeid(rw.begin()) == typeid(std::vector<int>::iterator));
 
   // update values using RW method
-  m::VectorRW<int>::iterator it;
+  m::VectorWriter<int>::iterator it;
   for (it = rw.begin(); it < rw.end(); ++it) {
     *it *= 2;
   }
