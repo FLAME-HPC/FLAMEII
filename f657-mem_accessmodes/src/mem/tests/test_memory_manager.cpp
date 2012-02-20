@@ -114,47 +114,4 @@ BOOST_FIXTURE_TEST_CASE(test_vector_access_readwrite, F) {
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, vec.begin(), vec.end());
 }
 
-BOOST_FIXTURE_TEST_CASE(test_vector_locks_readwrite, F) {
-
-  {
-     // can create multiple readers
-    m::VectorRO<int> ro1 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
-    m::VectorRO<int> ro2 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
-    m::VectorRO<int> ro3 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
-    // cannot create writer while readers exists
-    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val")),
-                      std::domain_error);
-  } // end scope. objects destructed and locks released
-
-  {
-    m::VectorRW<int> rw1 = mgr.GetVector<int, m::VectorRW>("Circle", "val");
-    // cannot have multipe writers
-    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val")),
-                      std::domain_error);
-    // cannot have readers while writer exists
-    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")),
-                      std::domain_error);
-  } // end scope. objects destructed and locks released
-
-  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")));
-}
-
-BOOST_FIXTURE_TEST_CASE(test_vector_locks_rmultivar, F) {
-  // mgr.RegisterAgentVar<int>("Circle", "val");  // done by fixture
-  mgr.RegisterAgentVar<int>("Circle", "val2");
-  mgr.RegisterAgentVar<int>("Square", "val");
-
-  m::VectorRW<int> rw1 = mgr.GetVector<int, m::VectorRW>("Circle", "val");
-
-  // cannot access same vector
-  BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val")),
-                      std::domain_error);
-  BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")),
-                      std::domain_error);
-
-  // can access different vector for same agent
-  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val2")));
-  // can access vector in different agent with the same name
-  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRW>("Square", "val")));
-}
 BOOST_AUTO_TEST_SUITE_END()
