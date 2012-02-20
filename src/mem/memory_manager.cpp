@@ -13,7 +13,7 @@
 
 namespace flame { namespace mem {
 
-void MemoryManager::RegisterAgent(std::string agent_name,
+void MemoryManager::RegisterAgent(std::string const& agent_name,
                                   size_t pop_size_hint) {
   AgentMemory a(agent_name, pop_size_hint);
   std::pair<AgentMap::iterator, bool> r;

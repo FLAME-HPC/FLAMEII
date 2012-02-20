@@ -33,8 +33,8 @@ class AgentMemory {
         : agent_name_(agent_name),
           population_size_(pop_size_hint) {}
 
-    template <class T>
-    void RegisterVar(std::string var_name) {
+    template <typename T>
+    void RegisterVar(std::string const& var_name) {
       typedef std::vector<T> vector_T;
       std::pair<MemoryMap::iterator, bool> ret;
 
@@ -48,7 +48,7 @@ class AgentMemory {
       vec.reserve(population_size_);
     }
 
-    template <class T>
+    template <typename T>
     std::vector<T>& GetMemoryVector(std::string const& var_name) {
       typedef std::vector<T> vector_T;
 
@@ -58,7 +58,7 @@ class AgentMemory {
       }
 
       try {
-        return boost::any_cast<vector_T&>(it->second);
+        return boost::any_cast<std::vector<T>&>(it->second);
       }
       catch(boost::bad_any_cast E) {
         throw std::domain_error("Invalid type used");
