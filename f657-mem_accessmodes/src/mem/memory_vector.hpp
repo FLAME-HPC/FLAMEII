@@ -13,18 +13,18 @@
 
 namespace flame { namespace mem {
 
-namespace impl_ { class VectorBase {}; }
+//! Base for vector classes that can be used as proxy object for
+//! agent memory vectors.
+class VectorBase {};
 
+//! Proxy object for memory vector which provides Read-Write access
 template <typename T>
-class VectorRW : impl_::VectorBase {
+class VectorRW : VectorBase {
   public:
     VectorRW(std::vector<T> &vec) : vec_(vec) {}
     typedef typename std::vector<T>::iterator iterator;
-    // typedef typename std::vector<T>::reverse_iterator reverse_iterator;
     iterator begin() { return vec_.begin(); }
     iterator end() { return vec_.end(); }
-    // reverse_iterator rbegin() {return vec_.rbegin(); }
-    // reverse_iterator rend() {return vec_.rend(); }
     bool empty() { return vec_.empty(); }
     size_t size() { return vec_.size(); }
 
@@ -32,16 +32,14 @@ class VectorRW : impl_::VectorBase {
     typename std::vector<T> &vec_;
 };
 
+//! Proxy object for memory vector which provides Readonly access
 template <typename T>
-class VectorRO : impl_::VectorBase {
+class VectorRO : VectorBase {
   public:
     VectorRO(std::vector<T> &vec) : vec_(vec) {}
     typedef typename std::vector<T>::const_iterator iterator;
-    // typedef typename std::vector<T>::const_reverse_iterator reverse_iterator;
     iterator begin() { return vec_.begin(); }
     iterator end() { return vec_.end(); }
-    // reverse_iterator rbegin() {return vec_.rbegin(); }
-    // reverse_iterator rend() {return vec_.rend(); }
     bool empty() { return vec_.empty(); }
     size_t size() { return vec_.size(); }
 

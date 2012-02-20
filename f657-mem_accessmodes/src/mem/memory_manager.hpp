@@ -48,7 +48,7 @@ class MemoryManager {
     template <typename T, template <typename> class U>
     U<T> GetVector(std::string const& agent_name, std::string const& var_name) {
       typedef U<T> U_T;
-      BOOST_STATIC_ASSERT((boost::is_base_of<impl_::VectorBase, U_T>::value));
+      BOOST_STATIC_ASSERT((boost::is_base_of<VectorBase, U_T>::value));
       return U_T(GetAgent(agent_name).GetMemoryVector<T>(var_name));
     }
 

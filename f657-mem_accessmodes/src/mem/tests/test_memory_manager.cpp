@@ -15,6 +15,7 @@
 
 namespace m = flame::mem;
 
+
 BOOST_AUTO_TEST_SUITE(MemModule)
 
 BOOST_AUTO_TEST_CASE(test_register_agent) {
@@ -52,23 +53,35 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   BOOST_CHECK_NO_THROW((mgr.GetVector<double, m::VectorRO>("Circle", "y")));
 }
 
-BOOST_AUTO_TEST_CASE(test_vector_access) {
+BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
   m::MemoryManager mgr;
   mgr.RegisterAgent("Circle", 10);
   mgr.RegisterAgentVar<int>("Circle", "val");
 
-  // test access to empty vector
   m::VectorRO<int> ro = mgr.GetVector<int, m::VectorRO>("Circle", "val");
   BOOST_CHECK(ro.begin() == ro.end());
   BOOST_CHECK(ro.empty());
   BOOST_CHECK_EQUAL(ro.size(), 0);
+}
 
-  // populate vector by accessing hook into private method (test build only)
-  std::vector<int> &vec = mgr.GetMemoryVector_test<int>("Circle", "val");
-  vec.push_back(1);
-  vec.push_back(2);
-  vec.push_back(3);
 
+struct F {  // test fixture
+  F() {
+    mgr.RegisterAgent("Circle", 10);
+    mgr.RegisterAgentVar<int>("Circle", "val");
+
+    // populate vector by accessing hook into private method (test build only)
+    std::vector<int> &vec = mgr.GetMemoryVector_test<int>("Circle", "val");
+    vec.push_back(1);
+    vec.push_back(2);
+    vec.push_back(3);
+  }
+
+  m::MemoryManager mgr;
+};
+
+BOOST_FIXTURE_TEST_CASE(test_vector_access_readonly, F) {
+  m::VectorRO<int> ro = mgr.GetVector<int, m::VectorRO>("Circle", "val");
   // check iteration using RO method
   BOOST_CHECK(ro.begin() != ro.end());
   BOOST_CHECK(!ro.empty());
@@ -77,8 +90,11 @@ BOOST_AUTO_TEST_CASE(test_vector_access) {
   int expected[] = {1, 2, 3};
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected+3, ro.begin(), ro.end());
   BOOST_CHECK(typeid(ro.begin()) == typeid(std::vector<int>::const_iterator));
+}
 
+BOOST_FIXTURE_TEST_CASE(test_vector_access_readwrite, F) {
   // check iteration using RW method
+  int expected[] = {1, 2, 3};
   m::VectorRW<int> rw = mgr.GetVector<int, m::VectorRW>("Circle", "val");
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected+3, rw.begin(), rw.end());
   BOOST_CHECK(typeid(rw.begin()) == typeid(std::vector<int>::iterator));
@@ -88,11 +104,40 @@ BOOST_AUTO_TEST_CASE(test_vector_access) {
   for (it = rw.begin(); it < rw.end(); ++it) {
     *it *= 2;
   }
-
   // check updated values
   int expected2[] = {2, 4, 6};
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, rw.begin(), rw.end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, ro.begin(), ro.end());
+
+  // test internal vector by accessing hook into private method (test build only)
+  std::vector<int> &vec = mgr.GetMemoryVector_test<int>("Circle", "val");
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, vec.begin(), vec.end());
+}
+
+BOOST_FIXTURE_TEST_CASE(test_vector_readwrite_locks, F) {
+
+  {
+     // can create multiple readers
+    m::VectorRO<int> ro1 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
+    m::VectorRO<int> ro2 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
+    m::VectorRO<int> ro3 = mgr.GetVector<int, m::VectorRO>("Circle", "val");
+
+    // cannot create writer while readers exists
+    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val")),
+                      std::domain_error);
+
+  } // end scope. objects destructed and locks released
+
+  {
+    m::VectorRW<int> rw1 = mgr.GetVector<int, m::VectorRW>("Circle", "val");
+    // cannot have multipe writers
+    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRW>("Circle", "val")),
+                      std::domain_error);
+    // cannot have readers while writer exists
+    BOOST_CHECK_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")),
+                      std::domain_error);
+  } // end scope. objects destructed and locks released
+
+  BOOST_CHECK_NO_THROW((mgr.GetVector<int, m::VectorRO>("Circle", "val")));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
