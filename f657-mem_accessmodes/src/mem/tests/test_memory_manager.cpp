@@ -108,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE(test_vector_access_readwrite, F) {
   int expected2[] = {2, 4, 6};
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, rw.begin(), rw.end());
 
-  // test internal vector by accessing hook into private method (test build only)
+  // test internal vector using hook into private method (test build only)
   std::vector<int> &vec = mgr.GetMemoryVector_test<int>("Circle", "val");
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, vec.begin(), vec.end());
 }

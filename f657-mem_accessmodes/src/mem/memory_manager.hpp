@@ -49,14 +49,14 @@ class MemoryManager {
     VectorReader<T> GetReader(std::string const& agent_name,
                               std::string const& var_name) {
         std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
-        return VectorReader<T>(vec);
+        return VectorReader<T>(&vec);
     }
 
     template <typename T>
     VectorWriter<T> GetWriter(std::string const& agent_name,
                               std::string const& var_name) {
         std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
-        return VectorWriter<T>(vec);
+        return VectorWriter<T>(&vec);
     }
 
     /*
@@ -84,7 +84,7 @@ class MemoryManager {
 
 #ifdef TESTBUILD
   // hooks to access private functions from tests
-  // TODO: remove once we have a proper method of initialising vectors
+  // TODO(lsc): remove once we have a proper method of initialising vectors
   public:
     template <typename T>
     std::vector<T>& GetMemoryVector_test(std::string const& agent_name,
@@ -92,7 +92,6 @@ class MemoryManager {
       return GetMemoryVector<T>(agent_name, var_name);
     }
 #endif
-
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_MANAGER_HPP_

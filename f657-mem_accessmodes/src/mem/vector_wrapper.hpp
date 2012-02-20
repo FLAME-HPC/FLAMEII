@@ -21,32 +21,32 @@ class VectorWrapperBase {};
 template <typename T>
 class VectorWriter : VectorWrapperBase {
   public:
-    VectorWriter(std::vector<T> &vec) : vec_(vec) {}
+    explicit VectorWriter(std::vector<T> *vec) : vec_(vec) {}
     typedef typename std::vector<T>::iterator iterator;
 
-    iterator begin() const { return vec_.begin(); }
-    iterator end() const { return vec_.end(); }
-    bool empty() const { return vec_.empty(); }
-    size_t size() const { return vec_.size(); }
+    iterator begin() { return vec_->begin(); }
+    iterator end() { return vec_->end(); }
+    bool empty() const { return vec_->empty(); }
+    size_t size() const { return vec_->size(); }
 
   private:
-    typename std::vector<T> &vec_;
+    typename std::vector<T> *vec_;
 };
 
 //! Proxy object for memory vector which provides Readonly access
 template <typename T>
 class VectorReader : VectorWrapperBase {
   public:
-    VectorReader(std::vector<T> &vec) : vec_(vec) {}
+    explicit VectorReader(std::vector<T> const* vec) : vec_(vec) {}
     typedef typename std::vector<T>::const_iterator iterator;
 
-    iterator begin() const { return vec_.begin(); }
-    iterator end() const { return vec_.end(); }
-    bool empty() const { return vec_.empty(); }
-    size_t size() const { return vec_.size(); }
+    iterator begin() { return vec_->begin(); }
+    iterator end() { return vec_->end(); }
+    bool empty() const { return vec_->empty(); }
+    size_t size() const { return vec_->size(); }
 
   private:
-    typename std::vector<T> const& vec_;
+    typename std::vector<T> const *vec_;
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_VECTOR_HPP
