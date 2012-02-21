@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/execution_engine.cpp
+ * \file src/exe/multicore/execution_engine.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

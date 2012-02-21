@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/execution_task.hpp
+ * \file src/exe/multicore/execution_task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Multicore version of the ExecutionTask
  */
-#ifndef EXE__EXECUTION_TASK_HPP
-#define EXE__EXECUTION_TASK_HPP
+#ifndef EXE__MULTICORE__EXECUTION_TASK_HPP
+#define EXE__MULTICORE__EXECUTION_TASK_HPP
 #include <vector>
 #include <utility>  // for std::pair
 #include "boost/shared_ptr.hpp"
@@ -31,4 +31,4 @@ class ExecutionTask {
         MemVectorPtr mptr_;
 };
 }}}  // namespace flame::exe::multicore
-#endif  // EXE__EXECUTION_TASK_HPP
+#endif  // EXE__MULTICORE__EXECUTION_TASK_HPP

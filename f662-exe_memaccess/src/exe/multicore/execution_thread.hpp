@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/execution_thread.hpp
+ * \file src/exe/multicore/execution_thread.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Multicore version of the ExecutionThread
  */
-#ifndef EXE__EXECUTION_THREAD_H
-#define EXE__EXECUTION_THREAD_H
+#ifndef EXE__MULTICORE__EXECUTION_THREAD_H
+#define EXE__MULTICORE__EXECUTION_THREAD_H
 #include <cassert>
 #include "include/flame.h"
 #include "execution_task.hpp"
@@ -23,4 +23,4 @@ class ExecutionThread {
         void RunTask(ExecutionTask task);
 };
 }}}  // namespace flame::exe::multicore
-#endif  // EXE__EXECUTION_THREAD_H
+#endif  // EXE__MULTICORE__EXECUTION_THREAD_H
