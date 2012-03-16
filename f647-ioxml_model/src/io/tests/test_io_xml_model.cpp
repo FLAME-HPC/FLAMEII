@@ -20,15 +20,20 @@ BOOST_AUTO_TEST_SUITE(IOModule)
 BOOST_AUTO_TEST_CASE(test_class) {
     int rc;
     io::IOXMLModel ioxmlmodel;
+    io::XModel model;
 
-    rc = ioxmlmodel.readFile("missing.xml");
+    rc = ioxmlmodel.readXMLModel("tests/models/missing.xml", &model);
     BOOST_CHECK(rc == 1);
 
-    rc = ioxmlmodel.readFile("test.xml");
+    rc = ioxmlmodel.readXMLModel("tests/models/test.xml", &model);
     BOOST_CHECK(rc == 2);
 
-    rc = ioxmlmodel.readFile("keratinocyte.xml");
+    rc = ioxmlmodel.readXMLModel("tests/models/xmodelv1.xml", &model);
+    BOOST_CHECK(rc == 3);
+
+    rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
     BOOST_CHECK(rc == 0);
+    model.print();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

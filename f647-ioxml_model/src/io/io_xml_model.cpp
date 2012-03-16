@@ -9,48 +9,328 @@
  */
 #include "io_xml_model.hpp"
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 namespace flame { namespace io {
 
-void printNode(boost::property_tree::ptree::value_type const& v, int level) {
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v2, v.second ) {
-        for(int i = 0; i < level; i++) std::cout << "\t";
-        std::cout << v2.first << "\n";
-        printNode(v2, level+1);
-    }
-}
-
-int IOXMLModel::readFile(std::string file_name) {
+int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
+    int rc; /* Return code */
+    /* Create stream and open file */
     std::ifstream myfile;
     myfile.open(file_name.c_str());
+
+    /* If file opened successfully */
     if (myfile.is_open()) {
+        /* Create property tree and populate, ignoring XML comments */
+        boost::property_tree::ptree pt;
+        read_xml(myfile, pt,
+            boost::property_tree::xml_parser::no_comments);
 
-        using boost::property_tree::ptree;
-        ptree pt;
-        read_xml(myfile, pt);
-
+        /* Catch error if no root called xmodel */
         try {
             pt.get_child("xmodel");
-        } catch (std::exception& e) {
-            std::cout << "File does not have root 'xmodel': " << file_name << "\n";
+        } catch(std::runtime_error&) {
+            std::cerr << "Model file does not have root called 'xmodel': "
+                    << file_name << "\n";
+            myfile.close();
             return 2;
         }
 
-        BOOST_FOREACH( ptree::value_type const& v, pt.get_child("xmodel") ) {
-            std::cout << v.first << "\n";
-            printNode(v, 1);
+        /* Loop through each child of xmodel */
+        BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
+                pt.get_child("xmodel") ) {
+            /* Handle each child */
+            if(v.first == "<xmlattr>") {
+                /* Catch error if version is not 2 */
+                if(v.second.get("version", 0) != 2) {
+                    std::cerr << "Model file is not 'xmodel' version 2: " <<
+                            file_name << "\n";
+                    myfile.close();
+                    return 3;
+                }
+            } else if(v.first == "name") {
+                model->setName(pt.get<std::string>("xmodel.name"));
+            } else if(v.first == "version") {
+                std::cout << "'" << pt.get<std::string>("xmodel.version") << "'\n";
+            } else if(v.first == "author") {
+                std::cout << "'" << pt.get<std::string>("xmodel.author") << "'\n";
+            } else if(v.first == "description") {
+                std::cout << "'" << pt.get<std::string>("xmodel.description") << "'\n";
+            } else if(v.first == "models") {
+                //rc = readModels(v);
+                //if(rc != 0) return rc;
+            } else if(v.first == "environment") {
+                rc = readEnvironment(v);
+                if(rc != 0) {
+                    myfile.close();
+                    return rc;
+                }
+            } else if(v.first == "agents") {
+                readAgents(v, model);
+            } else if(v.first == "messages") {
+
+            } else {
+                rc = readUnknownElement(v);
+                if(rc != 0) {
+                    myfile.close();
+                    return rc;
+                }
+            }
         }
 
         myfile.close();
         return 0;
     } else {
-        std::cout << "Can't open file " << file_name << "\n";
+        /* Return error if the file was not successfully opened */
+        std::cerr << "Model file cannot be opened: " << file_name << "\n";
         return 1;
     }
+}
+
+int IOXMLModel::readUnknownElement(boost::property_tree::ptree::value_type const& v) {
+    std::cerr << "Model file has unknown child '" << v.first << "'\n";
+    return 4;
+}
+
+int IOXMLModel::readFunctionFiles(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of environment */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "file") {
+            std::cout << "'" << root.second.get<std::string>("file") << "'\n";
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readVariables(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of variables */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "variable") {
+            rc = readVariable(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readVariable(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of variable */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "type") {
+            std::cout << "'" << root.second.get<std::string>("type") << "' ";
+        } else if (v.first == "name") {
+            std::cout << "'" << root.second.get<std::string>("name") << "'\n";
+        } else if (v.first == "description") {
+            std::cout << "'" << root.second.get<std::string>("description") << "'\n";
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readEnvironment(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of environment */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if(v.first == "constants") {
+            rc = readVariables(v);
+            if(rc != 0) return rc;
+        } else if(v.first == "timeUnits") {
+            //rc = readModels(v);
+            //if(rc != 0) return rc;
+        } else if(v.first == "functionFiles") {
+            rc = readFunctionFiles(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readAgents(boost::property_tree::ptree::value_type const& root, XModel * model) {
+    int rc; /* Return code */
+
+    /* Loop through each child of xagents */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "xagent") {
+            rc = readAgent(v, model);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readAgent(boost::property_tree::ptree::value_type const& root, XModel * model) {
+    int rc; /* Return code */
+    XMachine * xm = model->addAgent();
+
+    /* Loop through each child of xagent */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if(v.first == "name") {
+            xm->setName(root.second.get<std::string>("name"));
+        } else if(v.first == "description") {
+            std::cout << "'" << root.second.get<std::string>("description") << "'\n";
+        } else if(v.first == "memory") {
+            rc = readVariables(v);
+            if(rc != 0) return rc;
+        } else if(v.first == "functions") {
+            rc = readTransitions(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readInputs(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of inputs */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "input") {
+            rc = readInput(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readInput(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of input */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if(v.first == "messageName") {
+            std::cout << "'" << root.second.get<std::string>("messageName") << "'\n";
+        } else if(v.first == "filter") {
+
+        } else if(v.first == "sort") {
+
+        } else if(v.first == "random") {
+            if (root.second.get<std::string>("random") == "true")
+                std::cout << "random = true";
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readOutputs(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of outputs */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "output") {
+            rc = readInput(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readOutput(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of output */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if(v.first == "messageName") {
+            std::cout << "'" << root.second.get<std::string>("messageName") << "'\n";
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readTransition(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of function */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if(v.first == "name") {
+            std::cout << "'" << root.second.get<std::string>("name") << "'\n";
+        } else if(v.first == "description") {
+            std::cout << "'" << root.second.get<std::string>("description") << "'\n";
+        } else if(v.first == "currentState") {
+            std::cout << "'" << root.second.get<std::string>("currentState") << "'\n";
+        } else if(v.first == "nextState") {
+            std::cout << "'" << root.second.get<std::string>("nextState") << "'\n";
+        } else if(v.first == "condition") {
+
+        } else if(v.first == "outputs") {
+            rc = readOutputs(v);
+            if(rc != 0) return rc;
+        } else if(v.first == "inputs") {
+            rc = readInputs(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readTransitions(boost::property_tree::ptree::value_type const& root) {
+    int rc; /* Return code */
+
+    /* Loop through each child of functions */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, root.second ) {
+        /* Handle each child */
+        if (v.first == "function") {
+            rc = readTransition(v);
+            if(rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if(rc != 0) return rc;
+        }
+    }
+    return 0;
 }
 
 }}  // namespace flame::io
