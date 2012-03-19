@@ -25,11 +25,14 @@ BOOST_AUTO_TEST_CASE(test_class) {
     rc = ioxmlmodel.readXMLModel("tests/models/missing.xml", &model);
     BOOST_CHECK(rc == 1);
 
-    rc = ioxmlmodel.readXMLModel("tests/models/test.xml", &model);
+    rc = ioxmlmodel.readXMLModel("tests/models/malformed_xml.xml", &model);
     BOOST_CHECK(rc == 2);
 
-    rc = ioxmlmodel.readXMLModel("tests/models/xmodelv1.xml", &model);
+    rc = ioxmlmodel.readXMLModel("tests/models/not_xmodel.xml", &model);
     BOOST_CHECK(rc == 3);
+
+    rc = ioxmlmodel.readXMLModel("tests/models/xmodelv1.xml", &model);
+    BOOST_CHECK(rc == 4);
 
     rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
     BOOST_CHECK(rc == 0);

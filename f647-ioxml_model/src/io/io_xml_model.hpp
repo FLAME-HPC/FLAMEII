@@ -11,6 +11,7 @@
 #define IO__XML_MODEL_HPP_
 #include <boost/property_tree/ptree.hpp>
 #include <string>
+#include <vector>
 #include "./xmodel.hpp"
 
 namespace flame { namespace io {
@@ -25,10 +26,14 @@ class IOXMLModel {
     int readUnknownElement(boost::property_tree::ptree::value_type const& v);
     int readEnvironment(boost::property_tree::ptree::value_type const& v);
     int readFunctionFiles(boost::property_tree::ptree::value_type const& v);
-    int readVariables(boost::property_tree::ptree::value_type const& v);
-    int readVariable(boost::property_tree::ptree::value_type const& v);
-    int readAgents(boost::property_tree::ptree::value_type const& v, XModel * model);
-    int readAgent(boost::property_tree::ptree::value_type const& v, XModel * model);
+    int readVariables(boost::property_tree::ptree::value_type const& v,
+            std::vector<XVariable*> * variables);
+    int readVariable(boost::property_tree::ptree::value_type const& v,
+            std::vector<XVariable*> * variables);
+    int readAgents(boost::property_tree::ptree::value_type const& v,
+            XModel * model);
+    int readAgent(boost::property_tree::ptree::value_type const& v,
+            XModel * model);
     int readTransitions(boost::property_tree::ptree::value_type const& v);
     int readTransition(boost::property_tree::ptree::value_type const& v);
     int readInputs(boost::property_tree::ptree::value_type const& v);
@@ -62,7 +67,6 @@ class IOXMLModel {
     void readSort(MessageComm * input);
      void readFunctionFiles(Machine * a);
     */
-
 };
 }}  // namespace flame::io
 #endif  // IO__XML_MODEL_HPP_

@@ -7,7 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief XModel: holds model information
  */
-#include <iostream>
+#include <cstdio>
 #include "./xmodel.hpp"
 
 namespace flame { namespace io {
@@ -30,10 +30,10 @@ int XModel::clear() {
 }
 
 void XModel::print() {
-    std::cout << "Model Name: " << name_ << std::endl;
-    int ii;
-    for (ii=0; ii < agents_.size(); ii++) {
-        std::cout << "Agent Name: " << agents_[ii]->getName() << std::endl;
+    std::fprintf(stdout, "Model Name: %s\n", name_.c_str());
+    unsigned int ii;
+    for (ii = 0; ii < agents_.size(); ii++) {
+        agents_[ii]->print();
     }
 }
 
