@@ -36,6 +36,8 @@ BOOST_AUTO_TEST_CASE(test_class) {
 
     rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
     BOOST_CHECK(rc == 0);
+    rc = model.check();
+    BOOST_CHECK(rc == 0);
     model.print();
 }
 

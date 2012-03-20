@@ -1,20 +1,20 @@
 /*!
- * \file src/io/xmachine.cpp
+ * \file src/io/xmessage.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief XMachine: holds agent information
+ * \brief XMessage: holds message information
  */
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "./xmodel.hpp"
+#include "./xmessage.hpp"
 
 namespace flame { namespace io {
 
-XMachine::~XMachine() {
+XMessage::~XMessage() {
     /* Delete variables */
     XVariable * var;
     while (!variables_.empty()) {
@@ -22,48 +22,32 @@ XMachine::~XMachine() {
         delete var;
         variables_.pop_back();
     }
-    /* Delete functions */
-    XFunction * xfunction;
-    while (!functions_.empty()) {
-        xfunction = functions_.back();
-        delete xfunction;
-        functions_.pop_back();
-    }
 }
 
-void XMachine::print() {
+void XMessage::print() {
     unsigned int ii;
-    std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
+    std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
     for (ii = 0; ii < getVariables()->size(); ii++) {
         getVariables()->at(ii)->print();
     }
-    for (ii = 0; ii < functions_.size(); ii++) {
-        functions_.at(ii)->print();
-    }
 }
 
-void XMachine::setName(std::string name) {
+void XMessage::setName(std::string name) {
     name_ = name;
 }
 
-std::string XMachine::getName() {
+std::string XMessage::getName() {
     return name_;
 }
 
-XVariable * XMachine::addVariable() {
+XVariable * XMessage::addVariable() {
     XVariable * xvariable = new XVariable;
     variables_.push_back(xvariable);
     return xvariable;
 }
 
-std::vector<XVariable*> * XMachine::getVariables() {
+std::vector<XVariable*> * XMessage::getVariables() {
     return &variables_;
-}
-
-XFunction * XMachine::addFunction() {
-    XFunction * xfunction = new XFunction;
-    functions_.push_back(xfunction);
-    return xfunction;
 }
 
 }}  // namespace flame::io

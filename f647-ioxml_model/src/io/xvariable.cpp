@@ -14,7 +14,7 @@
 namespace flame { namespace io {
 
 void XVariable::print() {
-    std::fprintf(stdout, "\tVariable: %s %s\n",
+    std::fprintf(stdout, "\t%s %s\n",
             getType().c_str(), getName().c_str());
 }
 
