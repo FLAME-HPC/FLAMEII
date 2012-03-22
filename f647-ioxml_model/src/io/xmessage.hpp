@@ -24,6 +24,7 @@ class XMessage {
     std::string getName();
     XVariable * addVariable();
     std::vector<XVariable*> * getVariables();
+    bool validateVariableName(std::string name);
 
   private:
     std::string name_;

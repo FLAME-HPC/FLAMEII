@@ -388,7 +388,9 @@ int IOXMLModel::readInput(
         if (v.first == "messageName") {
             input->setMessageName(root.second.get<std::string>("messageName"));
         } else if (v.first == "filter") {
-            //
+            XCondition * xcondition = input->addFilter();
+            rc = readCondition(v, xcondition);
+            if (rc != 0) return rc;
         } else if (v.first == "sort") {
             rc = readSort(v, input);
             if (rc != 0) return rc;
@@ -413,7 +415,7 @@ int IOXMLModel::readOutputs(
             root.second ) {
         /* Handle each child */
         if (v.first == "output") {
-            rc = readInput(v, xfunction);
+            rc = readOutput(v, xfunction);
             if (rc != 0) return rc;
         } else {
             rc = readUnknownElement(v);
@@ -427,7 +429,7 @@ int IOXMLModel::readOutput(
         boost::property_tree::ptree::value_type const& root,
         XFunction * xfunction) {
     int rc; /* Return code */
-    XIOput * output = xfunction->addInput();
+    XIOput * output = xfunction->addOutput();
 
     /* Loop through each child of output */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -462,7 +464,9 @@ int IOXMLModel::readTransition(
         } else if (v.first == "nextState") {
             xfunction->setNextState(root.second.get<std::string>("nextState"));
         } else if (v.first == "condition") {
-            //
+            XCondition * xcondition = xfunction->addCondition();
+            rc = readCondition(v, xcondition);
+            if (rc != 0) return rc;
         } else if (v.first == "outputs") {
             rc = readOutputs(v, xfunction);
             if (rc != 0) return rc;
@@ -554,6 +558,86 @@ int IOXMLModel::readSort(boost::property_tree::ptree::value_type const& root,
             xioput->setSortKey(root.second.get<std::string>("key"));
         } else if (v.first == "order") {
             xioput->setSortOrder(root.second.get<std::string>("order"));
+        } else {
+            rc = readUnknownElement(v);
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readCondition(
+        boost::property_tree::ptree::value_type const& root,
+        XCondition * xcondition) {
+    int rc; /* Return code */
+
+    /* Loop through each child of message */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
+            root.second ) {
+        /* Handle each child */
+        if (v.first == "not") {
+            xcondition->isNot = true;
+            rc = readCondition(v, xcondition);
+            if (rc != 0) return rc;
+        } else if (v.first == "time") {
+            xcondition->isTime = true;
+            xcondition->isValues = false;
+            xcondition->isConditions = false;
+            BOOST_FOREACH(boost::property_tree::ptree::value_type const& v2,
+                        v.second ) {
+                if (v2.first == "period") {
+                    xcondition->timePeriod =
+                        v.second.get<std::string>("period");
+                } else if (v2.first == "phase") {
+                    xcondition->timePhaseVariable =
+                        v.second.get<std::string>("phase");
+                } else if (v2.first == "duration") {
+                    xcondition->foundTimeDuration = true;
+                    xcondition->timeDurationString =
+                        v.second.get<std::string>("duration");
+                } else {
+                    rc = readUnknownElement(v2);
+                    if (rc != 0) return rc;
+                }
+            }
+        } else if (v.first == "lhs") {
+            /* Set up and read lhs */
+            xcondition->lhsCondition = new XCondition;
+            xcondition->tempValue = "";
+            rc = readCondition(v, xcondition->lhsCondition);
+            if (rc != 0) return rc;
+            /* Handle if lhs is a value or a condition */
+            if (xcondition->lhsCondition->tempValue != "") {
+                /* lhs is a value */
+                xcondition->lhs = xcondition->lhsCondition->tempValue;
+                xcondition->lhsIsValue = true;
+                delete xcondition->lhsCondition;
+                xcondition->lhsCondition = 0;
+            } else {
+                /* lhs is a nested condition */
+                xcondition->lhsIsCondition = true;
+            }
+        } else if (v.first == "op") {
+            xcondition->op = root.second.get<std::string>("op");
+        } else if (v.first == "rhs") {
+            /* Set up and read rhs */
+            xcondition->rhsCondition = new XCondition;
+            xcondition->tempValue = "";
+            rc = readCondition(v, xcondition->rhsCondition);
+            if (rc != 0) return rc;
+            /* Handle if rhs is a value or a condition */
+            if (xcondition->rhsCondition->tempValue != "") {
+                /* rhs is a value */
+                xcondition->rhs = xcondition->rhsCondition->tempValue;
+                xcondition->rhsIsValue = true;
+                delete xcondition->rhsCondition;
+                xcondition->rhsCondition = 0;
+            } else {
+                /* rhs is a nested condition */
+                xcondition->rhsIsCondition = true;
+            }
+        } else if (v.first == "value") {
+            xcondition->tempValue = root.second.get<std::string>("value");
         } else {
             rc = readUnknownElement(v);
             if (rc != 0) return rc;

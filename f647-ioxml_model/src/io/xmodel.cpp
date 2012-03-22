@@ -88,11 +88,6 @@ void XModel::print() {
     }
 }
 
-int XModel::check() {
-    /* Model is valid */
-    return 0;
-}
-
 XVariable * XModel::addConstant() {
     XVariable * xvariable = new XVariable;
     constants_.push_back(xvariable);
@@ -125,10 +120,28 @@ XMachine * XModel::addAgent() {
     return xmachine;
 }
 
+std::vector<XMachine*> * XModel::getAgents() {
+    return &agents_;
+}
+
 XMessage * XModel::addMessage() {
     XMessage * xmessage = new XMessage;
     messages_.push_back(xmessage);
     return xmessage;
+}
+
+/*!
+ * \brief Returns a message object with given name
+ * \param[in] name Name of the message
+ * \return Pointer to the message object or 0 if not found
+ * This function is used to validate message names and provide a
+ * pointer to the object if valid.
+ */
+XMessage * XModel::getMessage(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < messages_.size(); ii++)
+        if (name == messages_.at(ii)->getName()) return messages_.at(ii);
+    return 0;
 }
 
 }}  // namespace flame::io

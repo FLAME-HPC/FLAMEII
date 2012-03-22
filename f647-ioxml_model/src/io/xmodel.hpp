@@ -25,7 +25,7 @@ class XModel {
     ~XModel();
     int clear();
     void print();
-    int check();
+    int validate();
     void setName(std::string name) { name_ = name; }
     std::string getName() { return name_; }
     XVariable * addConstant();
@@ -34,7 +34,9 @@ class XModel {
     XTimeUnit * addTimeUnit();
     void addFunctionFile(std::string file);
     XMachine * addAgent();
+    std::vector<XMachine*> * getAgents();
     XMessage * addMessage();
+    XMessage * getMessage(std::string name);
 
   private:
     std::string name_;

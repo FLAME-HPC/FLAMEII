@@ -14,6 +14,7 @@
 #include <vector>
 #include "./xmodel.hpp"
 #include "./xmachine.hpp"
+#include "./xcondition.hpp"
 
 namespace flame { namespace io {
 
@@ -65,7 +66,8 @@ class IOXMLModel {
             XModel * model);
     int readSort(boost::property_tree::ptree::value_type const& v,
             XIOput * xioput);
-    // int readCondition(Condition * c, String * s);
+    int readCondition(boost::property_tree::ptree::value_type const& v,
+            XCondition * xcondition);
 };
 }}  // namespace flame::io
 #endif  // IO__XML_MODEL_HPP_

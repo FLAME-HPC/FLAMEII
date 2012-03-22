@@ -66,4 +66,15 @@ XFunction * XMachine::addFunction() {
     return xfunction;
 }
 
+std::vector<XFunction*> * XMachine::getFunctions() {
+    return &functions_;
+}
+
+bool XMachine::validateVariableName(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < variables_.size(); ii++)
+        if (name == variables_.at(ii)->getName()) return true;
+    return false;
+}
+
 }}  // namespace flame::io

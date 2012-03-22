@@ -9,9 +9,15 @@
  */
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <stdexcept>
 #include "./xfunction.hpp"
 
 namespace flame { namespace io {
+
+XFunction::XFunction() {
+    condition_ = 0;
+}
 
 XFunction::~XFunction() {
     /* Delete inputs */
@@ -28,6 +34,8 @@ XFunction::~XFunction() {
         delete xoutput;
         outputs_.pop_back();
     }
+    /* Delete any condition */
+    if (condition_ != 0) delete condition_;
 }
 
 void XFunction::print() {
@@ -35,6 +43,10 @@ void XFunction::print() {
     std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\t\tCurrent State: %s\n", getCurrentState().c_str());
     std::fprintf(stdout, "\t\tNext State: %s\n", getNextState().c_str());
+    if (condition_ != 0) {
+        std::fprintf(stdout, "\t\tCondition:\n");
+        condition_->print();
+    }
     std::fprintf(stdout, "\t\tInputs:\n");
     for (ii = 0; ii < inputs_.size(); ii++) {
         inputs_.at(ii)->print();
@@ -75,10 +87,32 @@ XIOput * XFunction::addInput() {
     return xinput;
 }
 
+std::vector<XIOput*> * XFunction::getInputs() {
+    return &inputs_;
+}
+
 XIOput * XFunction::addOutput() {
     XIOput * xoutput = new XIOput;
     outputs_.push_back(xoutput);
     return xoutput;
+}
+
+std::vector<XIOput*> * XFunction::getOutputs() {
+    return &outputs_;
+}
+
+XCondition * XFunction::addCondition() {
+    if (condition_ == 0) {
+        condition_ = new XCondition;
+    } else {
+        throw std::invalid_argument(
+            "a condition has already been added to the function");
+    }
+    return condition_;
+}
+
+XCondition * XFunction::getCondition() {
+    return condition_;
 }
 
 }}  // namespace flame::io

@@ -50,4 +50,11 @@ std::vector<XVariable*> * XMessage::getVariables() {
     return &variables_;
 }
 
+bool XMessage::validateVariableName(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < variables_.size(); ii++)
+        if (name == variables_.at(ii)->getName()) return true;
+    return false;
+}
+
 }}  // namespace flame::io

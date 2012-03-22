@@ -26,6 +26,8 @@ class XMachine {
     XVariable * addVariable();
     std::vector<XVariable*> * getVariables();
     XFunction * addFunction();
+    std::vector<XFunction*> * getFunctions();
+    bool validateVariableName(std::string name);
 
   private:
     std::string name_;

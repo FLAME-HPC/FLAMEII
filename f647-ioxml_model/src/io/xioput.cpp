@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "./xioput.hpp"
 
 namespace flame { namespace io {
@@ -17,9 +18,12 @@ namespace flame { namespace io {
 XIOput::XIOput() {
     /* Set default options */
     random_ = false;
+    filter_ = 0;
 }
 
 XIOput::~XIOput() {
+    /* Delete any filter */
+    if (filter_ != 0) delete filter_;
 }
 
 void XIOput::print() {
@@ -30,6 +34,10 @@ void XIOput::print() {
                 "\t\t\tSort:\n\t\t\t\tKey: %s\n\t\t\t\tOrder: %s\n",
                 getSortKey().c_str(),
                 getSortOrder().c_str());
+    }
+    if (filter_ != 0) {
+        std::fprintf(stdout, "\t\t\tFilter:\n");
+        filter_->print();
     }
 }
 
@@ -71,6 +79,20 @@ void XIOput::setSortOrder(std::string order) {
 
 std::string XIOput::getSortOrder() {
     return sortOrder_;
+}
+
+XCondition * XIOput::addFilter() {
+    if (filter_ == 0) {
+        filter_ = new XCondition;
+    } else {
+        throw std::invalid_argument(
+            "a filter has already been added to the input");
+    }
+    return filter_;
+}
+
+XCondition * XIOput::getFilter() {
+    return filter_;
 }
 
 }}  // namespace flame::io

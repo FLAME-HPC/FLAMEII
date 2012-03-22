@@ -6,10 +6,11 @@ LIBS       = -lboost_unit_test_framework
 INCLUDE    = -I$(BOOST_DIR)
 SOURCES    = xvariable.cpp xadt.cpp xtimeunit.cpp xfunction.cpp xmachine.cpp \
               xmessage.cpp xmodel.cpp io_xml_model.cpp xioput.cpp \
-              tests/test_io_xml_model.cpp
+              xcondition.cpp xmodel_validate.cpp tests/test_io_xml_model.cpp
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = io_xml_model.hpp xmachine.hpp xmodel.hpp xvariable.hpp xadt.hpp \
-              xtimeunit.hpp xfunction.hpp xmessage.hpp xioput.hpp
+              xtimeunit.hpp xfunction.hpp xmessage.hpp xioput.hpp \
+              xcondition.hpp
 DEPS       = Makefile $(HEADERS)
 EXECUTABLE = tests/test_io_xml_model
 RM         = rm -f

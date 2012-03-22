@@ -12,12 +12,13 @@
 #include <string>
 #include <vector>
 #include "./xioput.hpp"
+#include "./xcondition.hpp"
 
 namespace flame { namespace io {
 
 class XFunction {
   public:
-    XFunction() {}
+    XFunction();
     ~XFunction();
     void print();
     void setName(std::string name);
@@ -27,7 +28,11 @@ class XFunction {
     void setNextState(std::string name);
     std::string getNextState();
     XIOput * addInput();
+    std::vector<XIOput*> * getInputs();
     XIOput * addOutput();
+    std::vector<XIOput*> * getOutputs();
+    XCondition * addCondition();
+    XCondition * getCondition();
 
   private:
     std::string name_;
@@ -35,6 +40,7 @@ class XFunction {
     std::string nextState_;
     std::vector<XIOput*> inputs_;
     std::vector<XIOput*> outputs_;
+    XCondition * condition_;
 };
 }}  // namespace flame::io
 #endif  // IO__XFUNCTION_HPP_

@@ -10,6 +10,7 @@
 #ifndef IO__XIOPUT_HPP_
 #define IO__XIOPUT_HPP_
 #include <string>
+#include "./xcondition.hpp"
 
 namespace flame { namespace io {
 
@@ -28,6 +29,8 @@ class XIOput {
     std::string getSortKey();
     void setSortOrder(std::string order);
     std::string getSortOrder();
+    XCondition * addFilter();
+    XCondition * getFilter();
 
   private:
     std::string messageName_;
@@ -35,6 +38,7 @@ class XIOput {
     bool sort_;
     std::string sortKey_;
     std::string sortOrder_;
+    XCondition * filter_;
 };
 }}  // namespace flame::io
 #endif  // IO__XIOPUT_HPP_
