@@ -14,6 +14,14 @@
 
 namespace flame { namespace io {
 
+XModel::XModel() {
+    /* Initialise list of data types */
+    allowedDataTypes_.push_back("int");
+    allowedDataTypes_.push_back("float");
+    allowedDataTypes_.push_back("double");
+    allowedDataTypes_.push_back("char"); /* Allow? */
+}
+
 XModel::~XModel() {
     clear();
 }
@@ -142,6 +150,10 @@ XMessage * XModel::getMessage(std::string name) {
     for (ii = 0; ii < messages_.size(); ii++)
         if (name == messages_.at(ii)->getName()) return messages_.at(ii);
     return 0;
+}
+
+std::vector<std::string> * XModel::getAllowedDataTypes() {
+    return &allowedDataTypes_;
 }
 
 }}  // namespace flame::io

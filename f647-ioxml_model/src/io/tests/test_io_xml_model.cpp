@@ -17,7 +17,7 @@ namespace io = flame::io;
 
 BOOST_AUTO_TEST_SUITE(IOModule)
 
-BOOST_AUTO_TEST_CASE(test_class) {
+BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     int rc;
     io::IOXMLModel ioxmlmodel;
     io::XModel model;
@@ -36,6 +36,14 @@ BOOST_AUTO_TEST_CASE(test_class) {
 
     rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
     BOOST_CHECK(rc == 0);
+}
+
+BOOST_AUTO_TEST_CASE(validate_model) {
+    int rc;
+    io::IOXMLModel ioxmlmodel;
+    io::XModel model;
+
+    rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
     rc = model.validate();
     BOOST_CHECK(rc == 0);
     // model.print();

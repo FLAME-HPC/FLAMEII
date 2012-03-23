@@ -13,6 +13,12 @@
 
 namespace flame { namespace io {
 
+XVariable::XVariable() {
+    isDynamicArray_ = false;
+    isStaticArray_ = false;
+    staticArraySize = 0;
+}
+
 void XVariable::print() {
     std::fprintf(stdout, "\t%s %s\n",
             getType().c_str(), getName().c_str());
@@ -32,6 +38,22 @@ void XVariable::setType(std::string type) {
 
 std::string XVariable::getType() {
     return type_;
+}
+
+void XVariable::setIsDynamicArray(bool b) {
+    isDynamicArray_ = b;
+}
+
+bool XVariable::isDynamicArray() {
+    return isDynamicArray_;
+}
+
+void XVariable::setIsStaticArray(bool b) {
+    isStaticArray_ = b;
+}
+
+bool XVariable::isStaticArray() {
+    return isStaticArray_;
 }
 
 }}  // namespace flame::io

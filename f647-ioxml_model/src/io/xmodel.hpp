@@ -21,7 +21,7 @@ namespace flame { namespace io {
 
 class XModel {
   public:
-    XModel() {}
+    XModel();
     ~XModel();
     int clear();
     void print();
@@ -37,6 +37,7 @@ class XModel {
     std::vector<XMachine*> * getAgents();
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
+    std::vector<std::string> * getAllowedDataTypes();
 
   private:
     std::string name_;
@@ -46,6 +47,8 @@ class XModel {
     std::vector<std::string> functionFiles_;
     std::vector<XMachine*> agents_;
     std::vector<XMessage*> messages_;
+    /*! \brief A list of allowed data types to check variables */
+    std::vector<std::string> allowedDataTypes_;
 };
 }}  // namespace flame::io
 #endif  // IO__XMODEL_HPP_

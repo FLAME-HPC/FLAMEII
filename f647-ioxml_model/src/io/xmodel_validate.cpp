@@ -14,23 +14,32 @@
 
 namespace flame { namespace io {
 
+int processVariables(std::vector<XVariable*> * variables_,
+        XModel * model);
+int validateVariables(std::vector<XVariable*> * variables_,
+        XModel * model, bool allowDyamicArrays);
 int validateAgent(XMachine * agent, XModel * model);
-int validateVariables(std::vector<XVariable*> * variables_);
 int validateAgentFunction(XFunction * xfunction,
         XMachine * agent, XModel * model);
 int validateAgentCommunication(XIOput * xioput, XMachine * agent,
         XModel * model);
 int validateAgentConditionOrFilter(XCondition * xcondition, XMachine * agent,
         XMessage * xmessage, XModel * model);
-int validateSort(XIOput * input, XMessage * xmessage);
+int validateSort(XIOput * xioput, XMessage * xmessage);
+int validateMessage(XMessage * xmessage, XModel * model);
 
 int XModel::validate() {
-    int rc;
+    int rc, errors = 0;
     unsigned int ii;
 
 
     /* MODEL WIDE */
-    validateVariables(&constants_);
+    rc = validateVariables(&constants_, this, false);
+    if (rc != 0) {
+        std::fprintf(stderr,
+            "from environment constants.\n");
+        errors += rc;
+    }
 
     /* Unique agent names */
 
@@ -41,13 +50,22 @@ int XModel::validate() {
         rc = validateAgent(agents_.at(ii), this);
         if (rc != 0) {
             std::fprintf(stderr,
-                "from agent: %s\n",
+                "from agent: '%s'.\n",
                 agents_.at(ii)->getName().c_str());
-            return rc;
+            errors += rc;
         }
     }
 
     /* PER MESSAGE */
+    for (ii = 0; ii < messages_.size(); ii++) {
+        rc = validateMessage(messages_.at(ii), this);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "from message: '%s'.\n",
+                messages_.at(ii)->getName().c_str());
+            errors += rc;
+        }
+    }
 
     /* FROM XPARSER TRUNK */
     /* Check to see if conditions contain agent variables */
@@ -77,7 +95,7 @@ int XModel::validate() {
 
     /* FROM XML SCHEMA V2 */
     /* false string is true or false */
-    /* sort order string is ascend or descend */
+    /* * sort order string is ascend or descend */
     /* c source file name is .c */
     /* xml file name is .xml or .XML */
     /* * op string is EQ NEQ LEQ GEQ LT GT IN AND OR */
@@ -91,47 +109,103 @@ int XModel::validate() {
 
     /* check all names are valid C names? azAZ09_- */
 
-    /* Model is valid */
-    return 0;
+    /* Return number of errors */
+    if (errors > 0) {
+        std::fprintf(stderr,
+            "%d errors found.\n", errors);
+    }
+    return errors;
 }
 
 int validateAgent(XMachine * agent, XModel * model) {
-    int rc;
+    int rc, errors = 0;
     unsigned int ii;
 
-    validateVariables(agent->getVariables());
+    rc = validateVariables(agent->getVariables(), model, true);
+    errors += rc;
 
     for (ii = 0; ii < agent->getFunctions()->size(); ii++) {
         rc = validateAgentFunction(agent->getFunctions()->at(ii),
                 agent, model);
         if (rc != 0) {
             std::fprintf(stderr,
-                "from function: %s\n",
+                "from function: '%s',\n",
                 agent->getFunctions()->at(ii)->getName().c_str());
-            return rc;
+            errors += rc;
         }
     }
-    return 0;
+
+    return errors;
 }
 
-int validateVariables(std::vector<XVariable*> * variables_) {
+int processVariables(std::vector<XVariable*> * variables_,
+        XModel * model) {
+    int errors = 0;
+
+    /* Handle dynamic arrays in variable type */
+
+    /* Handle static arrays in variable name */
+
+    return errors;
+}
+
+int validateVariables(std::vector<XVariable*> * variables,
+        XModel * model, bool allowDyamicArrays) {
+    int errors = 0;
+    unsigned int ii, jj;
+    bool foundValidDataType;
+
+    /* Process variables first */
+    processVariables(variables, model);
+
     /* Check for duplicate names */
-
+    for (ii = 0; ii < variables->size(); ii++) {
+        for (jj = 0; jj < variables->size(); jj++) {
+            if (variables->at(ii) != variables->at(jj) &&
+                variables->at(ii)->getName() ==
+                variables->at(jj)->getName()) {
+                std::fprintf(stderr,
+                    "Error: Duplicate variable name: '%s',\n",
+                    variables->at(ii)->getName().c_str());
+                errors++;
+            }
+        }
+    }
     /* Check for valid types */
+    for (ii = 0; ii < variables->size(); ii++) {
+        foundValidDataType = false;
+        /* Check single data types */
+        for (jj = 0; jj < model->getAllowedDataTypes()->size(); jj++) {
+            if (variables->at(ii)->getType() ==
+                    model->getAllowedDataTypes()->at(jj))
+                foundValidDataType = true;
+        }
+        /* Check static array */
 
-    return 0;
+        /* Check dynamic array */
+
+        if (!foundValidDataType) {
+            std::fprintf(stderr,
+                "Error: Data type: '%s' not valid for variable name: '%s',\n",
+                variables->at(ii)->getType().c_str(),
+                variables->at(ii)->getName().c_str());
+            errors++;
+        }
+    }
+
+    return errors;
 }
 
 int validateAgentFunction(XFunction * xfunction, XMachine * agent,
         XModel * model) {
-    int rc;
+    int rc, errors = 0;
     unsigned int kk;
 
     /* If condition then process and validate */
     if (xfunction->getCondition() != 0) {
         rc = validateAgentConditionOrFilter(xfunction->getCondition(),
                 agent, 0, model);
-        if (rc != 0) return rc;
+        errors += rc;
     }
 
     /* For each input */
@@ -140,9 +214,9 @@ int validateAgentFunction(XFunction * xfunction, XMachine * agent,
                 agent, model);
         if (rc != 0) {
             std::fprintf(stderr,
-                "from input of message: %s\n",
+                "from input of message: %s,\n",
                 xfunction->getInputs()->at(kk)->getMessageName().c_str());
-            return rc;
+            errors += rc;
         }
     }
 
@@ -152,70 +226,92 @@ int validateAgentFunction(XFunction * xfunction, XMachine * agent,
                 agent, model);
         if (rc != 0) {
             std::fprintf(stderr,
-                "from output of message: %s\n",
+                "from output of message: %s,\n",
                 xfunction->getInputs()->at(kk)->getMessageName().c_str());
-            return rc;
+            errors += rc;
         }
     }
 
-    return 0;
+    return errors;
 }
 
 int validateAgentCommunication(XIOput * xioput, XMachine * agent,
         XModel * model) {
-    int rc;
+    int rc, errors = 0;
     XMessage * xmessage;
 
     xmessage = model->getMessage(xioput->getMessageName());
 
     /* Check message type */
     if (xmessage == 0) {
-        std::fprintf(stderr, "message name is not valid\n");
-        return 1;
+        std::fprintf(stderr, "Error: message name is not valid: '%s',\n",
+                xioput->getMessageName().c_str());
+        errors++;
     }
 
     /* If filter then process and validate */
     if (xioput->getFilter() != 0) {
         rc = validateAgentConditionOrFilter(xioput->getFilter(), agent,
                 model->getMessage(xioput->getMessageName()), model);
-        if (rc != 0) return rc;
+        errors += rc;
     }
     /* If sort then validate */
     if (xioput->getSort()) {
-        /* Validate key as a message variable */
-        if (!xmessage->validateVariableName(xioput->getSortKey())) {
-            std::fprintf(stderr,
-                "sort key is not a valid message variable: %s\n",
-                xioput->getSortKey().c_str());
-            return 1;
-        }
-        /* Validate order as ascending or descending */
-        if (xioput->getSortOrder() != "ascend" &&
-                xioput->getSortOrder() != "descend") {
-            std::fprintf(stderr,
-                "sort order is not 'ascend' or 'descend': %s\n",
-                xioput->getSortOrder().c_str());
-            return 1;
-        }
+        validateSort(xioput, xmessage);
     }
 
-    return 0;
+    return errors;
 }
 
 int validateAgentConditionOrFilter(XCondition * xcondition, XMachine * agent,
         XMessage * xmessage, XModel * model) {
-    int rc;
+    int rc, errors = 0;
 
     rc = xcondition->processSymbols();
-    if (rc != 0) return rc;
+    errors += rc;
     rc = xcondition->validate(agent, xmessage);
-    if (rc != 0) return rc;
+    errors += rc;
 
-    return 0;
+    return errors;
 }
 
-int validateSort(XIOput * input, XMessage * xmessage) {
-    return 0;
+int validateSort(XIOput * xioput, XMessage * xmessage) {
+    int errors = 0;
+
+    /* Validate key as a message variable */
+    if (xmessage != 0) {
+        if (!xmessage->validateVariableName(xioput->getSortKey())) {
+            std::fprintf(stderr,
+                "Error: sort key is not a valid message variable: '%s',\n",
+                xioput->getSortKey().c_str());
+            errors++;
+        }
+    } else {
+       std::fprintf(stderr,
+    "Error: cannot validate sort key as the message type is invalid: '%s',\n",
+           xioput->getSortKey().c_str());
+       errors++;
+    }
+    /* Validate order as ascending or descending */
+    if (xioput->getSortOrder() != "ascend" &&
+            xioput->getSortOrder() != "descend") {
+        std::fprintf(stderr,
+            "Error: sort order is not 'ascend' or 'descend': '%s',\n",
+            xioput->getSortOrder().c_str());
+        errors++;
+    }
+
+    return errors;
+}
+
+int validateMessage(XMessage * xmessage, XModel * model) {
+    int rc, errors = 0;
+    // unsigned int ii;
+
+    rc = validateVariables(xmessage->getVariables(), model, false);
+    errors += rc;
+
+    return errors;
 }
 
 }}  // namespace flame::io

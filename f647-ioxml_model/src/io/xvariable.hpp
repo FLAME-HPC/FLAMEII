@@ -15,16 +15,23 @@ namespace flame { namespace io {
 
 class XVariable {
   public:
-    XVariable() {}
+    XVariable();
     void print();
     void setName(std::string name);
     std::string getName();
     void setType(std::string type);
     std::string getType();
+    void setIsDynamicArray(bool b);
+    bool isDynamicArray();
+    void setIsStaticArray(bool b);
+    bool isStaticArray();
 
   private:
     std::string type_;
     std::string name_;
+    bool isDynamicArray_;
+    bool isStaticArray_;
+    int staticArraySize;
 };
 }}  // namespace flame::io
 #endif  // IO__XVARIABLE_HPP_

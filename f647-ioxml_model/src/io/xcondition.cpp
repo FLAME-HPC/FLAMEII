@@ -233,17 +233,16 @@ int XCondition::processSymbols() {
 }
 
 int XCondition::validate(XMachine * agent, XMessage * xmessage) {
-    /* return code */
-    int rc;
+    int rc, errors = 0;
 
     if (isTime) {
         /* If time phase is an agent variable then validate it */
         if (timePhaseIsVariable) {
             if (!agent->validateVariableName(timePhaseVariable)) {
                 std::fprintf(stderr,
-                    "time phase variable is not a valid agent variable: %s\n",
+        "Error: time phase variable is not a valid agent variable: '%s',\n",
                     timePhaseVariable.c_str());
-                return 1;
+                errors++;
             }
         }
     } else if (isValues) {
@@ -251,42 +250,56 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage) {
         if (lhsIsAgentVariable) {
             if (!agent->validateVariableName(lhs)) {
                 std::fprintf(stderr,
-                    "lhs is not a valid agent variable: %s\n",
+                    "Error: lhs is not a valid agent variable: '%s',\n",
                     lhs.c_str());
-                return 1;
+                errors++;
             }
         } else if (lhsIsMessageVariable) {
-            if (!xmessage->validateVariableName(lhs)) {
+            if (xmessage != 0) {
+                if (!xmessage->validateVariableName(lhs)) {
+                    std::fprintf(stderr,
+                        "Error: lhs is not a valid message variable: '%s',\n",
+                        lhs.c_str());
+                    errors++;
+                }
+            } else {
                 std::fprintf(stderr,
-                    "lhs is not a valid message variable: %s\n",
+        "Error: cannot validate lhs as the message type is invalid: '%s',\n",
                     lhs.c_str());
-                return 1;
+                errors++;
             }
         }
         if (rhsIsAgentVariable) {
             if (!agent->validateVariableName(rhs)) {
                 std::fprintf(stderr,
-                    "rhs is not a valid agent variable: %s\n",
+                    "Error: rhs is not a valid agent variable: '%s',\n",
                     rhs.c_str());
-                return 1;
+                errors++;
             }
         } else if (rhsIsMessageVariable) {
-            if (!xmessage->validateVariableName(rhs)) {
+            if (xmessage != 0) {
+                if (!xmessage->validateVariableName(rhs)) {
+                    std::fprintf(stderr,
+                        "Error: rhs is not a valid message variable: '%s',\n",
+                        rhs.c_str());
+                    errors++;
+                }
+            } else {
                 std::fprintf(stderr,
-                    "rhs is not a valid message variable: %s\n",
+        "Error: cannot validate rhs as the message type is invalid: '%s',\n",
                     rhs.c_str());
-                return 1;
+                errors++;
             }
         }
     } else if (isConditions) {
         /* If nested conditions validate them */
         rc = lhsCondition->validate(agent, xmessage);
-        if (rc != 0) return rc;
+        errors += rc;
         rc = rhsCondition->validate(agent, xmessage);
-        if (rc != 0) return rc;
+        errors += rc;
     }
 
-    return 0;
+    return errors;
 }
 
 }}  // namespace flame::io
