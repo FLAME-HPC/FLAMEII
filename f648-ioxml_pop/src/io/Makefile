@@ -1,16 +1,19 @@
 CC         = g++
 CFLAGS     = -g -Wall# -pedantic
 BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
+LIBXML_DIR = /usr/include/libxml2
 LDFLAGS    = -L$(BOOST_DIR)/stage/lib
-LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem
-INCLUDE    = -I$(BOOST_DIR)
+LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
+             -lxml2
+INCLUDE    = -I$(BOOST_DIR) -I$(LIBXML_DIR)
 SOURCES    = xvariable.cpp xadt.cpp xtimeunit.cpp xfunction.cpp xmachine.cpp \
               xmessage.cpp xmodel.cpp io_xml_model.cpp xioput.cpp \
-              xcondition.cpp xmodel_validate.cpp tests/test_io_xml_model.cpp
+              xcondition.cpp xmodel_validate.cpp tests/test_io_xml_model.cpp \
+              io_xml_pop.cpp
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = io_xml_model.hpp xmachine.hpp xmodel.hpp xvariable.hpp xadt.hpp \
               xtimeunit.hpp xfunction.hpp xmessage.hpp xioput.hpp \
-              xcondition.hpp
+              xcondition.hpp io_xml_pop.hpp
 DEPS       = Makefile $(HEADERS)
 EXECUTABLE = tests/test_io_xml_model
 RM         = rm -f
