@@ -273,6 +273,7 @@ int IOXMLModel::readDataType(
         /* Handle each child */
         if (v.first == "name") {
             xadt->setName(root.second.get<std::string>("name"));
+        } else if (v.first == "description") {
         } else if (v.first == "variables") {
             rc = readVariables(v, xadt->getVariables());
             if (rc != 0) return rc;
@@ -438,8 +439,6 @@ int IOXMLModel::readAgent(boost::property_tree::ptree::value_type const& root,
         if (v.first == "name") {
             xm->setName(root.second.get<std::string>("name"));
         } else if (v.first == "description") {
-            // std::cout << "'" << root.second.get<std::string>("description")
-            //        << "'\n";
         } else if (v.first == "memory") {
             rc = readVariables(v, xm->getVariables());
             if (rc != 0) return rc;
