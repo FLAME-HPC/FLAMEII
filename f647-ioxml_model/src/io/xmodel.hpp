@@ -26,21 +26,33 @@ class XModel {
     int clear();
     void print();
     int validate();
-    void setName(std::string name) { name_ = name; }
-    std::string getName() { return name_; }
+    void setPath(std::string path);
+    std::string getPath();
+    void setName(std::string name);
+    std::string getName();
+    bool addIncludedModel(std::string name);
+    std::vector<std::string> * getIncludedModels();
     XVariable * addConstant();
     std::vector<XVariable*> * getConstants();
     XADT * addADT();
+    XADT * getADT(std::string name);
+    std::vector<XADT*> * getADTs();
     XTimeUnit * addTimeUnit();
+    std::vector<XTimeUnit*> * getTimeUnits();
     void addFunctionFile(std::string file);
     XMachine * addAgent();
     std::vector<XMachine*> * getAgents();
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
+    std::vector<XMessage*> * getMessages();
+    void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
 
   private:
     std::string name_;
+    /*! \brief The absolute path to the model file */
+    std::string path_;
+    std::vector<std::string> includedModels_;
     std::vector<XVariable*> constants_;
     std::vector<XADT*> adts_;
     std::vector<XTimeUnit*> timeUnits_;

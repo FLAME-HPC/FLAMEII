@@ -2,7 +2,7 @@ CC         = g++
 CFLAGS     = -g -Wall# -pedantic
 BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
 LDFLAGS    = -L$(BOOST_DIR)/stage/lib
-LIBS       = -lboost_unit_test_framework
+LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem
 INCLUDE    = -I$(BOOST_DIR)
 SOURCES    = xvariable.cpp xadt.cpp xtimeunit.cpp xfunction.cpp xmachine.cpp \
               xmessage.cpp xmodel.cpp io_xml_model.cpp xioput.cpp \

@@ -19,7 +19,7 @@ XTimeUnit::~XTimeUnit() {
 void XTimeUnit::print() {
     std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\tUnit  : %s\n", getUnit().c_str());
-    std::fprintf(stdout, "\tPeriod: %u\n", getPeriod());
+    std::fprintf(stdout, "\tPeriod: %d\n", getPeriod());
 }
 
 void XTimeUnit::setName(std::string name) {
@@ -38,11 +38,19 @@ std::string XTimeUnit::getUnit() {
     return unit_;
 }
 
-void XTimeUnit::setPeriod(unsigned int period) {
+void XTimeUnit::setPeriodString(std::string period) {
+    periodString_ = period;
+}
+
+std::string XTimeUnit::getPeriodString() {
+    return periodString_;
+}
+
+void XTimeUnit::setPeriod(int period) {
     period_ = period;
 }
 
-unsigned int XTimeUnit::getPeriod() {
+int XTimeUnit::getPeriod() {
     return period_;
 }
 

@@ -14,6 +14,10 @@
 
 namespace flame { namespace io {
 
+XADT::XADT() {
+    holdsDynamicArray_ = false;
+}
+
 XADT::~XADT() {
     /* Delete variables */
     XVariable * var;
@@ -48,6 +52,14 @@ XVariable * XADT::addVariable() {
 
 std::vector<XVariable*> * XADT::getVariables() {
     return &variables_;
+}
+
+void XADT::setHoldsDynamicArray(bool b) {
+    holdsDynamicArray_ = b;
+}
+
+bool XADT::holdsDynamicArray() {
+    return holdsDynamicArray_;
 }
 
 }}  // namespace flame::io

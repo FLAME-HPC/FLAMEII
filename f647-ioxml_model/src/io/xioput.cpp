@@ -19,6 +19,8 @@ XIOput::XIOput() {
     /* Set default options */
     random_ = false;
     filter_ = 0;
+    randomSet_ = false;
+    sort_ = false;
 }
 
 XIOput::~XIOput() {
@@ -49,11 +51,27 @@ std::string XIOput::getMessageName() {
     return messageName_;
 }
 
+void XIOput::setRandomString(std::string random) {
+    randomString_ = random;
+}
+
+std::string XIOput::getRandomString() {
+    return randomString_;
+}
+
+void XIOput::setRandomSet(bool random) {
+    randomSet_ = random;
+}
+
+bool XIOput::isRandomSet() {
+    return randomSet_;
+}
+
 void XIOput::setRandom(bool random) {
     random_ = random;
 }
 
-bool XIOput::getRandom() {
+bool XIOput::isRandom() {
     return random_;
 }
 
@@ -61,7 +79,7 @@ void XIOput::setSort(bool sort) {
     sort_ = sort;
 }
 
-bool XIOput::getSort() {
+bool XIOput::isSort() {
     return sort_;
 }
 

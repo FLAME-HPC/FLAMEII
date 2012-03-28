@@ -21,10 +21,14 @@ class XIOput {
     void print();
     void setMessageName(std::string name);
     std::string getMessageName();
+    void setRandomString(std::string random);
+    std::string getRandomString();
+    void setRandomSet(bool random);
+    bool isRandomSet();
     void setRandom(bool random);
-    bool getRandom();
+    bool isRandom();
     void setSort(bool sort);
-    bool getSort();
+    bool isSort();
     void setSortKey(std::string key);
     std::string getSortKey();
     void setSortOrder(std::string order);
@@ -34,6 +38,9 @@ class XIOput {
 
   private:
     std::string messageName_;
+    std::string randomString_;
+    /*! \brief if random has been read in */
+    bool randomSet_;
     bool random_;
     bool sort_;
     std::string sortKey_;

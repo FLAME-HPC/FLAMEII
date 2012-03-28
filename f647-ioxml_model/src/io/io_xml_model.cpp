@@ -7,8 +7,10 @@
  * \copyright GNU Lesser General Public License
  * \brief IOXMLModel: reading of model XML file
  */
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -22,6 +24,20 @@ namespace flame { namespace io {
 
 int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
     int rc; /* Return code */
+    /* Directory of the model file */
+    std::string directory;
+
+    /* Find file directory to help open any submodels */
+    boost::filesystem3::path filePath(file_name);
+    directory = filePath.parent_path().string();
+    directory.append("/");
+
+    /* Print out diagnostics */
+    fprintf(stdout, "Reading '%s'\n", file_name.c_str());
+
+    /* Save absolute path to check the file is not read again */
+    model->setPath(boost::filesystem3::absolute(filePath).string());
+
     /* Create stream and open file */
     std::ifstream myfile;
     myfile.open(file_name.c_str());
@@ -36,7 +52,7 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
         } catch(const boost::property_tree::xml_parser_error& E) {
             /* Catch parser error */
             std::fprintf(stderr,
-                    "Model file cannot be parsed: %s on line: %lu - %s\n",
+                "Error: Model file cannot be parsed: %s on line: %lu - %s\n",
                     file_name.c_str(), E.line(), E.message().c_str());
             myfile.close();
             return 2;
@@ -47,7 +63,7 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
             pt.get_child("xmodel");
         } catch(std::runtime_error&) {
             std::fprintf(stderr,
-                    "Model file does not have root called 'xmodel': %s\n",
+                "Error: Model file does not have root called 'xmodel': %s\n",
                     file_name.c_str());
             myfile.close();
             return 3;
@@ -61,7 +77,7 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
                 /* Catch error if version is not 2 */
                 if (v.second.get("version", 0) != 2) {
                     std::fprintf(stderr,
-                            "Model file is not 'xmodel' version 2: %s\n",
+                            "Error: Model file is not 'xmodel' version 2: %s\n",
                             file_name.c_str());
                     myfile.close();
                     return 4;
@@ -69,17 +85,11 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
             } else if (v.first == "name") {
                 model->setName(pt.get<std::string>("xmodel.name"));
             } else if (v.first == "version") {
-                // std::cout << "'" << pt.get<std::string>("xmodel.version")
-                //        << "'\n";
             } else if (v.first == "author") {
-                // std::cout << "'" << pt.get<std::string>("xmodel.author")
-                //        << "'\n";
             } else if (v.first == "description") {
-                // std::cout << "'" << pt.get<std::string>("xmodel.description")
-                //        << "'\n";
             } else if (v.first == "models") {
-                // rc = readModels(v);
-                // if(rc != 0) return rc;
+                rc = readIncludedModels(v, directory, model);
+                if (rc != 0) return rc;
             } else if (v.first == "environment") {
                 rc = readEnvironment(v, model);
                 if (rc != 0) {
@@ -112,7 +122,7 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
     } else {
         /* Return error if the file was not successfully opened */
         std::fprintf(stderr,
-                "Model file cannot be opened: %s\n", file_name.c_str());
+                "Error: Model file cannot be opened: %s\n", file_name.c_str());
         return 1;
     }
 }
@@ -120,8 +130,96 @@ int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
 int IOXMLModel::readUnknownElement(
         boost::property_tree::ptree::value_type const& v) {
     std::fprintf(stderr,
-            "Model file has unknown child '%s'\n", v.first.c_str());
-    return 4;
+            "Warning: Model file has unknown child '%s'\n", v.first.c_str());
+
+    /* Return zero to carry on as normal */
+    return 0;
+}
+
+int IOXMLModel::readIncludedModels(boost::property_tree::ptree::value_type
+        const& root,
+        std::string directory, XModel * model) {
+    int rc; /* Return code */
+
+    /* Loop through each child of models */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
+            root.second ) {
+        /* Handle each child */
+        if (v.first == "model") {
+            rc = readIncludedModel(v, directory, model);
+            if (rc != 0) return rc;
+        } else {
+            rc = readUnknownElement(v);
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
+        const& root,
+        std::string directory, XModel * model) {
+    int rc; /* Return code */
+    std::string fileName;
+    bool enable;
+
+    /* Loop through each child of dataType */
+    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
+            root.second ) {
+        /* Handle each child */
+        if (v.first == "file") {
+            fileName = root.second.get<std::string>("file");
+        } else if (v.first == "enabled") {
+            std::string enabledString =
+                    root.second.get<std::string>("enabled");
+            if (enabledString == "true") {
+                enable = true;
+            } else if (enabledString == "false") {
+                enable = false;
+            } else {
+                std::fprintf(stderr,
+    "Error: Included model has invalid enabled value '%s'\n",
+    enabledString.c_str());
+                return 5;
+            }
+        } else {
+            rc = readUnknownElement(v);
+            if (rc != 0) return rc;
+        }
+    }
+
+    /* Handle enabled models */
+    if (enable) {
+        /* Check file name ends in '.xml' or '.XML' */
+        if (!boost::algorithm::ends_with(fileName, ".xml") &&
+                !boost::algorithm::ends_with(fileName, ".XML")) {
+            std::fprintf(stderr,
+"Error: Included model file does not end in '.xml': '%s'\n", fileName.c_str());
+            return 6;
+        }
+
+        /* Append file name to current model file directory */
+        fileName = directory.append(fileName);
+
+        /* Check sub model is not a duplicate */
+        if (!model->addIncludedModel(
+            boost::filesystem3::absolute(fileName).string())) {
+            std::fprintf(stderr,
+                "Error: Included model is a duplicate: '%s'\n",
+                fileName.c_str());
+            return 7;
+        }
+
+        /* Read model file... */
+        rc = readXMLModel(fileName, model);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from included model '%s'\n", fileName.c_str());
+            return 8;
+        }
+    }
+
+    return 0;
 }
 
 int IOXMLModel::readFunctionFiles(
@@ -134,7 +232,7 @@ int IOXMLModel::readFunctionFiles(
             root.second ) {
         /* Handle each child */
         if (v.first == "file") {
-            model->addFunctionFile(root.second.get<std::string>("file"));
+            model->addFunctionFile(v.second.get<std::string>(""));
         } else {
             rc = readUnknownElement(v);
             if (rc != 0) return rc;
@@ -221,7 +319,7 @@ int IOXMLModel::readTimeUnit(
         } else if (v.first == "unit") {
             xtimeunit->setUnit(root.second.get<std::string>("unit"));
         } else if (v.first == "period") {
-            xtimeunit->setPeriod(root.second.get<unsigned int>("period"));
+            xtimeunit->setPeriodString(root.second.get<std::string>("period"));
         } else {
             rc = readUnknownElement(v);
             if (rc != 0) return rc;
@@ -262,15 +360,16 @@ int IOXMLModel::readVariable(
             root.second ) {
         /* Handle each child */
         if (v.first == "type") {
-            // std::cout << "'" << root.second.get<std::string>("type") << "' ";
             xvariable->setType(root.second.get<std::string>("type"));
         } else if (v.first == "name") {
-            // std::cout << "'" << root.second.get<std::string>("name")
-            // << "'\n";
             xvariable->setName(root.second.get<std::string>("name"));
         } else if (v.first == "description") {
-            // std::cout << "'" << root.second.get<std::string>("description")
-            // << "'\n";
+        } else if (v.first == "constant") {
+            /* Indicate that constant is set */
+            xvariable->setConstantSet(true);
+            /* Read the string ready to be validated later */
+            xvariable->setConstantString(
+                    root.second.get<std::string>("constant"));
         } else {
             rc = readUnknownElement(v);
             if (rc != 0) return rc;
@@ -395,8 +494,10 @@ int IOXMLModel::readInput(
             rc = readSort(v, input);
             if (rc != 0) return rc;
         } else if (v.first == "random") {
-            if (root.second.get<std::string>("random") == "true")
-                input->setRandom(true);
+            /* Indicate that random is set */
+            input->setRandomSet(true);
+            /* Read the string ready to be validated later */
+            input->setRandomString(root.second.get<std::string>("random"));
         } else {
             rc = readUnknownElement(v);
             if (rc != 0) return rc;

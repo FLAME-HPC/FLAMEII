@@ -16,6 +16,7 @@ namespace flame { namespace io {
 
 class XMachine;
 class XMessage;
+class XModel;
 
 class XCondition {
   public:
@@ -23,7 +24,7 @@ class XCondition {
     ~XCondition();
     void print();
     int processSymbols();
-    int validate(XMachine * agent, XMessage * message = 0);
+    int validate(XMachine * agent, XMessage * message, XModel * model);
 
   // private:
     bool isNot;

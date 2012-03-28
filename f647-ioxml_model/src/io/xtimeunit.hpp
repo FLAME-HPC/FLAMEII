@@ -23,13 +23,16 @@ class XTimeUnit {
     std::string getName();
     void setUnit(std::string unit);
     std::string getUnit();
-    void setPeriod(unsigned int period);
-    unsigned int getPeriod();
+    void setPeriodString(std::string period);
+    std::string getPeriodString();
+    void setPeriod(int period);
+    int getPeriod();
 
   private:
     std::string name_;
     std::string unit_;
-    unsigned int period_;
+    std::string periodString_;
+    int period_;
 };
 }}  // namespace flame::io
 #endif  // IO__XTIMEUNIT_HPP_

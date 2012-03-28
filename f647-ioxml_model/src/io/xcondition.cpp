@@ -14,6 +14,7 @@
 #include "./xcondition.hpp"
 #include "./xmachine.hpp"
 #include "./xmessage.hpp"
+#include "./xmodel.hpp"
 
 namespace flame { namespace io {
 
@@ -110,12 +111,11 @@ void XCondition::print() {
 
 /*!
  * \brief Processes symbols in conditions/filters
- * \return Return code
+ * \return Number of errors
  * Handles agent/message variables and numbers for values and handles operators.
  */
 int XCondition::processSymbols() {
-    /* return code */
-    int rc;
+    int rc, errors = 0;
 
     if (isTime) {
         if (boost::starts_with(timePhaseVariable, "a.")) {
@@ -127,9 +127,9 @@ int XCondition::processSymbols() {
                 timePhaseValue = boost::lexical_cast<int>(timePhaseVariable);
             } catch(const boost::bad_lexical_cast& E) {
                 std::fprintf(stderr,
-                    "Cannot cast time phase to an integer: %s\n",
-                    E.what());
-                return 4;
+                    "Error: Cannot cast time phase to an integer: %s\n",
+                    timePhaseVariable.c_str());
+                errors++;
             }
         }
         if (foundTimeDuration) {
@@ -138,9 +138,9 @@ int XCondition::processSymbols() {
                 timeDuration = boost::lexical_cast<int>(timeDurationString);
             } catch(const boost::bad_lexical_cast& E) {
                 std::fprintf(stderr,
-                    "Cannot cast time duration to an integer: %s\n",
-                    E.what());
-                return 4;
+                    "Error: Cannot cast time duration to an integer: %s\n",
+                    timeDurationString.c_str());
+                errors++;
             }
         }
     } else {
@@ -161,9 +161,9 @@ int XCondition::processSymbols() {
                     lhsDouble = boost::lexical_cast<double>(lhs);
                 } catch(const boost::bad_lexical_cast& E) {
                     std::fprintf(stderr,
-                        "Condition/filter value not variable or number: %s\n",
-                        E.what());
-                    return 3;
+                "Error: Condition/filter value not variable or number: %s\n",
+                        lhs.c_str());
+                    errors++;
                 }
             }
 
@@ -181,9 +181,9 @@ int XCondition::processSymbols() {
                     rhsDouble = boost::lexical_cast<double>(rhs);
                 } catch(const boost::bad_lexical_cast& E) {
                     std::fprintf(stderr,
-                        "Condition/filter value not variable or number: %s\n",
-                        E.what());
-                    return 3;
+                "Error: Condition/filter value not variable or number: %s\n",
+                        rhs.c_str());
+                    errors++;
                 }
             }
 
@@ -201,16 +201,16 @@ int XCondition::processSymbols() {
                 op = ">";
             } else {
                 std::fprintf(stderr,
-                    "Condition/filter op value not recognised: %s\n",
+                    "Error: Condition/filter op value not recognised: %s\n",
                     op.c_str());
-                return 1;
+                errors++;
             }
         } else if (lhsIsCondition && rhsIsCondition) {
             isConditions = true;
             rc = lhsCondition->processSymbols();
-            if (rc != 0) return rc;
+            errors += rc;
             rc = rhsCondition->processSymbols();
-            if (rc != 0) return rc;
+            errors += rc;
 
             if (op == "AND") {
                 op = "&&";
@@ -218,24 +218,38 @@ int XCondition::processSymbols() {
                 op = "||";
             } else {
                 std::fprintf(stderr,
-                    "Condition/filter op value not recognised: %s\n",
+                    "Error: Condition/filter op value not recognised: %s\n",
                     op.c_str());
-                return 1;
+                errors++;
             }
         } else {
             std::fprintf(stderr,
-                "lhs and rhs are not both values or both nested conditions\n");
-            return 2;
+        "Error: lhs and rhs are not both values or both nested conditions\n");
+            errors++;
         }
     }
 
-    return 0;
+    return errors;
 }
 
-int XCondition::validate(XMachine * agent, XMessage * xmessage) {
+int XCondition::validate(XMachine * agent, XMessage * xmessage,
+        XModel * model) {
     int rc, errors = 0;
+    unsigned int ii;
 
     if (isTime) {
+        /* Check time period is valid time unit */
+        bool validPeriod = false;
+        for (ii = 0; ii < model->getTimeUnits()->size(); ii++) {
+            if (timePeriod == model->getTimeUnits()->at(ii)->getName())
+                validPeriod = true;
+        }
+        if (!validPeriod) {
+            std::fprintf(stderr,
+                "Error: time period is not a valid time unit: '%s',\n",
+                timePeriod.c_str());
+            errors++;
+        }
         /* If time phase is an agent variable then validate it */
         if (timePhaseIsVariable) {
             if (!agent->validateVariableName(timePhaseVariable)) {
@@ -293,9 +307,9 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage) {
         }
     } else if (isConditions) {
         /* If nested conditions validate them */
-        rc = lhsCondition->validate(agent, xmessage);
+        rc = lhsCondition->validate(agent, xmessage, model);
         errors += rc;
-        rc = rhsCondition->validate(agent, xmessage);
+        rc = rhsCondition->validate(agent, xmessage, model);
         errors += rc;
     }
 

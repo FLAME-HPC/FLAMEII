@@ -17,6 +17,7 @@ namespace io = flame::io;
 
 BOOST_AUTO_TEST_SUITE(IOModule)
 
+/* Test the reading of XML model files and sub model files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     int rc;
     io::IOXMLModel ioxmlmodel;
@@ -34,7 +35,21 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     rc = ioxmlmodel.readXMLModel("tests/models/xmodelv1.xml", &model);
     BOOST_CHECK(rc == 4);
 
-    rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
+    rc = ioxmlmodel.readXMLModel(
+            "tests/models/submodel_enable_error.xml", &model);
+    BOOST_CHECK(rc == 5);
+
+    rc = ioxmlmodel.readXMLModel(
+            "tests/models/submodel_end_not_xml.xml", &model);
+    BOOST_CHECK(rc == 6);
+
+    rc = ioxmlmodel.readXMLModel("tests/models/submodel_duplicate.xml", &model);
+    BOOST_CHECK(rc == 7);
+
+    rc = ioxmlmodel.readXMLModel("tests/models/submodel_missing.xml", &model);
+    BOOST_CHECK(rc == 8);
+
+    rc = ioxmlmodel.readXMLModel("tests/models/all_not_valid.xml", &model);
     BOOST_CHECK(rc == 0);
 }
 
@@ -43,10 +58,12 @@ BOOST_AUTO_TEST_CASE(validate_model) {
     io::IOXMLModel ioxmlmodel;
     io::XModel model;
 
-    rc = ioxmlmodel.readXMLModel("tests/models/conditions.xml", &model);
+    /* Test model validation using single file with all errors.
+     * Possibly in future use a correct file and mutate for each
+     * error and test separately. */
+    ioxmlmodel.readXMLModel("tests/models/all_not_valid.xml", &model);
     rc = model.validate();
-    BOOST_CHECK(rc == 0);
-    // model.print();
+    BOOST_CHECK(rc == 41);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

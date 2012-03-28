@@ -26,8 +26,10 @@ class IOXMLModel {
 
   private:
     int readUnknownElement(boost::property_tree::ptree::value_type const& v);
-    // void readIncludedModels();
-    // void readIncludedModel();
+    int readIncludedModels(boost::property_tree::ptree::value_type const& v,
+            std::string directory, XModel * model);
+    int readIncludedModel(boost::property_tree::ptree::value_type const& v,
+            std::string directory, XModel * model);
     int readEnvironment(boost::property_tree::ptree::value_type const& v,
             XModel * model);
     int readFunctionFiles(boost::property_tree::ptree::value_type const& v,

@@ -25,13 +25,30 @@ class XVariable {
     bool isDynamicArray();
     void setIsStaticArray(bool b);
     bool isStaticArray();
+    void setStaticArraySize(int size);
+    int getStaticArraySize();
+    void setHasADTType(bool b);
+    bool hasADTType();
+    void setHoldsDynamicArray(bool b);
+    bool holdsDynamicArray();
+    void setConstantString(std::string name);
+    std::string getConstantString();
+    void setConstantSet(bool set);
+    bool isConstantSet();
+    void setConstant(bool constant);
+    bool isConstant();
 
   private:
     std::string type_;
     std::string name_;
     bool isDynamicArray_;
     bool isStaticArray_;
-    int staticArraySize;
+    int staticArraySize_;
+    bool hasADTType_;
+    bool holdsDynamicArray_;
+    std::string constantString_;
+    bool constantSet_;
+    bool constant_;
 };
 }}  // namespace flame::io
 #endif  // IO__XVARIABLE_HPP_

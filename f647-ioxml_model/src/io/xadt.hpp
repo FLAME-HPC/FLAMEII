@@ -17,17 +17,20 @@ namespace flame { namespace io {
 
 class XADT {
   public:
-    XADT() {}
+    XADT();
     ~XADT();
     void print();
     void setName(std::string name);
     std::string getName();
     XVariable * addVariable();
     std::vector<XVariable*> * getVariables();
+    void setHoldsDynamicArray(bool b);
+    bool holdsDynamicArray();
 
   private:
     std::string name_;
     std::vector<XVariable*> variables_;
+    bool holdsDynamicArray_;
 };
 }}  // namespace flame::io
 #endif  // IO__XADT_HPP_

@@ -16,7 +16,11 @@ namespace flame { namespace io {
 XVariable::XVariable() {
     isDynamicArray_ = false;
     isStaticArray_ = false;
-    staticArraySize = 0;
+    staticArraySize_ = 0;
+    hasADTType_ = false;
+    holdsDynamicArray_ = false;
+    constantSet_ = false;
+    constant_ = false;
 }
 
 void XVariable::print() {
@@ -54,6 +58,54 @@ void XVariable::setIsStaticArray(bool b) {
 
 bool XVariable::isStaticArray() {
     return isStaticArray_;
+}
+
+void XVariable::setStaticArraySize(int size) {
+    staticArraySize_ = size;
+}
+
+int XVariable::getStaticArraySize() {
+    return staticArraySize_;
+}
+
+void XVariable::setHasADTType(bool b) {
+    hasADTType_ = b;
+}
+
+bool XVariable::hasADTType() {
+    return hasADTType_;
+}
+
+void XVariable::setHoldsDynamicArray(bool b) {
+    holdsDynamicArray_ = b;
+}
+
+bool XVariable::holdsDynamicArray() {
+    return holdsDynamicArray_;
+}
+
+void XVariable::setConstantString(std::string name) {
+    constantString_ = name;
+}
+
+std::string XVariable::getConstantString() {
+    return constantString_;
+}
+
+void XVariable::setConstantSet(bool set) {
+    constantSet_ = set;
+}
+
+bool XVariable::isConstantSet() {
+    return constantSet_;
+}
+
+void XVariable::setConstant(bool constant) {
+    constant_ = constant;
+}
+
+bool XVariable::isConstant() {
+    return constant_;
 }
 
 }}  // namespace flame::io

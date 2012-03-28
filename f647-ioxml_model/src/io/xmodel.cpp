@@ -16,10 +16,10 @@ namespace flame { namespace io {
 
 XModel::XModel() {
     /* Initialise list of data types */
-    allowedDataTypes_.push_back("int");
-    allowedDataTypes_.push_back("float");
-    allowedDataTypes_.push_back("double");
-    allowedDataTypes_.push_back("char"); /* Allow? */
+    addAllowedDataType("int");
+    addAllowedDataType("float");
+    addAllowedDataType("double");
+    addAllowedDataType("char"); /* Allow? */
 }
 
 XModel::~XModel() {
@@ -96,6 +96,44 @@ void XModel::print() {
     }
 }
 
+void XModel::setPath(std::string path) {
+    path_ = path;
+}
+
+std::string XModel::getPath() {
+    return path_;
+}
+
+void XModel::setName(std::string name) {
+    name_ = name;
+}
+
+std::string XModel::getName() {
+    return name_;
+}
+
+/*!
+ * \brief Adds included model to a list
+ * \param[in] path Path of the sub model
+ * \return Boolean, true if name is unique
+ * If the model file is not already in the list then it is added.
+ * If not then false is returned.
+ */
+bool XModel::addIncludedModel(std::string path) {
+    unsigned int ii;
+
+    for (ii = 0; ii < includedModels_.size(); ii++) {
+        if (includedModels_.at(ii) == path) return false;
+    }
+
+    includedModels_.push_back(path);
+    return true;
+}
+
+std::vector<std::string> * XModel::getIncludedModels() {
+    return &includedModels_;
+}
+
 XVariable * XModel::addConstant() {
     XVariable * xvariable = new XVariable;
     constants_.push_back(xvariable);
@@ -112,10 +150,32 @@ XADT * XModel::addADT() {
     return xadt;
 }
 
+/*!
+ * \brief Returns an adt object with given name
+ * \param[in] name Name of the adt
+ * \return Pointer to the adt object or 0 if not found
+ * This function is used to validate adt names and provide a
+ * pointer to the object if valid.
+ */
+XADT * XModel::getADT(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < adts_.size(); ii++)
+        if (name == adts_.at(ii)->getName()) return adts_.at(ii);
+    return 0;
+}
+
+std::vector<XADT*> * XModel::getADTs() {
+    return &adts_;
+}
+
 XTimeUnit * XModel::addTimeUnit() {
     XTimeUnit * xtimeunit = new XTimeUnit;
     timeUnits_.push_back(xtimeunit);
     return xtimeunit;
+}
+
+std::vector<XTimeUnit*> * XModel::getTimeUnits() {
+    return &timeUnits_;
 }
 
 void XModel::addFunctionFile(std::string file) {
@@ -150,6 +210,14 @@ XMessage * XModel::getMessage(std::string name) {
     for (ii = 0; ii < messages_.size(); ii++)
         if (name == messages_.at(ii)->getName()) return messages_.at(ii);
     return 0;
+}
+
+std::vector<XMessage*> * XModel::getMessages() {
+    return &messages_;
+}
+
+void XModel::addAllowedDataType(std::string name) {
+    allowedDataTypes_.push_back(name);
 }
 
 std::vector<std::string> * XModel::getAllowedDataTypes() {
