@@ -9,6 +9,7 @@
  */
 #ifndef IO__XML_POP_HPP_
 #define IO__XML_POP_HPP_
+#include <libxml/xmlreader.h>
 #include <string>
 #include <vector>
 #include "./xmodel.hpp"
@@ -18,10 +19,10 @@ namespace flame { namespace io {
 class IOXMLPop {
   public:
     IOXMLPop() {}
-
     int readXMLPop(std::string file_name, XModel * model);
 
   private:
+    void processNode(xmlTextReaderPtr reader);
 
 };
 }}  // namespace flame::io

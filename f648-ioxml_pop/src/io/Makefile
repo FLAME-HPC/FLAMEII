@@ -8,14 +8,14 @@ LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
 INCLUDE    = -I$(BOOST_DIR) -I$(LIBXML_DIR)
 SOURCES    = xvariable.cpp xadt.cpp xtimeunit.cpp xfunction.cpp xmachine.cpp \
               xmessage.cpp xmodel.cpp io_xml_model.cpp xioput.cpp \
-              xcondition.cpp xmodel_validate.cpp tests/test_io_xml_model.cpp \
+              xcondition.cpp xmodel_validate.cpp tests/test_io_xml_pop.cpp \
               io_xml_pop.cpp
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = io_xml_model.hpp xmachine.hpp xmodel.hpp xvariable.hpp xadt.hpp \
               xtimeunit.hpp xfunction.hpp xmessage.hpp xioput.hpp \
               xcondition.hpp io_xml_pop.hpp
 DEPS       = Makefile $(HEADERS)
-EXECUTABLE = tests/test_io_xml_model
+EXECUTABLE = tests/test_io_xml_pop
 RM         = rm -f
 
 all: $(SOURCES) $(EXECUTABLE)
