@@ -13,18 +13,22 @@
 #include <string>
 #include <vector>
 #include "./xmodel.hpp"
+#include "../mem/memory_manager.hpp"
 
 namespace flame { namespace io {
 
 class IOXMLPop {
   public:
     IOXMLPop() {}
-    int readXMLPop(std::string file_name, XModel * model);
+    int readXMLPop(std::string file_name, XModel * model,
+            flame::mem::MemoryManager * memoryManager);
 
   private:
-    void processNode(xmlTextReaderPtr reader);
-
+    int processNode(xmlTextReaderPtr reader,
+            XModel * model,
+            flame::mem::MemoryManager * memoryManager,
+            std::vector<std::string> * tags,
+            XMachine ** agent);
 };
 }}  // namespace flame::io
 #endif  // IO__XML_POP_HPP_
-

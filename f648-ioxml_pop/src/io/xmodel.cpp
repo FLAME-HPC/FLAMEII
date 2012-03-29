@@ -192,6 +192,13 @@ std::vector<XMachine*> * XModel::getAgents() {
     return &agents_;
 }
 
+XMachine * XModel::getAgent(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < agents_.size(); ii++)
+        if (name == agents_.at(ii)->getName()) return agents_.at(ii);
+    return 0;
+}
+
 XMessage * XModel::addMessage() {
     XMessage * xmessage = new XMessage;
     messages_.push_back(xmessage);

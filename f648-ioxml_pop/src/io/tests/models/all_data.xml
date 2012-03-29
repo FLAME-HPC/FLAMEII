@@ -12,9 +12,9 @@
 
 <constants>
   <variable><type>int</type><name>env_int</name><description>int value read in from 0.xml</description></variable>
-  <variable><type>float</type><name>env_float</name><description>float value read in from 0.xml</description></variable>
+  <!--<variable><type>float</type><name>env_float</name><description>float value read in from 0.xml</description></variable>-->
   <variable><type>double</type><name>env_double</name><description>double value read in from 0.xml</description></variable>
-  <variable><type>char</type><name>env_char</name><description>char value read in from 0.xml</description></variable>
+  <!--<variable><type>char</type><name>env_char</name><description>char value read in from 0.xml</description></variable>-->
 </constants>
 
 <functionFiles>
@@ -108,9 +108,9 @@
 <description></description>
 <memory>
   <variable><type>int</type><name>int_single</name><description></description></variable>
-  <variable><type>float</type><name>float_single</name><description></description></variable>
+  <!--<variable><type>float</type><name>float_single</name><description></description></variable>-->
   <variable><type>double</type><name>double_single</name><description></description></variable>
-  <variable><type>char</type><name>char_single</name><description></description></variable>
+  <!--<variable><type>char</type><name>char_single</name><description></description></variable>
   <variable><type>int</type><name>int_list[2]</name><description></description></variable>
   <variable><type>float</type><name>float_list[2]</name><description></description></variable>
   <variable><type>double</type><name>double_list[2]</name><description></description></variable>
@@ -126,7 +126,7 @@
   <variable><type>my_datatype_1_array</type><name>my_datatype_1_dynamic_list</name><description></description></variable>
   <variable><type>my_datatype_2_array</type><name>my_datatype_2_dynamic_list</name><description></description></variable>
   <variable><type>sales_statistics</type><name>my_datatype_sales_stats[2]</name><description></description></variable>
-  <variable><type>my_datatype_3</type><name>my_datatype_3_single</name><description></description></variable>
+  <variable><type>my_datatype_3</type><name>my_datatype_3_single</name><description></description></variable>-->
 </memory>
 
 <functions>

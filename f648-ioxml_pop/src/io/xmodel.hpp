@@ -42,6 +42,7 @@ class XModel {
     void addFunctionFile(std::string file);
     XMachine * addAgent();
     std::vector<XMachine*> * getAgents();
+    XMachine * getAgent(std::string name);
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
     std::vector<XMessage*> * getMessages();
