@@ -92,6 +92,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     rc = ioxmlpop.readXMLPop("src/io/tests/models/all_data_its/0.xml",
             &model, &memoryManager);
     BOOST_CHECK(rc == 0);
+
     /* Test pop data read in */
     flame::mem::VectorReader<int> roi =
             memoryManager.GetReader<int>("agent_a", "int_single");
@@ -104,6 +105,10 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     /* Warning: Should use BOOST_CHECK_CLOSE for comparing doubles */
     BOOST_CHECK_EQUAL_COLLECTIONS(expectedd, expectedd+3,
             rod.begin(), rod.end());
+
+    rc = ioxmlpop.writeXMLPop("src/io/tests/models/all_data_its/1.xml",
+            1, &model, &memoryManager);
+    BOOST_CHECK(rc == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

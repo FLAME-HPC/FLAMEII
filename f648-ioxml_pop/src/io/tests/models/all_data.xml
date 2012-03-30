@@ -141,6 +141,16 @@
 
 </xagent>
 
+<xagent>
+<name>agent_b</name>
+<description></description>
+<memory>
+  <variable><type>double</type><name>double_single</name><description></description></variable>
+  <variable><type>int</type><name>int_single</name><description></description></variable>
+</memory>
+<functions></functions>
+</xagent>
+
 </agents>
 
 <messages>

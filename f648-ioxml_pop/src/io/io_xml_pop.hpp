@@ -22,6 +22,9 @@ class IOXMLPop {
     IOXMLPop() {}
     int readXMLPop(std::string file_name, XModel * model,
             flame::mem::MemoryManager * memoryManager);
+    int writeXMLPop(std::string file_name, int iterationNo,
+            XModel * model,
+            flame::mem::MemoryManager * memoryManager);
 
   private:
     int processNode(xmlTextReaderPtr reader,

@@ -9,13 +9,160 @@
  */
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant.hpp>
 #include <libxml/xmlreader.h>
+#include <libxml/xmlwriter.h>
 #include <string>
 #include <vector>
 #include <cstdio>
 #include "./io_xml_pop.hpp"
 
 namespace flame { namespace io {
+
+int writeXMLTag(xmlTextWriterPtr writer);
+int writeXMLTag(xmlTextWriterPtr writer, std::string name);
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value);
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value);
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value);
+int endXMLDoc(xmlTextWriterPtr writer);
+
+typedef flame::mem::VectorReader<int> intVecReader;
+typedef flame::mem::VectorReader<double> doubleVecReader;
+
+int IOXMLPop::writeXMLPop(std::string file_name,
+        int iterationNo,
+        XModel * model,
+        flame::mem::MemoryManager * memoryManager) {
+    /* Return code */
+    int rc;
+    /* The xml text writer */
+    xmlTextWriterPtr writer;
+    /* Loop variables */
+    size_t ii, jj, kk;
+    /* The number of agents per agent type */
+    size_t noAgents;
+    /* List of memory vector readers populated for each agent */
+    std::vector< boost::variant<
+        intVecReader,
+        doubleVecReader > > vectorReaders;
+
+    /* Open file to write to, with no compression */
+    writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
+    if (writer == NULL) {
+        fprintf(stderr, "Error: Opening xml population file to write to\n");
+        return 1;
+    }
+    /* Write tags on new lines */
+    xmlTextWriterSetIndent(writer, 1);
+
+    /* Open root tag */
+    rc = writeXMLTag(writer, "states");
+    if (rc != 0) return rc;
+
+    /* Write itno tag with iteration number */
+    rc = writeXMLTag(writer, "itno", iterationNo);
+    if (rc != 0) return rc;
+
+    /* For each agent type in the model */
+    for (ii = 0; ii < model->getAgents()->size(); ii++) {
+        /* Assign to local agent variable */
+        XMachine * agent = model->getAgents()->at(ii);
+        /* For each memory variable */
+        for (jj = 0;
+            jj < agent->getVariables()->size(); jj++) {
+            /* Assign to local xvariable variable */
+            XVariable * var = agent->getVariables()->at(jj);
+
+            /* Set up vector readers for each memory variable
+             * dependent on variable data type and add to a
+             * list ready to be used to write each agents
+             * memory out in one go.
+             */
+            if (var->getType() == "int") {
+                /* Create vector reader.. */
+                intVecReader roi =
+                    memoryManager->GetReader<int>
+                        (agent->getName(), var->getName());
+                /* ..and add to list of vectors. */
+                vectorReaders.push_back(roi);
+                /* Check array length */
+                if (jj == 0) noAgents = roi.size();
+                else if (roi.size() != noAgents) {
+    fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
+                        var->getName().c_str());
+                    return 3;
+                }
+            }
+            if (var->getType() == "double") {
+                /* Create vector reader.. */
+                doubleVecReader rod =
+                    memoryManager->GetReader<double>
+                        (agent->getName(), var->getName());
+                /* ..and add to list of vectors. */
+                vectorReaders.push_back(rod);
+                /* Check array length */
+                if (jj == 0) noAgents = rod.size();
+                else if (rod.size() != noAgents) {
+    fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
+                        var->getName().c_str());
+                    return 3;
+                }
+            }
+        }
+
+        /* For each agent in the simulation */
+        for (kk = 0; kk < noAgents; kk++) {
+            /* Open root tag */
+            rc = writeXMLTag(writer, "xagent");
+            if (rc != 0) return rc;
+
+            /* Write agent name */
+            rc = writeXMLTag(writer, "name", agent->getName());
+            if (rc != 0) return rc;
+
+            /* For each memory variable */
+            for (jj = 0;
+                jj < agent->getVariables()->size(); jj++) {
+                /* Assign to local xvariable variable */
+                XVariable * var = agent->getVariables()->at(jj);
+
+                /* Write variable value dependent on the variable
+                 * type by accessing the associated vector reader
+                 * from the list of vector readers and taking the
+                 * nth element corresponding with the nth agent.
+                 */
+                if (var->getType() == "int") {
+                    rc = writeXMLTag(writer, var->getName(),
+                        *(boost::get
+                        < intVecReader >
+                        (vectorReaders.at(jj)).begin()+kk) );
+                    if (rc != 0) return rc;
+                }
+                if (var->getType() == "double") {
+                    rc = writeXMLTag(writer, var->getName(),
+                        *(boost::get
+                        < doubleVecReader >
+                        (vectorReaders.at(jj)).begin()+kk) );
+                    if (rc != 0) return rc;
+                }
+            }
+
+            /* Close the element named xagent. */
+            writeXMLTag(writer);
+        }
+        /* Clear the memory vector reader list for the next agent type */
+        vectorReaders.clear();
+    }
+
+    /* End xml file, automatically ends states tag */
+    rc = endXMLDoc(writer);
+    if (rc != 0) return rc;
+
+    /* Free the xml writer */
+    xmlFreeTextWriter(writer);
+
+    return 0;
+}
 
 int IOXMLPop::readXMLPop(std::string file_name, XModel * model,
         flame::mem::MemoryManager * memoryManager) {
@@ -186,6 +333,69 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
             break;
     }
 
+    return 0;
+}
+
+int writeXMLTag(xmlTextWriterPtr writer) {
+    int rc;
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
+    return 0;
+}
+
+int writeXMLTag(xmlTextWriterPtr writer, std::string name) {
+    int rc;
+    rc = xmlTextWriterStartElement(writer, BAD_CAST name.c_str());
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
+    return 0;
+}
+
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value) {
+    int rc;
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
+                                                 "%d", value);
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
+    return 0;
+}
+
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value) {
+    int rc;
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
+                                                 "%f", value);
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
+    return 0;
+}
+
+int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value) {
+    int rc;
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
+                                                 "%s", value.c_str());
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
+    return 0;
+}
+
+int endXMLDoc(xmlTextWriterPtr writer) {
+    int rc;
+    rc = xmlTextWriterEndDocument(writer);
+    if (rc < 0) {
+        fprintf(stderr, "Error: Writing to xml population file\n");
+        return 2;
+    }
     return 0;
 }
 
