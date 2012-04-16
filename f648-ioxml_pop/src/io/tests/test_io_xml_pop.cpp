@@ -13,6 +13,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <vector>
+#include <string>
 #include "../io_xml_model.hpp"
 #include "../io_xml_pop.hpp"
 #include "../../mem/memory_manager.hpp"
@@ -108,9 +109,13 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
         BOOST_CHECK_CLOSE(*(rod.begin()+ii), *(expectedd+ii), 0.0001);
     }
 
-    rc = ioxmlpop.writeXMLPop("src/io/tests/models/all_data_its/1.xml",
-            1, &model, &memoryManager);
+    std::string onexml = "src/io/tests/models/all_data_its/1.xml";
+    rc = ioxmlpop.writeXMLPop(onexml, 1, &model, &memoryManager);
     BOOST_CHECK(rc == 0);
+    /* Remove created 1.xml */
+    if (remove(onexml.c_str()) != 0)
+        fprintf(stderr, "Warning: Could not delete the generated file: %s",
+            onexml.c_str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
