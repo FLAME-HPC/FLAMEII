@@ -94,17 +94,19 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     BOOST_CHECK(rc == 0);
 
     /* Test pop data read in */
+    /* Test ints data */
     flame::mem::VectorReader<int> roi =
             memoryManager.GetReader<int>("agent_a", "int_single");
     int expectedi[] = {1, 2, 3};
     BOOST_CHECK_EQUAL_COLLECTIONS(expectedi, expectedi+3,
             roi.begin(), roi.end());
+    /* Test doubles data */
     flame::mem::VectorReader<double> rod =
             memoryManager.GetReader<double>("agent_a", "double_single");
     double expectedd[] = {0.1, 0.2, 0.3};
-    /* Warning: Should use BOOST_CHECK_CLOSE for comparing doubles */
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedd, expectedd+3,
-            rod.begin(), rod.end());
+    for (ii = 0; ii < rod.size(); ii++) {
+        BOOST_CHECK_CLOSE(*(rod.begin()+ii), *(expectedd+ii), 0.0001);
+    }
 
     rc = ioxmlpop.writeXMLPop("src/io/tests/models/all_data_its/1.xml",
             1, &model, &memoryManager);
