@@ -46,7 +46,7 @@ void XMachine::setName(std::string name) {
     name_ = name;
 }
 
-std::string XMachine::getName() {
+const std::string XMachine::getName() {
     return name_;
 }
 
@@ -58,6 +58,14 @@ XVariable * XMachine::addVariable() {
 
 std::vector<XVariable*> * XMachine::getVariables() {
     return &variables_;
+}
+
+XVariable * XMachine::getVariable(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < variables_.size(); ii++) {
+        if (variables_.at(ii)->getName() == name) return variables_.at(ii);
+    }
+    return 0;
 }
 
 XFunction * XMachine::addFunction() {

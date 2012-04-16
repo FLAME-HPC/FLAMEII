@@ -22,9 +22,10 @@ class XMachine {
     ~XMachine();
     void print();
     void setName(std::string name);
-    std::string getName();
+    const std::string getName();
     XVariable * addVariable();
     std::vector<XVariable*> * getVariables();
+    XVariable * getVariable(std::string name);
     XFunction * addFunction();
     std::vector<XFunction*> * getFunctions();
     bool validateVariableName(std::string name);
