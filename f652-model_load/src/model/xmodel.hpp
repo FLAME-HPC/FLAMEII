@@ -24,6 +24,7 @@ class XModel {
     XModel();
     ~XModel();
     int clear();
+    void setup();
     void print();
     int validate();
     void setPath(std::string path);

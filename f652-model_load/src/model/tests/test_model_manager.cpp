@@ -9,15 +9,13 @@
  */
 #define BOOST_TEST_DYN_LINK
 #ifdef STAND_ALONE
-#   define BOOST_TEST_MODULE IO Pop
+#   define BOOST_TEST_MODULE Model
 #endif
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
 #include "../model_manager.hpp"
-#include "../../io/io_xml_model.hpp"
 
-namespace io = flame::io;
 namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(ModelManager)
@@ -25,12 +23,17 @@ BOOST_AUTO_TEST_SUITE(ModelManager)
 /* Test the loading of a model. */
 BOOST_AUTO_TEST_CASE(test_load_model) {
     int rc;
-    io::IOXMLModel ioxmlmodel;
-    model::XModel model;
+    model::ModelManager modelManager;
 
-
-    ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model);
-
+    /* Test unreadable model */
+    rc = modelManager.loadModel("src/io/tests/models/malformed_xml.xml");
+    BOOST_CHECK(rc == 1);
+    /* Test invalid model */
+    rc = modelManager.loadModel("src/io/tests/models/all_not_valid.xml");
+    BOOST_CHECK(rc == 2);
+    /* Test valid model */
+    rc = modelManager.loadModel("src/io/tests/models/all_data.xml");
+    BOOST_CHECK(rc == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -270,7 +270,8 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
                 } else {
                     /* Check if agent exists */
                     if ((*agent)) {
-                        model::XVariable * var = (*agent)->getVariable(tags->back());
+                        model::XVariable * var =
+                            (*agent)->getVariable(tags->back());
                         /* Check if variable is part of the agent */
                         if (var) {
                             /* Check variable type for casting */

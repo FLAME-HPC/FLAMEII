@@ -408,7 +408,8 @@ int IOXMLModel::readEnvironment(
 }
 
 int IOXMLModel::readAgents(
-        boost::property_tree::ptree::value_type const& root, model::XModel * model) {
+        boost::property_tree::ptree::value_type const& root,
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of xagents */

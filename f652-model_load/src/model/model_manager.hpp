@@ -23,6 +23,13 @@
 
 namespace flame { namespace model {
 
+class ModelManager {
+  public:
+    ModelManager() {}
+    int loadModel(std::string const& file);
 
+  private:
+    XModel model_;
+};
 }}  // namespace flame::model
 #endif  // MODEL__MODEL_MANAGER_HPP_
