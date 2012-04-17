@@ -16,13 +16,12 @@
 #include <vector>
 #include <cstdio>
 #include "io_xml_model.hpp"
-#include "./xadt.hpp"
-#include "./xtimeunit.hpp"
-#include "./xmessage.hpp"
 
-namespace flame { namespace io {
+namespace model = flame::model;
 
-int IOXMLModel::readXMLModel(std::string file_name, XModel * model) {
+namespace flame { namespace io { namespace xml {
+
+int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     int rc; /* Return code */
     /* Directory of the model file */
     std::string directory;
@@ -138,7 +137,7 @@ int IOXMLModel::readUnknownElement(
 
 int IOXMLModel::readIncludedModels(boost::property_tree::ptree::value_type
         const& root,
-        std::string directory, XModel * model) {
+        std::string directory, model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of models */
@@ -158,7 +157,7 @@ int IOXMLModel::readIncludedModels(boost::property_tree::ptree::value_type
 
 int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
         const& root,
-        std::string directory, XModel * model) {
+        std::string directory, model::XModel * model) {
     int rc; /* Return code */
     std::string fileName;
     bool enable;
@@ -224,7 +223,7 @@ int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
 
 int IOXMLModel::readFunctionFiles(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of functionFiles */
@@ -243,7 +242,7 @@ int IOXMLModel::readFunctionFiles(
 
 int IOXMLModel::readDataTypes(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of dataTypes */
@@ -263,9 +262,9 @@ int IOXMLModel::readDataTypes(
 
 int IOXMLModel::readDataType(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
-    XADT * xadt = model->addADT();
+    model::XADT * xadt = model->addADT();
 
     /* Loop through each child of dataType */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -287,7 +286,7 @@ int IOXMLModel::readDataType(
 
 int IOXMLModel::readTimeUnits(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of timeUnits */
@@ -307,9 +306,9 @@ int IOXMLModel::readTimeUnits(
 
 int IOXMLModel::readTimeUnit(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
-    XTimeUnit * xtimeunit = model->addTimeUnit();
+    model::XTimeUnit * xtimeunit = model->addTimeUnit();
 
     /* Loop through each child of timeUnit */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -331,7 +330,7 @@ int IOXMLModel::readTimeUnit(
 
 int IOXMLModel::readVariables(
         boost::property_tree::ptree::value_type const& root,
-        std::vector<XVariable*> * variables) {
+        std::vector<model::XVariable*> * variables) {
     int rc; /* Return code */
 
     /* Loop through each child of variables */
@@ -351,9 +350,9 @@ int IOXMLModel::readVariables(
 
 int IOXMLModel::readVariable(
         boost::property_tree::ptree::value_type const& root,
-        std::vector<XVariable*> * variables) {
+        std::vector<model::XVariable*> * variables) {
     int rc; /* Return code */
-    XVariable * xvariable = new XVariable;
+    model::XVariable * xvariable = new model::XVariable;
     variables->push_back(xvariable);
 
     /* Loop through each child of variable */
@@ -381,7 +380,7 @@ int IOXMLModel::readVariable(
 
 int IOXMLModel::readEnvironment(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of environment */
@@ -409,7 +408,8 @@ int IOXMLModel::readEnvironment(
 }
 
 int IOXMLModel::readAgents(
-        boost::property_tree::ptree::value_type const& root, XModel * model) {
+        boost::property_tree::ptree::value_type const& root,
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of xagents */
@@ -428,9 +428,9 @@ int IOXMLModel::readAgents(
 }
 
 int IOXMLModel::readAgent(boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
-    XMachine * xm = model->addAgent();
+    model::XMachine * xm = model->addAgent();
 
     /* Loop through each child of xagent */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -455,7 +455,7 @@ int IOXMLModel::readAgent(boost::property_tree::ptree::value_type const& root,
 
 int IOXMLModel::readInputs(
         boost::property_tree::ptree::value_type const& root,
-        XFunction * xfunction) {
+        model::XFunction * xfunction) {
     int rc; /* Return code */
 
     /* Loop through each child of inputs */
@@ -475,9 +475,9 @@ int IOXMLModel::readInputs(
 
 int IOXMLModel::readInput(
         boost::property_tree::ptree::value_type const& root,
-        XFunction * xfunction) {
+        model::XFunction * xfunction) {
     int rc; /* Return code */
-    XIOput * input = xfunction->addInput();
+    model::XIOput * input = xfunction->addInput();
 
     /* Loop through each child of input */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -486,7 +486,7 @@ int IOXMLModel::readInput(
         if (v.first == "messageName") {
             input->setMessageName(root.second.get<std::string>("messageName"));
         } else if (v.first == "filter") {
-            XCondition * xcondition = input->addFilter();
+            model::XCondition * xcondition = input->addFilter();
             rc = readCondition(v, xcondition);
             if (rc != 0) return rc;
         } else if (v.first == "sort") {
@@ -507,7 +507,7 @@ int IOXMLModel::readInput(
 
 int IOXMLModel::readOutputs(
         boost::property_tree::ptree::value_type const& root,
-        XFunction * xfunction) {
+        model::XFunction * xfunction) {
     int rc; /* Return code */
 
     /* Loop through each child of outputs */
@@ -527,9 +527,9 @@ int IOXMLModel::readOutputs(
 
 int IOXMLModel::readOutput(
         boost::property_tree::ptree::value_type const& root,
-        XFunction * xfunction) {
+        model::XFunction * xfunction) {
     int rc; /* Return code */
-    XIOput * output = xfunction->addOutput();
+    model::XIOput * output = xfunction->addOutput();
 
     /* Loop through each child of output */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -547,9 +547,9 @@ int IOXMLModel::readOutput(
 
 int IOXMLModel::readTransition(
         boost::property_tree::ptree::value_type const& root,
-        XMachine * machine) {
+        model::XMachine * machine) {
     int rc; /* Return code */
-    XFunction * xfunction = machine->addFunction();
+    model::XFunction * xfunction = machine->addFunction();
 
     /* Loop through each child of transition */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -564,7 +564,7 @@ int IOXMLModel::readTransition(
         } else if (v.first == "nextState") {
             xfunction->setNextState(root.second.get<std::string>("nextState"));
         } else if (v.first == "condition") {
-            XCondition * xcondition = xfunction->addCondition();
+            model::XCondition * xcondition = xfunction->addCondition();
             rc = readCondition(v, xcondition);
             if (rc != 0) return rc;
         } else if (v.first == "outputs") {
@@ -583,7 +583,7 @@ int IOXMLModel::readTransition(
 
 int IOXMLModel::readTransitions(
         boost::property_tree::ptree::value_type const& root,
-        XMachine * machine) {
+        model::XMachine * machine) {
     int rc; /* Return code */
 
     /* Loop through each child of transitions */
@@ -603,7 +603,7 @@ int IOXMLModel::readTransitions(
 
 int IOXMLModel::readMessages(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
 
     /* Loop through each child of messages */
@@ -623,9 +623,9 @@ int IOXMLModel::readMessages(
 
 int IOXMLModel::readMessage(
         boost::property_tree::ptree::value_type const& root,
-        XModel * model) {
+        model::XModel * model) {
     int rc; /* Return code */
-    XMessage * xmessage = model->addMessage();
+    model::XMessage * xmessage = model->addMessage();
 
     /* Loop through each child of message */
     BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
@@ -646,7 +646,7 @@ int IOXMLModel::readMessage(
 }
 
 int IOXMLModel::readSort(boost::property_tree::ptree::value_type const& root,
-            XIOput * xioput) {
+        model::XIOput * xioput) {
     int rc; /* Return code */
     xioput->setSort(true);
 
@@ -668,7 +668,7 @@ int IOXMLModel::readSort(boost::property_tree::ptree::value_type const& root,
 
 int IOXMLModel::readCondition(
         boost::property_tree::ptree::value_type const& root,
-        XCondition * xcondition) {
+        model::XCondition * xcondition) {
     int rc; /* Return code */
 
     /* Loop through each child of message */
@@ -702,7 +702,7 @@ int IOXMLModel::readCondition(
             }
         } else if (v.first == "lhs") {
             /* Set up and read lhs */
-            xcondition->lhsCondition = new XCondition;
+            xcondition->lhsCondition = new model::XCondition;
             xcondition->tempValue = "";
             rc = readCondition(v, xcondition->lhsCondition);
             if (rc != 0) return rc;
@@ -721,7 +721,7 @@ int IOXMLModel::readCondition(
             xcondition->op = root.second.get<std::string>("op");
         } else if (v.first == "rhs") {
             /* Set up and read rhs */
-            xcondition->rhsCondition = new XCondition;
+            xcondition->rhsCondition = new model::XCondition;
             xcondition->tempValue = "";
             rc = readCondition(v, xcondition->rhsCondition);
             if (rc != 0) return rc;
@@ -746,4 +746,4 @@ int IOXMLModel::readCondition(
     return 0;
 }
 
-}}  // namespace flame::io
+}}}  // namespace flame::io::xml

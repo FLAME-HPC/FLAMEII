@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xfunction.cpp
+ * \file src/model/xfunction.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include "./xfunction.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XFunction::XFunction() {
     condition_ = 0;
@@ -115,4 +115,4 @@ XCondition * XFunction::getCondition() {
     return condition_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

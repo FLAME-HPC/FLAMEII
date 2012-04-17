@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xioput.cpp
+ * \file src/model/xioput.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include "./xioput.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XIOput::XIOput() {
     /* Set default options */
@@ -113,4 +113,4 @@ XCondition * XIOput::getFilter() {
     return filter_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmodel.cpp
+ * \file src/model/xmodel.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,9 +12,17 @@
 #include <vector>
 #include "./xmodel.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XModel::XModel() {
+    setup();
+}
+
+XModel::~XModel() {
+    clear();
+}
+
+void XModel::setup() {
     /* Initialise list of data types */
     addAllowedDataType("int");
     addAllowedDataType("float");
@@ -22,13 +30,14 @@ XModel::XModel() {
     addAllowedDataType("char"); /* Allow? */
 }
 
-XModel::~XModel() {
-    clear();
-}
-
 int XModel::clear() {
     name_ = "";
-    /* Delete variables */
+    /* Delete function files */
+    functionFiles_.clear();
+    /* Reset allowed datatypes */
+    allowedDataTypes_.clear();
+    setup();
+    /* Delete environment variables */
     XVariable * var;
     while (!constants_.empty()) {
         var = constants_.back();
@@ -231,4 +240,4 @@ std::vector<std::string> * XModel::getAllowedDataTypes() {
     return &allowedDataTypes_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmodel_check.cpp
+ * \file src/model/xmodel_check.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,9 +13,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "./xmodel.hpp"
+#include "./model_manager.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 int processVariable(XVariable * variable,
         XModel * model);
@@ -676,4 +676,4 @@ bool name_is_allowed(std::string name) {
             char_is_disallowed) == name.end();
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

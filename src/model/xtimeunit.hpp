@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xtimeunit.hpp
+ * \file src/model/xtimeunit.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,12 +7,12 @@
  * \copyright GNU Lesser General Public License
  * \brief XTimeUnit: holds time unit information
  */
-#ifndef IO__XTIMEUNIT_HPP_
-#define IO__XTIMEUNIT_HPP_
+#ifndef MODEL__XTIMEUNIT_HPP_
+#define MODEL__XTIMEUNIT_HPP_
 #include <boost/cstdint.hpp>
 #include <string>
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XTimeUnit {
   public:
@@ -34,5 +34,5 @@ class XTimeUnit {
     std::string periodString_;
     int period_;
 };
-}}  // namespace flame::io
-#endif  // IO__XTIMEUNIT_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XTIMEUNIT_HPP_

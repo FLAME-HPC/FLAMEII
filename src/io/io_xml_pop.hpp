@@ -12,26 +12,28 @@
 #include <libxml/xmlreader.h>
 #include <string>
 #include <vector>
-#include "./xmodel.hpp"
+#include "../model/model_manager.hpp"
 #include "../mem/memory_manager.hpp"
 
-namespace flame { namespace io {
+namespace model = flame::model;
+
+namespace flame { namespace io { namespace xml {
 
 class IOXMLPop {
   public:
     IOXMLPop() {}
-    int readXMLPop(std::string file_name, XModel * model,
+    int readXMLPop(std::string file_name, model::XModel * model,
             flame::mem::MemoryManager * memoryManager);
     int writeXMLPop(std::string file_name, int iterationNo,
-            XModel * model,
+            model::XModel * model,
             flame::mem::MemoryManager * memoryManager);
 
   private:
     int processNode(xmlTextReaderPtr reader,
-            XModel * model,
+            model::XModel * model,
             flame::mem::MemoryManager * memoryManager,
             std::vector<std::string> * tags,
-            XMachine ** agent);
+            model::XMachine ** agent);
 };
-}}  // namespace flame::io
+}}}  // namespace flame::io::xml
 #endif  // IO__XML_POP_HPP_

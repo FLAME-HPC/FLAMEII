@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmodel.hpp
+ * \file src/model/xmodel.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief XModel: holds model information
  */
-#ifndef IO__XMODEL_HPP_
-#define IO__XMODEL_HPP_
+#ifndef MODEL__XMODEL_HPP_
+#define MODEL__XMODEL_HPP_
 #include <string>
 #include <vector>
 #include "./xmachine.hpp"
@@ -17,13 +17,14 @@
 #include "./xtimeunit.hpp"
 #include "./xmessage.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XModel {
   public:
     XModel();
     ~XModel();
     int clear();
+    void setup();
     void print();
     int validate();
     void setPath(std::string path);
@@ -63,5 +64,5 @@ class XModel {
     /*! \brief A list of allowed data types to check variables */
     std::vector<std::string> allowedDataTypes_;
 };
-}}  // namespace flame::io
-#endif  // IO__XMODEL_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XMODEL_HPP_

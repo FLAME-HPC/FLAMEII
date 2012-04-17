@@ -6,16 +6,21 @@ LDFLAGS    = -L$(BOOST_DIR)/stage/lib
 LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
              -lxml2
 INCLUDE    = -I$(BOOST_DIR) -I$(LIBXML_DIR)
-TEST_IO_MODEL = src/io/tests/test_io_xml_model.cpp
-TEST_IO_POP   = src/io/tests/test_io_xml_pop.cpp
-SOURCES    = src/io/xvariable.cpp src/io/xadt.cpp src/io/xtimeunit.cpp src/io/xfunction.cpp src/io/xmachine.cpp \
-              src/io/xmessage.cpp src/io/xmodel.cpp src/io/io_xml_model.cpp src/io/xioput.cpp \
-              src/io/xcondition.cpp src/io/xmodel_validate.cpp src/io/io_xml_pop.cpp src/mem/memory_manager.cpp \
-              run_tests.cpp $(TEST_IO_POP) $(TEST_IO_MODEL)
+IO_SRC     = src/io/io_manager.cpp src/io/io_xml_model.cpp src/io/io_xml_pop.cpp
+IO_TEST    = src/io/tests/test_io_xml_model.cpp src/io/tests/test_io_xml_pop.cpp
+MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp \
+              src/model/xfunction.cpp src/model/xmachine.cpp \
+              src/model/xmessage.cpp src/model/xmodel.cpp src/model/xioput.cpp \
+              src/model/xcondition.cpp src/model/xmodel_validate.cpp \
+              src/model/model_manager.cpp
+MODEL_TEST = src/model/tests/test_model_manager.cpp
+MEM_SRC    = src/mem/memory_manager.cpp
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp $(MODEL_TEST) 
 OBJECTS    = $(SOURCES:.cpp=.o)
-HEADERS    = src/io/io_xml_model.hpp src/io/xmachine.hpp src/io/xmodel.hpp src/io/xvariable.hpp src/io/xadt.hpp \
-              src/io/xtimeunit.hpp src/io/xfunction.hpp src/io/xmessage.hpp src/io/xioput.hpp \
-              src/io/xcondition.hpp src/io/io_xml_pop.hpp src/mem/memory_manager.hpp
+HEADERS    = src/io/io_xml_model.hpp src/model/xmachine.hpp src/model/xmodel.hpp src/model/xvariable.hpp src/model/xadt.hpp \
+              src/model/xtimeunit.hpp src/model/xfunction.hpp src/model/xmessage.hpp src/model/xioput.hpp \
+              src/model/xcondition.hpp src/io/io_xml_pop.hpp src/mem/memory_manager.hpp \
+              src/model/model_manager.hpp src/io/io_manager.hpp
 DEPS       = Makefile $(HEADERS)
 EXECUTABLE = run_tests
 RM         = rm -f

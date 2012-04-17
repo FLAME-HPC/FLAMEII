@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmachine.cpp
+ * \file src/model/xmachine.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,9 +10,9 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "./xmodel.hpp"
+#include "./xmachine.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XMachine::~XMachine() {
     /* Delete variables */
@@ -85,4 +85,4 @@ bool XMachine::validateVariableName(std::string name) {
     return false;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

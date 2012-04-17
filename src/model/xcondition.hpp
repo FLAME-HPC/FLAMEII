@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xcondition.hpp
+ * \file src/model/xcondition.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,12 +7,12 @@
  * \copyright GNU Lesser General Public License
  * \brief XCondition: holds condition/filter information
  */
-#ifndef IO__XCONDITION_HPP_
-#define IO__XCONDITION_HPP_
+#ifndef MODEL__XCONDITION_HPP_
+#define MODEL__XCONDITION_HPP_
 #include <string>
 #include <vector>
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XMachine;
 class XMessage;
@@ -56,5 +56,5 @@ class XCondition {
     XCondition * lhsCondition;
     XCondition * rhsCondition;
 };
-}}  // namespace flame::io
-#endif  // IO__XCONDITION_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XCONDITION_HPP_
