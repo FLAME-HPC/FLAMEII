@@ -15,15 +15,16 @@
 #include <vector>
 #include "../io_xml_model.hpp"
 
-namespace io = flame::io;
+namespace xml = flame::io::xml;
+namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(IOModel)
 
 /* Test the reading of XML model files and sub model files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     int rc;
-    io::IOXMLModel ioxmlmodel;
-    io::XModel model;
+    xml::IOXMLModel ioxmlmodel;
+    model::XModel model;
 
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/missing.xml", &model);
@@ -64,8 +65,8 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
 BOOST_AUTO_TEST_CASE(validate_model) {
     int rc;
-    io::IOXMLModel ioxmlmodel;
-    io::XModel model;
+    xml::IOXMLModel ioxmlmodel;
+    model::XModel model;
 
     /* Test model validation using single file with all errors.
      * Possibly in future use a correct file and mutate for each

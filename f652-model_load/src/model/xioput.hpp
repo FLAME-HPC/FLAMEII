@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xioput.hpp
+ * \file src/model/xioput.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,12 +7,12 @@
  * \copyright GNU Lesser General Public License
  * \brief XIOput: holds input/output information
  */
-#ifndef IO__XIOPUT_HPP_
-#define IO__XIOPUT_HPP_
+#ifndef MODEL__XIOPUT_HPP_
+#define MODEL__XIOPUT_HPP_
 #include <string>
 #include "./xcondition.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XIOput {
   public:
@@ -47,5 +47,5 @@ class XIOput {
     std::string sortOrder_;
     XCondition * filter_;
 };
-}}  // namespace flame::io
-#endif  // IO__XIOPUT_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XIOPUT_HPP_

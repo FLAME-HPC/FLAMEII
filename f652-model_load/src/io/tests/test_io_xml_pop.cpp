@@ -18,16 +18,17 @@
 #include "../io_xml_pop.hpp"
 #include "../../mem/memory_manager.hpp"
 
-namespace io = flame::io;
+namespace xml = flame::io::xml;
+namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
 
 /* Test the reading of XML population files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     int rc;
-    io::IOXMLPop ioxmlpop;
-    io::IOXMLModel ioxmlmodel;
-    io::XModel model;
+    xml::IOXMLPop ioxmlpop;
+    xml::IOXMLModel ioxmlmodel;
+    model::XModel model;
     flame::mem::MemoryManager memoryManager;
 
     /* Read model xml */
@@ -36,12 +37,12 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     unsigned int ii, jj;
     size_t pop_size_hint = 3;
     for (ii = 0; ii < model.getAgents()->size(); ii++) {
-        flame::io::XMachine * agent = model.getAgents()->at(ii);
+        model::XMachine * agent = model.getAgents()->at(ii);
         /* Register agent */
         memoryManager.RegisterAgent(agent->getName(), pop_size_hint);
         /* Register agent memory variables */
         for (jj = 0; jj < agent->getVariables()->size(); jj++) {
-            flame::io::XVariable * var =
+            model::XVariable * var =
                     agent->getVariables()->at(jj);
             if (var->getType() == "int") {
                 memoryManager.RegisterAgentVar<int>

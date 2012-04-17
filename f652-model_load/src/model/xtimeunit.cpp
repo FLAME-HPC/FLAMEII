@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xtimeunit.cpp
+ * \file src/model/xtimeunit.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #include <string>
 #include "./xtimeunit.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XTimeUnit::~XTimeUnit() {
 }
@@ -54,4 +54,4 @@ int XTimeUnit::getPeriod() {
     return period_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xcondition.cpp
+ * \file src/model/xcondition.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -16,7 +16,7 @@
 #include "./xmessage.hpp"
 #include "./xmodel.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XCondition::XCondition() {
     isNot = false;
@@ -316,4 +316,4 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
     return errors;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

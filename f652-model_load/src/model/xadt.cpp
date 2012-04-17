@@ -1,20 +1,24 @@
 /*!
- * \file src/io/xmessage.cpp
+ * \file src/model/xadt.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief XMessage: holds message information
+ * \brief XADT: holds abstract data type information
  */
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "./xmessage.hpp"
+#include "./xadt.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
-XMessage::~XMessage() {
+XADT::XADT() {
+    holdsDynamicArray_ = false;
+}
+
+XADT::~XADT() {
     /* Delete variables */
     XVariable * var;
     while (!variables_.empty()) {
@@ -24,37 +28,38 @@ XMessage::~XMessage() {
     }
 }
 
-void XMessage::print() {
+void XADT::print() {
     unsigned int ii;
-    std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
+    std::fprintf(stdout, "\tADT Name: %s\n", getName().c_str());
     for (ii = 0; ii < getVariables()->size(); ii++) {
         getVariables()->at(ii)->print();
     }
 }
 
-void XMessage::setName(std::string name) {
+void XADT::setName(std::string name) {
     name_ = name;
 }
 
-std::string XMessage::getName() {
+std::string XADT::getName() {
     return name_;
 }
 
-XVariable * XMessage::addVariable() {
+XVariable * XADT::addVariable() {
     XVariable * xvariable = new XVariable;
     variables_.push_back(xvariable);
     return xvariable;
 }
 
-std::vector<XVariable*> * XMessage::getVariables() {
+std::vector<XVariable*> * XADT::getVariables() {
     return &variables_;
 }
 
-bool XMessage::validateVariableName(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
-        if (name == variables_.at(ii)->getName()) return true;
-    return false;
+void XADT::setHoldsDynamicArray(bool b) {
+    holdsDynamicArray_ = b;
 }
 
-}}  // namespace flame::io
+bool XADT::holdsDynamicArray() {
+    return holdsDynamicArray_;
+}
+
+}}  // namespace flame::model

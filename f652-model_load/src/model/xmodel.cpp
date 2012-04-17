@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmodel.cpp
+ * \file src/model/xmodel.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,7 +12,7 @@
 #include <vector>
 #include "./xmodel.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XModel::XModel() {
     /* Initialise list of data types */
@@ -231,4 +231,4 @@ std::vector<std::string> * XModel::getAllowedDataTypes() {
     return &allowedDataTypes_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

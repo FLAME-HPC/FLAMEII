@@ -17,7 +17,9 @@
 #include <cstdio>
 #include "./io_xml_pop.hpp"
 
-namespace flame { namespace io {
+namespace model = flame::model;
+
+namespace flame { namespace io { namespace xml {
 
 int writeXMLTag(xmlTextWriterPtr writer);
 int writeXMLTag(xmlTextWriterPtr writer, std::string name);
@@ -31,7 +33,7 @@ typedef flame::mem::VectorReader<double> doubleVecReader;
 
 int IOXMLPop::writeXMLPop(std::string file_name,
         int iterationNo,
-        XModel * model,
+        model::XModel * model,
         flame::mem::MemoryManager * memoryManager) {
     /* Return code */
     int rc;
@@ -66,12 +68,12 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     /* For each agent type in the model */
     for (ii = 0; ii < model->getAgents()->size(); ii++) {
         /* Assign to local agent variable */
-        XMachine * agent = model->getAgents()->at(ii);
+        model::XMachine * agent = model->getAgents()->at(ii);
         /* For each memory variable */
         for (jj = 0;
             jj < agent->getVariables()->size(); jj++) {
             /* Assign to local xvariable variable */
-            XVariable * var = agent->getVariables()->at(jj);
+            model::XVariable * var = agent->getVariables()->at(jj);
 
             /* Set up vector readers for each memory variable
              * dependent on variable data type and add to a
@@ -124,7 +126,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
             for (jj = 0;
                 jj < agent->getVariables()->size(); jj++) {
                 /* Assign to local xvariable variable */
-                XVariable * var = agent->getVariables()->at(jj);
+                model::XVariable * var = agent->getVariables()->at(jj);
 
                 /* Write variable value dependent on the variable
                  * type by accessing the associated vector reader
@@ -164,14 +166,14 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     return 0;
 }
 
-int IOXMLPop::readXMLPop(std::string file_name, XModel * model,
+int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
         flame::mem::MemoryManager * memoryManager) {
     xmlTextReaderPtr reader;
     int ret, rc;
     /* Using vector instead of stack as need to access earlier tags */
     std::vector<std::string> tags;
     /* Pointer to current agent type, 0 if invalid */
-    XMachine * agent = 0;
+    model::XMachine * agent = 0;
 
     /* Open file to read */
     reader = xmlReaderForFile(file_name.c_str(), NULL, 0);
@@ -210,10 +212,10 @@ int IOXMLPop::readXMLPop(std::string file_name, XModel * model,
 }
 
 int IOXMLPop::processNode(xmlTextReaderPtr reader,
-        XModel * model,
+        model::XModel * model,
         flame::mem::MemoryManager * memoryManager,
         std::vector<std::string> * tags,
-        XMachine ** agent) {
+        model::XMachine ** agent) {
     /* Node name */
     const xmlChar *xmlname;
     /* Node name as strings */
@@ -268,7 +270,7 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
                 } else {
                     /* Check if agent exists */
                     if ((*agent)) {
-                        XVariable * var = (*agent)->getVariable(tags->back());
+                        model::XVariable * var = (*agent)->getVariable(tags->back());
                         /* Check if variable is part of the agent */
                         if (var) {
                             /* Check variable type for casting */
@@ -399,4 +401,4 @@ int endXMLDoc(xmlTextWriterPtr writer) {
     return 0;
 }
 
-}}  // namespace flame::io
+}}}  // namespace flame::io::xml

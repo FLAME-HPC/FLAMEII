@@ -12,64 +12,64 @@
 #include <boost/property_tree/ptree.hpp>
 #include <string>
 #include <vector>
-#include "./xmodel.hpp"
-#include "./xmachine.hpp"
-#include "./xcondition.hpp"
+#include "../model/model_manager.hpp"
 
-namespace flame { namespace io {
+namespace model = flame::model;
+
+namespace flame { namespace io { namespace xml {
 
 class IOXMLModel {
   public:
     IOXMLModel() {}
 
-    int readXMLModel(std::string file_name, XModel * model);
+    int readXMLModel(std::string file_name, model::XModel * model);
 
   private:
     int readUnknownElement(boost::property_tree::ptree::value_type const& v);
     int readIncludedModels(boost::property_tree::ptree::value_type const& v,
-            std::string directory, XModel * model);
+            std::string directory, model::XModel * model);
     int readIncludedModel(boost::property_tree::ptree::value_type const& v,
-            std::string directory, XModel * model);
+            std::string directory, model::XModel * model);
     int readEnvironment(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readFunctionFiles(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readDataTypes(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readDataType(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readTimeUnits(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readTimeUnit(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readVariables(boost::property_tree::ptree::value_type const& v,
-            std::vector<XVariable*> * variables);
+            std::vector<model::XVariable*> * variables);
     int readVariable(boost::property_tree::ptree::value_type const& v,
-            std::vector<XVariable*> * variables);
+            std::vector<model::XVariable*> * variables);
     int readAgents(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readAgent(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readTransitions(boost::property_tree::ptree::value_type const& v,
-            XMachine * machine);
+            model::XMachine * machine);
     int readTransition(boost::property_tree::ptree::value_type const& v,
-            XMachine * machine);
+            model::XMachine * machine);
     int readInputs(boost::property_tree::ptree::value_type const& v,
-            XFunction * xfunction);
+            model::XFunction * xfunction);
     int readInput(boost::property_tree::ptree::value_type const& v,
-            XFunction * xfunction);
+            model::XFunction * xfunction);
     int readOutputs(boost::property_tree::ptree::value_type const& v,
-            XFunction * xfunction);
+            model::XFunction * xfunction);
     int readOutput(boost::property_tree::ptree::value_type const& v,
-            XFunction * xfunction);
+            model::XFunction * xfunction);
     int readMessages(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readMessage(boost::property_tree::ptree::value_type const& v,
-            XModel * model);
+            model::XModel * model);
     int readSort(boost::property_tree::ptree::value_type const& v,
-            XIOput * xioput);
+            model::XIOput * xioput);
     int readCondition(boost::property_tree::ptree::value_type const& v,
-            XCondition * xcondition);
+            model::XCondition * xcondition);
 };
-}}  // namespace flame::io
+}}}  // namespace flame::io::xml
 #endif  // IO__XML_MODEL_HPP_

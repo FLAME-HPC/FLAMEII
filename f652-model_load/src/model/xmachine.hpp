@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xmachine.hpp
+ * \file src/model/xmachine.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,14 +7,14 @@
  * \copyright GNU Lesser General Public License
  * \brief XMachine: holds agent information
  */
-#ifndef IO__XMACHINE_HPP_
-#define IO__XMACHINE_HPP_
+#ifndef MODEL__XMACHINE_HPP_
+#define MODEL__XMACHINE_HPP_
 #include <string>
 #include <vector>
 #include "./xvariable.hpp"
 #include "./xfunction.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XMachine {
   public:
@@ -35,5 +35,5 @@ class XMachine {
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;
 };
-}}  // namespace flame::io
-#endif  // IO__XMACHINE_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XMACHINE_HPP_

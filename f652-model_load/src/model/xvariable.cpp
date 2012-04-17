@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xvariable.cpp
+ * \file src/model/xvariable.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #include <cstdio>
 #include "./xvariable.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 XVariable::XVariable() {
     isDynamicArray_ = false;
@@ -108,4 +108,4 @@ bool XVariable::isConstant() {
     return constant_;
 }
 
-}}  // namespace flame::io
+}}  // namespace flame::model

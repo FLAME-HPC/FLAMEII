@@ -1,5 +1,5 @@
 /*!
- * \file src/io/xfunction.hpp
+ * \file src/model/xfunction.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,14 +7,14 @@
  * \copyright GNU Lesser General Public License
  * \brief XFunction: holds transition function information
  */
-#ifndef IO__XFUNCTION_HPP_
-#define IO__XFUNCTION_HPP_
+#ifndef MODEL__XFUNCTION_HPP_
+#define MODEL__XFUNCTION_HPP_
 #include <string>
 #include <vector>
 #include "./xioput.hpp"
 #include "./xcondition.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
 class XFunction {
   public:
@@ -42,5 +42,5 @@ class XFunction {
     std::vector<XIOput*> outputs_;
     XCondition * condition_;
 };
-}}  // namespace flame::io
-#endif  // IO__XFUNCTION_HPP_
+}}  // namespace flame::model
+#endif  // MODEL__XFUNCTION_HPP_

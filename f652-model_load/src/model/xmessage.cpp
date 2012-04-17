@@ -1,24 +1,20 @@
 /*!
- * \file src/io/xadt.cpp
+ * \file src/model/xmessage.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief XADT: holds abstract data type information
+ * \brief XMessage: holds message information
  */
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "./xadt.hpp"
+#include "./xmessage.hpp"
 
-namespace flame { namespace io {
+namespace flame { namespace model {
 
-XADT::XADT() {
-    holdsDynamicArray_ = false;
-}
-
-XADT::~XADT() {
+XMessage::~XMessage() {
     /* Delete variables */
     XVariable * var;
     while (!variables_.empty()) {
@@ -28,38 +24,37 @@ XADT::~XADT() {
     }
 }
 
-void XADT::print() {
+void XMessage::print() {
     unsigned int ii;
-    std::fprintf(stdout, "\tADT Name: %s\n", getName().c_str());
+    std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
     for (ii = 0; ii < getVariables()->size(); ii++) {
         getVariables()->at(ii)->print();
     }
 }
 
-void XADT::setName(std::string name) {
+void XMessage::setName(std::string name) {
     name_ = name;
 }
 
-std::string XADT::getName() {
+std::string XMessage::getName() {
     return name_;
 }
 
-XVariable * XADT::addVariable() {
+XVariable * XMessage::addVariable() {
     XVariable * xvariable = new XVariable;
     variables_.push_back(xvariable);
     return xvariable;
 }
 
-std::vector<XVariable*> * XADT::getVariables() {
+std::vector<XVariable*> * XMessage::getVariables() {
     return &variables_;
 }
 
-void XADT::setHoldsDynamicArray(bool b) {
-    holdsDynamicArray_ = b;
+bool XMessage::validateVariableName(std::string name) {
+    unsigned int ii;
+    for (ii = 0; ii < variables_.size(); ii++)
+        if (name == variables_.at(ii)->getName()) return true;
+    return false;
 }
 
-bool XADT::holdsDynamicArray() {
-    return holdsDynamicArray_;
-}
-
-}}  // namespace flame::io
+}}  // namespace flame::model
