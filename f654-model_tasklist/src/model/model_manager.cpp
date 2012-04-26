@@ -1,0 +1,41 @@
+/*!
+ * \file src/model/model_manager.cpp
+ * \author Simon Coakley
+ * \date 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief ModelManager: management and storage class for model data
+ */
+#include <string>
+#include "./model_manager.hpp"
+#include "../io/io_manager.hpp"
+
+namespace flame { namespace model {
+
+int ModelManager::loadModel(std::string const& file) {
+    int rc;
+    flame::io::IOManager ioManager;
+
+    /* Read model */
+    rc = ioManager.loadModel(file, &model_);
+    if (rc != 0) {
+        std::fprintf(stderr,
+            "Error: Model XML file could not be read.\n");
+        model_.clear();
+        return 1;
+    }
+
+    /* Validate model */
+    rc = model_.validate();
+    if (rc != 0) {
+        std::fprintf(stderr,
+            "Error: Model XML file could not be validated.\n");
+        model_.clear();
+        return 2;
+    }
+
+    return 0;
+}
+
+}}  // namespace flame::model
