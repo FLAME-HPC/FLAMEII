@@ -47,7 +47,7 @@ int ModelManager::generate_task_list() {
 
 #ifdef TESTBUILD
     /* Output dependency graph to view via graphviz dot */
-//    write_dependency_graph("dgraph.dot", &tasks_);
+    write_dependency_graph("dgraph.dot", &tasks_);
 #endif
 
     return 0;
@@ -101,32 +101,6 @@ int catalog_state_dependencies(XModel * model, std::vector<Task*> * tasks) {
             }
         }
     }
-
-    // TEST
-    /*std::vector<Task*>::iterator task;
-    std::vector<Dependency*>::iterator dependency;
-    for (task = tasks->begin(); task != tasks->end(); ++task) {
-        for (dependency = (*task)->getParents().begin();
-                dependency != (*task)->getParents().end();
-                dependency++) {
-            printf("size = %lu\n", (*task)->getParents().size());
-            //printf("%s ", (*dependency)->getName().c_str());
-            //printf("%s ", (*dependency)->getTask()->getName().c_str());
-            printf("%p ", (*dependency));
-            printf("%p ", (*dependency)->getTask());
-            printf("%lu\n", (*dependency)->getTask()->getLevel());
-        }
-        size_t ii;
-        for (ii = 0; ii < (*task)->getParents().size(); ii++) {
-            Dependency * d = (*task)->getParents().at(ii);
-            printf("size = %lu\n", (*task)->getParents().size());
-            //printf("%s ", (*dependency)->getName().c_str());
-            //printf("%s ", (*dependency)->getTask()->getName().c_str());
-            printf("%p ", d);
-            printf("%p ", d->getTask());
-            printf("%lu\n", d->getTask()->getLevel());
-        }
-    }*/
 
     return 0;
 }
@@ -360,7 +334,7 @@ void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
     /* File to write to */
     FILE *file;
     std::vector<Task*>::iterator task;
-    std::vector<Dependency*>::iterator dependency;
+    size_t ii;
 
     /* print out the location of the source file */
     printf("Writing file : %s\n", filename.c_str());
@@ -386,31 +360,31 @@ void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
         fputs("\"]\n", file);
 
         /* For every dependency */
-        for (dependency = (*task)->getParents().begin();
-                dependency != (*task)->getParents().end();
-                ++dependency) {
+        /* Didn't use iterator here as caused valgrind errors */
+        for (ii = 0; ii < (*task)->getParents().size(); ii++) {
+            Dependency * dependency = (*task)->getParents().at(ii);
             fputs("\t", file);
             fputs((*task)->getParentName().c_str(), file);
             fputs("_", file);
             fputs((*task)->getName().c_str(), file);
             fputs(" -> ", file);
-            fputs((*dependency)->getTask()->getParentName().c_str(), file);
+            fputs(dependency->getTask()->getParentName().c_str(), file);
             fputs("_", file);
-            fputs((*dependency)->getTask()->getName().c_str(), file);
+            fputs(dependency->getTask()->getName().c_str(), file);
             fputs(" [ label = \"<", file);
-            if ((*dependency)->getDependencyType() ==
+            if (dependency->getDependencyType() ==
                     Dependency::communication) {
                 fputs("Message: ", file);
             }
-            if ((*dependency)->getDependencyType() ==
+            if (dependency->getDependencyType() ==
                     Dependency::data) {
                 fputs("Memory: ", file);
             }
-            if ((*dependency)->getDependencyType() ==
+            if (dependency->getDependencyType() ==
                     Dependency::state) {
                 fputs("State: ", file);
             }
-            fputs((*dependency)->getName().c_str(), file);
+            fputs(dependency->getName().c_str(), file);
             fputs(">\" ];\n", file);
         }
     }
