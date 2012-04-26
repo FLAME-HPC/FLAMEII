@@ -22,17 +22,28 @@ BOOST_AUTO_TEST_SUITE(ModelManager)
 
 /* Test the loading of a model. */
 BOOST_AUTO_TEST_CASE(test_load_model) {
+//    int rc;
+//    model::ModelManager modelManager;
+
+    /* Test unreadable model */
+//    rc = modelManager.loadModel("src/io/tests/models/malformed_xml.xml");
+//    BOOST_CHECK(rc == 1);
+    /* Test invalid model */
+//    rc = modelManager.loadModel("src/io/tests/models/all_not_valid.xml");
+//    BOOST_CHECK(rc == 2);
+    /* Test valid model */
+//    rc = modelManager.loadModel("src/io/tests/models/all_data.xml");
+//    BOOST_CHECK(rc == 0);
+}
+
+/* Test the generating of the task list. */
+BOOST_AUTO_TEST_CASE(test_generate_task_list) {
     int rc;
     model::ModelManager modelManager;
 
-    /* Test unreadable model */
-    rc = modelManager.loadModel("src/io/tests/models/malformed_xml.xml");
-    BOOST_CHECK(rc == 1);
-    /* Test invalid model */
-    rc = modelManager.loadModel("src/io/tests/models/all_not_valid.xml");
-    BOOST_CHECK(rc == 2);
-    /* Test valid model */
-    rc = modelManager.loadModel("src/io/tests/models/all_data.xml");
+    rc = modelManager.loadModel("src/model/tests/models/circles.xml");
+    BOOST_CHECK(rc == 0);
+    rc = modelManager.generate_task_list();
     BOOST_CHECK(rc == 0);
 }
 

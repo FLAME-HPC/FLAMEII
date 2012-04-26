@@ -12,7 +12,8 @@ MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp 
               src/model/xfunction.cpp src/model/xmachine.cpp \
               src/model/xmessage.cpp src/model/xmodel.cpp src/model/xioput.cpp \
               src/model/xcondition.cpp src/model/xmodel_validate.cpp \
-              src/model/model_manager.cpp
+              src/model/model_manager.cpp src/model/generate_task_list.cpp \
+              src/model/task.cpp src/model/dependency.cpp
 MODEL_TEST = src/model/tests/test_model_manager.cpp
 MEM_SRC    = src/mem/memory_manager.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp $(MODEL_TEST) 
@@ -20,7 +21,7 @@ OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp src/model/xmachine.hpp src/model/xmodel.hpp src/model/xvariable.hpp src/model/xadt.hpp \
               src/model/xtimeunit.hpp src/model/xfunction.hpp src/model/xmessage.hpp src/model/xioput.hpp \
               src/model/xcondition.hpp src/io/io_xml_pop.hpp src/mem/memory_manager.hpp \
-              src/model/model_manager.hpp src/io/io_manager.hpp
+              src/model/model_manager.hpp src/io/io_manager.hpp src/model/task.hpp src/model/dependency.hpp
 DEPS       = Makefile $(HEADERS)
 EXECUTABLE = run_tests
 RM         = rm -f

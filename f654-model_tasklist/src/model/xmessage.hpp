@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include "./xvariable.hpp"
+#include "./task.hpp"
 
 namespace flame { namespace model {
 
@@ -25,10 +26,16 @@ class XMessage {
     XVariable * addVariable();
     std::vector<XVariable*> * getVariables();
     bool validateVariableName(std::string name);
+    void setSyncStartTask(Task * task);
+    Task * getSyncStartTask();
+    void setSyncFinishTask(Task * task);
+    Task * getSyncFinishTask();
 
   private:
     std::string name_;
     std::vector<XVariable*> variables_;
+    Task * syncStartTask_;
+    Task * syncFinishTask_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMESSAGE_HPP_
