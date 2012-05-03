@@ -1,5 +1,5 @@
 CC         = g++
-CFLAGS     = -g -Wall -DTESTBUILD# -pedantic
+CFLAGS     = -g -Wall -pedantic -DTESTBUILD
 BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
 LIBXML_DIR = /usr/include/libxml2
 LDFLAGS    = -L$(BOOST_DIR)/stage/lib
@@ -7,7 +7,7 @@ LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
              -lxml2
 INCLUDE    = -I$(BOOST_DIR) -I$(LIBXML_DIR)
 IO_SRC     = src/io/io_manager.cpp src/io/io_xml_model.cpp src/io/io_xml_pop.cpp
-IO_TEST    = src/io/tests/test_io_xml_model.cpp src/io/tests/test_io_xml_pop.cpp
+IO_TEST    = src/io/tests/test_io_xml_model.cpp #src/io/tests/test_io_xml_pop.cpp
 MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp \
               src/model/xfunction.cpp src/model/xmachine.cpp \
               src/model/xmessage.cpp src/model/xmodel.cpp src/model/xioput.cpp \
@@ -16,7 +16,7 @@ MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp 
               src/model/task.cpp src/model/dependency.cpp
 MODEL_TEST = src/model/tests/test_model_manager.cpp
 MEM_SRC    = src/mem/memory_manager.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp $(MODEL_TEST) 
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp $(IO_TEST) 
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp src/model/xmachine.hpp src/model/xmodel.hpp src/model/xvariable.hpp src/model/xadt.hpp \
               src/model/xtimeunit.hpp src/model/xfunction.hpp src/model/xmessage.hpp src/model/xioput.hpp \
