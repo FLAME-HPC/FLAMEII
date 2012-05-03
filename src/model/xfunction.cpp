@@ -16,7 +16,10 @@
 namespace flame { namespace model {
 
 XFunction::XFunction() {
+    /* Initialise pointers */
     condition_ = 0;
+    /* Default is that there is no memory access information */
+    memoryAccessInfoAvailable_ = false;
 }
 
 XFunction::~XFunction() {
@@ -113,6 +116,38 @@ XCondition * XFunction::addCondition() {
 
 XCondition * XFunction::getCondition() {
     return condition_;
+}
+
+void XFunction::setTask(Task * task) {
+    task_ = task;
+}
+
+Task * XFunction::getTask() {
+    return task_;
+}
+
+void XFunction::setMemoryAccessInfoAvailable(bool b) {
+    memoryAccessInfoAvailable_ = b;
+}
+
+bool XFunction::getMemoryAccessInfoAvailable() {
+    return memoryAccessInfoAvailable_;
+}
+
+void XFunction::addReadOnlyVariable(XVariable * v) {
+    readOnlyVariables_.push_back(v);
+}
+
+std::vector<XVariable*> * XFunction::getReadOnlyVariables() {
+    return &readOnlyVariables_;
+}
+
+void XFunction::addReadWriteVariable(XVariable * v) {
+    readWriteVariables_.push_back(v);
+}
+
+std::vector<XVariable*> * XFunction::getReadWriteVariables() {
+    return &readWriteVariables_;
 }
 
 }}  // namespace flame::model

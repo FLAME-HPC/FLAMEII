@@ -8,10 +8,21 @@
  * \brief ModelManager: management and storage class for model data
  */
 #include <string>
+#include <vector>
 #include "./model_manager.hpp"
 #include "../io/io_manager.hpp"
 
 namespace flame { namespace model {
+
+ModelManager::~ModelManager() {
+    /* Free task list memory */
+    Task * task;
+    while (!tasks_.empty()) {
+        task = tasks_.back();
+        delete task;
+        tasks_.pop_back();
+    }
+}
 
 int ModelManager::loadModel(std::string const& file) {
     int rc;
@@ -36,6 +47,10 @@ int ModelManager::loadModel(std::string const& file) {
     }
 
     return 0;
+}
+
+std::vector<Task*> * ModelManager::get_task_list() {
+    return &tasks_;
 }
 
 }}  // namespace flame::model

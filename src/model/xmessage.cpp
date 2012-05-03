@@ -57,4 +57,20 @@ bool XMessage::validateVariableName(std::string name) {
     return false;
 }
 
+void XMessage::setSyncStartTask(Task * task) {
+    syncStartTask_ = task;
+}
+
+Task * XMessage::getSyncStartTask() {
+    return syncStartTask_;
+}
+
+void XMessage::setSyncFinishTask(Task * task) {
+    syncFinishTask_ = task;
+}
+
+Task * XMessage::getSyncFinishTask() {
+    return syncFinishTask_;
+}
+
 }}  // namespace flame::model
