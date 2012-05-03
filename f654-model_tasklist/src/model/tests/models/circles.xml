@@ -33,7 +33,7 @@
 <description></description>
 <currentState>start</currentState>
 <nextState>1</nextState>
-<memoryAccess>
+<!-- <memoryAccess>
 <readOnly>
 <variableName>id</variableName>
 <variableName>x</variableName>
@@ -42,7 +42,7 @@
 </readOnly>
 <readWrite>
 </readWrite>
-</memoryAccess>
+</memoryAccess> -->
 <outputs>
   <output><messageName>location</messageName></output>
 </outputs>
