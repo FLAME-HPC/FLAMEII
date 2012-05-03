@@ -8,6 +8,7 @@
  * \brief ModelManager: management and storage class for model data
  */
 #include <string>
+#include <vector>
 #include "./model_manager.hpp"
 #include "../io/io_manager.hpp"
 

@@ -45,8 +45,7 @@ BOOST_AUTO_TEST_CASE(test_generate_task_list) {
     /* Test generated task list */
     std::vector<model::Task*> * tasks = modelManager.get_task_list();
     BOOST_CHECK(tasks->size() == 14);
-    if (tasks->size() == 14)
-    {
+    if (tasks->size() == 14) {
         for (ii = 0; ii < tasks->size(); ii++) {
             BOOST_CHECK(names[ii] == tasks->at(ii)->getFullName());
             BOOST_CHECK(level[ii] == tasks->at(ii)->getLevel());
