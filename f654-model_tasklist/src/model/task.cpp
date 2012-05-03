@@ -52,6 +52,11 @@ std::string Task::getName() {
     return name_;
 }
 
+std::string Task::getFullName() {
+    std::string fullName = name_ + "_" + parentName_;
+    return fullName;
+}
+
 void Task::setTaskType(TaskType type) {
     taskType_ = type;
 }

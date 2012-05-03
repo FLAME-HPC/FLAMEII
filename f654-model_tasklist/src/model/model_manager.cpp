@@ -48,4 +48,8 @@ int ModelManager::loadModel(std::string const& file) {
     return 0;
 }
 
+std::vector<Task*> * ModelManager::get_task_list() {
+    return &tasks_;
+}
+
 }}  // namespace flame::model

@@ -26,6 +26,7 @@ class Task {
     std::string getParentName();
     void setName(std::string name);
     std::string getName();
+    std::string getFullName();
     void setTaskType(TaskType type);
     TaskType getTaskType();
     void setLevel(size_t level);

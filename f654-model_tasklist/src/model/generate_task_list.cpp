@@ -69,6 +69,7 @@ int catalog_state_dependencies(XModel * model, std::vector<Task*> * tasks) {
             task->setParentName((*agent)->getName());
             task->setName((*function)->getName());
             task->setTaskType(Task::xfunction);
+            task->setPriorityLevel(5);
             tasks->push_back(task);
             /* Associate task with function */
             (*function)->setTask(task);
@@ -125,6 +126,7 @@ int catalog_communication_dependencies(XModel * model,
         syncStartTask->setParentName((*message)->getName());
         syncStartTask->setName("sync_start");
         syncStartTask->setTaskType(Task::sync_start);
+        syncStartTask->setPriorityLevel(10);
         tasks->push_back(syncStartTask);
         (*message)->setSyncStartTask(syncStartTask);
         /* Add sync finish tasks to the task list */
@@ -132,6 +134,7 @@ int catalog_communication_dependencies(XModel * model,
         syncFinishTask->setParentName((*message)->getName());
         syncFinishTask->setName("sync_finish");
         syncFinishTask->setTaskType(Task::sync_finish);
+        syncFinishTask->setPriorityLevel(1);
         tasks->push_back(syncFinishTask);
         (*message)->setSyncFinishTask(syncFinishTask);
         /* Add dependency between start and finish sync tasks */
@@ -209,6 +212,7 @@ int catalog_data_dependencies(XModel * model,
             dataTask->setParentName((*agent)->getName());
             dataTask->setName((*variable)->getName());
             dataTask->setTaskType(Task::io_pop_write);
+            dataTask->setPriorityLevel(0);
             tasks->push_back(dataTask);
             /* Add dependency parents to task */
             /* Find the last function that writes each variable */
@@ -248,21 +252,18 @@ std::string taskTypeToString(Task::TaskType t) {
         return "";
 }
 
-void printTaskList(std::string name, std::vector<Task*> * tasks) {
+void printTaskList(std::vector<Task*> * tasks) {
     std::vector<Task*>::iterator task;
 
-    fprintf(stdout, "%s\n", name.c_str());
+    fprintf(stdout, "Level\tPriority\tType\tName\n");
+    fprintf(stdout, "-----\t--------\t----\t----\n");
     for (task = tasks->begin(); task != tasks->end(); ++task) {
-        fprintf(stdout, "%lu\t%s\t%s_%s\n",
+        fprintf(stdout, "%lu\t%lu\t\t%s\t%s\n",
                 (*task)->getLevel(),
+                (*task)->getPriorityLevel(),
                 taskTypeToString((*task)->getTaskType()).c_str(),
-                (*task)->getParentName().c_str(),
-                (*task)->getName().c_str());
+                (*task)->getFullName().c_str());
     }
-}
-
-bool compare_task_levels(Task * i, Task * j) {
-    return (i->getLevel() < j->getLevel());
 }
 
 int calculate_dependencies(std::vector<Task*> * tasks) {
@@ -321,11 +322,20 @@ int calculate_dependencies(std::vector<Task*> * tasks) {
     return 0;
 }
 
+bool compare_task_levels(Task * i, Task * j) {
+    /* If same level then use priority level */
+    if (i->getLevel() == j->getLevel()) {
+        return (i->getPriorityLevel() > j->getPriorityLevel());
+    } else {
+        return (i->getLevel() < j->getLevel());
+    }
+}
+
 int calculate_task_list(std::vector<Task*> * tasks) {
     /* Sort the task list by level */
     sort(tasks->begin(), tasks->end(), compare_task_levels);
 
-    printTaskList("tasks", tasks);
+    printTaskList(tasks);
 
     return 0;
 }
