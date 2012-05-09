@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_SUITE(MemModule)
 BOOST_AUTO_TEST_CASE(test_register_agent) {
   size_t s1 = 100, s2 = 123;
   m::MemoryManager mgr;
-
+  /*
   mgr.RegisterAgent("Circle", s1);
   mgr.RegisterAgent("Square", s2);
 
@@ -62,8 +62,9 @@ BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
   BOOST_CHECK(ro.begin() == ro.end());
   BOOST_CHECK(ro.empty());
   BOOST_CHECK_EQUAL(ro.size(), (size_t)0);
+  */
 }
-
+/*
 
 struct F {  // test fixture
   F() {
@@ -112,5 +113,5 @@ BOOST_FIXTURE_TEST_CASE(test_vector_access_readwrite, F) {
   std::vector<int> &vec = mgr.GetMemoryVector_test<int>("Circle", "val");
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2+3, vec.begin(), vec.end());
 }
-
+*/
 BOOST_AUTO_TEST_SUITE_END()

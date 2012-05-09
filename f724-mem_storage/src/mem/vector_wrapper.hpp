@@ -13,40 +13,35 @@
 
 namespace flame { namespace mem {
 
+
+
 //! Base for vector classes that can be used as proxy object for
 //! agent memory vectors.
-class VectorWrapperBase {};
-
-//! Proxy object for memory vector which provides Read-Write access
-template <typename T>
-class VectorWriter : VectorWrapperBase {
+class VectorWrapperBase {
   public:
-    explicit VectorWriter(std::vector<T> *vec) : vec_(vec) {}
-    typedef typename std::vector<T>::iterator iterator;
+    virtual ~VectorWrapperBase() {}
+    virtual void reserve(unsigned int n) = 0;
 
-    iterator begin() { return vec_->begin(); }
-    iterator end() { return vec_->end(); }
-    bool empty() const { return vec_->empty(); }
-    size_t size() const { return vec_->size(); }
-
-  private:
-    typename std::vector<T> *vec_;
+    //! Simulate a virtual copy constructor
+    virtual VectorWrapperBase* clone() const = 0;
 };
 
-//! Proxy object for memory vector which provides Readonly access
+//! Make VectorWrapperBase cloneable within boost::ptr_map
+inline VectorWrapperBase* new_clone(const VectorWrapperBase& a) {
+  return a.clone();
+}
+
 template <typename T>
-class VectorReader : VectorWrapperBase {
+class VectorWrapper: public VectorWrapperBase {
   public:
-    explicit VectorReader(std::vector<T> const* vec) : vec_(vec) {}
-    typedef typename std::vector<T>::const_iterator iterator;
-
-    iterator begin() { return vec_->begin(); }
-    iterator end() { return vec_->end(); }
-    bool empty() const { return vec_->empty(); }
-    size_t size() const { return vec_->size(); }
-
+    typedef T data_type;
+    typedef std::vector<T> vector_type;
+    void reserve(unsigned int n) { v_.reserve(n); }
+    VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
   private:
-    typename std::vector<T> const *vec_;
+    std::vector<T> v_;
 };
+
+
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_VECTOR_HPP
