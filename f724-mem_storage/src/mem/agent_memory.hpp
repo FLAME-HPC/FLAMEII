@@ -62,7 +62,7 @@ class AgentMemory {
         else {
           VectorWrapperBase* ptr = it->second;
           if (*(ptr->GetDataType()) != typeid(T)) {
-            throw std::invalid_argument("Invalid agent memory variable");
+            throw std::domain_error("Invalid data type specified");
           }
           VectorWrapper<T>* ptr_t = static_cast<VectorWrapper<T>*>(ptr);
           return static_cast<std::vector<T>*>(ptr_t->GetVectorPtr());

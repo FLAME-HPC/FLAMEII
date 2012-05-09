@@ -30,7 +30,24 @@ class MemoryManager {
     void RegisterAgent(std::string agent_name);
 
     template <typename T>
-    void RegisterAgentVar(std::string agent_name, std::string var_name);
+    void RegisterAgentVar(std::string agent_name, std::string var_name) {
+      GetAgentMemory(agent_name).RegisterVar<T>(var_name);
+    }
+
+    template <typename T>
+    void RegisterAgentVar(std::string agent_name,
+                          std::vector<std::string> var_names) {
+      AgentMemory& am = GetAgentMemory(agent_name);
+      std::vector<std::string>::iterator it;
+      for (it = var_names.begin(); it != var_names.end(); ++it) {
+        am.RegisterVar<T>(*it);
+      }
+    }
+
+    template <typename T>
+    std::vector<T>* GetVector(std::string agent_name, std::string var_name) {
+      return GetAgentMemory(agent_name).GetVector<T>(var_name);
+    }
 
     void HintPopulationSize(std::string agent_name, unsigned int size_hint);
 

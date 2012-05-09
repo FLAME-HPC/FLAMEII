@@ -22,14 +22,14 @@ BOOST_AUTO_TEST_SUITE(MemModule)
 BOOST_AUTO_TEST_CASE(test_register_agent) {
   size_t s1 = 100, s2 = 123;
   m::MemoryManager mgr;
-  /*
-  mgr.RegisterAgent("Circle", s1);
-  mgr.RegisterAgent("Square", s2);
+
+  mgr.RegisterAgent("Circle");
+  mgr.RegisterAgent("Square");
 
   // Registering a single agent variable
   mgr.RegisterAgentVar<int>("Circle", "val");
 
-  // Registering multiple agent variavles
+  // Registering multiple agent variables
   std::vector<std::string> var_names;
   var_names.push_back("x");
   var_names.push_back("y");
@@ -39,30 +39,49 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   // Register var to the other agent
   mgr.RegisterAgentVar<int>("Square", "val");
 
+  // Population Size hint
+  mgr.HintPopulationSize("Circle", s1);
+  BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Circle", "z_dbl"),
+                    std::runtime_error);
+  BOOST_CHECK_NO_THROW(mgr.RegisterAgentVar<double>("Square", "z_dbl"));
+
+  mgr.HintPopulationSize("Square", s2);
+  BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Circle", "q_dbl"),
+                    std::runtime_error);
+  BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Square", "q_dbl"),
+                    std::runtime_error);
+
   // retrieve vector from non-existent agent
-  BOOST_CHECK_THROW((mgr.GetReader<int>("Triangle", "val")),
+  BOOST_CHECK_THROW((mgr.GetVector<int>("Triangle", "val")),
                     std::invalid_argument);
   // retrieve unregistered vector from agent
-  BOOST_CHECK_THROW((mgr.GetReader<int>("Circle", "dummy")),
+  BOOST_CHECK_THROW((mgr.GetVector<int>("Circle", "dummy")),
                     std::invalid_argument);
   // retrieve valid vector with wrong type
-  BOOST_CHECK_THROW((mgr.GetReader<int>("Circle", "x")), std::domain_error);
+  BOOST_CHECK_THROW((mgr.GetVector<int>("Circle", "x")), std::domain_error);
   // retrieve valid vector
-  BOOST_CHECK_NO_THROW((mgr.GetReader<int>("Circle", "val")));
-  BOOST_CHECK_NO_THROW((mgr.GetReader<int>("Square", "val")));
-  BOOST_CHECK_NO_THROW((mgr.GetReader<double>("Circle", "y")));
+  BOOST_CHECK_NO_THROW((mgr.GetVector<int>("Circle", "val")));
+  BOOST_CHECK_NO_THROW((mgr.GetVector<int>("Square", "val")));
+  BOOST_CHECK_NO_THROW((mgr.GetVector<double>("Circle", "y")));
+
+  // Check capacity of vectors within
+  BOOST_CHECK_EQUAL(mgr.GetVector<double>("Circle", "x")->capacity(), s1);
+  BOOST_CHECK_EQUAL(mgr.GetVector<int>("Circle", "val")->capacity(), s1);
+  BOOST_CHECK_EQUAL(mgr.GetVector<int>("Square", "val")->capacity(), s2);
+
 }
 
 BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
   m::MemoryManager mgr;
-  mgr.RegisterAgent("Circle", 10);
+  mgr.RegisterAgent("Circle");
   mgr.RegisterAgentVar<int>("Circle", "val");
+  mgr.HintPopulationSize("Circle", 10);
 
-  m::VectorReader<int> ro = mgr.GetReader<int>("Circle", "val");
-  BOOST_CHECK(ro.begin() == ro.end());
-  BOOST_CHECK(ro.empty());
-  BOOST_CHECK_EQUAL(ro.size(), (size_t)0);
-  */
+  std::vector<int>* vec = mgr.GetVector<int>("Circle", "val");
+  BOOST_CHECK(vec->begin() == vec->end());
+  BOOST_CHECK(vec->empty());
+  BOOST_CHECK_EQUAL(vec->size(), (size_t)0);
+
 }
 /*
 

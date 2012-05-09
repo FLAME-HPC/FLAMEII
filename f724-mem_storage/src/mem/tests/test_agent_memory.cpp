@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
   // retrieve vector that does not exist
   BOOST_CHECK_THROW(am.GetVector<int>("z"), std::invalid_argument);
   // retrieve vector with wrong type
-  BOOST_CHECK_THROW(am.GetVector<int>("y_dbl"), std::invalid_argument);
+  BOOST_CHECK_THROW(am.GetVector<int>("y_dbl"), std::domain_error);
   // retrieve vector properly
   am.GetVector<int>("x_int");
   BOOST_CHECK_NO_THROW(am.GetVector<int>("x_int"));
