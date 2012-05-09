@@ -9,11 +9,11 @@
  */
 #ifndef MEM__AGENT_MEMORY_HPP_
 #define MEM__AGENT_MEMORY_HPP_
-//#include <map>
 #include <string>
 #include <utility>  // for std::pair
 #include <vector>
 #include <stdexcept>
+#include <typeinfo>
 #include "boost/ptr_container/ptr_map.hpp"
 // #include "boost/any.hpp"
 // #include "boost/unordered_map.hpp"
@@ -24,9 +24,6 @@ namespace flame { namespace mem {
 
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
-
-//! Key-Value pair for MemoryMap
-//typedef std::pair<std::string, boost::any> MemoryMapValue;
 
 class AgentMemory {
   public:
@@ -51,6 +48,26 @@ class AgentMemory {
     //! in advance. This saves having to constantly reallocate memory
     //! as agents are added to AgentMemory.
     void HintPopulationSize(unsigned int size_hint);
+
+    //! Returns typeless pointer to associated vector wrapper
+    VectorWrapperBase* GetVectorWrapper(std::string var_name);
+
+    //! Returns a pointer to the actual data vector
+    template <typename T>
+    std::vector<T>* GetVector(std::string var_name) {
+        MemoryMap::iterator it = mem_map_.find(var_name);
+        if (it == mem_map_.end()) {
+          throw std::invalid_argument("Invalid agent memory variable");
+        }
+        else {
+          VectorWrapperBase* ptr = it->second;
+          if (*(ptr->GetDataType()) != typeid(T)) {
+            throw std::invalid_argument("Invalid agent memory variable");
+          }
+          VectorWrapper<T>* ptr_t = static_cast<VectorWrapper<T>*>(ptr);
+          return static_cast<std::vector<T>*>(ptr_t->GetVectorPtr());
+        }
+    }
 
   private:
     std::string agent_name_;

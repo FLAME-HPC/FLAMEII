@@ -23,5 +23,14 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
   registration_closed_ = true;  // no more new variables
 }
 
+VectorWrapperBase* AgentMemory::GetVectorWrapper(std::string var_name) {
+  MemoryMap::iterator it = mem_map_.find(var_name);
+  if (it == mem_map_.end()) {
+    throw std::invalid_argument("Invalid agent memory variable");
+  }
+  else {
+    return it->second;
+  }
+}
 
 }}  // namespace flame::mem
