@@ -97,11 +97,11 @@ BOOST_AUTO_TEST_CASE(test_typed_vector_access) {
 }
 
 
-void test_access_int(const m::MemoryManager& mgr,
+void test_access_int(m::MemoryManager* mgr,
                      std::string agent_name,
                      std::string var_name,
                      size_t pop_size) {
-  m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
+  m::VectorWrapperBase* base_ptr = mgr->GetVectorWrapper(agent_name, var_name);
 
   BOOST_CHECK(typeid(double) != *(base_ptr->GetDataType()));
   BOOST_CHECK(typeid(int) == *(base_ptr->GetDataType()));
@@ -115,11 +115,11 @@ void test_access_int(const m::MemoryManager& mgr,
   BOOST_CHECK_EQUAL(vector_ptr->size(), (size_t)2);
 }
 
-void test_access_double(const m::MemoryManager& mgr,
+void test_access_double(m::MemoryManager* mgr,
                      std::string agent_name,
                      std::string var_name,
                      size_t pop_size) {
-  m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
+  m::VectorWrapperBase* base_ptr = mgr->GetVectorWrapper(agent_name, var_name);
 
   BOOST_CHECK(typeid(int) != *(base_ptr->GetDataType()));
   BOOST_CHECK(typeid(double) == *(base_ptr->GetDataType()));
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE(test_anonymous_vector_access) {
   mgr.RegisterAgentVar<double>(agent_name, dbl_var);
   mgr.HintPopulationSize(agent_name, pop_size);
 
-  test_access_int(mgr, agent_name, int_var, pop_size);
-  test_access_double(mgr, agent_name, dbl_var, pop_size);
+  test_access_int(&mgr, agent_name, int_var, pop_size);
+  test_access_double(&mgr, agent_name, dbl_var, pop_size);
 }
 
 /*
