@@ -83,6 +83,58 @@ BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
   BOOST_CHECK_EQUAL(vec->size(), (size_t)0);
 
 }
+
+
+void test_access_int(m::MemoryManager& mgr,
+                     std::string agent_name,
+                     std::string var_name,
+                     size_t pop_size) {
+
+  m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
+
+  BOOST_CHECK(typeid(double) != *(base_ptr->GetDataType()));
+  BOOST_CHECK(typeid(int) == *(base_ptr->GetDataType()));
+
+  std::vector<int>* vector_ptr;
+  vector_ptr = static_cast<std::vector<int>*>(base_ptr->GetVectorPtr());
+  BOOST_CHECK_EQUAL(vector_ptr->capacity(), pop_size);
+
+  vector_ptr->push_back(10);
+  vector_ptr->push_back(20);
+  BOOST_CHECK_EQUAL(vector_ptr->size(), (size_t)2);
+}
+
+void test_access_double(m::MemoryManager& mgr,
+                     std::string agent_name,
+                     std::string var_name,
+                     size_t pop_size) {
+
+  m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
+
+  BOOST_CHECK(typeid(int) != *(base_ptr->GetDataType()));
+  BOOST_CHECK(typeid(double) == *(base_ptr->GetDataType()));
+
+  std::vector<double>* vector_ptr;
+  vector_ptr = static_cast<std::vector<double>*>(base_ptr->GetVectorPtr());
+  BOOST_CHECK_EQUAL(vector_ptr->capacity(), pop_size);
+
+  vector_ptr->push_back(10.1);
+  BOOST_CHECK_EQUAL(vector_ptr->size(), (size_t)1);
+}
+
+BOOST_AUTO_TEST_CASE(test_anonymous_vector_access) {
+  size_t pop_size = 100;
+  std::string agent_name = "Circle", int_var = "x", dbl_var = "y";
+  m::MemoryManager mgr;
+
+  mgr.RegisterAgent(agent_name);
+  mgr.RegisterAgentVar<int>(agent_name, int_var);
+  mgr.RegisterAgentVar<double>(agent_name, dbl_var);
+  mgr.HintPopulationSize(agent_name, pop_size);
+
+  test_access_int(mgr, agent_name, int_var, pop_size);
+}
+
 /*
 
 struct F {  // test fixture

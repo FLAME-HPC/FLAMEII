@@ -27,6 +27,11 @@ void MemoryManager::RegisterAgent(std::string agent_name) {
   }
 }
 
+VectorWrapperBase* MemoryManager::GetVectorWrapper(std::string agent_name,
+                                                   std::string var_name) {
+  return GetAgentMemory(agent_name).GetVectorWrapper(var_name);
+}
+
 void MemoryManager::HintPopulationSize(std::string agent_name,
                                        unsigned int size_hint) {
   GetAgentMemory(agent_name).HintPopulationSize(size_hint);

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
+#include "vector_wrapper.hpp"
 
 namespace flame { namespace mem {
 
@@ -40,6 +41,10 @@ class MemoryManager {
         am.RegisterVar<T>(*it);
       }
     }
+
+    //! Returns typeless pointer to associated vector wrapper
+    VectorWrapperBase* GetVectorWrapper(std::string agent_name,
+                                        std::string var_name);
 
     template <typename T>
     std::vector<T>* GetVector(std::string agent_name, std::string var_name) {
