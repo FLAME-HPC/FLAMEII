@@ -33,11 +33,12 @@ void MemoryManager::HintPopulationSize(std::string agent_name,
 }
 
 AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
-  AgentMap::iterator it = agent_map_.find(agent_name);
-  if (it == agent_map_.end()) {  // unknown agent name
+  try {
+    return agent_map_.at(agent_name);
+  }
+  catch (std::out_of_range &E) {
     throw exc::invalid_agent("unknown agent name");
   }
-  return it->second;
 }
 
 }}  // namespace flame::mem
