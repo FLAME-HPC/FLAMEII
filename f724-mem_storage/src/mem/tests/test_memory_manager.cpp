@@ -78,7 +78,6 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   BOOST_CHECK_EQUAL(mgr.GetVector<double>("Circle", "x")->capacity(), s1);
   BOOST_CHECK_EQUAL(mgr.GetVector<int>("Circle", "val")->capacity(), s1);
   BOOST_CHECK_EQUAL(mgr.GetVector<int>("Square", "val")->capacity(), s2);
-
 }
 
 BOOST_AUTO_TEST_CASE(test_typed_vector_access) {
@@ -98,11 +97,10 @@ BOOST_AUTO_TEST_CASE(test_typed_vector_access) {
 }
 
 
-void test_access_int(m::MemoryManager& mgr,
+void test_access_int(const m::MemoryManager& mgr,
                      std::string agent_name,
                      std::string var_name,
                      size_t pop_size) {
-
   m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
 
   BOOST_CHECK(typeid(double) != *(base_ptr->GetDataType()));
@@ -117,11 +115,10 @@ void test_access_int(m::MemoryManager& mgr,
   BOOST_CHECK_EQUAL(vector_ptr->size(), (size_t)2);
 }
 
-void test_access_double(m::MemoryManager& mgr,
+void test_access_double(const m::MemoryManager& mgr,
                      std::string agent_name,
                      std::string var_name,
                      size_t pop_size) {
-
   m::VectorWrapperBase* base_ptr = mgr.GetVectorWrapper(agent_name, var_name);
 
   BOOST_CHECK(typeid(int) != *(base_ptr->GetDataType()));

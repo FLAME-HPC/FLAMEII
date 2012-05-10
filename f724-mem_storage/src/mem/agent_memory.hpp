@@ -27,7 +27,7 @@ typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 
 class AgentMemory {
   public:
-    AgentMemory(std::string agent_name)
+    explicit AgentMemory(std::string agent_name)
         : agent_name_(agent_name),
           registration_closed_(false) {}
 
@@ -59,7 +59,7 @@ class AgentMemory {
       try {
         ptr = &(mem_map_.at(var_name));
       }
-      catch (boost::bad_ptr_container_operation &E) {
+      catch(const boost::bad_ptr_container_operation& E) {
         throw exc::invalid_variable("Invalid agent memory variable");
       }
 

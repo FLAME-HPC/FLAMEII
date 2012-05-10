@@ -10,10 +10,8 @@
 #ifndef MEM__MEMORY_VECTOR_HPP
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
-//#include <typeinfo>
 
 namespace flame { namespace mem {
-
 
 //! Base for vector classes that can be used as proxy object for
 //! agent memory vectors.
@@ -40,8 +38,14 @@ class VectorWrapper: public VectorWrapperBase {
     typedef T data_type;
     typedef std::vector<T> vector_type;
     void reserve(unsigned int n) { v_.reserve(n); }
-    void* GetVectorPtr() { return &v_; };
-    virtual const std::type_info* GetDataType() const { return data_type_; } ;
+
+    void* GetVectorPtr() {
+      return &v_;
+    }
+
+    virtual const std::type_info* GetDataType() const {
+      return data_type_;
+    }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
   private:

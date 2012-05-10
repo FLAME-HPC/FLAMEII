@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief AgentMemory: management and storage class for per-agent memory vectors
  */
+#include <string>
 #include "agent_memory.hpp"
 #include "src/exceptions/mem.hpp"
 
@@ -21,7 +22,7 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
 
   // iterate through all vectors and reserve size based on hint
   MemoryMap::iterator it;
-  for (it = mem_map_.begin(); it != mem_map_.end(); ++it ) {
+  for (it = mem_map_.begin(); it != mem_map_.end(); ++it) {
     it->second->reserve(size_hint);
   }
   registration_closed_ = true;  // no more new variables
@@ -31,7 +32,7 @@ VectorWrapperBase* AgentMemory::GetVectorWrapper(std::string var_name) {
   try {
     return &(mem_map_.at(var_name));
   }
-  catch (boost::bad_ptr_container_operation &E) {
+  catch(const boost::bad_ptr_container_operation& E) {
     throw exc::invalid_variable("Invalid agent memory variable");
   }
 }

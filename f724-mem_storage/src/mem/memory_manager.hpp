@@ -26,7 +26,6 @@ typedef std::map<std::string, AgentMemory> AgentMap;
 //! initialisation stage before threads are spawned or guarded by mutexes
 class MemoryManager {
   public:
-
     //! Returns instance of singleton object
     //!  When used in a multithreaded environment, this should be called
     //!  at lease once before threads are spawned.
@@ -65,7 +64,7 @@ class MemoryManager {
 
   private:
     // This is a singleton. Disallow instantiation, copy and assignment.
-    MemoryManager() {};
+    MemoryManager() {}
     MemoryManager(const MemoryManager&);
     void operator=(const MemoryManager&);
 
