@@ -9,6 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <map>
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -19,9 +20,18 @@ namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(MemModule)
 
+BOOST_AUTO_TEST_CASE(initialise_and_test_singleton) {
+  m::MemoryManager& mgr1 = m::MemoryManager::GetInstance();
+  mgr1.RegisterAgent("TestSingleton");
+
+  m::MemoryManager& mgr = m::MemoryManager::GetInstance();
+  // That agent should already be registered
+  BOOST_CHECK_THROW(mgr.RegisterAgent("TestSingleton"), e::logic_error);
+}
+
 BOOST_AUTO_TEST_CASE(test_register_agent) {
   size_t s1 = 100, s2 = 123;
-  m::MemoryManager mgr;
+  m::MemoryManager& mgr = m::MemoryManager::GetInstance();
 
   mgr.RegisterAgent("Circle");
   mgr.RegisterAgent("Square");
@@ -71,17 +81,20 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
 
 }
 
-BOOST_AUTO_TEST_CASE(test_vector_access_empty) {
-  m::MemoryManager mgr;
-  mgr.RegisterAgent("Circle");
-  mgr.RegisterAgentVar<int>("Circle", "val");
-  mgr.HintPopulationSize("Circle", 10);
+BOOST_AUTO_TEST_CASE(test_typed_vector_access) {
+  m::MemoryManager& mgr = m::MemoryManager::GetInstance();
+  mgr.RegisterAgent("Circle2");
+  mgr.RegisterAgentVar<int>("Circle2", "val");
+  mgr.HintPopulationSize("Circle2", 10);
 
-  std::vector<int>* vec = mgr.GetVector<int>("Circle", "val");
+  std::vector<int>* vec = mgr.GetVector<int>("Circle2", "val");
   BOOST_CHECK(vec->begin() == vec->end());
   BOOST_CHECK(vec->empty());
   BOOST_CHECK_EQUAL(vec->size(), (size_t)0);
 
+  vec->push_back(10);
+  vec->push_back(20);
+  BOOST_CHECK_EQUAL(vec->size(), (size_t)2);
 }
 
 
@@ -124,8 +137,8 @@ void test_access_double(m::MemoryManager& mgr,
 
 BOOST_AUTO_TEST_CASE(test_anonymous_vector_access) {
   size_t pop_size = 100;
-  std::string agent_name = "Circle", int_var = "x", dbl_var = "y";
-  m::MemoryManager mgr;
+  std::string agent_name = "Circle3", int_var = "x", dbl_var = "y";
+  m::MemoryManager& mgr = m::MemoryManager::GetInstance();
 
   mgr.RegisterAgent(agent_name);
   mgr.RegisterAgentVar<int>(agent_name, int_var);
@@ -133,6 +146,7 @@ BOOST_AUTO_TEST_CASE(test_anonymous_vector_access) {
   mgr.HintPopulationSize(agent_name, pop_size);
 
   test_access_int(mgr, agent_name, int_var, pop_size);
+  test_access_double(mgr, agent_name, dbl_var, pop_size);
 }
 
 /*

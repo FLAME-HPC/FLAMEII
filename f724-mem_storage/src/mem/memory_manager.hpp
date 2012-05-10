@@ -21,9 +21,19 @@ namespace flame { namespace mem {
 typedef std::map<std::string, AgentMemory> AgentMap;
 
 
+//! Singleton Memory Manager
+//! Apart from the Get* methods, all others should be called during the
+//! initialisation stage before threads are spawned or guarded by mutexes
 class MemoryManager {
   public:
-    MemoryManager() {}
+
+    //! Returns instance of singleton object
+    //!  When used in a multithreaded environment, this should be called
+    //!  at lease once before threads are spawned.
+    static MemoryManager& GetInstance() {
+      static MemoryManager instance;
+      return instance;
+    }
 
     void RegisterAgent(std::string agent_name);
 
@@ -54,13 +64,13 @@ class MemoryManager {
     void HintPopulationSize(std::string agent_name, unsigned int size_hint);
 
   private:
-    AgentMap agent_map_;
-
-    AgentMemory& GetAgentMemory(std::string agent_name);
-
-    // disallow copy and assign
+    // This is a singleton. Disallow instantiation, copy and assignment.
+    MemoryManager() {};
     MemoryManager(const MemoryManager&);
     void operator=(const MemoryManager&);
+
+    AgentMap agent_map_;
+    AgentMemory& GetAgentMemory(std::string agent_name);
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_MANAGER_HPP_
