@@ -11,8 +11,10 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include "../agent_memory.hpp"
+#include "src/exceptions/mem.hpp"
 
 namespace m = flame::mem;
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(MemModule)
 
@@ -25,13 +27,13 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
 
   // hint population size and ensure that vars can no longer be registered
   am.HintPopulationSize(size_hint);
-  BOOST_CHECK_THROW(am.RegisterVar<double>("z_dbl"), std::runtime_error);
+  BOOST_CHECK_THROW(am.RegisterVar<double>("z_dbl"), e::logic_error);
 
 
   // retrieve vector that does not exist
-  BOOST_CHECK_THROW(am.GetVector<int>("z"), std::invalid_argument);
+  BOOST_CHECK_THROW(am.GetVector<int>("z"), e::invalid_variable);
   // retrieve vector with wrong type
-  BOOST_CHECK_THROW(am.GetVector<int>("y_dbl"), std::domain_error);
+  BOOST_CHECK_THROW(am.GetVector<int>("y_dbl"), e::invalid_type);
   // retrieve vector properly
   am.GetVector<int>("x_int");
   BOOST_CHECK_NO_THROW(am.GetVector<int>("x_int"));

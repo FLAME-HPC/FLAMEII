@@ -15,7 +15,7 @@
 #include "../memory_manager.hpp"
 
 namespace m = flame::mem;
-
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(MemModule)
 
@@ -42,23 +42,23 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   // Population Size hint
   mgr.HintPopulationSize("Circle", s1);
   BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Circle", "z_dbl"),
-                    std::runtime_error);
+                    e::logic_error);
   BOOST_CHECK_NO_THROW(mgr.RegisterAgentVar<double>("Square", "z_dbl"));
 
   mgr.HintPopulationSize("Square", s2);
   BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Circle", "q_dbl"),
-                    std::runtime_error);
+                    e::logic_error);
   BOOST_CHECK_THROW(mgr.RegisterAgentVar<double>("Square", "q_dbl"),
-                    std::runtime_error);
+                    e::logic_error);
 
   // retrieve vector from non-existent agent
   BOOST_CHECK_THROW((mgr.GetVector<int>("Triangle", "val")),
-                    std::invalid_argument);
+                    e::invalid_agent);
   // retrieve unregistered vector from agent
   BOOST_CHECK_THROW((mgr.GetVector<int>("Circle", "dummy")),
-                    std::invalid_argument);
+                    e::invalid_variable);
   // retrieve valid vector with wrong type
-  BOOST_CHECK_THROW((mgr.GetVector<int>("Circle", "x")), std::domain_error);
+  BOOST_CHECK_THROW((mgr.GetVector<int>("Circle", "x")), e::invalid_type);
   // retrieve valid vector
   BOOST_CHECK_NO_THROW((mgr.GetVector<int>("Circle", "val")));
   BOOST_CHECK_NO_THROW((mgr.GetVector<int>("Square", "val")));

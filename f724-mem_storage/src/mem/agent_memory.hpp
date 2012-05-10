@@ -15,12 +15,12 @@
 #include <stdexcept>
 #include <typeinfo>
 #include "boost/ptr_container/ptr_map.hpp"
-// #include "boost/any.hpp"
-// #include "boost/unordered_map.hpp"
-// #include "boost/shared_ptr.hpp"
 #include "vector_wrapper.hpp"
+#include "src/exceptions/mem.hpp"
 
 namespace flame { namespace mem {
+
+namespace exc = flame::exceptions;
 
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
@@ -35,12 +35,12 @@ class AgentMemory {
     template <typename T>
     void RegisterVar(std::string var_name) {
       if (registration_closed_) {
-        throw std::runtime_error("variables can no longer be registered");
+        throw exc::logic_error("variables can no longer be registered");
       }
       std::pair<MemoryMap::iterator, bool> ret;
       ret = mem_map_.insert(var_name, new VectorWrapper<T>());
       if (!ret.second) {  // if replacement instead of insertion
-        throw std::invalid_argument("variable already registered");
+        throw exc::logic_error("variable already registered");
       }
     }
 
@@ -55,18 +55,18 @@ class AgentMemory {
     //! Returns a pointer to the actual data vector
     template <typename T>
     std::vector<T>* GetVector(std::string var_name) {
-        MemoryMap::iterator it = mem_map_.find(var_name);
-        if (it == mem_map_.end()) {
-          throw std::invalid_argument("Invalid agent memory variable");
-        }
-        else {
-          VectorWrapperBase* ptr = it->second;
-          if (*(ptr->GetDataType()) != typeid(T)) {
-            throw std::domain_error("Invalid data type specified");
-          }
-          VectorWrapper<T>* ptr_t = static_cast<VectorWrapper<T>*>(ptr);
-          return static_cast<std::vector<T>*>(ptr_t->GetVectorPtr());
-        }
+      VectorWrapperBase* ptr;
+      try {
+        ptr = &(mem_map_.at(var_name));
+      }
+      catch (boost::bad_ptr_container_operation &E) {
+        throw exc::invalid_variable("Invalid agent memory variable");
+      }
+
+      if (*(ptr->GetDataType()) != typeid(T)) {
+        throw exc::invalid_type("Invalid data type specified");
+      }
+      return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 
   private:

@@ -7,11 +7,14 @@
  * \copyright GNU Lesser General Public License
  * \brief MemoryManager: management and storage class for agent data
  */
-#include "memory_manager.hpp"
 #include <utility>
 #include <string>
+#include "memory_manager.hpp"
+#include "src/exceptions/mem.hpp"
 
 namespace flame { namespace mem {
+
+namespace exc = flame::exceptions;
 
 //! Key-Value pair for AgentMemory
 typedef std::pair<std::string, AgentMemory> AgentMapValue;
@@ -20,7 +23,7 @@ void MemoryManager::RegisterAgent(std::string agent_name) {
   std::pair<AgentMap::iterator, bool> ret;
   ret = agent_map_.insert(AgentMapValue(agent_name, AgentMemory(agent_name)));
   if (!ret.second) { // if replacement instead of insertion
-    throw std::invalid_argument("agent already registered");
+    throw exc::logic_error("agent already registered");
   }
 }
 
@@ -32,7 +35,7 @@ void MemoryManager::HintPopulationSize(std::string agent_name,
 AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
   AgentMap::iterator it = agent_map_.find(agent_name);
   if (it == agent_map_.end()) {  // unknown agent name
-    throw std::invalid_argument("unknown agent name");
+    throw exc::invalid_agent("unknown agent name");
   }
   return it->second;
 }

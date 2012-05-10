@@ -8,11 +8,15 @@
  * \brief AgentMemory: management and storage class for per-agent memory vectors
  */
 #include "agent_memory.hpp"
+#include "src/exceptions/mem.hpp"
+
 namespace flame { namespace mem {
+
+namespace exc = flame::exceptions;
 
 void AgentMemory::HintPopulationSize(unsigned int size_hint) {
   if (mem_map_.size() == 0) {
-    throw std::runtime_error("no agent memory variables registered");
+    throw exc::invalid_agent("no agent memory variables registered");
   }
 
   // iterate through all vectors and reserve size based on hint
@@ -24,12 +28,11 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
 }
 
 VectorWrapperBase* AgentMemory::GetVectorWrapper(std::string var_name) {
-  MemoryMap::iterator it = mem_map_.find(var_name);
-  if (it == mem_map_.end()) {
-    throw std::invalid_argument("Invalid agent memory variable");
+  try {
+    return &(mem_map_.at(var_name));
   }
-  else {
-    return it->second;
+  catch (boost::bad_ptr_container_operation &E) {
+    throw exc::invalid_variable("Invalid agent memory variable");
   }
 }
 

@@ -9,13 +9,10 @@
  */
 #ifndef MEM__MEMORY_MANAGER_HPP_
 #define MEM__MEMORY_MANAGER_HPP_
-// #include <boost/static_assert.hpp>
-// #include <boost/type_traits/is_base_of.hpp>
 #include <map>
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-// #include "vector_wrapper.hpp"
 
 namespace flame { namespace mem {
 
