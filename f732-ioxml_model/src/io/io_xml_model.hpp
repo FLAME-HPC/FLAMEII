@@ -9,7 +9,8 @@
  */
 #ifndef IO__XML_MODEL_HPP_
 #define IO__XML_MODEL_HPP_
-#include <libxml/xmlreader.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include <string>
 #include <vector>
 #include "../model/model_manager.hpp"
@@ -25,12 +26,12 @@ class IOXMLModel {
     int readXMLModel(std::string file_name, model::XModel * model);
 
   private:
-    int readUnknownElement(xmlTextReaderPtr reader);
-/*    int readIncludedModels(boost::property_tree::ptree::value_type const& v,
+        int readUnknownElement(xmlNode * node);
+    /*int readIncludedModels(xmlTextReaderPtr reader,
             std::string directory, model::XModel * model);
-    int readIncludedModel(boost::property_tree::ptree::value_type const& v,
+    int readIncludedModel(xmlTextReaderPtr reader,
             std::string directory, model::XModel * model);
-        int readEnvironment(boost::property_tree::ptree::value_type const& v,
+            int readEnvironment(boost::property_tree::ptree::value_type const& v,
             model::XModel * model);
     int readFunctionFiles(boost::property_tree::ptree::value_type const& v,
             model::XModel * model);
