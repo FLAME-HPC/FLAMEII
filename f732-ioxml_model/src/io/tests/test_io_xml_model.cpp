@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/xmodelv1.xml", &model);
     BOOST_CHECK(rc == 4);
-
+/*
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/submodel_enable_error.xml", &model);
     BOOST_CHECK(rc == 5);
@@ -57,24 +57,26 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/submodel_missing.xml", &model);
     BOOST_CHECK(rc == 8);
-
+*/
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/all_not_valid.xml", &model);
+    printf("rc = %d\n", rc);
     BOOST_CHECK(rc == 0);
+    model.print();
 }
 
-BOOST_AUTO_TEST_CASE(validate_model) {
+/*BOOST_AUTO_TEST_CASE(validate_model) {
     int rc;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
 
-    /* Test model validation using single file with all errors.
+    * Test model validation using single file with all errors.
      * Possibly in future use a correct file and mutate for each
-     * error and test separately. */
+     * error and test separately.
     ioxmlmodel.readXMLModel(
             "src/io/tests/models/all_not_valid.xml", &model);
     rc = model.validate();
     BOOST_CHECK(rc == 41);
-}
+}*/
 
 BOOST_AUTO_TEST_SUITE_END()

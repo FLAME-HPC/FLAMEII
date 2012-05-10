@@ -9,7 +9,7 @@
  */
 #ifndef IO__XML_MODEL_HPP_
 #define IO__XML_MODEL_HPP_
-#include <boost/property_tree/ptree.hpp>
+#include <libxml/xmlreader.h>
 #include <string>
 #include <vector>
 #include "../model/model_manager.hpp"
@@ -25,12 +25,12 @@ class IOXMLModel {
     int readXMLModel(std::string file_name, model::XModel * model);
 
   private:
-    int readUnknownElement(boost::property_tree::ptree::value_type const& v);
-    int readIncludedModels(boost::property_tree::ptree::value_type const& v,
+    int readUnknownElement(xmlTextReaderPtr reader);
+/*    int readIncludedModels(boost::property_tree::ptree::value_type const& v,
             std::string directory, model::XModel * model);
     int readIncludedModel(boost::property_tree::ptree::value_type const& v,
             std::string directory, model::XModel * model);
-    int readEnvironment(boost::property_tree::ptree::value_type const& v,
+        int readEnvironment(boost::property_tree::ptree::value_type const& v,
             model::XModel * model);
     int readFunctionFiles(boost::property_tree::ptree::value_type const& v,
             model::XModel * model);
@@ -69,7 +69,7 @@ class IOXMLModel {
     int readSort(boost::property_tree::ptree::value_type const& v,
             model::XIOput * xioput);
     int readCondition(boost::property_tree::ptree::value_type const& v,
-            model::XCondition * xcondition);
+            model::XCondition * xcondition);*/
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_MODEL_HPP_
