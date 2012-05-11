@@ -20,6 +20,16 @@ class VectorWrapperBase {
     virtual ~VectorWrapperBase() {}
     virtual void reserve(unsigned int n) = 0;
     virtual void* GetVectorPtr() = 0;
+
+    //! Returns a pointer to the first element in the internal
+    //! array, or NULL if the vector is empty
+    virtual void* GetRawPtr() = 0;
+
+    //! Takes a raw pointer to the internal array element and
+    //! returns a pointer to the next next element in the array
+    //! or NULL if the end of the array is reached
+    virtual void* StepRawPtr(void* ptr) = 0;
+
     virtual const std::type_info* GetDataType() const = 0;
 
     //! Simulate a virtual copy constructor
@@ -41,6 +51,17 @@ class VectorWrapper: public VectorWrapperBase {
 
     void* GetVectorPtr() {
       return &v_;
+    }
+
+    void* GetRawPtr() {
+      return (v_.empty()) ? NULL : &(v_.front());
+    }
+
+    void* StepRawPtr(void* ptr) {
+      if (ptr == NULL || ptr == &(v_.back())) {
+        return NULL;
+      }
+      return static_cast<void*>(static_cast<T*>(ptr)+1);
     }
 
     virtual const std::type_info* GetDataType() const {
