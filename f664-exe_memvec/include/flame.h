@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Header file for FLAME2 User API
  */
-#ifndef INCLUDE_FLAME_H_
-#define INCLUDE_FLAME_H_
+#ifndef INCLUDE__FLAME_H_
+#define INCLUDE__FLAME_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 #ifdef __cplusplus
 }
 #endif
-#endif  /* INCLUDE_FLAME_H_ */
+#endif  /* INCLUDE__FLAME_H_ */

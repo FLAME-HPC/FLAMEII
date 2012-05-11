@@ -9,15 +9,16 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/shared_ptr.hpp>
-#include "../execution_engine.hpp"
-#include "../execution_thread.hpp"
+//#include <boost/shared_ptr.hpp>
+//#include "../execution_engine.hpp"
+//#include "../execution_thread.hpp"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
-namespace exe = flame::exe::multicore;
+//namespace exe = flame::exe::multicore;
 
 // Dummy agent functions
+/*
 FLAME_AGENT_FUNC(func1) { return *mem; }
 FLAME_AGENT_FUNC(func2) { return *mem + 1; }
 
@@ -25,7 +26,7 @@ FLAME_AGENT_FUNC(incr_mem) {
     (*mem)++;
     return 10;
 }
-
+*/
 BOOST_AUTO_TEST_CASE(test_function_map) {
     /*
     exe::ExecutionEngine e;

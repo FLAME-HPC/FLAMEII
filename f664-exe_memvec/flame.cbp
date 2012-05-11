@@ -60,17 +60,14 @@
 		<Unit filename="src/exceptions/base.hpp" />
 		<Unit filename="src/exceptions/exe.hpp" />
 		<Unit filename="src/exceptions/mem.hpp" />
-		<Unit filename="src/exe/execution_engine.cpp" />
-		<Unit filename="src/exe/execution_engine.hpp" />
-		<Unit filename="src/exe/execution_task.cpp" />
-		<Unit filename="src/exe/execution_task.hpp" />
-		<Unit filename="src/exe/execution_thread.cpp" />
-		<Unit filename="src/exe/execution_thread.hpp" />
 		<Unit filename="src/exe/task.cpp" />
 		<Unit filename="src/exe/task.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />
 		<Unit filename="src/exe/task_manager.hpp" />
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/exe/tests/test_task_manager.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/mem/agent_memory.cpp" />

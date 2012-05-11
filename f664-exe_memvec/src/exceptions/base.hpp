@@ -25,5 +25,12 @@ class logic_error : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class invalid_argument : public flame_exception {
+  public:
+    explicit invalid_argument(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__BASE_HPP_
