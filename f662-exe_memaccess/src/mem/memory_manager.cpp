@@ -7,29 +7,53 @@
  * \copyright GNU Lesser General Public License
  * \brief MemoryManager: management and storage class for agent data
  */
-#include "memory_manager.hpp"
 #include <utility>
 #include <string>
+#include "memory_manager.hpp"
+#include "src/exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 
-void MemoryManager::RegisterAgent(std::string const& agent_name,
-                                  size_t pop_size_hint) {
-  AgentMemory a(agent_name, pop_size_hint);
-  std::pair<AgentMap::iterator, bool> r;
+namespace exc = flame::exceptions;
 
-  r = agent_map_.insert(std::pair<std::string, AgentMemory>(agent_name, a));
-  if (!r.second) {  // no insertion. name exists
-    throw std::invalid_argument("agent with that name already registered");
+//! Key-Value pair for AgentMemory
+typedef std::pair<std::string, AgentMemory> AgentMapValue;
+
+void MemoryManager::RegisterAgent(std::string agent_name) {
+  std::pair<AgentMap::iterator, bool> ret;
+  ret = agent_map_.insert(AgentMapValue(agent_name, AgentMemory(agent_name)));
+  if (!ret.second) {  // if replacement instead of insertion
+    throw exc::logic_error("agent already registered");
   }
 }
 
-AgentMemory& MemoryManager::GetAgent(std::string const& agent_name) {
-  AgentMap::iterator it = agent_map_.find(agent_name);
-  if (it == agent_map_.end()) {  // invalid agent name
-    throw std::invalid_argument("Invalid agent name");
-  }
-  return it->second;
+VectorWrapperBase* MemoryManager::GetVectorWrapper(std::string agent_name,
+                                                   std::string var_name) {
+  return GetAgentMemory(agent_name).GetVectorWrapper(var_name);
 }
+
+void MemoryManager::HintPopulationSize(std::string agent_name,
+                                       unsigned int size_hint) {
+  GetAgentMemory(agent_name).HintPopulationSize(size_hint);
+}
+
+AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
+  try {
+    return agent_map_.at(agent_name);
+  }
+  catch(const std::out_of_range& E) {
+    throw exc::invalid_agent("unknown agent name");
+  }
+}
+
+size_t MemoryManager::GetAgentCount() {
+  return agent_map_.size();
+}
+
+#ifdef TESTBUILD
+void MemoryManager::Reset() {
+  agent_map_.clear();
+}
+#endif
 
 }}  // namespace flame::mem

@@ -9,8 +9,6 @@
  */
 #ifndef MEM__MEMORY_MANAGER_HPP_
 #define MEM__MEMORY_MANAGER_HPP_
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_base_of.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -22,76 +20,77 @@ namespace flame { namespace mem {
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
+
+//! Memory Manager object.
+//! This is a singleton class - only one instance should exist throughtout
+//! the simulation. Instances are accessed using MemoryManager::GetInstance().
+//! Apart from the Get* methods, all others should be called during the
+//! initialisation stage before threads are spawned or guarded by mutexes
 class MemoryManager {
   public:
-    MemoryManager() {}
-    void RegisterAgent(std::string const& agent_name, size_t pop_size_hint);
-
-    template <typename T>
-    void RegisterAgentVar(std::string const& agent_name,
-                          std::string const& var_name) {
-      AgentMemory &agent = GetAgent(agent_name);
-      agent.RegisterVar<T>(var_name);
+    //! Returns instance of singleton object
+    //!  When used in a multithreaded environment, this should be called
+    //!  at lease once before threads are spawned.
+    static MemoryManager& GetInstance() {
+      static MemoryManager instance;
+      return instance;
     }
 
-    template <typename T>
-    void RegisterAgentVar(std::string const& agent_name,
-                          std::vector<std::string> var_names) {
-      AgentMemory &agent = GetAgent(agent_name);
+    //! Registers an agent type
+    void RegisterAgent(std::string agent_name);
 
+    //! Registers a memory variable of a certain type for a given agent
+    template <typename T>
+    void RegisterAgentVar(std::string agent_name, std::string var_name) {
+      GetAgentMemory(agent_name).RegisterVar<T>(var_name);
+    }
+
+    //! Registers a list of memory vars or a certain type for a given agent
+    template <typename T>
+    void RegisterAgentVar(std::string agent_name,
+                          std::vector<std::string> var_names) {
+      AgentMemory& am = GetAgentMemory(agent_name);
       std::vector<std::string>::iterator it;
-      for (it = var_names.begin(); it < var_names.end(); ++it) {
-        agent.RegisterVar<T>(*it);
+      for (it = var_names.begin(); it != var_names.end(); ++it) {
+        am.RegisterVar<T>(*it);
       }
     }
 
+    //! Returns typeless pointer to associated vector wrapper
+    VectorWrapperBase* GetVectorWrapper(std::string agent_name,
+                                        std::string var_name);
+
+    //! Returns pointer to std::vector<T> for given agent variable
     template <typename T>
-    VectorReader<T> GetReader(std::string const& agent_name,
-                              std::string const& var_name) {
-        std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
-        return VectorReader<T>(&vec);
+    std::vector<T>* GetVector(std::string agent_name, std::string var_name) {
+      return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
 
-    template <typename T>
-    VectorWriter<T> GetWriter(std::string const& agent_name,
-                              std::string const& var_name) {
-        std::vector<T> &vec = GetAgent(agent_name).GetMemoryVector<T>(var_name);
-        return VectorWriter<T>(&vec);
-    }
+    //! Provides a hint at the population size of an agent type so memory
+    //! utilisation can be optimised
+    void HintPopulationSize(std::string agent_name, unsigned int size_hint);
 
-    /*
-    template <typename T, template <typename> class U>
-    U<T> GetVector(std::string const& agent_name, std::string const& var_name) {
-      typedef U<T> U_T;
-      BOOST_STATIC_ASSERT((boost::is_base_of<VectorBase, U_T>::value));
-      return U_T(GetAgent(agent_name).GetMemoryVector<T>(var_name));
-    }
-    */
-
-  private:
-    AgentMemory& GetAgent(std::string const& agent_name);
-    AgentMap agent_map_;
-
-    // disallow copy and assign
-    MemoryManager(const MemoryManager&);
-    void operator=(const MemoryManager&);
-
-    template <typename T>
-    std::vector<T>& GetMemoryVector(std::string const& agent_name,
-                                    std::string const& var_name) {
-      return GetAgent(agent_name).GetMemoryVector<T>(var_name);
-    }
+    //! Returns the number of registered agents
+    size_t GetAgentCount();
 
 #ifdef TESTBUILD
-  // hooks to access private functions from tests
-  // TODO(lsc): remove once we have a proper method of initialising vectors
-  public:
-    template <typename T>
-    std::vector<T>& GetMemoryVector_test(std::string const& agent_name,
-                                         std::string const& var_name) {
-      return GetMemoryVector<T>(agent_name, var_name);
-    }
+    //! Delete all registered agents and vars
+    void Reset();
 #endif
+
+  private:
+    //! This is a singleton class. Disable manual instantiation
+    MemoryManager() {}
+    //! This is a singleton class. Disable copy constructor
+    MemoryManager(const MemoryManager&);
+    //! This is a singleton class. Disable assignment operation
+    void operator=(const MemoryManager&);
+
+    //! Map used to associate an agent name with an AgentMap object
+    AgentMap agent_map_;
+
+    //! Returns an AgentMap object given an agent name
+    AgentMemory& GetAgentMemory(std::string agent_name);
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_MANAGER_HPP_
