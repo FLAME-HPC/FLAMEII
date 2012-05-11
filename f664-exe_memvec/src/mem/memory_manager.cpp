@@ -50,6 +50,11 @@ size_t MemoryManager::GetAgentCount() {
   return agent_map_.size();
 }
 
+bool MemoryManager::IsRegisteredAgent(std::string agent_name) {
+  return (agent_map_.find(agent_name) == agent_map_.end());
+}
+
+
 #ifdef TESTBUILD
 void MemoryManager::Reset() {
   agent_map_.clear();

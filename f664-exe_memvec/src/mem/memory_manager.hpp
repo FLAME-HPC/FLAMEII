@@ -73,6 +73,9 @@ class MemoryManager {
     //! Returns the number of registered agents
     size_t GetAgentCount();
 
+    //! Checks if an agent with a given name has been registered
+    bool IsRegisteredAgent(std::string agent_name);
+
 #ifdef TESTBUILD
     //! Delete all registered agents and vars
     void Reset();
