@@ -9,66 +9,74 @@
  */
 #ifndef MEM__AGENT_MEMORY_HPP_
 #define MEM__AGENT_MEMORY_HPP_
-#include <map>
 #include <string>
 #include <utility>  // for std::pair
 #include <vector>
 #include <stdexcept>
-#include "boost/any.hpp"
-// #include "boost/unordered_map.hpp"
-// #include "boost/shared_ptr.hpp"
+#include <typeinfo>
+#include "boost/ptr_container/ptr_map.hpp"
+#include "vector_wrapper.hpp"
+#include "src/exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 
+namespace exc = flame::exceptions;
+
 //! Map container used to store memory vectors
-typedef std::map<std::string, boost::any> MemoryMap;
-// typedef boost::unordered_map<std::string, boost::any> MemoryMap;
+typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 
-//! Key-Value pair for MemoryMap
-typedef std::pair<std::string, boost::any> MemoryMapValue;
-
+//! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
-    AgentMemory(std::string agent_name, size_t pop_size_hint)
+    explicit AgentMemory(std::string agent_name)
         : agent_name_(agent_name),
-          population_size_(pop_size_hint) {}
+          registration_closed_(false) {}
 
+    //! Registers a memory variable of a specific type
     template <typename T>
-    void RegisterVar(std::string const& var_name) {
-      typedef std::vector<T> vector_T;
-      std::pair<MemoryMap::iterator, bool> ret;
-
-      ret = mem_map_.insert(MemoryMapValue(var_name, vector_T()));
-      if (!ret.second) {  // Ensure that this is an insertion, not replacement
-        throw std::invalid_argument("var with that name already registered");
+    void RegisterVar(std::string var_name) {
+      if (registration_closed_) {
+        throw exc::logic_error("variables can no longer be registered");
       }
-
-      // reserve capacity within inserted vector
-      vector_T &vec = boost::any_cast<vector_T&>(ret.first->second);
-      vec.reserve(population_size_);
+      std::pair<MemoryMap::iterator, bool> ret;
+      ret = mem_map_.insert(var_name, new VectorWrapper<T>());
+      if (!ret.second) {  // if replacement instead of insertion
+        throw exc::logic_error("variable already registered");
+      }
     }
 
+    //! Hint at a population size so required memory can be reserved
+    //! in advance. This saves having to constantly reallocate memory
+    //! as agents are added to AgentMemory.
+    void HintPopulationSize(unsigned int size_hint);
+
+    //! Returns typeless pointer to associated vector wrapper
+    VectorWrapperBase* GetVectorWrapper(std::string var_name);
+
+    //! Returns a pointer to the actual data vector
     template <typename T>
-    std::vector<T>& GetMemoryVector(std::string const& var_name) {
-      typedef std::vector<T> vector_T;
-
-      const MemoryMap::iterator it = mem_map_.find(var_name);
-      if (it == mem_map_.end()) {  // key not found
-        throw std::invalid_argument("Invalid agent memory variable");
-      }
-
+    std::vector<T>* GetVector(std::string var_name) {
+      VectorWrapperBase* ptr;
       try {
-        return boost::any_cast<std::vector<T>&>(it->second);
+        ptr = &(mem_map_.at(var_name));
       }
-      catch(boost::bad_any_cast E) {
-        throw std::domain_error("Invalid type used");
+      catch(const boost::bad_ptr_container_operation& E) {
+        throw exc::invalid_variable("Invalid agent memory variable");
       }
+
+      if (*(ptr->GetDataType()) != typeid(T)) {
+        throw exc::invalid_type("Invalid data type specified");
+      }
+      return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 
   private:
     std::string agent_name_;
-    int population_size_;
     MemoryMap mem_map_;
+
+    //! Indicates that vectors have been resized/populated so new variables
+    //!  should no longer be registered.
+    bool registration_closed_;
 };
 }}  // namespace flame::mem
 #endif  // MEM__AGENT_MEMORY_HPP_
