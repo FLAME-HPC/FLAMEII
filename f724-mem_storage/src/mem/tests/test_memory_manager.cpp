@@ -146,6 +146,21 @@ BOOST_AUTO_TEST_CASE(test_anonymous_vector_access) {
   test_access_double(&mgr, agent_name, dbl_var, pop_size);
 }
 
+BOOST_AUTO_TEST_CASE(test_reset) {
+  m::MemoryManager& mgr1 = m::MemoryManager::GetInstance();
+  BOOST_CHECK_THROW(mgr1.RegisterAgent("TestSingleton"), e::logic_error);
+  BOOST_CHECK(mgr1.GetAgentCount() != (size_t)0);
+  mgr1.Reset();
+
+  m::MemoryManager& mgr = m::MemoryManager::GetInstance();
+  BOOST_CHECK_EQUAL(mgr1.GetAgentCount(), (size_t)0);
+
+  BOOST_CHECK_NO_THROW(mgr.RegisterAgent("TestSingleton"));
+  BOOST_CHECK_EQUAL(mgr1.GetAgentCount(), (size_t)1);
+
+  mgr.Reset();  // reset again so as not to affect next test suite
+  BOOST_CHECK_EQUAL(mgr1.GetAgentCount(), (size_t)0);
+}
 /*
 
 struct F {  // test fixture

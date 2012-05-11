@@ -46,4 +46,14 @@ AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
   }
 }
 
+size_t MemoryManager::GetAgentCount() {
+  return agent_map_.size();
+}
+
+#ifdef TESTBUILD
+void MemoryManager::Reset() {
+  agent_map_.clear();
+}
+#endif
+
 }}  // namespace flame::mem

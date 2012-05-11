@@ -55,12 +55,19 @@ class MemoryManager {
     VectorWrapperBase* GetVectorWrapper(std::string agent_name,
                                         std::string var_name);
 
+    //! Returns pointer to std::vector<T> for given agent variable
     template <typename T>
     std::vector<T>* GetVector(std::string agent_name, std::string var_name) {
       return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
 
     void HintPopulationSize(std::string agent_name, unsigned int size_hint);
+    size_t GetAgentCount();
+
+#ifdef TESTBUILD
+    void Reset();  //! Delete all agents and vars
+
+#endif
 
   private:
     // This is a singleton. Disallow instantiation, copy and assignment.
