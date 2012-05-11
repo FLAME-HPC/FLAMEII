@@ -20,16 +20,22 @@
 #include "./xmodel.hpp"
 #include "./xtimeunit.hpp"
 #include "./xvariable.hpp"
+#include "./task.hpp"
 
 namespace flame { namespace model {
 
 class ModelManager {
   public:
     ModelManager() {}
+    ~ModelManager();
     int loadModel(std::string const& file);
+    int generate_task_list();
+    std::vector<Task*> * get_task_list();
 
   private:
     XModel model_;
+    std::vector<Task*> tasks_;
 };
+
 }}  // namespace flame::model
 #endif  // MODEL__MODEL_MANAGER_HPP_

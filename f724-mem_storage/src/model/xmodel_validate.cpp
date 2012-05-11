@@ -21,6 +21,8 @@ int processVariable(XVariable * variable,
         XModel * model);
 int processVariables(std::vector<XVariable*> * variables_,
         XModel * model);
+int processAgentFunction(XFunction * function,
+        std::vector<XVariable*> * variables);
 int validateVariables(std::vector<XVariable*> * variables_,
         XModel * model, bool allowDyamicArrays);
 int validateFunctionFile(std::string name);
@@ -270,6 +272,22 @@ int processVariables(std::vector<XVariable*> * variables,
     return errors;
 }
 
+int processAgentFunction(XFunction * function,
+        std::vector<XVariable*> * variables) {
+    std::vector<XVariable*>::iterator variable;
+
+    /* If memory access information was not given set all memory
+     * variable access as being read write */
+    if (!function->getMemoryAccessInfoAvailable()) {
+        for (variable = variables->begin();
+                variable != variables->end(); ++variable) {
+            function->addReadWriteVariable((*variable));
+        }
+    }
+
+    return 0;
+}
+
 int validateVariables(std::vector<XVariable*> * variables,
         XModel * model, bool allowDyamicArrays) {
     int rc, errors = 0;
@@ -479,6 +497,9 @@ int validateAgentFunction(XFunction * xfunction, XMachine * agent,
         XModel * model) {
     int rc, errors = 0;
     unsigned int kk;
+
+    /* Process function first */
+    processAgentFunction(xfunction, agent->getVariables());
 
     /* Check name is valid */
     if (!name_is_allowed(xfunction->getName())) {
