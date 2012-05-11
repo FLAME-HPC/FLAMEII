@@ -25,13 +25,14 @@ namespace exc = flame::exceptions;
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 
+//! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
     explicit AgentMemory(std::string agent_name)
         : agent_name_(agent_name),
           registration_closed_(false) {}
 
-    //! Register a memory variable
+    //! Registers a memory variable of a specific type
     template <typename T>
     void RegisterVar(std::string var_name) {
       if (registration_closed_) {

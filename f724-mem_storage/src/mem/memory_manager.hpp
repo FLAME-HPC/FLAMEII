@@ -21,7 +21,9 @@ namespace flame { namespace mem {
 typedef std::map<std::string, AgentMemory> AgentMap;
 
 
-//! Singleton Memory Manager
+//! Memory Manager object.
+//! This is a singleton class - only one instance should exist throughtout
+//! the simulation. Instances are accessed using MemoryManager::GetInstance().
 //! Apart from the Get* methods, all others should be called during the
 //! initialisation stage before threads are spawned or guarded by mutexes
 class MemoryManager {
@@ -34,13 +36,16 @@ class MemoryManager {
       return instance;
     }
 
+    //! Registers an agent type
     void RegisterAgent(std::string agent_name);
 
+    //! Registers a memory variable of a certain type for a given agent
     template <typename T>
     void RegisterAgentVar(std::string agent_name, std::string var_name) {
       GetAgentMemory(agent_name).RegisterVar<T>(var_name);
     }
 
+    //! Registers a list of memory vars or a certain type for a given agent
     template <typename T>
     void RegisterAgentVar(std::string agent_name,
                           std::vector<std::string> var_names) {
@@ -61,21 +66,30 @@ class MemoryManager {
       return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
 
+    //! Provides a hint at the population size of an agent type so memory
+    //! utilisation can be optimised
     void HintPopulationSize(std::string agent_name, unsigned int size_hint);
+
+    //! Returns the number of registered agents
     size_t GetAgentCount();
 
 #ifdef TESTBUILD
-    void Reset();  //! Delete all agents and vars
-
+    //! Delete all registered agents and vars
+    void Reset();
 #endif
 
   private:
-    // This is a singleton. Disallow instantiation, copy and assignment.
+    //! This is a singleton class. Disable manual instantiation
     MemoryManager() {}
+    //! This is a singleton class. Disable copy constructor
     MemoryManager(const MemoryManager&);
+    //! This is a singleton class. Disable assignment operation
     void operator=(const MemoryManager&);
 
+    //! Map used to associate an agent name with an AgentMap object
     AgentMap agent_map_;
+
+    //! Returns an AgentMap object given an agent name
     AgentMemory& GetAgentMemory(std::string agent_name);
 };
 }}  // namespace flame::mem
