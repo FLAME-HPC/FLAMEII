@@ -12,7 +12,6 @@
 #include <string>
 #include <utility>  // for std::pair
 #include <vector>
-#include <stdexcept>
 #include <typeinfo>
 #include "boost/ptr_container/ptr_map.hpp"
 #include "vector_wrapper.hpp"

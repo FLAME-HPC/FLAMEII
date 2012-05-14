@@ -47,11 +47,11 @@ AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   }
 }
 
-size_t MemoryManager::GetAgentCount() {
+size_t MemoryManager::GetAgentCount() const {
   return agent_map_.size();
 }
 
-bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) {
+bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) const {
   return (agent_map_.find(agent_name) != agent_map_.end());
 }
 

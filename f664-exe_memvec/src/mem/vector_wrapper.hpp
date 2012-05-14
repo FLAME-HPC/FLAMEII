@@ -64,7 +64,7 @@ class VectorWrapper: public VectorWrapperBase {
       return static_cast<void*>(static_cast<T*>(ptr)+1);
     }
 
-    virtual const std::type_info* GetDataType() const {
+    const std::type_info* GetDataType() const {
       return data_type_;
     }
 

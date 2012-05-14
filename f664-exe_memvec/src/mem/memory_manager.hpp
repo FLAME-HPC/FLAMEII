@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-#include "vector_wrapper.hpp"
 
 namespace flame { namespace mem {
 
@@ -73,10 +72,10 @@ class MemoryManager {
                             unsigned int size_hint);
 
     //! Returns the number of registered agents
-    size_t GetAgentCount();
+    size_t GetAgentCount() const;
 
     //! Checks if an agent with a given name has been registered
-    bool IsRegisteredAgent(const std::string& agent_name);
+    bool IsRegisteredAgent(const std::string& agent_name) const;
 
 #ifdef TESTBUILD
     //! Delete all registered agents and vars
