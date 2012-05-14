@@ -27,7 +27,7 @@ typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 //! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
-    explicit AgentMemory(std::string agent_name)
+    explicit AgentMemory(const std::string& agent_name)
         : agent_name_(agent_name),
           registration_closed_(false) {}
 
@@ -63,9 +63,11 @@ class AgentMemory {
         throw exc::invalid_variable("Invalid agent memory variable");
       }
 
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
       if (*(ptr->GetDataType()) != typeid(T)) {
         throw exc::invalid_type("Invalid data type specified");
       }
+#endif
       return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 

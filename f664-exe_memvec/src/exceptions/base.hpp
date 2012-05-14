@@ -31,6 +31,11 @@ class invalid_argument : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class invalid_operation : public flame_exception {
+  public:
+    explicit invalid_operation(const std::string& msg)
+        : flame_exception(msg) {}
+};
 
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__BASE_HPP_

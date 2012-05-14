@@ -13,11 +13,15 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
+#include "agent_memory_iterator.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
+
+typedef boost::shared_ptr<AgentMemoryIterator> AgentIteratorPtr;
 
 
 //! Memory Manager object.
@@ -36,7 +40,7 @@ class MemoryManager {
     }
 
     //! Registers an agent type
-    void RegisterAgent(std::string agent_name);
+    void RegisterAgent(const std::string& agent_name);
 
     //! Registers a memory variable of a certain type for a given agent
     template <typename T>
@@ -46,7 +50,7 @@ class MemoryManager {
 
     //! Registers a list of memory vars or a certain type for a given agent
     template <typename T>
-    void RegisterAgentVar(std::string agent_name,
+    void RegisterAgentVar(const std::string& agent_name,
                           const std::vector<std::string>& var_names) {
       AgentMemory& am = GetAgentMemory(agent_name);
       std::vector<std::string>::const_iterator it;
@@ -65,6 +69,10 @@ class MemoryManager {
                               const std::string& var_name) {
       return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
+
+    //! Returns a shared pointer to a memory iterator which allows
+    //! per-agent (col-wise) iteration for data
+    AgentIteratorPtr GetMemoryIterator(const std::string& agent_name);
 
     //! Provides a hint at the population size of an agent type so memory
     //! utilisation can be optimised

@@ -30,16 +30,20 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
                                                         pd->GetVectorPtr());
 
   BOOST_CHECK(vi->empty());
+  BOOST_CHECK(pi->empty());
   vi->push_back(1);
   vi->push_back(2);
   vi->push_back(3);
   BOOST_CHECK_EQUAL(vi->size(), 3);
+  BOOST_CHECK_EQUAL(pi->size(), 3);
 
   BOOST_CHECK(vd->empty());
+  BOOST_CHECK(pd->empty());
   vd->push_back(10.1);
   vd->push_back(20.2);
   vd->push_back(30.3);
   BOOST_CHECK_EQUAL(vd->size(), 3);
+  BOOST_CHECK_EQUAL(pd->size(), 3);
 
   // ---- iterate using raw pointers ---
 

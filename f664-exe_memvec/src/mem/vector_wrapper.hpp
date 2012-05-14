@@ -19,6 +19,9 @@ class VectorWrapperBase {
   public:
     virtual ~VectorWrapperBase() {}
     virtual void reserve(unsigned int n) = 0;
+    virtual size_t size() const = 0;
+    virtual bool empty() const = 0;
+
     virtual void* GetVectorPtr() = 0;
 
     //! Returns a pointer to the first element in the internal
@@ -48,6 +51,8 @@ class VectorWrapper: public VectorWrapperBase {
     typedef T data_type;
     typedef std::vector<T> vector_type;
     void reserve(unsigned int n) { v_.reserve(n); }
+    size_t size() const { return v_.size(); }
+    virtual bool empty() const { return v_.empty(); }
 
     void* GetVectorPtr() {
       return &v_;

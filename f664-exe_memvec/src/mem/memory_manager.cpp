@@ -19,7 +19,8 @@ namespace exc = flame::exceptions;
 //! Key-Value pair for AgentMemory
 typedef std::pair<std::string, AgentMemory> AgentMapValue;
 
-void MemoryManager::RegisterAgent(std::string agent_name) {
+
+void MemoryManager::RegisterAgent(const std::string& agent_name) {
   std::pair<AgentMap::iterator, bool> ret;
   ret = agent_map_.insert(AgentMapValue(agent_name, AgentMemory(agent_name)));
   if (!ret.second) {  // if replacement instead of insertion
@@ -41,6 +42,16 @@ void MemoryManager::HintPopulationSize(const std::string& agent_name,
 AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   try {
     return agent_map_.at(agent_name);
+  }
+  catch(const std::out_of_range& E) {
+    throw exc::invalid_agent("unknown agent name");
+  }
+}
+
+AgentIteratorPtr MemoryManager::GetMemoryIterator(
+    const std::string& agent_name) {
+  try {
+    return AgentIteratorPtr(new AgentMemoryIterator(agent_map_.at(agent_name)));
   }
   catch(const std::out_of_range& E) {
     throw exc::invalid_agent("unknown agent name");
