@@ -1,11 +1,10 @@
 CC         = g++
 CFLAGS     = -g -Wall -pedantic -DTESTBUILD
 BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
-LIBXML_DIR = /usr/include/libxml2
 LDFLAGS    = -L$(BOOST_DIR)/stage/lib
 LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
-             -lxml2
-INCLUDE    = -I$(BOOST_DIR) -I$(LIBXML_DIR)
+             $(shell xml2-config --libs)
+INCLUDE    = -I$(BOOST_DIR) $(shell xml2-config --cflags)
 IO_SRC     = src/io/io_manager.cpp src/io/io_xml_model.cpp src/io/io_xml_pop.cpp
 IO_TEST    = src/io/tests/test_io_xml_model.cpp #src/io/tests/test_io_xml_pop.cpp
 MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp \
@@ -39,7 +38,7 @@ $(OBJECTS): $(DEPS)
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE)
 
-CPPLINT   = src/tests/cpplint.py
+CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
 	$(CPPLINT) $(SOURCES) $(HEADERS)
 
