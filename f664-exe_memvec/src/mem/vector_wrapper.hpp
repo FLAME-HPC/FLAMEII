@@ -69,6 +69,7 @@ class VectorWrapper: public VectorWrapperBase {
     }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
+
   private:
     const std::type_info *data_type_;
     std::vector<T> v_;

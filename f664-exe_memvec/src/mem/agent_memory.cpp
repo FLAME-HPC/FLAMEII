@@ -28,7 +28,7 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
   registration_closed_ = true;  // no more new variables
 }
 
-VectorWrapperBase* AgentMemory::GetVectorWrapper(std::string var_name) {
+VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
   try {
     return &(mem_map_.at(var_name));
   }

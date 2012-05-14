@@ -51,11 +51,11 @@ class AgentMemory {
     void HintPopulationSize(unsigned int size_hint);
 
     //! Returns typeless pointer to associated vector wrapper
-    VectorWrapperBase* GetVectorWrapper(std::string var_name);
+    VectorWrapperBase* GetVectorWrapper(const std::string& var_name);
 
     //! Returns a pointer to the actual data vector
     template <typename T>
-    std::vector<T>* GetVector(std::string var_name) {
+    std::vector<T>* GetVector(const std::string& var_name) {
       VectorWrapperBase* ptr;
       try {
         ptr = &(mem_map_.at(var_name));

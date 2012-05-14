@@ -27,17 +27,18 @@ void MemoryManager::RegisterAgent(std::string agent_name) {
   }
 }
 
-VectorWrapperBase* MemoryManager::GetVectorWrapper(std::string agent_name,
-                                                   std::string var_name) {
+VectorWrapperBase* MemoryManager::GetVectorWrapper(
+    const std::string& agent_name,
+    const std::string& var_name) {
   return GetAgentMemory(agent_name).GetVectorWrapper(var_name);
 }
 
-void MemoryManager::HintPopulationSize(std::string agent_name,
+void MemoryManager::HintPopulationSize(const std::string& agent_name,
                                        unsigned int size_hint) {
   GetAgentMemory(agent_name).HintPopulationSize(size_hint);
 }
 
-AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
+AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   try {
     return agent_map_.at(agent_name);
   }
@@ -50,7 +51,7 @@ size_t MemoryManager::GetAgentCount() {
   return agent_map_.size();
 }
 
-bool MemoryManager::IsRegisteredAgent(std::string agent_name) {
+bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) {
   return (agent_map_.find(agent_name) != agent_map_.end());
 }
 
