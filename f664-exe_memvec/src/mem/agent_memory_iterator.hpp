@@ -7,7 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Iterator to step through AgentMemory by agent (col-wise)
  */
-//! \TODO since the number of entries in vec_map_ and rw_set_ will be
+//! TODO(lsc): since the number of entries in vec_map_ and rw_set_ will be
 //! relatively small, the tree-based search used by std::map and
 //! std::set may not be ideal. Consider implementing variants that
 //! uses a sorted vector instead. See:
@@ -35,9 +35,9 @@ typedef std::pair<std::string, void*> VoidPtrMapValue;
 
 class AgentMemoryIterator {
   public:
-    AgentMemoryIterator(AgentMemory& am);
+    explicit AgentMemoryIterator(AgentMemory* am);
     void AllowAccess(const std::string& var_name, bool writeable = false);
-    // TODO: void AllowFullAccess(bool writeable = true);
+    // TODO(lsc): void AllowFullAccess(bool writeable = true);
     void Rewind();
     bool Step();
     bool AtEnd() const;
@@ -82,14 +82,14 @@ class AgentMemoryIterator {
     size_t size_;  //! Size if memory vectors
     size_t position_;  //! Current iterator position
 
-    AgentMemory& am_;
+    AgentMemory* am_;
     std::set<std::string> rw_set_;  //! Set of var names that has write access
-    ConstVectorMap vec_map_; //! map accessible vars
-    VoidPtrMap ptr_map_; //! map of raw pointers of vars
+    ConstVectorMap vec_map_;  //! map accessible vars
+    VoidPtrMap ptr_map_;  //! map of raw pointers of vars
 
     AgentMemoryIterator(const AgentMemoryIterator&);  //! Disable copy ctor
     void operator=(const AgentMemoryIterator&);  //! Disable assignment
 };
 
 }}  //  namespace flame::mem
-#endif // MEM__AGENT_MEMORY_ITERATOR_HPP_
+#endif  // MEM__AGENT_MEMORY_ITERATOR_HPP_

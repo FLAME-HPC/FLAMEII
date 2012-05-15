@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include "../agent_memory.hpp"
-#include "src/exceptions/mem.hpp"
+#include "exceptions/mem.hpp"
 
 namespace m = flame::mem;
 namespace e = flame::exceptions;

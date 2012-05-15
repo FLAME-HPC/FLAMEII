@@ -10,7 +10,7 @@
 #include <utility>
 #include <string>
 #include "memory_manager.hpp"
-#include "src/exceptions/mem.hpp"
+#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 
@@ -48,10 +48,11 @@ AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   }
 }
 
-AgentIteratorPtr MemoryManager::GetMemoryIterator(
+MemoryIteratorPtr MemoryManager::GetMemoryIterator(
     const std::string& agent_name) {
   try {
-    return AgentIteratorPtr(new AgentMemoryIterator(agent_map_.at(agent_name)));
+    AgentMemory* am_ptr = &agent_map_.at(agent_name);
+    return MemoryIteratorPtr(new AgentMemoryIterator(am_ptr));
   }
   catch(const std::out_of_range& E) {
     throw exc::invalid_agent("unknown agent name");

@@ -37,7 +37,7 @@ class Task {
   public:
     void AllowAccess(std::string var_name, bool writeable = false);
     std::string get_task_name();
-    
+
   protected:
     // Tasks should only be created via Task Manager
     Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr);

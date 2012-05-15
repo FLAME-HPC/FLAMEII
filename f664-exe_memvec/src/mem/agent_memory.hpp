@@ -14,8 +14,8 @@
 #include <vector>
 #include <typeinfo>
 #include "boost/ptr_container/ptr_map.hpp"
+#include "exceptions/mem.hpp"
 #include "vector_wrapper.hpp"
-#include "src/exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 

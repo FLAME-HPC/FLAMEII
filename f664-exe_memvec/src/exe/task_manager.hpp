@@ -12,7 +12,6 @@
 #include <string>
 #include "boost/ptr_container/ptr_map.hpp"
 #include "include/flame.h"
-//#include "mem/memory_manager.hpp"
 #include "task.hpp"
 
 namespace flame { namespace exe {

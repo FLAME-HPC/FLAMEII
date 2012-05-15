@@ -21,7 +21,7 @@ namespace flame { namespace mem {
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
-typedef boost::shared_ptr<AgentMemoryIterator> AgentIteratorPtr;
+typedef boost::shared_ptr<AgentMemoryIterator> MemoryIteratorPtr;
 
 
 //! Memory Manager object.
@@ -72,7 +72,7 @@ class MemoryManager {
 
     //! Returns a shared pointer to a memory iterator which allows
     //! per-agent (col-wise) iteration for data
-    AgentIteratorPtr GetMemoryIterator(const std::string& agent_name);
+    MemoryIteratorPtr GetMemoryIterator(const std::string& agent_name);
 
     //! Provides a hint at the population size of an agent type so memory
     //! utilisation can be optimised

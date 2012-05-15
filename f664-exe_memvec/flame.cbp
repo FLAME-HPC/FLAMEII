@@ -48,18 +48,18 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add directory="." />
 			<Add directory="/home/lsc/work/src/boost_1_48_0" />
+			<Add directory="./headers" />
 			<Add directory="./src" />
 		</Compiler>
-		<Unit filename="include/flame.h" />
+		<Unit filename="headers/exceptions/all.hpp" />
+		<Unit filename="headers/exceptions/base.hpp" />
+		<Unit filename="headers/exceptions/exe.hpp" />
+		<Unit filename="headers/exceptions/mem.hpp" />
+		<Unit filename="headers/include/flame.h" />
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
-		<Unit filename="src/exceptions/all.hpp" />
-		<Unit filename="src/exceptions/base.hpp" />
-		<Unit filename="src/exceptions/exe.hpp" />
-		<Unit filename="src/exceptions/mem.hpp" />
 		<Unit filename="src/exe/task.cpp" />
 		<Unit filename="src/exe/task.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />

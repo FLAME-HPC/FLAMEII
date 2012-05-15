@@ -9,7 +9,7 @@
  */
 #include <string>
 #include "agent_memory.hpp"
-#include "src/exceptions/mem.hpp"
+#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 

@@ -7,11 +7,13 @@
  * \copyright GNU Lesser General Public License
  * \brief Iterator to step through AgentMemory by agent (col-wise)
  */
+#include <utility>
+#include <string>
 #include "agent_memory_iterator.hpp"
 
 namespace flame { namespace mem {
 
-AgentMemoryIterator::AgentMemoryIterator(AgentMemory& am)
+AgentMemoryIterator::AgentMemoryIterator(AgentMemory* am)
     : size_(0), position_(0), am_(am) {}
 
 void AgentMemoryIterator::AllowAccess(const std::string& var_name,
@@ -20,7 +22,7 @@ void AgentMemoryIterator::AllowAccess(const std::string& var_name,
     throw flame::exceptions::logic_error("Cannot add vars to active iterator");
   }
 
-  VectorWrapperBase* const vec_ptr = am_.GetVectorWrapper(var_name);
+  VectorWrapperBase* const vec_ptr = am_->GetVectorWrapper(var_name);
   if (!vec_map_.empty() && vec_ptr->size() != size_) {
     throw flame::exceptions::logic_error("registered vars not of equal size");
   }
@@ -32,8 +34,7 @@ void AgentMemoryIterator::AllowAccess(const std::string& var_name,
   ret = vec_map_.insert(ConstVectorMapValue(var_name, vec_ptr));
   if (!ret.second) {
     throw flame::exceptions::logic_error("variable already registered");
-  }
-  else {
+  } else {
     size_ = vec_ptr->size();
   }
 
@@ -60,7 +61,7 @@ void AgentMemoryIterator::Rewind() {
       throw flame::exceptions::logic_error("vector sizes have changed");
     }
 #endif
-    ptr_it->second = vec_it->second->GetRawPtr(); // reset raw ptr to first elem
+    ptr_it->second = vec_it->second->GetRawPtr();  // reset raw ptr to head elem
   }
 
   position_ = 0;
