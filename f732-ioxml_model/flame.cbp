@@ -62,6 +62,7 @@
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/mem/agent_memory.cpp" />
 		<Unit filename="src/mem/agent_memory.hpp" />
 		<Unit filename="src/mem/memory_manager.cpp" />
 		<Unit filename="src/mem/memory_manager.hpp" />
