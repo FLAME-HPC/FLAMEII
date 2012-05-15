@@ -1,7 +1,7 @@
 CC         = g++
 CFLAGS     = -g -Wall -pedantic -DTESTBUILD
 BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
-LDFLAGS    = -Iinclude/ -L$(BOOST_DIR)/stage/lib
+LDFLAGS    = -L$(BOOST_DIR)/stage/lib
 LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
              $(shell xml2-config --libs)
 INCLUDE    = -I. -I$(BOOST_DIR) $(shell xml2-config --cflags)
