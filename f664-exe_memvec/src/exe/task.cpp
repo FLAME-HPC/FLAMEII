@@ -25,24 +25,15 @@ Task::Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr)
   if (func_ptr == NULL) {
     throw flame::exceptions::invalid_argument("Function pointer is NULL");
   }
+
+  memory_iterator_ = mm.GetMemoryIterator(agent_name);
 }
 
-void Task::AllowAccess(std::string var_name, bool writeable) {
-  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
-  mem::VectorWrapperBase* vec_ptr = mgr.GetVectorWrapper(agent_name_, var_name);
-
-  std::pair<VectorMap::iterator, bool> ret;
-  ret = vec_map_.insert(VectorMapValue(var_name, vec_ptr));
-  if (!ret.second) {  // if replacement instead of insertion
-    throw flame::exceptions::logic_error("variable already registered");
-  }
-
-  if (writeable) {
-    rw_set_.insert(var_name);
-  }
+flame::mem::MemoryIteratorPtr Task::get_memory_iterator() const {
+  return memory_iterator_;
 }
 
-std::string Task::get_task_name() {
+std::string Task::get_task_name() const {
   return task_name_;
 }
 

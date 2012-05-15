@@ -16,13 +16,6 @@
 #include "include/flame.h"
 #include "mem/memory_manager.hpp"
 
-//! \TODO since the number of entries in vec_map_ and rw_set_ will be
-//! relatively small, the tree-based search used by std::map and
-//! std::set may not be ideal. Consider implementing variants that
-//! uses a sorted vector instead. See:
-//!  - AssocVector: http://loki-lib.sourceforge.net/html/a00645.html
-//!  - http://lafstern.org/matt/col1.pdf
-
 namespace flame { namespace exe {
 
 // forward declaration to allow reference without including headers
@@ -35,8 +28,8 @@ class Task {
   friend class TaskManager;
 
   public:
-    void AllowAccess(std::string var_name, bool writeable = false);
-    std::string get_task_name();
+    flame::mem::MemoryIteratorPtr get_memory_iterator() const;
+    std::string get_task_name() const;
 
   protected:
     // Tasks should only be created via Task Manager
@@ -46,8 +39,7 @@ class Task {
     std::string task_name_;
     std::string agent_name_;
     AgentFuncPtr func_ptr_;
-    VectorMap vec_map_;
-    std::set<std::string> rw_set_;
+    flame::mem::MemoryIteratorPtr memory_iterator_;
 };
 
 }}  // namespace flame::exe

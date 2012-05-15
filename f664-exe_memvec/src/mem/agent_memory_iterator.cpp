@@ -29,7 +29,7 @@ void AgentMemoryIterator::AllowAccess(const std::string& var_name,
   if (vec_ptr->empty()) {
     throw flame::exceptions::logic_error("registered vars has no data");
   }
-
+  
   std::pair<ConstVectorMap::iterator, bool> ret;
   ret = vec_map_.insert(ConstVectorMapValue(var_name, vec_ptr));
   if (!ret.second) {

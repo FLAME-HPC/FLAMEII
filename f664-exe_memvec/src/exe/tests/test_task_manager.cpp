@@ -8,7 +8,8 @@
  * \brief Test suite for task manager
  */
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <vector>
+#include "boost/test/unit_test.hpp"
 #include "../task_manager.hpp"
 
 BOOST_AUTO_TEST_SUITE(TaskManager)
@@ -22,6 +23,9 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager) {
   mgr.RegisterAgentVar<double>("Circle", "y_dbl");
   mgr.HintPopulationSize("Circle", (size_t)10);
   BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)1);
+
+  mgr.GetVector<int>("Circle", "x_int")->push_back(1);
+  mgr.GetVector<double>("Circle", "y_dbl")->push_back(0.1);
 }
 
 // dummy function
@@ -35,9 +39,10 @@ BOOST_AUTO_TEST_CASE(test_create_task) {
                     flame::exceptions::invalid_argument);
 
   exe::Task& task = tm.CreateTask("t1", "Circle", &func1);
-  task.AllowAccess("x_int");
-  task.AllowAccess("y_dbl", true);
-  BOOST_CHECK_THROW(task.AllowAccess("NotAVar"),
+  mem::MemoryIteratorPtr m_iter = task.get_memory_iterator();
+  m_iter->AllowAccess("x_int");
+  m_iter->AllowAccess("y_dbl", true);
+  BOOST_CHECK_THROW(m_iter->AllowAccess("NotAVar"),
                     flame::exceptions::invalid_variable);
 
   BOOST_CHECK_THROW(tm.GetTask("NotATask"),
