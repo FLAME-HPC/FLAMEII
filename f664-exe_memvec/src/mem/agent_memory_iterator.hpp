@@ -24,7 +24,7 @@
 #include <utility>
 #include <stdexcept>
 #include "agent_memory.hpp"
-#include "exceptions/mem.hpp"
+#include "exceptions/all.hpp"
 
 namespace flame { namespace mem {
 
@@ -34,10 +34,10 @@ typedef std::map<std::string, void*> VoidPtrMap;
 typedef std::pair<std::string, void*> VoidPtrMapValue;
 
 class AgentMemoryIterator {
+  friend class MemoryManager;
   public:
-    explicit AgentMemoryIterator(AgentMemory* am);
     void AllowAccess(const std::string& var_name, bool writeable = false);
-    // TODO(lsc): void AllowFullAccess(bool writeable = true);
+    // TODO(lsc): void AllowFullAccess(bool writeable = false);
     void Rewind();
     bool Step();
     bool AtEnd() const;
@@ -47,6 +47,12 @@ class AgentMemoryIterator {
     template <typename T>
     const T* GetReadPtr(const std::string& var_name) const {
       try {
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
+        VectorWrapperBase* vwb = vec_map_.at(var_name);
+        if (*(vwb->GetDataType()) != typeid(T)) {
+          throw flame::exceptions::invalid_type("invalid type");
+        }
+#endif
         return static_cast<const T* const>(ptr_map_.at(var_name));
       }
       catch(const std::out_of_range& E) {
@@ -61,6 +67,12 @@ class AgentMemoryIterator {
       }
 
       try {
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
+        VectorWrapperBase* vwb = vec_map_.at(var_name);
+        if (*(vwb->GetDataType()) != typeid(T)) {
+          throw flame::exceptions::invalid_type("invalid type");
+        }
+#endif
         return static_cast<T* const>(ptr_map_.at(var_name));
       }
       catch(const std::out_of_range& E) {
@@ -70,13 +82,26 @@ class AgentMemoryIterator {
 
     template <typename T>
     T Get(const std::string& var_name) const {
-      return *(GetReadPtr<T>());
+      const T* ptr = GetReadPtr<T>(var_name);
+      if (ptr == NULL) {
+        throw flame::exceptions::out_of_range("end of iterator met");
+      } else {
+        return *(ptr);
+      }
     }
 
     template <typename T>
     void Set(const std::string& var_name, T value) {
-      *(GetWritePtr<T>()) = value;
+      T* ptr = GetWritePtr<T>(var_name);
+      if (ptr == NULL) {
+        throw flame::exceptions::out_of_range("end of iterator met");
+      } else {
+        *(ptr) = value;
+      }
     }
+
+  protected:
+    explicit AgentMemoryIterator(AgentMemory* am);
 
   private:
     size_t size_;  //! Size if memory vectors

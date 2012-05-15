@@ -37,5 +37,11 @@ class invalid_operation : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class out_of_range : public flame_exception {
+  public:
+    explicit out_of_range(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__BASE_HPP_

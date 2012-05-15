@@ -9,7 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
-#include <boost/test/unit_test.hpp>
+#include "boost/test/unit_test.hpp"
 #include "../vector_wrapper.hpp"
 #include "exceptions/mem.hpp"
 
@@ -34,16 +34,16 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   vi->push_back(1);
   vi->push_back(2);
   vi->push_back(3);
-  BOOST_CHECK_EQUAL(vi->size(), 3);
-  BOOST_CHECK_EQUAL(pi->size(), 3);
+  BOOST_CHECK_EQUAL(vi->size(), (size_t)3);
+  BOOST_CHECK_EQUAL(pi->size(), (size_t)3);
 
   BOOST_CHECK(vd->empty());
   BOOST_CHECK(pd->empty());
   vd->push_back(10.1);
   vd->push_back(20.2);
   vd->push_back(30.3);
-  BOOST_CHECK_EQUAL(vd->size(), 3);
-  BOOST_CHECK_EQUAL(pd->size(), 3);
+  BOOST_CHECK_EQUAL(vd->size(), (size_t)3);
+  BOOST_CHECK_EQUAL(pd->size(), (size_t)3);
 
   // ---- iterate using raw pointers ---
 

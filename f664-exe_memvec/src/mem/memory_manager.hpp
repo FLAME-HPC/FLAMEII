@@ -21,6 +21,7 @@ namespace flame { namespace mem {
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
+//! Shared pointer to agent memory iterator
 typedef boost::shared_ptr<AgentMemoryIterator> MemoryIteratorPtr;
 
 
