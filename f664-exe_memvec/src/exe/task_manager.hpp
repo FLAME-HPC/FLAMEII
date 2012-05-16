@@ -18,16 +18,42 @@ namespace flame { namespace exe {
 
 typedef boost::ptr_map<std::string, Task> TaskMap;
 
+//! Task Manager object.
+//! This is a singleton class - only one instance should exist throughtout
+//! the simulation. Instances are accessed using TaskManager::GetInstance().
+//! Apart from the GetTask methods, all others should be called during the
+//! initialisation stage before threads are spawned, or guarded by mutexes
 class TaskManager {
   public:
+    //! Returns instance of singleton object
+    //!  When used in a multithreaded environment, this should be called
+    //!  at lease once before threads are spawned.
+    static TaskManager& GetInstance() {
+      static TaskManager instance;
+      return instance;
+    }
+
     Task& CreateTask(std::string task_name,
                      std::string agent_name,
                      AgentFuncPtr func_ptr);
 
     Task& GetTask(std::string task_name);
+
+#ifdef TESTBUILD
+    //! Delete all tasks
+    void Reset();
+#endif
+
   private:
+    //! This is a singleton class. Disable manual instantiation
+    TaskManager() {}
+    //! This is a singleton class. Disable copy constructor
+    TaskManager(const TaskManager&);
+    //! This is a singleton class. Disable assignment operation
+    void operator=(const TaskManager&);
+
     TaskMap task_map_;
 };
 
 }}  // namespace flame::exe
-#endif // EXE__TASK_MANAGER_HPP_
+#endif  // EXE__TASK_MANAGER_HPP_

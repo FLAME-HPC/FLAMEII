@@ -7,6 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include <utility>
+#include <string>
 #include "task.hpp"
 #include "exceptions/all.hpp"
 #include "mem/memory_manager.hpp"

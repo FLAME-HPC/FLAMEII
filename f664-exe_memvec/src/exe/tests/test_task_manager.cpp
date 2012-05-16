@@ -9,6 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
+#include <string>
 #include "boost/test/unit_test.hpp"
 #include "../task_manager.hpp"
 
@@ -16,6 +17,29 @@ BOOST_AUTO_TEST_SUITE(TaskManager)
 
 namespace exe = flame::exe;
 namespace mem = flame::mem;
+
+// dummy function
+FLAME_AGENT_FUNC(func1) { return 0; }
+
+BOOST_AUTO_TEST_CASE(taskmgr_initialise_and_test_singleton) {
+  std::string task_name = "test_task";
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mgr.RegisterAgent("Circle");
+
+  exe::TaskManager& tm1 = exe::TaskManager::GetInstance();
+  tm1.CreateTask(task_name, "Circle", &func1);
+
+  exe::TaskManager& tm2 = exe::TaskManager::GetInstance();
+  exe::Task& task = tm2.GetTask(task_name);
+  BOOST_CHECK_EQUAL(task.get_task_name(), task_name);
+
+
+  tm2.Reset();  // TEST BUILD only method
+  mgr.Reset();
+  BOOST_CHECK_THROW(tm2.GetTask(task_name),
+                    flame::exceptions::invalid_argument);
+}
+
 BOOST_AUTO_TEST_CASE(initialise_memory_manager) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
   mgr.RegisterAgent("Circle");
@@ -28,11 +52,9 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager) {
   mgr.GetVector<double>("Circle", "y_dbl")->push_back(0.1);
 }
 
-// dummy function
-FLAME_AGENT_FUNC(func1) { return 0; }
 
 BOOST_AUTO_TEST_CASE(test_create_task) {
-  exe::TaskManager tm;
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
   BOOST_CHECK_THROW(tm.CreateTask("t1", "NotAnAgent", &func1),
                     flame::exceptions::invalid_agent);
   BOOST_CHECK_THROW(tm.CreateTask("t1", "Circle", NULL),

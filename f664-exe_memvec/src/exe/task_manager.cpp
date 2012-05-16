@@ -7,6 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include <utility>
+#include <string>
 #include "task_manager.hpp"
 #include "exceptions/all.hpp"
 
@@ -32,5 +34,11 @@ Task& TaskManager::GetTask(std::string task_name) {
     throw flame::exceptions::invalid_argument("Unknown task");
   }
 }
+
+#ifdef TESTBUILD
+void TaskManager::Reset() {
+  task_map_.clear();
+}
+#endif
 
 }}  // namespace flame::exe
