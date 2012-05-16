@@ -26,7 +26,8 @@ int writeXMLTag(xmlTextWriterPtr writer, std::string name);
 int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value);
 int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value);
 int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value);
-int writeXMLTagAttribute(xmlTextWriterPtr writer, std::string name, std::string value);
+int writeXMLTagAttribute(xmlTextWriterPtr writer,
+        std::string name, std::string value);
 int endXMLDoc(xmlTextWriterPtr writer);
 
 /*typedef flame::mem::VectorReader<int> intVecReader;
@@ -235,7 +236,8 @@ int IOXMLPop::createDataSchema(std::string const& file,
     rc = writeXMLTag(writer, "xs:schema");
     if (rc != 0) return rc;
 
-    rc = writeXMLTagAttribute(writer, "xmlns:xs", "http://www.w3.org/2001/XMLSchema");
+    rc = writeXMLTagAttribute(writer, "xmlns:xs",
+            "http://www.w3.org/2001/XMLSchema");
     if (rc != 0) return rc;
 
     rc = writeXMLTagAttribute(writer, "elementFormDefault", "qualified");
@@ -267,7 +269,6 @@ int IOXMLPop::createDataSchema(std::string const& file,
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end();
             agent++) {
-
         rc = writeXMLTag(writer, "xs:enumeration");
         if (rc != 0) return rc;
 
@@ -282,6 +283,121 @@ int IOXMLPop::createDataSchema(std::string const& file,
     writeXMLTag(writer);
 
     /* Close the element named xs:simpleType. */
+    writeXMLTag(writer);
+
+    /* Define agent variables */
+    rc = writeXMLTag(writer, "xs:group");
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, "name", "agent_vars");
+    if (rc != 0) return rc;
+    rc = writeXMLTag(writer, "xs:choice");
+    if (rc != 0) return rc;
+
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end();
+            agent++) {
+        rc = writeXMLTag(writer, "xs:group");
+        if (rc != 0) return rc;
+        std::string ref = "agent_";
+        ref.append((*agent)->getName());
+        ref.append("_vars");
+        rc = writeXMLTagAttribute(writer, "ref", ref);
+        if (rc != 0) return rc;
+        /* Close the element named xs:group. */
+        writeXMLTag(writer);
+    }
+
+    /* Close the element named xs:choice. */
+    writeXMLTag(writer);
+    /* Close the element named xs:group. */
+    writeXMLTag(writer);
+
+    for (agent = model->getAgents()->begin();
+                agent != model->getAgents()->end();
+                agent++) {
+        rc = writeXMLTag(writer, "xs:group");
+        if (rc != 0) return rc;
+        std::string name = "agent_";
+        name.append((*agent)->getName());
+        name.append("_vars");
+        rc = writeXMLTagAttribute(writer, "name", name);
+        if (rc != 0) return rc;
+        rc = writeXMLTag(writer, "xs:sequence");
+        if (rc != 0) return rc;
+        for (variable = (*agent)->getVariables()->begin();
+                variable != (*agent)->getVariables()->end();
+                variable++) {
+            rc = writeXMLTag(writer, "xs:element");
+            if (rc != 0) return rc;
+            rc = writeXMLTagAttribute(writer, "name", (*variable)->getName());
+            if (rc != 0) return rc;
+            std::string type;
+            if ((*variable)->getType() == "int") type = "xs:integer";
+            else if ((*variable)->getType() == "double") type = "xs:double";
+            else
+                type = "xs:string";
+            rc = writeXMLTagAttribute(writer, "type", type);
+            if (rc != 0) return rc;
+            /* Close the element named xs:element. */
+            writeXMLTag(writer);
+        }
+        /* Close the element named xs:sequence. */
+        writeXMLTag(writer);
+        /* Close the element named xs:group. */
+        writeXMLTag(writer);
+    }
+
+    /* Define agents */
+
+    rc = writeXMLTag(writer, "xs:element");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTagAttribute(writer, "name", "xagent");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTag(writer, "xs:annotation");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTag(writer, "xs:documentation", "Agent data");
+    if (rc != 0) return rc;
+
+    /* Close the element named xs:annotation. */
+    writeXMLTag(writer);
+
+    rc = writeXMLTag(writer, "xs:complexType");
+        if (rc != 0) return rc;
+
+    rc = writeXMLTag(writer, "xs:sequence");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTag(writer, "xs:element");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTagAttribute(writer, "name", "name");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTagAttribute(writer, "type", "agentType");
+    if (rc != 0) return rc;
+
+    /* Close the element named xs:element. */
+    writeXMLTag(writer);
+
+    rc = writeXMLTag(writer, "xs:group");
+    if (rc != 0) return rc;
+
+    rc = writeXMLTagAttribute(writer, "ref", "agent_vars");
+    if (rc != 0) return rc;
+
+    /* Close the element named xs:group. */
+    writeXMLTag(writer);
+
+    /* Close the element named xs:sequence. */
+    writeXMLTag(writer);
+
+    /* Close the element named xs:complexType. */
+    writeXMLTag(writer);
+
+    /* Close the element named xs:element. */
     writeXMLTag(writer);
 
     /* XML Tag structure */
@@ -304,7 +420,7 @@ int IOXMLPop::createDataSchema(std::string const& file,
     rc = writeXMLTagAttribute(writer, "name", "itno");
     if (rc != 0) return rc;
 
-    rc = writeXMLTagAttribute(writer, "type","xs:nonNegativeInteger");
+    rc = writeXMLTagAttribute(writer, "type", "xs:nonNegativeInteger");
     if (rc != 0) return rc;
 
     rc = writeXMLTag(writer, "xs:annotation");
@@ -322,7 +438,7 @@ int IOXMLPop::createDataSchema(std::string const& file,
     rc = writeXMLTag(writer, "xs:element");
     if (rc != 0) return rc;
 
-    rc = writeXMLTagAttribute(writer, "name", "xagent");
+    rc = writeXMLTagAttribute(writer, "ref", "xagent");
     if (rc != 0) return rc;
 
     rc = writeXMLTagAttribute(writer, "minOccurs", "0");
@@ -330,42 +446,6 @@ int IOXMLPop::createDataSchema(std::string const& file,
 
     rc = writeXMLTagAttribute(writer, "maxOccurs", "unbounded");
     if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:annotation");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:documentation", "Agent data");
-    if (rc != 0) return rc;
-
-    /* Close the element named xs:annotation. */
-    writeXMLTag(writer);
-
-    rc = writeXMLTag(writer, "xs:complexType");
-        if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:all");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "name");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "type", "agentType");
-    if (rc != 0) return rc;
-
-    /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
-    /* Close the element named xs:all. */
-    writeXMLTag(writer);
-
-    /* Close the element named xs:complexType. */
-    writeXMLTag(writer);
-
-    /* Close the element named xs:element. */
-    writeXMLTag(writer);
 
     /* Close the element named xs:element. */
     writeXMLTag(writer);
@@ -379,7 +459,7 @@ int IOXMLPop::createDataSchema(std::string const& file,
     /* Close the element named xs:element. */
     writeXMLTag(writer);
 
-    /* End xml file, automatically ends states tag */
+    /* End xml file, automatically ends schema tag */
     rc = endXMLDoc(writer);
     if (rc != 0) return rc;
 
@@ -391,7 +471,8 @@ int IOXMLPop::createDataSchema(std::string const& file,
 
 int IOXMLPop::validateData(std::string const& data_file,
         std::string const& schema_file) {
-    xmlDocPtr schema_doc = xmlReadFile(schema_file.c_str(), NULL, XML_PARSE_NONET);
+    xmlDocPtr schema_doc = xmlReadFile(schema_file.c_str(), NULL,
+            XML_PARSE_NONET);
     if (schema_doc == NULL) {
         /* the schema cannot be loaded or is not well-formed */
         return -1;

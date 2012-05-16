@@ -33,13 +33,18 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
     /* Read model xml */
     ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model);
 
+    /* Generate data schema */
     rc = ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model);
     BOOST_CHECK(rc == 0);
 
-    rc = ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml",
-            "src/io/tests/models/all_data.xsd");
-    printf("validateData = %d\n", rc);
+    /* Validate data using schema */
+    std::string xsd = "src/io/tests/models/all_data.xsd";
+    rc = ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml", xsd);
     BOOST_CHECK(rc == 0);
+    /* Remove created 1.xml */
+    if (remove(xsd.c_str()) != 0)
+    fprintf(stderr, "Warning: Could not delete the generated file: %s",
+            xsd.c_str());
 }
 
 /* Test the reading of XML population files. */

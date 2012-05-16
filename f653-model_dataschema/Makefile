@@ -5,8 +5,8 @@ LDFLAGS    = -L$(BOOST_DIR)/stage/lib
 LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
              $(shell xml2-config --libs)
 INCLUDE    = -I. -I$(BOOST_DIR) $(shell xml2-config --cflags)
-IO_SRC     = src/io/io_manager.cpp src/io/io_xml_model.cpp #src/io/io_xml_pop.cpp
-IO_TEST    = src/io/tests/test_io_xml_model.cpp #src/io/tests/test_io_xml_pop.cpp
+IO_SRC     = src/io/io_manager.cpp src/io/io_xml_model.cpp src/io/io_xml_pop.cpp
+IO_TEST    = src/io/tests/test_io_xml_pop.cpp #src/io/tests/test_io_xml_model.cpp
 MODEL_SRC  = src/model/xvariable.cpp src/model/xadt.cpp src/model/xtimeunit.cpp \
               src/model/xfunction.cpp src/model/xmachine.cpp \
               src/model/xmessage.cpp src/model/xmodel.cpp src/model/xioput.cpp \
