@@ -23,40 +23,59 @@ namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
 
-/* Test the reading of XML population files. */
-BOOST_AUTO_TEST_CASE(test_read_XML_model) {
+/* Test creation of data schema */
+BOOST_AUTO_TEST_CASE(test_data_schema) {
     int rc;
     xml::IOXMLPop ioxmlpop;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
-    flame::mem::MemoryManager memoryManager;
 
     /* Read model xml */
     ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model);
+
+    rc = ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model);
+    BOOST_CHECK(rc == 0);
+
+    rc = ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml",
+            "src/io/tests/models/all_data.xsd");
+    printf("validateData = %d\n", rc);
+    BOOST_CHECK(rc == 0);
+}
+
+/* Test the reading of XML population files. */
+BOOST_AUTO_TEST_CASE(test_read_XML_model) {
+    // int rc;
+    xml::IOXMLPop ioxmlpop;
+    xml::IOXMLModel ioxmlmodel;
+    model::XModel model;
+    // flame::mem::MemoryManager memoryManager;
+
+    /* Read model xml */
+//    ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model);
     /* Register agents with mem module */
     unsigned int ii, jj;
-    size_t pop_size_hint = 3;
+    // size_t pop_size_hint = 3;
     for (ii = 0; ii < model.getAgents()->size(); ii++) {
         model::XMachine * agent = model.getAgents()->at(ii);
         /* Register agent */
-        memoryManager.RegisterAgent(agent->getName(), pop_size_hint);
+        // memoryManager.RegisterAgent(agent->getName(), pop_size_hint);
         /* Register agent memory variables */
         for (jj = 0; jj < agent->getVariables()->size(); jj++) {
             model::XVariable * var =
                     agent->getVariables()->at(jj);
             if (var->getType() == "int") {
-                memoryManager.RegisterAgentVar<int>
-                    (agent->getName(), var->getName());
+                /*memoryManager.RegisterAgentVar<int>
+                    (agent->getName(), var->getName());*/
             } else if (var->getType() == "double") {
-                memoryManager.RegisterAgentVar<double>
-                    (agent->getName(), var->getName());
+                /*memoryManager.RegisterAgentVar<double>
+                    (agent->getName(), var->getName());*/
             }
         }
     }
 
     /* Warning: Using same memory manager for all tests */
 
-    rc = ioxmlpop.readXMLPop(
+    /*rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_missing.xml",
             &model, &memoryManager);
     BOOST_CHECK(rc == 1);
@@ -93,17 +112,17 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
     rc = ioxmlpop.readXMLPop("src/io/tests/models/all_data_its/0.xml",
             &model, &memoryManager);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK(rc == 0);*/
 
     /* Test pop data read in */
     /* Test ints data */
-    flame::mem::VectorReader<int> roi =
+/*    flame::mem::VectorReader<int> roi =
             memoryManager.GetReader<int>("agent_a", "int_single");
     int expectedi[] = {1, 2, 3};
     BOOST_CHECK_EQUAL_COLLECTIONS(expectedi, expectedi+3,
-            roi.begin(), roi.end());
+            roi.begin(), roi.end());*/
     /* Test doubles data */
-    flame::mem::VectorReader<double> rod =
+/*    flame::mem::VectorReader<double> rod =
             memoryManager.GetReader<double>("agent_a", "double_single");
     double expectedd[] = {0.1, 0.2, 0.3};
     for (ii = 0; ii < rod.size(); ii++) {
@@ -112,11 +131,11 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
     rc = ioxmlpop.writeXMLPop(onexml, 1, &model, &memoryManager);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK(rc == 0);*/
     /* Remove created 1.xml */
-    if (remove(onexml.c_str()) != 0)
+/*    if (remove(onexml.c_str()) != 0)
         fprintf(stderr, "Warning: Could not delete the generated file: %s",
-            onexml.c_str());
+            onexml.c_str());*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()
