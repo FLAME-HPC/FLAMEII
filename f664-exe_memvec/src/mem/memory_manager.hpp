@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-#include "memory_iterator.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {

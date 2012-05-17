@@ -15,6 +15,7 @@
 #include <set>
 #include "include/flame.h"
 #include "mem/memory_manager.hpp"
+#include "mem/memory_iterator.hpp"
 
 namespace flame { namespace exe {
 

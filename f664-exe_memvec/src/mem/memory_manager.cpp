@@ -10,6 +10,7 @@
 #include <utility>
 #include <string>
 #include "memory_manager.hpp"
+#include "agent_shadow.hpp"
 #include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
