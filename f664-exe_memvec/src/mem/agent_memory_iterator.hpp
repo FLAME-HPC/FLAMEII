@@ -15,6 +15,19 @@
 //!  - http://lafstern.org/matt/col1.pdf
 //!  - http://www.codeproject.com/Articles/27799/Stree
 
+//! TODO(lsc): Support task splitting. This involves:
+//!  - Creating new MemoryIterators that can be stepped through independently
+//!  - Using a counter to detect end-of-vector instead of vector::end()
+//!  - ptr_map_ pointing to an offset within a raw array
+//!  - Rewind() needs to reset to the correct offset, not vector::start()
+
+//! TODO(lsc): Memory iterator should be stateless
+//! This allows concurrent+independent iterations of the same iterator
+//! which also makes it reentrant
+//! It also means we don't have to pre-emptively rewind it each time
+//! we retrieve an iterator.
+//! OR, make iterators copyable and always return a new one.
+
 #ifndef MEM__AGENT_MEMORY_ITERATOR_HPP_
 #define MEM__AGENT_MEMORY_ITERATOR_HPP_
 #include <map>
@@ -37,7 +50,6 @@ class AgentMemoryIterator {
   friend class MemoryManager;
   public:
     void AllowAccess(const std::string& var_name, bool writeable = false);
-    // TODO(lsc): void AllowFullAccess(bool writeable = false);
     void Rewind();
     bool Step();
     bool AtEnd() const;

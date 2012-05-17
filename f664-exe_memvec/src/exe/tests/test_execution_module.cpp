@@ -8,60 +8,77 @@
  * \brief Test suite for the execution module
  */
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-//#include <boost/shared_ptr.hpp>
-//#include "../execution_engine.hpp"
-//#include "../execution_thread.hpp"
+#include <vector>
+#include "boost/test/unit_test.hpp"
+#include "mem/memory_manager.hpp"
+#include "../task_manager.hpp"
+#include "../execution_thread.hpp"
+#include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
-//namespace exe = flame::exe::multicore;
+namespace e = flame::exe;
+namespace m = flame::mem;
 
-// Dummy agent functions
-/*
-FLAME_AGENT_FUNC(func1) { return *mem; }
-FLAME_AGENT_FUNC(func2) { return *mem + 1; }
 
-FLAME_AGENT_FUNC(incr_mem) {
-    (*mem)++;
-    return 10;
-}
-*/
-BOOST_AUTO_TEST_CASE(test_function_map) {
-    /*
-    exe::ExecutionEngine e;
-
-    BOOST_CHECK_THROW(e.GetFunction("foo"), std::out_of_range);
-
-    e.RegisterFunction("f1", &func1);
-    e.RegisterFunction("f2", &func2);
-    int i = 1;
-    BOOST_CHECK_THROW(e.GetFunction("foo"), std::out_of_range);
-    BOOST_CHECK_EQUAL(e.GetFunction("f1")(&i), 1);
-    BOOST_CHECK_EQUAL(e.GetFunction("f2")(&i), 2);
-    */
+FLAME_AGENT_FUNC(test_func) {
+  int x = flame_mem_get_int("x_int");
+  double y = flame_mem_get_double("y_dbl");
+  flame_mem_set_double("z_dbl", (x*y));
+  return 0;
 }
 
-BOOST_AUTO_TEST_CASE(test_run_function) {
-    /*
-    exe::ExecutionEngine e;
-    e.RegisterFunction("incr_mem", &incr_mem);
+BOOST_AUTO_TEST_CASE(runexe_setup) {
+  m::MemoryManager& mm = m::MemoryManager::GetInstance();
+  e::TaskManager& tm = e::TaskManager::GetInstance();
 
-    exe::MemVectorPtr mem(new exe::MemVector());
-    mem->push_back(1);
-    mem->push_back(2);
-    mem->push_back(3);
+  // Register agent
+  mm.RegisterAgent("Circle");
+  mm.RegisterAgentVar<int>("Circle", "x_int");
+  mm.RegisterAgentVar<double>("Circle", "y_dbl");
+  mm.RegisterAgentVar<double>("Circle", "z_dbl");
+  mm.HintPopulationSize("Circle", 10);
 
-    e.RunFunction("incr_mem", mem);
-    BOOST_CHECK_EQUAL(mem->at(0), 2);
-    BOOST_CHECK_EQUAL(mem->at(1), 3);
-    BOOST_CHECK_EQUAL(mem->at(2), 4);
+  // Populate data
+  std::vector<int>* x_ptr = mm.GetVector<int>("Circle", "x_int");
+  std::vector<double>* y_ptr = mm.GetVector<double>("Circle", "y_dbl");
+  std::vector<double>* z_ptr = mm.GetVector<double>("Circle", "z_dbl");
+  for (int i = 0; i < 10; ++i) {
+    x_ptr->push_back(i);
+    y_ptr->push_back(i * 2.0);
+    z_ptr->push_back(0.0);
+  }
 
-    e.RunFunction("incr_mem", mem);
-    BOOST_CHECK_EQUAL(mem->at(0), 3);
-    BOOST_CHECK_EQUAL(mem->at(1), 4);
-    BOOST_CHECK_EQUAL(mem->at(2), 5);
-    */
+  // Register task
+  e::Task& t = tm.CreateTask("test", "Circle", test_func);
+  t.AllowAccess("x_int");
+  t.AllowAccess("y_dbl");
+  t.AllowAccess("z_dbl", true);  // writeable
+}
+
+BOOST_AUTO_TEST_CASE(runexe_run) {
+  flame::exe::ExecutionThread exe_thread;
+  exe_thread.Run("test");
+
+  e::TaskManager& tm = e::TaskManager::GetInstance();
+  e::Task& task = tm.GetTask("test");
+  m::MemoryIteratorPtr m_iter = task.get_memory_iterator();
+  m_iter->Rewind();
+
+  BOOST_CHECK_EQUAL(m_iter->get_size(), 10);
+
+  for (int i = 0; i < 10; ++i) {
+    BOOST_CHECK_EQUAL(m_iter->AtEnd(), false);
+    BOOST_CHECK_EQUAL(m_iter->Get<int>("x_int"), i);
+    BOOST_CHECK_EQUAL(m_iter->Get<double>("y_dbl"), i * 2.0);
+    BOOST_CHECK_EQUAL(m_iter->Get<double>("z_dbl"), i * i * 2.0);
+    m_iter->Step();
+  }
+}
+
+BOOST_AUTO_TEST_CASE(runexe_cleanup) {
+  e::TaskManager::GetInstance().Reset();
+  m::MemoryManager::GetInstance().Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

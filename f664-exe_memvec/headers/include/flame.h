@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Header file for FLAME2 User API
+ * \brief C API for FLAME2 User API
  */
 #ifndef INCLUDE__FLAME_H_
 #define INCLUDE__FLAME_H_
@@ -14,20 +14,25 @@
 extern "C" {
 #endif
 
-/*
-#define FLAME_AGENT_FUNC(funcName) int funcName(FLAME_afunc_idx IDX_000_001, FLAME_afunc_mem MEM_000_001)
-#define flame_get_mem_dbl(k) flame_get_mem_dbl_actual(IDX_000_001, MEM_000_001, k)
-#define flame_set_mem_dbl(k, v) flame_set_mem_dbl_actual(IDX_000_001, MEM_000_001, k, v)
-#define flame_get_mem_int(k) flame_get_mem_int_actual(IDX_000_001, MEM_000_001, k)
-#define flame_set_mem_int(k, v) flame_set_mem_int_actual(IDX_000_001, MEM_000_001, k, v)
-*/
-
-// Note: This is a mock implementation which only handles one agent memory var
-#define FLAME_AGENT_FUNC(funcName) int funcName(int* mem)
+#define FLAME_AGENT_FUNC_ARG FLAME_unique_symbol_000_001
+#define FLAME_AGENT_FUNC(funcName) int funcName(void* FLAME_AGENT_FUNC_ARG)
 
 /*! Function pointer type for agent transition functions */
 typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 
+/* TODO(lsc): These should be generated per-model for each datatype */
+double flame_mem_get_double_actual_(void* FLAME_AGENT_FUNC_ARG, const char* k);
+#define flame_mem_get_double(k) flame_mem_get_double_actual_(FLAME_AGENT_FUNC_ARG, k)
+void flame_mem_set_double_actual_(void* FLAME_AGENT_FUNC_ARG,
+                                  const char* k,
+                                  double v);
+#define flame_mem_set_double(k, v) flame_mem_set_double_actual_(FLAME_AGENT_FUNC_ARG, k, v)
+int flame_mem_get_int_actual_(void* FLAME_AGENT_FUNC_ARG, const char* k);
+#define flame_mem_get_int(k) flame_mem_get_int_actual_(FLAME_AGENT_FUNC_ARG, k)
+void flame_mem_set_int_actual_(void* FLAME_AGENT_FUNC_ARG,
+                               const char* k,
+                               int v);
+#define flame_mem_set_int(k, v) flame_mem_set_int_actual_(FLAME_AGENT_FUNC_ARG, k, v)
 
 #ifdef __cplusplus
 }

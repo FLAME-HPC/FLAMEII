@@ -35,8 +35,16 @@ flame::mem::MemoryIteratorPtr Task::get_memory_iterator() const {
   return memory_iterator_;
 }
 
+void Task::AllowAccess(const std::string& var_name, bool writeable) {
+  memory_iterator_->AllowAccess(var_name, writeable);
+}
+
 std::string Task::get_task_name() const {
   return task_name_;
+}
+
+AgentFuncPtr Task::get_func_ptr() const {
+  return func_ptr_;
 }
 
 }}  // namespace flame::exe

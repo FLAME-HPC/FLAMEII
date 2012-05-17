@@ -28,8 +28,10 @@ class Task {
   friend class TaskManager;
 
   public:
+    void AllowAccess(const std::string& var_name, bool writeable = false);
     flame::mem::MemoryIteratorPtr get_memory_iterator() const;
     std::string get_task_name() const;
+    AgentFuncPtr get_func_ptr() const;
 
   protected:
     // Tasks should only be created via Task Manager
