@@ -25,12 +25,22 @@ class MemoryIterator {
   friend class AgentShadow;
 
   public:
+    //! Resets position to beginning of agent data
     void Rewind();
+
+    //! Progresses all pointers to point to next set of data
     bool Step();
+
+    //! Returns true if iteration has completed, false otherwise.
     bool AtEnd() const;
+
+    //! Returns the population size
     size_t get_size() const;
+
+    //! Returns the number of steps taken so far
     size_t get_position() const;
 
+    //! Returns a const pointer to the actual data location
     template <typename T>
     const T* GetReadPtr(const std::string& var_name) const {
       try {
@@ -47,6 +57,7 @@ class MemoryIterator {
       }
     }
 
+    //! Returns a pointer to the actual data location
     template <typename T>
     T* GetWritePtr(const std::string& var_name) const {
       if (rw_set_ptr_->find(var_name) == rw_set_ptr_->end()) {
@@ -67,6 +78,7 @@ class MemoryIterator {
       }
     }
 
+    //! Returns the value of a given variable
     template <typename T>
     T Get(const std::string& var_name) const {
       const T* ptr = GetReadPtr<T>(var_name);
@@ -77,6 +89,7 @@ class MemoryIterator {
       }
     }
 
+    //! Sets the value of a given variable
     template <typename T>
     void Set(const std::string& var_name, T value) {
       T* ptr = GetWritePtr<T>(var_name);
@@ -88,14 +101,15 @@ class MemoryIterator {
     }
 
   protected:
+    // Constructor limited to AgentShadow
     explicit MemoryIterator(AgentShadow* shadow);
 
   private:
     size_t position_;  //! Current iterator position
-    size_t size_;
+    size_t size_;  //! Population size
     VoidPtrMap ptr_map_;  //! map of raw pointers of vars
     ConstVectorMap* vec_map_ptr_;  //! pointer to vec map
-    WriteableSet* rw_set_ptr_;
+    WriteableSet* rw_set_ptr_;  //! Pointer to set of writeable vars
 };
 
 }}  //  namespace flame::mem

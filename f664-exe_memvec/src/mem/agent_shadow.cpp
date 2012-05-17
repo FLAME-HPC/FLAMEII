@@ -29,7 +29,7 @@ void AgentShadow::AllowAccess(const std::string& var_name,
   }
 
   std::pair<ConstVectorMap::iterator, bool> ret;
-  ret = vec_map_.insert(ConstVectorMapValue(var_name, vec_ptr));
+  ret = vec_map_.insert(ConstVectorMap::value_type(var_name, vec_ptr));
   if (!ret.second) {
     throw flame::exceptions::logic_error("variable already registered");
   } else {

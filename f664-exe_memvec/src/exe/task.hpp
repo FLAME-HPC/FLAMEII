@@ -17,21 +17,24 @@
 #include "mem/memory_manager.hpp"
 #include "mem/memory_iterator.hpp"
 
+// TODO(lsc): Consider boost::function to replace AgentFuncPtr
+
 namespace flame { namespace exe {
-
-// forward declaration to allow reference without including headers
-class VectorWrapperBase;
-class TaskManager;
-
-typedef std::map<std::string, flame::mem::VectorWrapperBase*>  VectorMap;
 
 class Task {
   friend class TaskManager;
 
   public:
+    //! Enable access to a specific agent var
     void AllowAccess(const std::string& var_name, bool writeable = false);
+
+    //! Returns a new instance of a MemoryIterator
     flame::mem::MemoryIteratorPtr GetMemoryIterator() const;
+
+    //! Returns the name of the task
     std::string get_task_name() const;
+
+    //! Returns the function pointer associated with this task
     AgentFuncPtr get_func_ptr() const;
 
   protected:
@@ -39,10 +42,10 @@ class Task {
     Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr);
 
   private:
-    std::string task_name_;
-    std::string agent_name_;
-    AgentFuncPtr func_ptr_;
-    flame::mem::AgentShadowPtr shadow_ptr_;
+    std::string task_name_;  //! Name of task
+    std::string agent_name_;  //! Name of associated agent
+    AgentFuncPtr func_ptr_;  //! Function pointer associated with task
+    flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
 };
 
 }}  // namespace flame::exe

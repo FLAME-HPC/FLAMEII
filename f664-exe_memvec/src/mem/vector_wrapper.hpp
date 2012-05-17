@@ -45,6 +45,7 @@ inline VectorWrapperBase* new_clone(const VectorWrapperBase& a) {
   return a.clone();
 }
 
+//! Type specific VectorWrappers
 template <typename T>
 class VectorWrapper: public VectorWrapperBase {
   public:

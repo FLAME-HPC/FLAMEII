@@ -17,6 +17,9 @@
 #include "exceptions/mem.hpp"
 #include "vector_wrapper.hpp"
 
+// TODO(lsc): review usage of AgentMemory::registration_closed_
+// Do we need it? Is there a better way to handle access to RegisterVar?
+
 namespace flame { namespace mem {
 
 namespace exc = flame::exceptions;
@@ -69,12 +72,13 @@ class AgentMemory {
         throw exc::invalid_type("Invalid data type specified");
       }
 #endif
+      registration_closed_ = true;
       return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 
   private:
-    std::string agent_name_;
-    MemoryMap mem_map_;
+    std::string agent_name_;  //! Name of agent
+    MemoryMap mem_map_;  //! Map of var names to VectorWrapper
 
     //! Indicates that vectors have been resized/populated so new variables
     //!  should no longer be registered.

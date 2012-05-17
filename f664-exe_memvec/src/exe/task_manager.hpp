@@ -33,10 +33,12 @@ class TaskManager {
       return instance;
     }
 
+    //! Registers and returns a new Task
     Task& CreateTask(std::string task_name,
                      std::string agent_name,
                      AgentFuncPtr func_ptr);
 
+    //! Returns a registered Task
     Task& GetTask(std::string task_name);
 
 #ifdef TESTBUILD

@@ -36,28 +36,38 @@ class AgentMemory;  // forward declaration
 class MemoryIterator;  // forward declaration
 class VectorWrapperBase;  // forward declaration
 
+//! Map type used to store pointers to VectorWrappers
 typedef std::map<std::string, VectorWrapperBase* const> ConstVectorMap;
-typedef std::pair<std::string, VectorWrapperBase* const> ConstVectorMapValue;
-typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
+//! Set type used to keep track of vars with write permission
 typedef std::set<std::string> WriteableSet;
+//! Smart pointer type used to return MemoryIterator
+typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
 class AgentShadow {
   friend class MemoryManager;
   friend class MemoryIterator;
 
   public:
+    //! Enables access to an agent variable
     void AllowAccess(const std::string& var_name, bool writeable = false);
+
+    //! Returns the population size
     size_t get_size() const;
+
+    //! Returns a new instance of a MemoryIterator
     MemoryIteratorPtr GetMemoryIterator();
 
   protected:
+    // Limit constructor to MemoryManager
     explicit AgentShadow(AgentMemory* am);
+    // Accessible to MemoryIterator
     WriteableSet rw_set_;  //! Set of var names that has write access
+    // Accessible to MemoryIterator
     ConstVectorMap vec_map_;  //! map accessible vars
 
   private:
     size_t size_;  //! Size if memory vectors
-    AgentMemory* am_;
+    AgentMemory* am_;  //! Pointer to parent AgentMemory object
 
     AgentShadow(const AgentShadow&);  //! Disable copy ctor
     void operator=(const AgentShadow&);  //! Disable assignment

@@ -30,6 +30,7 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
 
 VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
   try {
+    registration_closed_ = true;
     return &(mem_map_.at(var_name));
   }
   catch(const boost::bad_ptr_container_operation& E) {
