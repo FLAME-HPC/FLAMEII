@@ -28,15 +28,15 @@ Task::Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr)
     throw flame::exceptions::invalid_argument("Function pointer is NULL");
   }
 
-  memory_iterator_ = mm.GetMemoryIterator(agent_name);
+  shadow_ptr_ = mm.GetAgentShadow(agent_name);
 }
 
-flame::mem::MemoryIteratorPtr Task::get_memory_iterator() const {
-  return memory_iterator_;
+flame::mem::MemoryIteratorPtr Task::GetMemoryIterator() const {
+  return shadow_ptr_->GetMemoryIterator();
 }
 
 void Task::AllowAccess(const std::string& var_name, bool writeable) {
-  memory_iterator_->AllowAccess(var_name, writeable);
+  shadow_ptr_->AllowAccess(var_name, writeable);
 }
 
 std::string Task::get_task_name() const {

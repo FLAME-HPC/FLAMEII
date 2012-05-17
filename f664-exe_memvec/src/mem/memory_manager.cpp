@@ -48,17 +48,6 @@ AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   }
 }
 
-MemoryIteratorPtr MemoryManager::GetMemoryIterator(
-    const std::string& agent_name) {
-  try {
-    AgentMemory* am_ptr = &agent_map_.at(agent_name);
-    return MemoryIteratorPtr(new AgentMemoryIterator(am_ptr));
-  }
-  catch(const std::out_of_range& E) {
-    throw exc::invalid_agent("unknown agent name");
-  }
-}
-
 size_t MemoryManager::GetAgentCount() const {
   return agent_map_.size();
 }
@@ -67,6 +56,10 @@ bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) const {
   return (agent_map_.find(agent_name) != agent_map_.end());
 }
 
+AgentShadowPtr MemoryManager::GetAgentShadow(
+    const std::string& agent_name) {
+  return AgentShadowPtr(new AgentShadow(&GetAgentMemory(agent_name)));
+}
 
 #ifdef TESTBUILD
 void MemoryManager::Reset() {

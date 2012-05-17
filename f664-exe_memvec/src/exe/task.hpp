@@ -29,7 +29,7 @@ class Task {
 
   public:
     void AllowAccess(const std::string& var_name, bool writeable = false);
-    flame::mem::MemoryIteratorPtr get_memory_iterator() const;
+    flame::mem::MemoryIteratorPtr GetMemoryIterator() const;
     std::string get_task_name() const;
     AgentFuncPtr get_func_ptr() const;
 
@@ -41,7 +41,7 @@ class Task {
     std::string task_name_;
     std::string agent_name_;
     AgentFuncPtr func_ptr_;
-    flame::mem::MemoryIteratorPtr memory_iterator_;
+    flame::mem::AgentShadowPtr shadow_ptr_;
 };
 
 }}  // namespace flame::exe

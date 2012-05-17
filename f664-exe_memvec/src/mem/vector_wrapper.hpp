@@ -10,6 +10,7 @@
 #ifndef MEM__MEMORY_VECTOR_HPP
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
+#include <typeinfo>
 
 namespace flame { namespace mem {
 

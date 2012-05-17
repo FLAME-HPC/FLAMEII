@@ -11,7 +11,7 @@
 #ifndef COMPAT__C__MEM_API_CPP_
 #define COMPAT__C__MEM_API_CPP_
 #include "include/flame.h"
-#include "mem/agent_memory_iterator.hpp"
+#include "mem/memory_iterator.hpp"
 
 namespace m = flame::mem;
 
@@ -20,19 +20,19 @@ extern "C" {
 #endif
 
 int flame_mem_get_int_actual_(void* mem, const char* key) {
-  return static_cast<m::AgentMemoryIterator*>(mem)->Get<int>(key);
+  return static_cast<m::MemoryIterator*>(mem)->Get<int>(key);
 }
 
 void flame_mem_set_int_actual_(void* mem, const char* key, int value) {
-  static_cast<m::AgentMemoryIterator*>(mem)->Set<int>(key, value);
+  static_cast<m::MemoryIterator*>(mem)->Set<int>(key, value);
 }
 
 double flame_mem_get_double_actual_(void* mem, const char* key) {
-  return static_cast<m::AgentMemoryIterator*>(mem)->Get<double>(key);
+  return static_cast<m::MemoryIterator*>(mem)->Get<double>(key);
 }
 
 void flame_mem_set_double_actual_(void* mem, const char* key, double value) {
-  static_cast<m::AgentMemoryIterator*>(mem)->Set<double>(key, value);
+  static_cast<m::MemoryIterator*>(mem)->Set<double>(key, value);
 }
 
 

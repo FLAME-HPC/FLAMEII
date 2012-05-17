@@ -13,17 +13,17 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-#include "agent_memory_iterator.hpp"
+#include "memory_iterator.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
+class AgentShadow;
+
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
-//! Shared pointer to agent memory iterator
-typedef boost::shared_ptr<AgentMemoryIterator> MemoryIteratorPtr;
-
+typedef boost::shared_ptr<AgentShadow> AgentShadowPtr;
 
 //! Memory Manager object.
 //! This is a singleton class - only one instance should exist throughtout
@@ -71,10 +71,6 @@ class MemoryManager {
       return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
 
-    //! Returns a shared pointer to a memory iterator which allows
-    //! per-agent (col-wise) iteration for data
-    MemoryIteratorPtr GetMemoryIterator(const std::string& agent_name);
-
     //! Provides a hint at the population size of an agent type so memory
     //! utilisation can be optimised
     void HintPopulationSize(const std::string& agent_name,
@@ -85,6 +81,8 @@ class MemoryManager {
 
     //! Checks if an agent with a given name has been registered
     bool IsRegisteredAgent(const std::string& agent_name) const;
+
+    AgentShadowPtr GetAgentShadow(const std::string& agent_name);
 
 #ifdef TESTBUILD
     //! Delete all registered agents and vars

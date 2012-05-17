@@ -44,17 +44,20 @@ BOOST_AUTO_TEST_CASE(memiter_initialise_memory_manager) {
 BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
 
-  BOOST_CHECK_THROW(mgr.GetMemoryIterator("Square"), e::invalid_agent);
-  mem::MemoryIteratorPtr iptr = mgr.GetMemoryIterator("Circle");
+  BOOST_CHECK_THROW(mgr.GetAgentShadow("Square"), e::invalid_agent);
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
+
 
   // Adding access to invalid var
-  BOOST_CHECK_THROW(iptr->AllowAccess("NotVar"), e::invalid_variable);
+  BOOST_CHECK_THROW(shadow->AllowAccess("NotVar"), e::invalid_variable);
 
   // Adding access to vars
-  iptr->AllowAccess("x_int");
-  iptr->AllowAccess("y_dbl");
-  iptr->AllowAccess("z_dbl", true);  // writeable
+  shadow->AllowAccess("x_int");
+  shadow->AllowAccess("y_dbl");
+  shadow->AllowAccess("z_dbl", true);  // writeable
 
+  // Get memory iterator
+  mem::MemoryIteratorPtr iptr = shadow->GetMemoryIterator();
   BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)10);
   BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
 
@@ -127,6 +130,19 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
 
   // Iterate and check content
   iptr->Rewind();
+  for (int i = 0; i < 10; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), i);
+    BOOST_CHECK_CLOSE(iptr->Get<double>("y_dbl"), i * 1.0, 0.00001);
+    BOOST_CHECK_CLOSE(iptr->Get<double>("z_dbl"), 99.9, 0.00001);
+
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+
+  // Get a new iterator instead of rewinding
+  iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
   for (int i = 0; i < 10; i++) {
     BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
     BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), i);

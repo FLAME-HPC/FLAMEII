@@ -62,9 +62,7 @@ BOOST_AUTO_TEST_CASE(runexe_run) {
 
   e::TaskManager& tm = e::TaskManager::GetInstance();
   e::Task& task = tm.GetTask("test");
-  m::MemoryIteratorPtr m_iter = task.get_memory_iterator();
-  m_iter->Rewind();
-
+  m::MemoryIteratorPtr m_iter = task.GetMemoryIterator();
   BOOST_CHECK_EQUAL(m_iter->get_size(), 10);
 
   for (int i = 0; i < 10; ++i) {

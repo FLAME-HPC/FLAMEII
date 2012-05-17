@@ -61,10 +61,10 @@ BOOST_AUTO_TEST_CASE(test_create_task) {
                     flame::exceptions::invalid_argument);
 
   exe::Task& task = tm.CreateTask("t1", "Circle", &func1);
-  mem::MemoryIteratorPtr m_iter = task.get_memory_iterator();
-  m_iter->AllowAccess("x_int");
-  m_iter->AllowAccess("y_dbl", true);
-  BOOST_CHECK_THROW(m_iter->AllowAccess("NotAVar"),
+  task.AllowAccess("x_int");
+  task.AllowAccess("y_dbl", true);
+  mem::MemoryIteratorPtr m_iter = task.GetMemoryIterator();
+  BOOST_CHECK_THROW(task.AllowAccess("NotAVar"),
                     flame::exceptions::invalid_variable);
 
   BOOST_CHECK_THROW(tm.GetTask("NotATask"),

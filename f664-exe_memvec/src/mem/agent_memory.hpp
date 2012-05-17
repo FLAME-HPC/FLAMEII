@@ -24,6 +24,7 @@ namespace exc = flame::exceptions;
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 
+
 //! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
