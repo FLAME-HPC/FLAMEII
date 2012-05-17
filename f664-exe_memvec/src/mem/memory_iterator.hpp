@@ -9,6 +9,9 @@
  */
 #ifndef MEM__MEMORY_ITERATOR_HPP_
 #define MEM__MEMORY_ITERATOR_HPP_
+#include <string>
+#include <utility>
+#include <map>
 #include "agent_shadow.hpp"
 #include "vector_wrapper.hpp"
 #include "exceptions/mem.hpp"
@@ -98,4 +101,4 @@ class MemoryIterator {
 }}  //  namespace flame::mem
 
 
-#endif // MEM__MEMORY_ITERATOR_HPP_
+#endif  // MEM__MEMORY_ITERATOR_HPP_

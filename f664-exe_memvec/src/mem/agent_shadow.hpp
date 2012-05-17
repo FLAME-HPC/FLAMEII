@@ -33,7 +33,7 @@
 namespace flame { namespace mem {
 
 class AgentMemory;  // forward declaration
-class MemoryIterator; // forward declaration
+class MemoryIterator;  // forward declaration
 class VectorWrapperBase;  // forward declaration
 
 typedef std::map<std::string, VectorWrapperBase* const> ConstVectorMap;

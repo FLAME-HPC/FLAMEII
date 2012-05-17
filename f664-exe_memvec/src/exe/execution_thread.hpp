@@ -17,14 +17,10 @@ namespace flame { namespace exe {
 // mem vectors within a task.
 // The interface to this object is subjec to change
 
-class ExecutionThread
-{
+class ExecutionThread {
   public:
-    //ExecutionThread();
     void Run(std::string task_name);
-  protected:
-  private:
 };
 
 }}  // namespace flame::exe
-#endif // EXE__EXECUTION_THREAD_HPP_
+#endif  // EXE__EXECUTION_THREAD_HPP_
