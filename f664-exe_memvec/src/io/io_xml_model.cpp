@@ -8,10 +8,7 @@
  * \brief IOXMLModel: reading of model XML file
  */
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <cstdio>
@@ -21,10 +18,43 @@ namespace model = flame::model;
 
 namespace flame { namespace io { namespace xml {
 
+static void print_element_names(xmlNode * a_node) {
+    xmlNode *cur_node = NULL;
+
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            printf("node type: Element, name: %s\n", cur_node->name);
+        }
+
+        print_element_names(cur_node->children);
+    }
+}
+
+std::string getElementName(xmlNode * node) {
+    std::string s = reinterpret_cast<const char*>(node->name);
+    return s;
+}
+
+std::string getElementValue(xmlNode * node) {
+    std::string s = reinterpret_cast<const char*>(node->children->content);
+    return s;
+}
+
+void cleanUpXMLParser(xmlDoc *doc) {
+    /* Free the document */
+    xmlFreeDoc(doc);
+    /* Free the global variables that may
+     * have been allocated by the parser. */
+    xmlCleanupParser();
+}
+
 int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
-    int rc; /* Return code */
+    /* Used for return codes */
+    int rc;
     /* Directory of the model file */
     std::string directory;
+    xmlDoc *doc = NULL;
+    xmlNode *root_element = NULL;
 
     /* Find file directory to help open any submodels */
     boost::filesystem3::path filePath(file_name);
@@ -37,153 +67,166 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Save absolute path to check the file is not read again */
     model->setPath(boost::filesystem3::absolute(filePath).string());
 
-    /* Create stream and open file */
-    std::ifstream myfile;
-    myfile.open(file_name.c_str());
+    /* Parse the file and get the DOM */
+    doc = xmlReadFile(file_name.c_str(), NULL, 0);
 
-    /* If file opened successfully */
-    if (myfile.is_open()) {
-        /* Create property tree and populate, ignoring XML comments */
-        boost::property_tree::ptree pt;
-        try {
-            read_xml(myfile, pt,
-                    boost::property_tree::xml_parser::no_comments);
-        } catch(const boost::property_tree::xml_parser_error& E) {
-            /* Catch parser error */
-            std::fprintf(stderr,
-                "Error: Model file cannot be parsed: %s on line: %lu - %s\n",
-                    file_name.c_str(), E.line(), E.message().c_str());
-            myfile.close();
-            return 2;
-        }
+    /* Check if file opened successfully */
+    if (doc == NULL) {
+        /* Return error if the file was not successfully parsed */
+        std::fprintf(stderr,
+                "Error: Model file cannot be opened/parsed: %s\n",
+                file_name.c_str());
+        return 1;
+    }
 
-        /* Catch error if no root called xmodel */
-        try {
-            pt.get_child("xmodel");
-        } catch(std::runtime_error&) {
-            std::fprintf(stderr,
-                "Error: Model file does not have root called 'xmodel': %s\n",
-                    file_name.c_str());
-            myfile.close();
-            return 3;
-        }
+    /*Get the root element node */
+    root_element = xmlDocGetRootElement(doc);
 
-        /* Loop through each child of xmodel */
-        BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-                pt.get_child("xmodel") ) {
+    /* Catch error if no root called xmodel */
+    if (getElementName(root_element) != "xmodel") {
+        std::fprintf(stderr,
+            "Error: Model file does not have root called 'xmodel': %s\n",
+                file_name.c_str());
+        cleanUpXMLParser(doc);
+        return 3;
+    }
+
+    /* Catch error if version is not 2 */
+    const char* version_ptr = reinterpret_cast<const char*>(
+            xmlGetProp(root_element, (const xmlChar*)"version"));
+    std::string version = version_ptr;
+    delete version_ptr;
+    if (version != "2") {
+        std::fprintf(stderr,
+                "Error: Model file is not 'xmodel' version 2: %s\n",
+                file_name.c_str());
+        cleanUpXMLParser(doc);
+        return 4;
+    }
+
+    // print_element_names(root_element);
+
+    /* Loop through each child of xmodel */
+    xmlNode *cur_node = NULL;
+    for (cur_node = root_element->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
             /* Handle each child */
-            if (v.first == "<xmlattr>") {
-                /* Catch error if version is not 2 */
-                if (v.second.get("version", 0) != 2) {
-                    std::fprintf(stderr,
-                            "Error: Model file is not 'xmodel' version 2: %s\n",
-                            file_name.c_str());
-                    myfile.close();
-                    return 4;
-                }
-            } else if (v.first == "name") {
-                model->setName(pt.get<std::string>("xmodel.name"));
-            } else if (v.first == "version") {
-            } else if (v.first == "author") {
-            } else if (v.first == "description") {
-            } else if (v.first == "models") {
-                rc = readIncludedModels(v, directory, model);
-                if (rc != 0) return rc;
-            } else if (v.first == "environment") {
-                rc = readEnvironment(v, model);
+            std::string name = getElementName(cur_node);
+            if (name == "name") {
+                model->setName(getElementValue(cur_node));
+            } else if (name == "version") {
+            } else if (name == "author") {
+            } else if (name == "description") {
+            } else if (name == "models") {
+                rc = readIncludedModels(cur_node, directory, model);
                 if (rc != 0) {
-                    myfile.close();
+                    cleanUpXMLParser(doc);
                     return rc;
                 }
-            } else if (v.first == "agents") {
-                rc = readAgents(v, model);
+            } else if (name == "environment") {
+                rc = readEnvironment(cur_node, model);
                 if (rc != 0) {
-                    myfile.close();
+                    cleanUpXMLParser(doc);
                     return rc;
                 }
-            } else if (v.first == "messages") {
-                rc = readMessages(v, model);
+            } else if (name == "agents") {
+                rc = readAgents(cur_node, model);
                 if (rc != 0) {
-                    myfile.close();
+                    cleanUpXMLParser(doc);
+                    return rc;
+                }
+            } else if (name == "messages") {
+                rc = readMessages(cur_node, model);
+                if (rc != 0) {
+                    cleanUpXMLParser(doc);
                     return rc;
                 }
             } else {
-                rc = readUnknownElement(v);
+                rc = readUnknownElement(cur_node);
                 if (rc != 0) {
-                    myfile.close();
+                    cleanUpXMLParser(doc);
                     return rc;
                 }
             }
         }
-
-        myfile.close();
-        return 0;
-    } else {
-        /* Return error if the file was not successfully opened */
-        std::fprintf(stderr,
-                "Error: Model file cannot be opened: %s\n", file_name.c_str());
-        return 1;
     }
+
+    /*
+     *Free the global variables that may
+     *have been allocated by the parser.
+     */
+     cleanUpXMLParser(doc);
+
+    return 0;
 }
 
-int IOXMLModel::readUnknownElement(
-        boost::property_tree::ptree::value_type const& v) {
+int IOXMLModel::readUnknownElement(xmlNode * node) {
     std::fprintf(stderr,
-            "Warning: Model file has unknown child '%s'\n", v.first.c_str());
+            "Warning: Model file has unknown element '%s'\n", node->name);
 
     /* Return zero to carry on as normal */
     return 0;
 }
 
-int IOXMLModel::readIncludedModels(boost::property_tree::ptree::value_type
-        const& root,
+int IOXMLModel::readIncludedModels(xmlNode * node,
         std::string directory, model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of models */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "model") {
-            rc = readIncludedModel(v, directory, model);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+                cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "model") {
+                rc = readIncludedModel(cur_node, directory, model);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
-        const& root,
+int IOXMLModel::readIncludedModel(xmlNode * node,
         std::string directory, model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     std::string fileName;
     bool enable;
 
     /* Loop through each child of dataType */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "file") {
-            fileName = root.second.get<std::string>("file");
-        } else if (v.first == "enabled") {
-            std::string enabledString =
-                    root.second.get<std::string>("enabled");
-            if (enabledString == "true") {
-                enable = true;
-            } else if (enabledString == "false") {
-                enable = false;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "file") {
+                fileName = getElementValue(cur_node);
+            } else if (name == "enabled") {
+                std::string enabledString =
+                        getElementValue(cur_node);
+                if (enabledString == "true") {
+                    enable = true;
+                } else if (enabledString == "false") {
+                    enable = false;
+                } else {
+                    std::fprintf(stderr, "Error: %s '%s'\n",
+                        "Included model has invalid enabled value",
+                        enabledString.c_str());
+                    return 5;
+                }
             } else {
-                std::fprintf(stderr,
-    "Error: Included model has invalid enabled value '%s'\n",
-    enabledString.c_str());
-                return 5;
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
             }
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
         }
     }
 
@@ -192,8 +235,9 @@ int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
         /* Check file name ends in '.xml' or '.XML' */
         if (!boost::algorithm::ends_with(fileName, ".xml") &&
                 !boost::algorithm::ends_with(fileName, ".XML")) {
-            std::fprintf(stderr,
-"Error: Included model file does not end in '.xml': '%s'\n", fileName.c_str());
+            std::fprintf(stderr, "Error: %s '%s'\n",
+                "Included model file does not end in '.xml':",
+                fileName.c_str());
             return 6;
         }
 
@@ -221,526 +265,614 @@ int IOXMLModel::readIncludedModel(boost::property_tree::ptree::value_type
     return 0;
 }
 
-int IOXMLModel::readFunctionFiles(
-        boost::property_tree::ptree::value_type const& root,
+
+int IOXMLModel::readFunctionFiles(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of functionFiles */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "file") {
-            model->addFunctionFile(v.second.get<std::string>(""));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "file") {
+                model->addFunctionFile(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readDataTypes(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readDataTypes(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of dataTypes */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
         /* Handle each child */
-        if (v.first == "dataType") {
-            rc = readDataType(v, model);
+        if (name == "dataType") {
+            rc = readDataType(cur_node, model);
             if (rc != 0) return rc;
         } else {
-            rc = readUnknownElement(v);
+            rc = readUnknownElement(cur_node);
             if (rc != 0) return rc;
+        }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readDataType(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readDataType(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XADT * xadt = model->addADT();
 
     /* Loop through each child of dataType */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "name") {
-            xadt->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "description") {
-        } else if (v.first == "variables") {
-            rc = readVariables(v, xadt->getVariables());
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "name") {
+                xadt->setName(getElementValue(cur_node));
+            } else if (name == "description") {
+            } else if (name == "variables") {
+                rc = readVariables(cur_node, xadt->getVariables());
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readTimeUnits(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readTimeUnits(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of timeUnits */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "timeUnit") {
-            rc = readTimeUnit(v, model);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "timeUnit") {
+                rc = readTimeUnit(cur_node, model);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readTimeUnit(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readTimeUnit(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XTimeUnit * xtimeunit = model->addTimeUnit();
 
     /* Loop through each child of timeUnit */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "name") {
-            xtimeunit->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "unit") {
-            xtimeunit->setUnit(root.second.get<std::string>("unit"));
-        } else if (v.first == "period") {
-            xtimeunit->setPeriodString(root.second.get<std::string>("period"));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+            /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "name") {
+                xtimeunit->setName(getElementValue(cur_node));
+            } else if (name == "unit") {
+                xtimeunit->setUnit(getElementValue(cur_node));
+            } else if (name == "period") {
+                xtimeunit->setPeriodString(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readVariables(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readVariables(xmlNode * node,
         std::vector<model::XVariable*> * variables) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of variables */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "variable") {
-            rc = readVariable(v, variables);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "variable") {
+                rc = readVariable(cur_node, variables);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readVariable(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readVariable(xmlNode * node,
         std::vector<model::XVariable*> * variables) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XVariable * xvariable = new model::XVariable;
     variables->push_back(xvariable);
 
     /* Loop through each child of variable */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "type") {
-            xvariable->setType(root.second.get<std::string>("type"));
-        } else if (v.first == "name") {
-            xvariable->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "description") {
-        } else if (v.first == "constant") {
-            /* Indicate that constant is set */
-            xvariable->setConstantSet(true);
-            /* Read the string ready to be validated later */
-            xvariable->setConstantString(
-                    root.second.get<std::string>("constant"));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "type") {
+                xvariable->setType(getElementValue(cur_node));
+            } else if (name == "name") {
+                xvariable->setName(getElementValue(cur_node));
+            } else if (name == "description") {
+            } else if (name == "constant") {
+                /* Indicate that constant is set */
+                xvariable->setConstantSet(true);
+                /* Read the string ready to be validated later */
+                xvariable->setConstantString(
+                        getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readEnvironment(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readEnvironment(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of environment */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "constants") {
-            rc = readVariables(v, model->getConstants());
-            if (rc != 0) return rc;
-        } else if (v.first == "dataTypes") {
-            rc = readDataTypes(v, model);
-            if (rc != 0) return rc;
-        } else if (v.first == "timeUnits") {
-            rc = readTimeUnits(v, model);
-            if (rc != 0) return rc;
-        } else if (v.first == "functionFiles") {
-            rc = readFunctionFiles(v, model);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+            cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "constants") {
+                rc = readVariables(cur_node, model->getConstants());
+                if (rc != 0) return rc;
+            } else if (name == "dataTypes") {
+                rc = readDataTypes(cur_node, model);
+                if (rc != 0) return rc;
+            } else if (name == "timeUnits") {
+                rc = readTimeUnits(cur_node, model);
+                if (rc != 0) return rc;
+            } else if (name == "functionFiles") {
+                rc = readFunctionFiles(cur_node, model);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readAgents(
-        boost::property_tree::ptree::value_type const& root,
+
+int IOXMLModel::readAgents(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of xagents */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "xagent") {
-            rc = readAgent(v, model);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "xagent") {
+                rc = readAgent(cur_node, model);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readAgent(boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readAgent(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XMachine * xm = model->addAgent();
 
     /* Loop through each child of xagent */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "name") {
-            xm->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "description") {
-        } else if (v.first == "memory") {
-            rc = readVariables(v, xm->getVariables());
-            if (rc != 0) return rc;
-        } else if (v.first == "functions") {
-            rc = readTransitions(v, xm);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "name") {
+                xm->setName(getElementValue(cur_node));
+            } else if (name == "description") {
+            } else if (name == "memory") {
+                rc = readVariables(cur_node, xm->getVariables());
+                if (rc != 0) return rc;
+            } else if (name == "functions") {
+                rc = readTransitions(cur_node, xm);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readInputs(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readInputs(xmlNode * node,
         model::XFunction * xfunction) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of inputs */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "input") {
-            rc = readInput(v, xfunction);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "input") {
+                rc = readInput(cur_node, xfunction);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readInput(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readInput(xmlNode * node,
         model::XFunction * xfunction) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XIOput * input = xfunction->addInput();
 
     /* Loop through each child of input */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "messageName") {
-            input->setMessageName(root.second.get<std::string>("messageName"));
-        } else if (v.first == "filter") {
-            model::XCondition * xcondition = input->addFilter();
-            rc = readCondition(v, xcondition);
-            if (rc != 0) return rc;
-        } else if (v.first == "sort") {
-            rc = readSort(v, input);
-            if (rc != 0) return rc;
-        } else if (v.first == "random") {
-            /* Indicate that random is set */
-            input->setRandomSet(true);
-            /* Read the string ready to be validated later */
-            input->setRandomString(root.second.get<std::string>("random"));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "messageName") {
+                input->setMessageName(getElementValue(cur_node));
+            } else if (name == "filter") {
+                model::XCondition * xcondition = input->addFilter();
+                rc = readCondition(cur_node, xcondition);
+                if (rc != 0) return rc;
+            } else if (name == "sort") {
+                rc = readSort(cur_node, input);
+                if (rc != 0) return rc;
+            } else if (name == "random") {
+                /* Indicate that random is set */
+                input->setRandomSet(true);
+                /* Read the string ready to be validated later */
+                input->setRandomString(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readOutputs(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readOutputs(xmlNode * node,
         model::XFunction * xfunction) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of outputs */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "output") {
-            rc = readOutput(v, xfunction);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "output") {
+                rc = readOutput(cur_node, xfunction);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readOutput(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readOutput(xmlNode * node,
         model::XFunction * xfunction) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XIOput * output = xfunction->addOutput();
 
     /* Loop through each child of output */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "messageName") {
-            output->setMessageName(root.second.get<std::string>("messageName"));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "messageName") {
+                output->setMessageName(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readTransition(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readTransition(xmlNode * node,
         model::XMachine * machine) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XFunction * xfunction = machine->addFunction();
 
     /* Loop through each child of transition */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "name") {
-            xfunction->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "description") {
-        } else if (v.first == "currentState") {
-            xfunction->setCurrentState(
-                root.second.get<std::string>("currentState"));
-        } else if (v.first == "nextState") {
-            xfunction->setNextState(root.second.get<std::string>("nextState"));
-        } else if (v.first == "condition") {
-            model::XCondition * xcondition = xfunction->addCondition();
-            rc = readCondition(v, xcondition);
-            if (rc != 0) return rc;
-        } else if (v.first == "outputs") {
-            rc = readOutputs(v, xfunction);
-            if (rc != 0) return rc;
-        } else if (v.first == "inputs") {
-            rc = readInputs(v, xfunction);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "name") {
+                xfunction->setName(getElementValue(cur_node));
+            } else if (name == "description") {
+            } else if (name == "currentState") {
+                xfunction->setCurrentState(getElementValue(cur_node));
+            } else if (name == "nextState") {
+                xfunction->setNextState(getElementValue(cur_node));
+            } else if (name == "condition") {
+                model::XCondition * xcondition = xfunction->addCondition();
+                rc = readCondition(cur_node, xcondition);
+                if (rc != 0) return rc;
+            } else if (name == "outputs") {
+                rc = readOutputs(cur_node, xfunction);
+                if (rc != 0) return rc;
+            } else if (name == "inputs") {
+                rc = readInputs(cur_node, xfunction);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readTransitions(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readTransitions(xmlNode * node,
         model::XMachine * machine) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of transitions */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "function") {
-            rc = readTransition(v, machine);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "function") {
+                rc = readTransition(cur_node, machine);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readMessages(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readMessages(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of messages */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "message") {
-            rc = readMessage(v, model);
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "message") {
+                rc = readMessage(cur_node, model);
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readMessage(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readMessage(xmlNode * node,
         model::XModel * model) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     model::XMessage * xmessage = model->addMessage();
 
     /* Loop through each child of message */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "name") {
-            xmessage->setName(root.second.get<std::string>("name"));
-        } else if (v.first == "description") {
-        } else if (v.first == "variables") {
-            rc = readVariables(v, xmessage->getVariables());
-            if (rc != 0) return rc;
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "name") {
+                xmessage->setName(getElementValue(cur_node));
+            } else if (name == "description") {
+            } else if (name == "variables") {
+                rc = readVariables(cur_node, xmessage->getVariables());
+                if (rc != 0) return rc;
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readSort(boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readSort(xmlNode * node,
         model::XIOput * xioput) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
     xioput->setSort(true);
 
     /* Loop through each child of message */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "key") {
-            xioput->setSortKey(root.second.get<std::string>("key"));
-        } else if (v.first == "order") {
-            xioput->setSortOrder(root.second.get<std::string>("order"));
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "key") {
+                xioput->setSortKey(getElementValue(cur_node));
+            } else if (name == "order") {
+                xioput->setSortOrder(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
+            }
         }
     }
     return 0;
 }
 
-int IOXMLModel::readCondition(
-        boost::property_tree::ptree::value_type const& root,
+int IOXMLModel::readCondition(xmlNode * node,
         model::XCondition * xcondition) {
     int rc; /* Return code */
+    xmlNode *cur_node = NULL;
 
     /* Loop through each child of message */
-    BOOST_FOREACH(boost::property_tree::ptree::value_type const& v,
-            root.second ) {
-        /* Handle each child */
-        if (v.first == "not") {
-            xcondition->isNot = true;
-            rc = readCondition(v, xcondition);
-            if (rc != 0) return rc;
-        } else if (v.first == "time") {
-            xcondition->isTime = true;
-            xcondition->isValues = false;
-            xcondition->isConditions = false;
-            BOOST_FOREACH(boost::property_tree::ptree::value_type const& v2,
-                        v.second ) {
-                if (v2.first == "period") {
-                    xcondition->timePeriod =
-                        v.second.get<std::string>("period");
-                } else if (v2.first == "phase") {
-                    xcondition->timePhaseVariable =
-                        v.second.get<std::string>("phase");
-                } else if (v2.first == "duration") {
-                    xcondition->foundTimeDuration = true;
-                    xcondition->timeDurationString =
-                        v.second.get<std::string>("duration");
-                } else {
-                    rc = readUnknownElement(v2);
-                    if (rc != 0) return rc;
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child */
+            if (name == "not") {
+                xcondition->isNot = true;
+                rc = readCondition(cur_node, xcondition);
+                if (rc != 0) return rc;
+            } else if (name == "time") {
+                xcondition->isTime = true;
+                xcondition->isValues = false;
+                xcondition->isConditions = false;
+                xmlNode *cur_node_2 = NULL;
+                for (cur_node_2 = cur_node->children;
+                    cur_node_2; cur_node_2 = cur_node_2->next) {
+                    /* If node is an XML element */
+                    if (cur_node_2->type == XML_ELEMENT_NODE) {
+                        std::string name_2 = getElementName(cur_node_2);
+                        if (name_2 == "period") {
+                            xcondition->timePeriod =
+                                getElementValue(cur_node_2);
+                        } else if (name_2 == "phase") {
+                            xcondition->timePhaseVariable =
+                                getElementValue(cur_node_2);
+                        } else if (name_2 == "duration") {
+                            xcondition->foundTimeDuration = true;
+                            xcondition->timeDurationString =
+                                getElementValue(cur_node_2);
+                        } else {
+                            rc = readUnknownElement(cur_node_2);
+                            if (rc != 0) return rc;
+                        }
+                    }
                 }
-            }
-        } else if (v.first == "lhs") {
-            /* Set up and read lhs */
-            xcondition->lhsCondition = new model::XCondition;
-            xcondition->tempValue = "";
-            rc = readCondition(v, xcondition->lhsCondition);
-            if (rc != 0) return rc;
-            /* Handle if lhs is a value or a condition */
-            if (xcondition->lhsCondition->tempValue != "") {
-                /* lhs is a value */
-                xcondition->lhs = xcondition->lhsCondition->tempValue;
-                xcondition->lhsIsValue = true;
-                delete xcondition->lhsCondition;
-                xcondition->lhsCondition = 0;
+            } else if (name == "lhs") {
+                /* Set up and read lhs */
+                xcondition->lhsCondition = new model::XCondition;
+                xcondition->tempValue = "";
+                rc = readCondition(cur_node, xcondition->lhsCondition);
+                if (rc != 0) return rc;
+                /* Handle if lhs is a value or a condition */
+                if (xcondition->lhsCondition->tempValue != "") {
+                    /* lhs is a value */
+                    xcondition->lhs = xcondition->lhsCondition->tempValue;
+                    xcondition->lhsIsValue = true;
+                    delete xcondition->lhsCondition;
+                    xcondition->lhsCondition = 0;
+                } else {
+                    /* lhs is a nested condition */
+                    xcondition->lhsIsCondition = true;
+                }
+            } else if (name == "op") {
+                xcondition->op = getElementValue(cur_node);
+            } else if (name == "rhs") {
+                /* Set up and read rhs */
+                xcondition->rhsCondition = new model::XCondition;
+                xcondition->tempValue = "";
+                rc = readCondition(cur_node, xcondition->rhsCondition);
+                if (rc != 0) return rc;
+                /* Handle if rhs is a value or a condition */
+                if (xcondition->rhsCondition->tempValue != "") {
+                    /* rhs is a value */
+                    xcondition->rhs = xcondition->rhsCondition->tempValue;
+                    xcondition->rhsIsValue = true;
+                    delete xcondition->rhsCondition;
+                    xcondition->rhsCondition = 0;
+                } else {
+                    /* rhs is a nested condition */
+                    xcondition->rhsIsCondition = true;
+                }
+            } else if (name == "value") {
+                xcondition->tempValue = getElementValue(cur_node);
             } else {
-                /* lhs is a nested condition */
-                xcondition->lhsIsCondition = true;
+                rc = readUnknownElement(cur_node);
+                if (rc != 0) return rc;
             }
-        } else if (v.first == "op") {
-            xcondition->op = root.second.get<std::string>("op");
-        } else if (v.first == "rhs") {
-            /* Set up and read rhs */
-            xcondition->rhsCondition = new model::XCondition;
-            xcondition->tempValue = "";
-            rc = readCondition(v, xcondition->rhsCondition);
-            if (rc != 0) return rc;
-            /* Handle if rhs is a value or a condition */
-            if (xcondition->rhsCondition->tempValue != "") {
-                /* rhs is a value */
-                xcondition->rhs = xcondition->rhsCondition->tempValue;
-                xcondition->rhsIsValue = true;
-                delete xcondition->rhsCondition;
-                xcondition->rhsCondition = 0;
-            } else {
-                /* rhs is a nested condition */
-                xcondition->rhsIsCondition = true;
-            }
-        } else if (v.first == "value") {
-            xcondition->tempValue = root.second.get<std::string>("value");
-        } else {
-            rc = readUnknownElement(v);
-            if (rc != 0) return rc;
         }
     }
     return 0;

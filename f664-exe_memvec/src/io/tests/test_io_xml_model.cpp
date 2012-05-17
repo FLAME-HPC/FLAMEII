@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/malformed_xml.xml", &model);
-    BOOST_CHECK(rc == 2);
+    BOOST_CHECK(rc == 1);
 
     rc = ioxmlmodel.readXMLModel(
             "src/io/tests/models/not_xmodel.xml", &model);

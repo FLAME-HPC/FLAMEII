@@ -15,8 +15,8 @@
  </environment>
  <agents>
   
-  <xagent
-   <name>AgentA</name>
+  <xagent>
+   name>AgentA</name>
    <description></description>
    <memory>
     <variable><type>int</type><name>agentA_a</name><description></description></variable>
