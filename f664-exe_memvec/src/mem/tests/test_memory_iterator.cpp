@@ -11,7 +11,6 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include "../memory_manager.hpp"
-#include "../agent_shadow.hpp"
 #include "../memory_iterator.hpp"
 #include "exceptions/all.hpp"
 

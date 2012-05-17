@@ -13,11 +13,10 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
+#include "agent_shadow.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
-
-class AgentShadow;
 
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
