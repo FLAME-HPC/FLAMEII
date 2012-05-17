@@ -13,13 +13,15 @@
 #include <string>
 #include <vector>
 #include "agent_memory.hpp"
-#include "vector_wrapper.hpp"
+#include "agent_shadow.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
 //! Map to store collection of AgentMemory
 typedef std::map<std::string, AgentMemory> AgentMap;
 
+typedef boost::shared_ptr<AgentShadow> AgentShadowPtr;
 
 //! Memory Manager object.
 //! This is a singleton class - only one instance should exist throughtout
@@ -37,41 +39,48 @@ class MemoryManager {
     }
 
     //! Registers an agent type
-    void RegisterAgent(std::string agent_name);
+    void RegisterAgent(const std::string& agent_name);
 
     //! Registers a memory variable of a certain type for a given agent
     template <typename T>
-    void RegisterAgentVar(std::string agent_name, std::string var_name) {
+    void RegisterAgentVar(const std::string& agent_name, std::string var_name) {
       GetAgentMemory(agent_name).RegisterVar<T>(var_name);
     }
 
     //! Registers a list of memory vars or a certain type for a given agent
     template <typename T>
-    void RegisterAgentVar(std::string agent_name,
-                          std::vector<std::string> var_names) {
+    void RegisterAgentVar(const std::string& agent_name,
+                          const std::vector<std::string>& var_names) {
       AgentMemory& am = GetAgentMemory(agent_name);
-      std::vector<std::string>::iterator it;
+      std::vector<std::string>::const_iterator it;
       for (it = var_names.begin(); it != var_names.end(); ++it) {
         am.RegisterVar<T>(*it);
       }
     }
 
     //! Returns typeless pointer to associated vector wrapper
-    VectorWrapperBase* GetVectorWrapper(std::string agent_name,
-                                        std::string var_name);
+    VectorWrapperBase* GetVectorWrapper(const std::string& agent_name,
+                                        const std::string& var_name);
 
     //! Returns pointer to std::vector<T> for given agent variable
     template <typename T>
-    std::vector<T>* GetVector(std::string agent_name, std::string var_name) {
+    std::vector<T>* GetVector(const std::string& agent_name,
+                              const std::string& var_name) {
       return GetAgentMemory(agent_name).GetVector<T>(var_name);
     }
 
     //! Provides a hint at the population size of an agent type so memory
     //! utilisation can be optimised
-    void HintPopulationSize(std::string agent_name, unsigned int size_hint);
+    void HintPopulationSize(const std::string& agent_name,
+                            unsigned int size_hint);
 
     //! Returns the number of registered agents
-    size_t GetAgentCount();
+    size_t GetAgentCount() const;
+
+    //! Checks if an agent with a given name has been registered
+    bool IsRegisteredAgent(const std::string& agent_name) const;
+
+    AgentShadowPtr GetAgentShadow(const std::string& agent_name);
 
 #ifdef TESTBUILD
     //! Delete all registered agents and vars
@@ -90,7 +99,7 @@ class MemoryManager {
     AgentMap agent_map_;
 
     //! Returns an AgentMap object given an agent name
-    AgentMemory& GetAgentMemory(std::string agent_name);
+    AgentMemory& GetAgentMemory(const std::string& agent_name);
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_MANAGER_HPP_

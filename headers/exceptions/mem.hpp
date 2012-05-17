@@ -1,5 +1,5 @@
 /*!
- * \file src/exceptions/runtime.hpp
+ * \file src/exceptions/mem.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

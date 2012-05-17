@@ -1,25 +1,30 @@
 /*!
- * \file src/exe/execution_thread.cpp
+ * \file FILENAME
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Multicore version of the ExecutionThread
+ * \brief DESCRIPTION
  */
+#include <string>
+#include "include/flame.h"
 #include "execution_thread.hpp"
-#include <algorithm>
+#include "task_manager.hpp"
 
-namespace flame { namespace exe { namespace multicore {
+namespace flame { namespace exe {
 
-ExecutionThread::ExecutionThread() {}
+void ExecutionThread::Run(std::string task_name) {
+  Task& t = TaskManager::GetInstance().GetTask(task_name);
+  flame::mem::MemoryIteratorPtr m_ptr = t.GetMemoryIterator();
+  AgentFuncPtr f_ptr = t.get_func_ptr();
 
-void ExecutionThread::RunTask(ExecutionTask task) {
-    AgentFuncPtr agent_function = task.get_func_ptr();
-    MemVectorIteratorPair iter_pair = task.get_mem_iter();
-
-    for (MemVectorIterator i = iter_pair.first; i != iter_pair.second; i++) {
-        agent_function(&i[0]);
-    }
+  m_ptr->Rewind();
+  while (!m_ptr->AtEnd()) {
+    int rc = f_ptr(static_cast<void*>(m_ptr.get()));
+    // TODO(lsc): handle agent death if rc != 0
+    m_ptr->Step();
+  }
 }
-}}}  // namespace flame::exe::multicore
+
+}}  // namespace flame::exe

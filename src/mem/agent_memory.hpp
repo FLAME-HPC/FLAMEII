@@ -12,11 +12,13 @@
 #include <string>
 #include <utility>  // for std::pair
 #include <vector>
-#include <stdexcept>
 #include <typeinfo>
 #include "boost/ptr_container/ptr_map.hpp"
+#include "exceptions/mem.hpp"
 #include "vector_wrapper.hpp"
-#include "src/exceptions/mem.hpp"
+
+// TODO(lsc): review usage of AgentMemory::registration_closed_
+// Do we need it? Is there a better way to handle access to RegisterVar?
 
 namespace flame { namespace mem {
 
@@ -25,10 +27,11 @@ namespace exc = flame::exceptions;
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 
+
 //! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
-    explicit AgentMemory(std::string agent_name)
+    explicit AgentMemory(const std::string& agent_name)
         : agent_name_(agent_name),
           registration_closed_(false) {}
 
@@ -51,11 +54,11 @@ class AgentMemory {
     void HintPopulationSize(unsigned int size_hint);
 
     //! Returns typeless pointer to associated vector wrapper
-    VectorWrapperBase* GetVectorWrapper(std::string var_name);
+    VectorWrapperBase* GetVectorWrapper(const std::string& var_name);
 
     //! Returns a pointer to the actual data vector
     template <typename T>
-    std::vector<T>* GetVector(std::string var_name) {
+    std::vector<T>* GetVector(const std::string& var_name) {
       VectorWrapperBase* ptr;
       try {
         ptr = &(mem_map_.at(var_name));
@@ -64,15 +67,18 @@ class AgentMemory {
         throw exc::invalid_variable("Invalid agent memory variable");
       }
 
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
       if (*(ptr->GetDataType()) != typeid(T)) {
         throw exc::invalid_type("Invalid data type specified");
       }
+#endif
+      registration_closed_ = true;
       return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 
   private:
-    std::string agent_name_;
-    MemoryMap mem_map_;
+    std::string agent_name_;  //! Name of agent
+    MemoryMap mem_map_;  //! Map of var names to VectorWrapper
 
     //! Indicates that vectors have been resized/populated so new variables
     //!  should no longer be registered.

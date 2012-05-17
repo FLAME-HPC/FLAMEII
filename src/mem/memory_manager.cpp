@@ -10,7 +10,8 @@
 #include <utility>
 #include <string>
 #include "memory_manager.hpp"
-#include "src/exceptions/mem.hpp"
+#include "agent_shadow.hpp"
+#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 
@@ -19,7 +20,8 @@ namespace exc = flame::exceptions;
 //! Key-Value pair for AgentMemory
 typedef std::pair<std::string, AgentMemory> AgentMapValue;
 
-void MemoryManager::RegisterAgent(std::string agent_name) {
+
+void MemoryManager::RegisterAgent(const std::string& agent_name) {
   std::pair<AgentMap::iterator, bool> ret;
   ret = agent_map_.insert(AgentMapValue(agent_name, AgentMemory(agent_name)));
   if (!ret.second) {  // if replacement instead of insertion
@@ -27,17 +29,18 @@ void MemoryManager::RegisterAgent(std::string agent_name) {
   }
 }
 
-VectorWrapperBase* MemoryManager::GetVectorWrapper(std::string agent_name,
-                                                   std::string var_name) {
+VectorWrapperBase* MemoryManager::GetVectorWrapper(
+    const std::string& agent_name,
+    const std::string& var_name) {
   return GetAgentMemory(agent_name).GetVectorWrapper(var_name);
 }
 
-void MemoryManager::HintPopulationSize(std::string agent_name,
+void MemoryManager::HintPopulationSize(const std::string& agent_name,
                                        unsigned int size_hint) {
   GetAgentMemory(agent_name).HintPopulationSize(size_hint);
 }
 
-AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
+AgentMemory& MemoryManager::GetAgentMemory(const std::string& agent_name) {
   try {
     return agent_map_.at(agent_name);
   }
@@ -46,8 +49,17 @@ AgentMemory& MemoryManager::GetAgentMemory(std::string agent_name) {
   }
 }
 
-size_t MemoryManager::GetAgentCount() {
+size_t MemoryManager::GetAgentCount() const {
   return agent_map_.size();
+}
+
+bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) const {
+  return (agent_map_.find(agent_name) != agent_map_.end());
+}
+
+AgentShadowPtr MemoryManager::GetAgentShadow(
+    const std::string& agent_name) {
+  return AgentShadowPtr(new AgentShadow(&GetAgentMemory(agent_name)));
 }
 
 #ifdef TESTBUILD

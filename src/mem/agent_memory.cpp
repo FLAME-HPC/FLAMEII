@@ -9,7 +9,7 @@
  */
 #include <string>
 #include "agent_memory.hpp"
-#include "src/exceptions/mem.hpp"
+#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 
@@ -28,8 +28,9 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
   registration_closed_ = true;  // no more new variables
 }
 
-VectorWrapperBase* AgentMemory::GetVectorWrapper(std::string var_name) {
+VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
   try {
+    registration_closed_ = true;
     return &(mem_map_.at(var_name));
   }
   catch(const boost::bad_ptr_container_operation& E) {
