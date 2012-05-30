@@ -43,7 +43,7 @@ std::string Task::get_task_name() const {
   return task_name_;
 }
 
-AgentFuncPtr Task::get_func_ptr() const {
+AgentFuncPtr Task::GetFunction() const {
   return func_ptr_;
 }
 

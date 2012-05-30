@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task.cpp
+ * \file src/exe/task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -16,12 +16,13 @@
 #include "include/flame.h"
 #include "mem/memory_manager.hpp"
 #include "mem/memory_iterator.hpp"
+#include "runnable_task.hpp"
 
 // TODO(lsc): Consider boost::function to replace AgentFuncPtr
 
 namespace flame { namespace exe {
 
-class Task {
+class Task : RunnableTask {
   friend class TaskManager;
 
   public:
@@ -35,7 +36,9 @@ class Task {
     std::string get_task_name() const;
 
     //! Returns the function pointer associated with this task
-    AgentFuncPtr get_func_ptr() const;
+    AgentFuncPtr GetFunction() const;
+
+    void TaskDone() {}
 
   protected:
     // Tasks should only be created via Task Manager
