@@ -57,6 +57,10 @@ class AgentShadow {
     //! Returns a new instance of a MemoryIterator
     MemoryIteratorPtr GetMemoryIterator();
 
+    //! Returns a new instance of a MemoryIterator which targets only a
+    //! subset of memory
+    MemoryIteratorPtr GetMemoryIterator(size_t offset, size_t count);
+
   protected:
     // Limit constructor to MemoryManager
     explicit AgentShadow(AgentMemory* am);

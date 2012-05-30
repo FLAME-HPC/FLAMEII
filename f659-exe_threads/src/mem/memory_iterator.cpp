@@ -12,14 +12,34 @@
 
 namespace flame { namespace mem {
 
-MemoryIterator::MemoryIterator(AgentShadow* shadow) : position_(0) {
+MemoryIterator::MemoryIterator(AgentShadow* shadow)
+    : position_(0), offset_(0) {
   vec_map_ptr_ = &(shadow->vec_map_);
   rw_set_ptr_ = &(shadow->rw_set_);
   size_ = shadow->get_size();
+  count_ = size_;  // We're iterating through the whole population
   BOOST_FOREACH(const ConstVectorMap::value_type& iter, *vec_map_ptr_) {
     ptr_map_[iter.first] = iter.second->GetRawPtr();
   }
 }
+
+MemoryIterator::MemoryIterator(AgentShadow* shadow, size_t offset, size_t count)
+    : position_(0),  offset_(offset), count_(count) {
+  size_ = shadow->get_size();
+  if (offset_ >= size_) {
+    throw flame::exceptions::invalid_argument("Invalid offset");
+  }
+  if (count == 0 || (offset_ + count_) > size_) {
+    throw flame::exceptions::invalid_argument("Invalid count");
+  }
+  vec_map_ptr_ = &(shadow->vec_map_);
+  rw_set_ptr_ = &(shadow->rw_set_);
+
+  BOOST_FOREACH(const ConstVectorMap::value_type& iter, *vec_map_ptr_) {
+    ptr_map_[iter.first] = iter.second->GetRawPtr(offset_);
+  }
+}
+
 
 void MemoryIterator::Rewind() {
   VoidPtrMap::iterator ptr_it = ptr_map_.begin();
@@ -32,14 +52,14 @@ void MemoryIterator::Rewind() {
       throw flame::exceptions::logic_error("vector sizes have changed");
     }
 #endif
-    ptr_it->second = iter.second->GetRawPtr();
+    ptr_it->second = iter.second->GetRawPtr(offset_);
     ++ptr_it;
   }
   position_ = 0;
 }
 
 bool MemoryIterator::AtEnd() const {
-  return (position_ == size_);
+  return (position_ == count_);
 }
 
 bool MemoryIterator::Step() {
@@ -65,6 +85,13 @@ size_t MemoryIterator::get_size() const {
   return size_;
 }
 
+size_t MemoryIterator::get_count() const {
+  return count_;
+}
+
+size_t MemoryIterator::get_offset() const {
+  return offset_;
+}
 
 size_t MemoryIterator::get_position() const {
   return position_;
