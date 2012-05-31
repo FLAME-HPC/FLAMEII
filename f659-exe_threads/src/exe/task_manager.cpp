@@ -16,7 +16,7 @@ namespace flame { namespace exe {
 
 Task& TaskManager::CreateTask(std::string task_name,
                               std::string agent_name,
-                              AgentFuncPtr func_ptr) {
+                              TaskFunction func_ptr) {
   std::pair<TaskMap::iterator, bool> ret;
   Task* t = new Task(task_name, agent_name, func_ptr);
   ret = task_map_.insert(task_name, t);

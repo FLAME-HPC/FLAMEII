@@ -11,7 +11,6 @@
 #define EXE__TASK_MANAGER_HPP_
 #include <string>
 #include "boost/ptr_container/ptr_map.hpp"
-#include "include/flame.h"
 #include "task.hpp"
 
 namespace flame { namespace exe {
@@ -36,7 +35,7 @@ class TaskManager {
     //! Registers and returns a new Task
     Task& CreateTask(std::string task_name,
                      std::string agent_name,
-                     AgentFuncPtr func_ptr);
+                     TaskFunction func_ptr);
 
     //! Returns a registered Task
     Task& GetTask(std::string task_name);

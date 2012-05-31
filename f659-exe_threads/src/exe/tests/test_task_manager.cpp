@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include "boost/test/unit_test.hpp"
+#include "include/flame.h"
 #include "../task_manager.hpp"
 
 BOOST_AUTO_TEST_SUITE(TaskManager)
