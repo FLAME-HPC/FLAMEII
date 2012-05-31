@@ -13,12 +13,9 @@
 #include <utility>
 #include <map>
 #include <set>
-#include "include/flame.h"
 #include "mem/memory_manager.hpp"
 #include "mem/memory_iterator.hpp"
 #include "runnable_task.hpp"
-
-// TODO(lsc): Consider boost::function to replace AgentFuncPtr
 
 namespace flame { namespace exe {
 
@@ -35,19 +32,19 @@ class Task : RunnableTask {
     //! Returns the name of the task
     std::string get_task_name() const;
 
-    //! Returns the function pointer associated with this task
-    AgentFuncPtr GetFunction() const;
+    //! Returns the function object associated with this task
+    TaskFunction GetFunction() const;
 
     void TaskDone() {}
 
   protected:
     // Tasks should only be created via Task Manager
-    Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr);
+    Task(std::string task_name, std::string agent_name, TaskFunction func_ptr);
 
   private:
     std::string task_name_;  //! Name of task
     std::string agent_name_;  //! Name of associated agent
-    AgentFuncPtr func_ptr_;  //! Function pointer associated with task
+    TaskFunction func_ptr_;  //! Function pointer associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
 };
 

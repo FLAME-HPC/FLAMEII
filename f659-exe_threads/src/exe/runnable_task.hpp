@@ -9,15 +9,17 @@
  */
 #ifndef EXE__RUNNABLE_TASK_HPP_
 #define EXE__RUNNABLE_TASK_HPP_
-#include "include/flame.h"
+#include "boost/function.hpp"
 #include "mem/memory_iterator.hpp"
 
 namespace flame { namespace exe {
 
+typedef boost::function<int (void*)> TaskFunction;
+
 class RunnableTask {
   public:
     virtual ~RunnableTask() {}
-    virtual AgentFuncPtr GetFunction() const = 0;
+    virtual TaskFunction GetFunction() const = 0;
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
     virtual void TaskDone() = 0;
 };

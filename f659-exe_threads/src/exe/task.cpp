@@ -18,7 +18,7 @@ namespace flame { namespace exe {
 namespace mem = flame::mem;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
-Task::Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr)
+Task::Task(std::string task_name, std::string agent_name, TaskFunction func_ptr)
         : task_name_(task_name), agent_name_(agent_name), func_ptr_(func_ptr) {
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
@@ -43,7 +43,7 @@ std::string Task::get_task_name() const {
   return task_name_;
 }
 
-AgentFuncPtr Task::GetFunction() const {
+TaskFunction Task::GetFunction() const {
   return func_ptr_;
 }
 
