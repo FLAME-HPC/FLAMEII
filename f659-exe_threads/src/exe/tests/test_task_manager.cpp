@@ -72,6 +72,11 @@ BOOST_AUTO_TEST_CASE(test_create_task) {
                     flame::exceptions::invalid_argument);
   exe::Task& t1 = tm.GetTask("t1");
   BOOST_CHECK_EQUAL(t1.get_task_name(), "t1");
+
+  // get by id
+  exe::Task& t2 = tm.GetTask(t1.get_task_id());
+  BOOST_CHECK_EQUAL(t2.get_task_name(), t1.get_task_name());
+  BOOST_CHECK_THROW(tm.GetTask(1000), flame::exceptions::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {

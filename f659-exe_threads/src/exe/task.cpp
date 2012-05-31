@@ -18,8 +18,10 @@ namespace flame { namespace exe {
 namespace mem = flame::mem;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
-Task::Task(std::string task_name, std::string agent_name, TaskFunction func_ptr)
-        : task_name_(task_name), agent_name_(agent_name), func_ptr_(func_ptr) {
+Task::Task(Task::id_type task_id, std::string task_name,
+           std::string agent_name, TaskFunction func_ptr)
+        : task_id_(task_id), task_name_(task_name),
+          agent_name_(agent_name), func_ptr_(func_ptr) {
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
     throw flame::exceptions::invalid_agent("Invalid agent");
@@ -41,6 +43,10 @@ void Task::AllowAccess(const std::string& var_name, bool writeable) {
 
 std::string Task::get_task_name() const {
   return task_name_;
+}
+
+Task::id_type Task::get_task_id() const {
+  return task_id_;
 }
 
 TaskFunction Task::GetFunction() const {

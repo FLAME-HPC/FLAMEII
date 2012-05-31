@@ -10,12 +10,13 @@
 #ifndef EXE__TASK_MANAGER_HPP_
 #define EXE__TASK_MANAGER_HPP_
 #include <string>
+#include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "task.hpp"
 
 namespace flame { namespace exe {
 
-typedef boost::ptr_map<std::string, Task> TaskMap;
+typedef std::map<std::string, size_t> TaskNameMap;
 
 //! Task Manager object.
 //! This is a singleton class - only one instance should exist throughtout
@@ -38,6 +39,7 @@ class TaskManager {
                      TaskFunction func_ptr);
 
     //! Returns a registered Task
+    Task& GetTask(Task::id_type task_id);
     Task& GetTask(std::string task_name);
 
 #ifdef TESTBUILD
@@ -53,7 +55,8 @@ class TaskManager {
     //! This is a singleton class. Disable assignment operation
     void operator=(const TaskManager&);
 
-    TaskMap task_map_;
+    boost::ptr_vector<Task> tasks_;
+    TaskNameMap name_map_;
 };
 
 }}  // namespace flame::exe

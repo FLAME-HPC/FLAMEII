@@ -9,6 +9,7 @@
  */
 #include <utility>
 #include <string>
+#include <stdexcept>
 #include "task_manager.hpp"
 #include "exceptions/all.hpp"
 
@@ -17,27 +18,41 @@ namespace flame { namespace exe {
 Task& TaskManager::CreateTask(std::string task_name,
                               std::string agent_name,
                               TaskFunction func_ptr) {
-  std::pair<TaskMap::iterator, bool> ret;
-  Task* t = new Task(task_name, agent_name, func_ptr);
-  ret = task_map_.insert(task_name, t);
-  if (!ret.second) {  // if replacement instead of insertion
+  // Check for tasks with same name
+  TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
+  if (lb != name_map_.end() && lb->first != task_name) {  // name exists
     throw flame::exceptions::logic_error("task with that name already exists");
   }
+  // map task name to idx of new vector entry
+  Task::id_type id = tasks_.size();  // use next index as id
+  name_map_.insert(lb, TaskNameMap::value_type(task_name, id));
+  Task *t = new Task(id, task_name, agent_name, func_ptr);
+  tasks_.push_back(t);
   return *t;
+}
+
+Task& TaskManager::GetTask(Task::id_type task_id) {
+  try {
+    return tasks_.at(task_id);
+  }
+  catch(const std::exception& E) {
+    throw flame::exceptions::invalid_argument("Invalid id");
+  }
 }
 
 Task& TaskManager::GetTask(std::string task_name) {
   try {
-    return task_map_.at(task_name);
+    return GetTask(name_map_.at(task_name));
   }
-  catch(const boost::bad_ptr_container_operation& E) {
+  catch(const std::out_of_range& E) {
     throw flame::exceptions::invalid_argument("Unknown task");
   }
 }
 
 #ifdef TESTBUILD
 void TaskManager::Reset() {
-  task_map_.clear();
+  tasks_.clear();
+  name_map_.clear();
 }
 #endif
 
