@@ -63,6 +63,7 @@
 		<Unit filename="src/compat/C/mem_api.cpp" />
 		<Unit filename="src/exe/execution_thread.cpp" />
 		<Unit filename="src/exe/execution_thread.hpp" />
+		<Unit filename="src/exe/runnable_task.hpp" />
 		<Unit filename="src/exe/task.cpp" />
 		<Unit filename="src/exe/task.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />
