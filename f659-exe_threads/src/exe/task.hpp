@@ -19,9 +19,8 @@
 
 namespace flame { namespace exe {
 
-class Task : RunnableTask {
+class Task : public RunnableTask {
   friend class TaskManager;
-  typedef size_t id_type;
 
   public:
     //! Enable access to a specific agent var
@@ -35,6 +34,9 @@ class Task : RunnableTask {
 
     //! Returns the id of the task
     id_type get_task_id() const;
+
+    //! Returns the the task type
+    id_type get_task_type() const;
 
     //! Returns the function object associated with this task
     TaskFunction GetFunction() const;
@@ -50,6 +52,7 @@ class Task : RunnableTask {
 
   private:
     id_type task_id_;
+    TaskType task_type_;
     std::string task_name_;  //! Name of task
     std::string agent_name_;  //! Name of associated agent
     TaskFunction func_ptr_;  //! Function pointer associated with task

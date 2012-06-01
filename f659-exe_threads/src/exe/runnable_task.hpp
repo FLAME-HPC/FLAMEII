@@ -17,11 +17,21 @@ namespace flame { namespace exe {
 typedef boost::function<int (void*)> TaskFunction;
 
 class RunnableTask {
+
   public:
     virtual ~RunnableTask() {}
     virtual TaskFunction GetFunction() const = 0;
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
     virtual void TaskDone() = 0;
+
+    typedef size_t id_type;
+
+    enum TaskType {
+      AGENT_FUNCTION,
+      IO_FUNCTION,
+      MB_FUNCTION
+    };
+
 };
 
 }}  // namespace flame::exe
