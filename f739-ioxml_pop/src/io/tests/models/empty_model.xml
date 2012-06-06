@@ -1,0 +1,13 @@
+<xmodel version="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation='http://flame.ac.uk/schema/xmml_v2.xsd'>
+ <name>empty_model</name>
+ <version>1</version>
+ <author>Simon Coakley</author>
+ <description>Test model</description>
+ <environment>
+ </environment>
+ <agents>
+ </agents>
+ <messages>
+ </messages>
+</xmodel>
