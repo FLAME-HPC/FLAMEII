@@ -10,6 +10,7 @@
 #ifndef EXE__TASK_MANAGER_HPP_
 #define EXE__TASK_MANAGER_HPP_
 #include <string>
+#include <set>
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "task.hpp"
@@ -39,12 +40,22 @@ class TaskManager {
                      TaskFunction func_ptr);
 
     //! Returns a registered Task
-    Task& GetTask(Task::id_type task_id);
+    Task& GetTask(RunnableTask::id_type task_id);
     Task& GetTask(std::string task_name);
+
+    size_t get_task_count();
+
+    typedef std::vector<RunnableTask::id_type> IdVector;
 
 #ifdef TESTBUILD
     //! Delete all tasks
     void Reset();
+
+    size_t get_nodeps_size() { return nodeps_.size(); }
+    size_t get_node_count() {
+
+      return children_.size();
+    }
 #endif
 
   private:
@@ -57,6 +68,11 @@ class TaskManager {
 
     boost::ptr_vector<Task> tasks_;
     TaskNameMap name_map_;
+
+    // Datastructures to manage task dependencies
+    std::set<RunnableTask::id_type> nodeps_;
+    std::vector<IdVector> children_;
+    std::vector<IdVector> parents_;
 };
 
 }}  // namespace flame::exe

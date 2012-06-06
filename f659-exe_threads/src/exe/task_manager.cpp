@@ -28,10 +28,16 @@ Task& TaskManager::CreateTask(std::string task_name,
   name_map_.insert(lb, TaskNameMap::value_type(task_name, id));
   Task *t = new Task(id, task_name, agent_name, func_ptr);
   tasks_.push_back(t);
+
+  // initialise entries for dependency management
+  parents_.push_back(IdVector());
+  children_.push_back(IdVector());
+  nodeps_.insert(id);
+
   return *t;
 }
 
-Task& TaskManager::GetTask(Task::id_type task_id) {
+Task& TaskManager::GetTask(RunnableTask::id_type task_id) {
   try {
     return tasks_.at(task_id);
   }
@@ -49,10 +55,23 @@ Task& TaskManager::GetTask(std::string task_name) {
   }
 }
 
+size_t TaskManager::get_task_count() {
+#ifdef DEBUG
+  if (tasks_.size() != children_.size() || tasks_.size() != parents_.size()) {
+    throw flame::exceptions::flame_exception("inconsistent data sizes");
+  }
+#endif
+  return tasks_.size();
+}
+
+
 #ifdef TESTBUILD
 void TaskManager::Reset() {
   tasks_.clear();
   name_map_.clear();
+  nodeps_.clear();
+  children_.clear();
+  parents_.clear();
 }
 #endif
 

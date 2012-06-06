@@ -53,7 +53,6 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager) {
   mgr.GetVector<double>("Circle", "y_dbl")->push_back(0.1);
 }
 
-
 BOOST_AUTO_TEST_CASE(test_create_task) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
   BOOST_CHECK_THROW(tm.CreateTask("t1", "NotAnAgent", &func1),
@@ -77,6 +76,28 @@ BOOST_AUTO_TEST_CASE(test_create_task) {
   exe::Task& t2 = tm.GetTask(t1.get_task_id());
   BOOST_CHECK_EQUAL(t2.get_task_name(), t1.get_task_name());
   BOOST_CHECK_THROW(tm.GetTask(1000), flame::exceptions::invalid_argument);
+
+  // reset
+  tm.Reset();
+}
+
+BOOST_AUTO_TEST_CASE(test_dep_management) {
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+
+  // check initial data structure
+  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 0);
+  BOOST_CHECK_EQUAL(tm.get_task_count(), 0);
+
+  // add task
+  tm.CreateTask("t1", "Circle", &func1);
+  tm.CreateTask("t2", "Circle", &func1);
+  tm.CreateTask("t3", "Circle", &func1);
+  tm.CreateTask("t4", "Circle", &func1);
+  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 4);
+  BOOST_CHECK_EQUAL(tm.get_node_count(), 4);
+
+  // reset
+  tm.Reset();
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {
