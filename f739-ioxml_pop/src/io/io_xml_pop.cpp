@@ -30,13 +30,13 @@ int writeXMLTagAttribute(xmlTextWriterPtr writer,
         std::string name, std::string value);
 int endXMLDoc(xmlTextWriterPtr writer);
 
-/*typedef flame::mem::VectorReader<int> intVecReader;
-typedef flame::mem::VectorReader<double> doubleVecReader;*/
+typedef std::vector<int>* intVecPtr;
+typedef std::vector<double>* doubleVecPtr;
 
 int IOXMLPop::writeXMLPop(std::string file_name,
         int iterationNo,
-        model::XModel * model) {
-        // flame::mem::MemoryManager * memoryManager) {
+        model::XModel * model,
+        flame::mem::MemoryManager * memoryManager) {
     /* Return code */
     int rc;
     /* The xml text writer */
@@ -46,9 +46,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     /* The number of agents per agent type */
     size_t noAgents;
     /* List of memory vector readers populated for each agent */
-/*    std::vector< boost::variant<
-        intVecReader,
-        doubleVecReader > > vectorReaders;*/
+    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
@@ -84,33 +82,33 @@ int IOXMLPop::writeXMLPop(std::string file_name,
              */
             if (var->getType() == "int") {
                 /* Create vector reader.. */
-/*                intVecReader roi =
-                    memoryManager->GetReader<int>
-                        (agent->getName(), var->getName());*/
+                intVecPtr roi =
+                        memoryManager->GetVector<int>(
+                                agent->getName(), var->getName());
                 /* ..and add to list of vectors. */
-/*                vectorReaders.push_back(roi);*/
+                varVectors.push_back(roi);
                 /* Check array length */
-/*                if (jj == 0) noAgents = roi.size();
-                else if (roi.size() != noAgents) {
+                if (jj == 0) noAgents = roi->size();
+                else if (roi->size() != noAgents) {
     fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
                         var->getName().c_str());
                     return 3;
-                }*/
+                }
             }
             if (var->getType() == "double") {
                 /* Create vector reader.. */
-/*                doubleVecReader rod =
-                    memoryManager->GetReader<double>
-                        (agent->getName(), var->getName());*/
+                doubleVecPtr rod =
+                        memoryManager->GetVector<double>(
+                                agent->getName(), var->getName());
                 /* ..and add to list of vectors. */
-/*                vectorReaders.push_back(rod);*/
+                varVectors.push_back(rod);
                 /* Check array length */
-/*                if (jj == 0) noAgents = rod.size();
-                else if (rod.size() != noAgents) {
+                if (jj == 0) noAgents = rod->size();
+                else if (rod->size() != noAgents) {
     fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
                         var->getName().c_str());
                     return 3;
-                }*/
+                }
             }
         }
 
@@ -136,18 +134,16 @@ int IOXMLPop::writeXMLPop(std::string file_name,
                  * nth element corresponding with the nth agent.
                  */
                 if (var->getType() == "int") {
-/*                    rc = writeXMLTag(writer, var->getName(),
-                        *(boost::get
-                        < intVecReader >
-                        (vectorReaders.at(jj)).begin()+kk) );
-                    if (rc != 0) return rc;*/
+                    rc = writeXMLTag(writer, var->getName(),
+                            *(boost::get<intVecPtr>(
+                            varVectors.at(jj))->begin()+kk));
+                    if (rc != 0) return rc;
                 }
                 if (var->getType() == "double") {
-/*                    rc = writeXMLTag(writer, var->getName(),
-                        *(boost::get
-                        < doubleVecReader >
-                        (vectorReaders.at(jj)).begin()+kk) );
-                    if (rc != 0) return rc;*/
+                    rc = writeXMLTag(writer, var->getName(),
+                        *(boost::get<doubleVecPtr>(
+                        varVectors.at(jj))->begin()+kk) );
+                    if (rc != 0) return rc;
                 }
             }
 
@@ -155,7 +151,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
             writeXMLTag(writer);
         }
         /* Clear the memory vector reader list for the next agent type */
-/*        vectorReaders.clear();*/
+        varVectors.clear();
     }
 
     /* End xml file, automatically ends states tag */
@@ -168,8 +164,8 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     return 0;
 }
 
-int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
-        // flame::mem::MemoryManager * memoryManager) {
+int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
+        flame::mem::MemoryManager * memoryManager) {
     xmlTextReaderPtr reader;
     int ret, rc;
     /* Using vector instead of stack as need to access earlier tags */
@@ -186,7 +182,7 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
         /* Continue reading nodes until end */
         while (ret == 1) {
             /* Process node */
-            rc = processNode(reader, model,  // memoryManager,
+            rc = processNode(reader, model, memoryManager,
                     &tags, &agent);
             /* If error clean up and return */
             if (rc != 0) {
@@ -522,7 +518,7 @@ int IOXMLPop::validateData(std::string const& data_file,
 
 int IOXMLPop::processNode(xmlTextReaderPtr reader,
         model::XModel * model,
-        // flame::mem::MemoryManager * memoryManager,
+        flame::mem::MemoryManager * memoryManager,
         std::vector<std::string> * tags,
         model::XMachine ** agent) {
     /* Node name */
@@ -596,10 +592,10 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
                                     return 6;
                                 }
                                 /* Add value to memory manager */
-/*                                std::vector<int> &vec =
-                                    memoryManager->GetMemoryVector_test<int>(
+                                std::vector<int>* vec =
+                                    memoryManager->GetVector<int>(
                                         (*agent)->getName(), tags->back());
-                                vec.push_back(intValue);*/
+                                vec->push_back(intValue);
                             } else if (var->getType() == "double") {
                                 double doubleValue;
                                 try {
@@ -613,11 +609,11 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
                                     return 6;
                                 }
                                 /* Add value to memory manager */
-                                /*std::vector<double> &vec =
+                                std::vector<double>* vec =
                                     memoryManager->
-                                        GetMemoryVector_test<double>(
+                                        GetVector<double>(
                                             (*agent)->getName(), tags->back());
-                                vec.push_back(doubleValue);*/
+                                vec->push_back(doubleValue);
                             }
                         } else {
             fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
