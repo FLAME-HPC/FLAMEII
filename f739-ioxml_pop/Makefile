@@ -8,6 +8,7 @@ INCLUDE    = -I./headers -I$(BOOST_DIR) $(shell xml2-config --cflags)
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
+IO_TEST_MAN   = src/io/tests/test_io_manager.cpp
 IO_TEST_POP   = src/io/tests/test_io_xml_pop.cpp
 IO_TEST_MODEL = src/io/tests/test_io_xml_model.cpp
 MODEL_SRC  = src/model/xvariable.cpp \
@@ -29,7 +30,16 @@ MEM_SRC    = src/mem/memory_manager.cpp \
              src/mem/agent_memory.cpp \
              src/mem/agent_shadow.cpp \
              src/mem/memory_iterator.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp $(IO_TEST_POP) 
+MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
+             src/mem/tests/test_memory_iterator.cpp \
+             src/mem/tests/test_memory_manager.cpp \
+             src/mem/tests/test_vector_wrapper.cpp
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp \
+             $(IO_TEST_MAN)
+#             $(IO_TEST_POP)
+#             $(MEM_TEST)
+#             $(MODEL_TEST)
+#             $(IO_TEST_MODEL)        
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmachine.hpp \
@@ -51,6 +61,7 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/io/io_manager.hpp \
              src/model/task.hpp \
              src/model/dependency.hpp \
+             headers/exceptions/io.hpp \
              headers/exceptions/base.hpp \
              headers/exceptions/mem.hpp \
              headers/exceptions/exe.hpp \
@@ -79,7 +90,7 @@ lint:
 
 # dsymutil - only relevent on Mac OS X
 memtest: all
-	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE)
+	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
 	rm -fr $(EXECUTABLE).dSYM
 
 # To run executable:
