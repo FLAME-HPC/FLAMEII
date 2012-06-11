@@ -1,10 +1,13 @@
 CC         = g++
 CFLAGS     = -g -Wall -pedantic -DTESTBUILD
-BOOST_DIR  = /Users/stc/workspace/boost_1_49_0
-LDFLAGS    = -L$(BOOST_DIR)/stage/lib
-LIBS       = -lboost_unit_test_framework -lboost_system -lboost_filesystem \
+LDFLAGS    = 
+# Boost library naming support, -mp for multithreading support
+BOOSTLIB   = -mt
+LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
+             -lboost_system$(BOOSTLIB) \
+             -lboost_filesystem$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers -I$(BOOST_DIR) $(shell xml2-config --cflags)
+INCLUDE    = -I./headers $(shell xml2-config --cflags)
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
