@@ -65,8 +65,16 @@ int IOManager::readPop(std::string file_name,
 
     if (fileType == xml) {
         /* Validate xml first */
-//        rc = ioxmlpop.createDataSchema("xml.xsd", model);
-//        rc = ioxmlpop.validateData(file_name, "xml.xsd");
+        rc = ioxmlpop.createDataSchema("xmlpop.xsd", model);
+        if (rc != 0) {
+            fprintf(stderr, "Error: Could not create data schema\n");
+            return rc;
+        }
+        rc = ioxmlpop.validateData(file_name, "xmlpop.xsd");
+        if (rc != 0) {
+            fprintf(stderr, "Error: Could not validate data with schema\n");
+            return rc;
+        }
         /* Read validated pop xml */
         rc = ioxmlpop.readXMLPop(file_name, model, &memoryManager);
         return rc;
@@ -84,6 +92,10 @@ int IOManager::writePop(std::string file_name,
                 flame::mem::MemoryManager::GetInstance();
 
     if (fileType == xml) {
+        if (!ioxmlpop.xmlPopPathIsSet()) {
+            fprintf(stderr, "Error: Path not set by reading pop data\n");
+            return -1;
+        }
         rc = ioxmlpop.writeXMLPop(file_name,
                 iterationNo, model, &memoryManager);
         return rc;
