@@ -21,7 +21,7 @@ namespace flame { namespace io { namespace xml {
 
 class IOXMLPop {
   public:
-    IOXMLPop() {}
+    IOXMLPop();
     int readXMLPop(std::string file_name,
                     model::XModel * model,
                     flame::mem::MemoryManager * memoryManager);
@@ -33,6 +33,7 @@ class IOXMLPop {
                     flame::model::XModel * model);
     int validateData(std::string const& data_file,
                     std::string const& schema_file);
+    bool xmlPopPathIsSet();
 
   private:
     int processNode(xmlTextReaderPtr reader,
@@ -40,6 +41,8 @@ class IOXMLPop {
                 flame::mem::MemoryManager * memoryManager,
                 std::vector<std::string> * tags,
                 model::XMachine ** agent);
+    std::string xml_pop_path;
+    bool xml_pop_path_is_set;
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_POP_HPP_

@@ -33,6 +33,10 @@ int endXMLDoc(xmlTextWriterPtr writer);
 typedef std::vector<int>* intVecPtr;
 typedef std::vector<double>* doubleVecPtr;
 
+IOXMLPop::IOXMLPop() {
+    xml_pop_path_is_set = false;
+}
+
 int IOXMLPop::writeXMLPop(std::string file_name,
         int iterationNo,
         model::XModel * model,
@@ -206,8 +210,21 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
         return 1;
     }
 
+    /* Set the xml pop path to the directory of the opened file.
+     * This path is then used as the root directory to write xml pop to. */
+    boost::filesystem::path p(file_name);
+    boost::filesystem::path dir = p.parent_path();
+    xml_pop_path = dir.string();
+    xml_pop_path.append("/");
+    xml_pop_path_is_set = true;
+    printf("%s %s\n", file_name.c_str(), xml_pop_path.c_str());
+
     /* Return successfully */
     return 0;
+}
+
+bool IOXMLPop::xmlPopPathIsSet() {
+    return xml_pop_path_is_set;
 }
 
 int IOXMLPop::createDataSchema(std::string const& file,
