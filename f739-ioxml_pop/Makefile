@@ -38,11 +38,11 @@ MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
              src/mem/tests/test_memory_manager.cpp \
              src/mem/tests/test_vector_wrapper.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp \
-             $(IO_TEST_MAN)
-#             $(IO_TEST_POP)
-#             $(MEM_TEST)
-#             $(MODEL_TEST)
-#             $(IO_TEST_MODEL)        
+             $(MEM_TEST) \
+             $(IO_TEST_MAN) \
+             $(MODEL_TEST) \
+             $(IO_TEST_POP) \
+             $(IO_TEST_MODEL)        
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmachine.hpp \
