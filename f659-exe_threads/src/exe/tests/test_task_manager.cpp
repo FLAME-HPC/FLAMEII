@@ -85,7 +85,8 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
 
   // check initial data structure
-  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 0);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), 0);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 0);
   BOOST_CHECK_EQUAL(tm.get_task_count(), 0);
 
   // add task
@@ -93,7 +94,8 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.CreateTask("t2", "Circle", &func1);
   tm.CreateTask("t3", "Circle", &func1);
   tm.CreateTask("t4", "Circle", &func1);
-  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 4);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), 4);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 4);
   BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
 
   BOOST_CHECK_THROW(tm.AddDependency("t1", "x"),
@@ -102,7 +104,8 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
                     flame::exceptions::invalid_argument);
 
   tm.AddDependency("t3", "t1");
-  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 3);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), 3);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 3);
   BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
@@ -112,7 +115,8 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.AddDependency("t4", "t1");
   tm.AddDependency("t4", "t2");
   tm.AddDependency("t4", "t3");
-  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 2);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), 2);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 1);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t2").size(), 0);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
@@ -125,6 +129,12 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   BOOST_CHECK_THROW(tm.GetDependencies("x"),
                     flame::exceptions::invalid_argument);
   BOOST_CHECK_THROW(tm.GetDependents("x"), flame::exceptions::invalid_argument);
+
+  BOOST_CHECK_THROW(tm.AddDependency("t4", "t4"),
+                    flame::exceptions::logic_error);
+
+  BOOST_CHECK_THROW(tm.AddDependency("t1", "t4"),
+                    flame::exceptions::logic_error);
 
   // reset
   tm.Reset();

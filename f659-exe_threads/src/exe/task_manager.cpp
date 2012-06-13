@@ -7,9 +7,11 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
-#include <utility>
+#include <set>
+#include <stack>
 #include <string>
 #include <stdexcept>
+#include "boost/foreach.hpp"
 #include "task_manager.hpp"
 #include "exceptions/all.hpp"
 
@@ -32,7 +34,8 @@ Task& TaskManager::CreateTask(std::string task_name,
   // initialise entries for dependency management
   parents_.push_back(IdSet());
   children_.push_back(IdSet());
-  nodeps_.insert(id);
+  roots_.insert(id);
+  leaves_.insert(id);
 
   return *t;
 }
@@ -78,9 +81,16 @@ void TaskManager::AddDependency(RunnableTask::id_type task_id,
     throw flame::exceptions::logic_error("Task cannot depend on itself");
   }
 
+#ifdef DEBUG
+  if (WillCauseCyclicDependency(task_id, dependency_id)) {
+    throw flame::exceptions::logic_error("This will cause cyclic dependencies");
+  }
+#endif
+
   parents_[task_id].insert(dependency_id);
   children_[dependency_id].insert(task_id);
-  nodeps_.erase(task_id);
+  roots_.erase(task_id);
+  leaves_.erase(dependency_id);
 }
 
 
@@ -98,6 +108,34 @@ TaskManager::IdSet& TaskManager::GetDependencies(RunnableTask::id_type id) {
   }
 }
 
+#ifdef DEBUG
+bool TaskManager::WillCauseCyclicDependency(RunnableTask::id_type task_id,
+                                        RunnableTask::id_type target) {
+  if (task_id == target) return true;
+
+  RunnableTask::id_type current;
+  std::set<RunnableTask::id_type> visited;
+  std::stack<RunnableTask::id_type> pending;
+
+  // traverse upwards from target. If we do meet task_id then the proposed
+  // dependency would lead to a cycle
+  pending.push(target);
+  while (!pending.empty()) {
+    current = pending.top();
+    pending.pop();
+    if (current == task_id) return true;  // cycle detected
+
+    visited.insert(current);
+
+    BOOST_FOREACH(RunnableTask::id_type parent, parents_[current]) {
+      if (visited.find(parent) == visited.end()) {  // if node not yet visited
+        pending.push(parent);
+      }
+    }
+  }
+  return false;
+}
+#endif
 
 TaskManager::IdSet& TaskManager::GetDependents(std::string task_name) {
   return GetDependents(GetId(task_name));
@@ -132,7 +170,8 @@ bool TaskManager::IsValidID(RunnableTask::id_type task_id) {
 void TaskManager::Reset() {
   tasks_.clear();
   name_map_.clear();
-  nodeps_.clear();
+  roots_.clear();
+  leaves_.clear();
   children_.clear();
   parents_.clear();
 }

@@ -60,14 +60,15 @@ class TaskManager {
     IdSet& GetDependents(RunnableTask::id_type task_id);
     IdSet& GetDependents(std::string task_name);
 
-
-
 #ifdef TESTBUILD
     //! Delete all tasks
     void Reset();
 
     //! Returns the number of tasks that has no dependencies
-    size_t get_nodeps_size() { return nodeps_.size(); }
+    size_t get_num_roots() { return roots_.size(); }
+
+    //! Returns the number of tasks that has no dependents
+    size_t get_num_leaves() { return leaves_.size(); }
 #endif
 
   private:
@@ -81,13 +82,21 @@ class TaskManager {
     bool IsValidID(RunnableTask::id_type task_id);
     RunnableTask::id_type GetId(std::string task_name);
 
+#ifdef DEBUG
+    bool WillCauseCyclicDependency(RunnableTask::id_type task_id,
+                                   RunnableTask::id_type dependency_id);
+#endif
+
     boost::ptr_vector<Task> tasks_;
     TaskNameMap name_map_;
 
-    // Datastructures to manage task dependencies
-    std::set<RunnableTask::id_type> nodeps_;
-    std::vector<IdSet> children_;
-    std::vector<IdSet> parents_;
+    // children_ alone should be sufficient to represent a graph, however we
+    // want to be able to quickly traverse backwards so we also store the
+    // reverse relationship (parents_)
+    std::set<RunnableTask::id_type> roots_; // nodes with no dependencies
+    std::set<RunnableTask::id_type> leaves_; // nodes with no dependents
+    std::vector<IdSet> children_; // set of dependents for each node
+    std::vector<IdSet> parents_;  // set of dependencies for each node
 };
 
 }}  // namespace flame::exe
