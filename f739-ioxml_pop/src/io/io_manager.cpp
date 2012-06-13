@@ -60,17 +60,22 @@ int IOManager::readPop(std::string file_name,
             model::XModel * model,
             FileType fileType) {
     int rc;
+    std::string xmlpopxsd;
     flame::mem::MemoryManager& memoryManager =
                 flame::mem::MemoryManager::GetInstance();
 
     if (fileType == xml) {
+        /* Set path to xml pop location */
+        ioxmlpop.setXmlPopPath(file_name);
         /* Validate xml first */
-        rc = ioxmlpop.createDataSchema("xmlpop.xsd", model);
+        xmlpopxsd = ioxmlpop.xmlPopPath();
+        xmlpopxsd.append("xmlpop.xsd");
+        rc = ioxmlpop.createDataSchema(xmlpopxsd, model);
         if (rc != 0) {
             fprintf(stderr, "Error: Could not create data schema\n");
             return rc;
         }
-        rc = ioxmlpop.validateData(file_name, "xmlpop.xsd");
+        rc = ioxmlpop.validateData(file_name, xmlpopxsd);
         if (rc != 0) {
             fprintf(stderr, "Error: Could not validate data with schema\n");
             return rc;
