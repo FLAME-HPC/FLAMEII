@@ -486,26 +486,33 @@ int IOXMLPop::validateData(std::string const& data_file,
         std::string const& schema_file) {
     xmlDocPtr schema_doc = xmlReadFile(schema_file.c_str(), NULL,
             XML_PARSE_NONET);
+
     if (schema_doc == NULL) {
         /* the schema cannot be loaded or is not well-formed */
         return -1;
     }
+
     xmlSchemaParserCtxtPtr parser_ctxt = xmlSchemaNewDocParserCtxt(schema_doc);
     if (parser_ctxt == NULL) {
         /* unable to create a parser context for the schema */
+        xmlSchemaFreeParserCtxt(parser_ctxt);
         xmlFreeDoc(schema_doc);
         return -2;
     }
+
     xmlSchemaPtr schema = xmlSchemaParse(parser_ctxt);
     if (schema == NULL) {
         /* the schema itself is not valid */
+        xmlSchemaFree(schema);
         xmlSchemaFreeParserCtxt(parser_ctxt);
         xmlFreeDoc(schema_doc);
         return -3;
     }
+
     xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
     if (valid_ctxt == NULL) {
         /* unable to create a validation context for the schema */
+        xmlSchemaFreeValidCtxt(valid_ctxt);
         xmlSchemaFree(schema);
         xmlSchemaFreeParserCtxt(parser_ctxt);
         xmlFreeDoc(schema_doc);
@@ -514,6 +521,11 @@ int IOXMLPop::validateData(std::string const& data_file,
 
     xmlDocPtr doc = xmlReadFile(data_file.c_str(), NULL, 0);
     if (doc == NULL) {
+        xmlSchemaFreeValidCtxt(valid_ctxt);
+        xmlSchemaFree(schema);
+        xmlSchemaFreeParserCtxt(parser_ctxt);
+        xmlFreeDoc(schema_doc);
+        xmlFreeDoc(doc);
         /* Return error if the file was not successfully parsed */
         std::fprintf(stderr,
                 "Error: Data file cannot be opened/parsed: %s\n",
