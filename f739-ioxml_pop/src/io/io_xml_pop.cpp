@@ -52,6 +52,8 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     /* List of memory vector readers populated for each agent */
     std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
 
+    printf("Writing file: %s\n", file_name.c_str());
+
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
     if (writer == NULL) {
@@ -210,14 +212,7 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
         return 1;
     }
 
-    /* Set the xml pop path to the directory of the opened file.
-     * This path is then used as the root directory to write xml pop to. */
-    boost::filesystem::path p(file_name);
-    boost::filesystem::path dir = p.parent_path();
-    xml_pop_path = dir.string();
-    xml_pop_path.append("/");
-    xml_pop_path_is_set = true;
-    printf("%s %s\n", file_name.c_str(), xml_pop_path.c_str());
+
 
     /* Return successfully */
     return 0;
@@ -225,6 +220,20 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
 
 bool IOXMLPop::xmlPopPathIsSet() {
     return xml_pop_path_is_set;
+}
+
+std::string IOXMLPop::xmlPopPath() {
+    return xml_pop_path;
+}
+
+void IOXMLPop::setXmlPopPath(std::string path) {
+    /* Set the xml pop path to the directory of the opened file.
+     * This path is then used as the root directory to write xml pop to. */
+    boost::filesystem::path p(path);
+    boost::filesystem::path dir = p.parent_path();
+    xml_pop_path = dir.string();
+    xml_pop_path.append("/");
+    xml_pop_path_is_set = true;
 }
 
 int IOXMLPop::createDataSchema(std::string const& file,
@@ -235,6 +244,8 @@ int IOXMLPop::createDataSchema(std::string const& file,
     std::vector<model::XVariable*>::iterator variable;
     /* The xml text writer */
     xmlTextWriterPtr writer;
+
+    printf("Writing file: %s\n", file.c_str());
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file.c_str(), 0);

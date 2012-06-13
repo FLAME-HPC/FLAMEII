@@ -34,6 +34,8 @@ class IOXMLPop {
     int validateData(std::string const& data_file,
                     std::string const& schema_file);
     bool xmlPopPathIsSet();
+    std::string xmlPopPath();
+    void setXmlPopPath(std::string path);
 
   private:
     int processNode(xmlTextReaderPtr reader,
