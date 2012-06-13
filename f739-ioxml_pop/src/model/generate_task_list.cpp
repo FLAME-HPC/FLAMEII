@@ -347,7 +347,7 @@ void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
     size_t ii;
 
     /* print out the location of the source file */
-    printf("Writing file : %s\n", filename.c_str());
+    printf("Writing file: %s\n", filename.c_str());
     /* open the file to write to */
     file = fopen(filename.c_str(), "w");
 
