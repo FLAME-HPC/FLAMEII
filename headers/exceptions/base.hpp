@@ -10,6 +10,7 @@
 #ifndef EXCEPTIONS__BASE_HPP_
 #define EXCEPTIONS__BASE_HPP_
 #include <stdexcept>
+#include <string>
 
 namespace flame { namespace exceptions {
 

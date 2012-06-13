@@ -258,9 +258,9 @@ void printTaskList(std::vector<Task*> * tasks) {
     fprintf(stdout, "Level\tPriority\tType\tName\n");
     fprintf(stdout, "-----\t--------\t----\t----\n");
     for (task = tasks->begin(); task != tasks->end(); ++task) {
-        fprintf(stdout, "%lu\t%lu\t\t%s\t%s\n",
-                (*task)->getLevel(),
-                (*task)->getPriorityLevel(),
+        fprintf(stdout, "%u\t%u\t\t%s\t%s\n",
+                static_cast<unsigned int>((*task)->getLevel()),
+                static_cast<unsigned int>((*task)->getPriorityLevel()),
                 taskTypeToString((*task)->getTaskType()).c_str(),
                 (*task)->getFullName().c_str());
     }
@@ -347,7 +347,7 @@ void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
     size_t ii;
 
     /* print out the location of the source file */
-    printf("Writing file : %s\n", filename.c_str());
+    printf("Writing file: %s\n", filename.c_str());
     /* open the file to write to */
     file = fopen(filename.c_str(), "w");
 
