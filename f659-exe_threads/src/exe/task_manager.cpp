@@ -30,12 +30,28 @@ Task& TaskManager::CreateTask(std::string task_name,
   tasks_.push_back(t);
 
   // initialise entries for dependency management
-  parents_.push_back(IdVector());
-  children_.push_back(IdVector());
+  parents_.push_back(IdSet());
+  children_.push_back(IdSet());
   nodeps_.insert(id);
 
   return *t;
 }
+
+
+RunnableTask::id_type TaskManager::GetId(std::string task_name){
+  try {
+    return name_map_.at(task_name);
+  }
+  catch(const std::out_of_range& E) {
+    throw flame::exceptions::invalid_argument("Unknown task");
+  }
+}
+
+
+Task& TaskManager::GetTask(std::string task_name) {
+  return GetTask(GetId(task_name));
+}
+
 
 Task& TaskManager::GetTask(RunnableTask::id_type task_id) {
   try {
@@ -46,12 +62,54 @@ Task& TaskManager::GetTask(RunnableTask::id_type task_id) {
   }
 }
 
-Task& TaskManager::GetTask(std::string task_name) {
-  try {
-    return GetTask(name_map_.at(task_name));
+
+void TaskManager::AddDependency(std::string task_name,
+                                std::string dependency_name) {
+  AddDependency(GetId(task_name), GetId(dependency_name));
+}
+
+
+void TaskManager::AddDependency(RunnableTask::id_type task_id,
+                                RunnableTask::id_type dependency_id) {
+  if (!IsValidID(task_id) || !IsValidID(dependency_id)) {
+    throw flame::exceptions::invalid_argument("Invalid id");
   }
-  catch(const std::out_of_range& E) {
-    throw flame::exceptions::invalid_argument("Unknown task");
+  if (task_id == dependency_id) {
+    throw flame::exceptions::logic_error("Task cannot depend on itself");
+  }
+
+  parents_[task_id].insert(dependency_id);
+  children_[dependency_id].insert(task_id);
+  nodeps_.erase(task_id);
+}
+
+
+TaskManager::IdSet& TaskManager::GetDependencies(std::string task_name) {
+  return GetDependencies(GetId(task_name));
+}
+
+
+TaskManager::IdSet& TaskManager::GetDependencies(RunnableTask::id_type id) {
+  try {
+    return parents_.at(id);
+  }
+  catch (const std::out_of_range& E) {
+    throw flame::exceptions::invalid_argument("Invalid id");
+  }
+}
+
+
+TaskManager::IdSet& TaskManager::GetDependents(std::string task_name) {
+  return GetDependents(GetId(task_name));
+}
+
+
+TaskManager::IdSet& TaskManager::GetDependents(RunnableTask::id_type id) {
+  try {
+    return children_.at(id);
+  }
+  catch (const std::out_of_range& E) {
+    throw flame::exceptions::invalid_argument("Invalid id");
   }
 }
 
@@ -62,6 +120,11 @@ size_t TaskManager::get_task_count() {
   }
 #endif
   return tasks_.size();
+}
+
+
+bool TaskManager::IsValidID(RunnableTask::id_type task_id) {
+  return (task_id < tasks_.size());
 }
 
 

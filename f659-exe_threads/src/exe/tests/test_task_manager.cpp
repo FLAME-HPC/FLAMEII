@@ -94,7 +94,37 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.CreateTask("t3", "Circle", &func1);
   tm.CreateTask("t4", "Circle", &func1);
   BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 4);
-  BOOST_CHECK_EQUAL(tm.get_node_count(), 4);
+  BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
+
+  BOOST_CHECK_THROW(tm.AddDependency("t1", "x"),
+                    flame::exceptions::invalid_argument);
+  BOOST_CHECK_THROW(tm.AddDependency("x", "t2"),
+                    flame::exceptions::invalid_argument);
+
+  tm.AddDependency("t3", "t1");
+  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 3);
+  BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), 0);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), 1);
+
+  tm.AddDependency("t4", "t1");
+  tm.AddDependency("t4", "t2");
+  tm.AddDependency("t4", "t3");
+  BOOST_CHECK_EQUAL(tm.get_nodeps_size(), 2);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t2").size(), 0);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t4").size(), 3);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), 2);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t2").size(), 1);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), 1);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t4").size(), 0);
+
+  BOOST_CHECK_THROW(tm.GetDependencies("x"),
+                    flame::exceptions::invalid_argument);
+  BOOST_CHECK_THROW(tm.GetDependents("x"), flame::exceptions::invalid_argument);
 
   // reset
   tm.Reset();

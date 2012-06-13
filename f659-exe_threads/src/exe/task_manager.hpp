@@ -26,6 +26,9 @@ typedef std::map<std::string, size_t> TaskNameMap;
 //! initialisation stage before threads are spawned, or guarded by mutexes
 class TaskManager {
   public:
+
+    typedef std::set<RunnableTask::id_type> IdSet;
+
     //! Returns instance of singleton object
     //!  When used in a multithreaded environment, this should be called
     //!  at lease once before threads are spawned.
@@ -39,23 +42,32 @@ class TaskManager {
                      std::string agent_name,
                      TaskFunction func_ptr);
 
-    //! Returns a registered Task
+    //! Returns a registered Task given a task id
     Task& GetTask(RunnableTask::id_type task_id);
+
+    //! Returns a registered Task given a task name
     Task& GetTask(std::string task_name);
 
+    //! Returns the number of registered tasks
     size_t get_task_count();
 
-    typedef std::vector<RunnableTask::id_type> IdVector;
+    void AddDependency(std::string task_name, std::string dependency_name);
+    void AddDependency(RunnableTask::id_type task_id,
+                       RunnableTask::id_type dependency_id);
+
+    IdSet& GetDependencies(RunnableTask::id_type task_id);
+    IdSet& GetDependencies(std::string task_name);
+    IdSet& GetDependents(RunnableTask::id_type task_id);
+    IdSet& GetDependents(std::string task_name);
+
+
 
 #ifdef TESTBUILD
     //! Delete all tasks
     void Reset();
 
+    //! Returns the number of tasks that has no dependencies
     size_t get_nodeps_size() { return nodeps_.size(); }
-    size_t get_node_count() {
-
-      return children_.size();
-    }
 #endif
 
   private:
@@ -66,13 +78,16 @@ class TaskManager {
     //! This is a singleton class. Disable assignment operation
     void operator=(const TaskManager&);
 
+    bool IsValidID(RunnableTask::id_type task_id);
+    RunnableTask::id_type GetId(std::string task_name);
+
     boost::ptr_vector<Task> tasks_;
     TaskNameMap name_map_;
 
     // Datastructures to manage task dependencies
     std::set<RunnableTask::id_type> nodeps_;
-    std::vector<IdVector> children_;
-    std::vector<IdVector> parents_;
+    std::vector<IdSet> children_;
+    std::vector<IdSet> parents_;
 };
 
 }}  // namespace flame::exe
