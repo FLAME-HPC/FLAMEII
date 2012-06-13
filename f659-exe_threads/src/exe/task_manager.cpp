@@ -20,6 +20,10 @@ namespace flame { namespace exe {
 Task& TaskManager::CreateTask(std::string task_name,
                               std::string agent_name,
                               TaskFunction func_ptr) {
+  if (finalised_) {
+    throw flame::exceptions::logic_error("Finalise() called. No more updates");
+  }
+
   // Check for tasks with same name
   TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
   if (lb != name_map_.end() && lb->first != task_name) {  // name exists
@@ -74,6 +78,9 @@ void TaskManager::AddDependency(std::string task_name,
 
 void TaskManager::AddDependency(RunnableTask::id_type task_id,
                                 RunnableTask::id_type dependency_id) {
+  if (finalised_) {
+    throw flame::exceptions::logic_error("Finalise() called. No more updates");
+  }
   if (!IsValidID(task_id) || !IsValidID(dependency_id)) {
     throw flame::exceptions::invalid_argument("Invalid id");
   }
@@ -165,6 +172,30 @@ bool TaskManager::IsValidID(RunnableTask::id_type task_id) {
   return (task_id < tasks_.size());
 }
 
+void TaskManager::Finalise() {
+  finalised_ = true;
+  ResetIterationData();
+}
+
+bool TaskManager::IsFinalised() {
+  return finalised_;
+}
+
+void TaskManager::ResetIterationData() {
+  if (finalised_) {
+    throw flame::exceptions::logic_error("Finalise() has not been called");
+  }
+
+  // initialise data by copying exisiting dep data
+  pending_deps_ = parents_; // create copy of dependency tree
+  ready_tasks_ = roots_; // tasks with no dependencies are ready to run
+
+  // reset and initialise
+  pending_tasks_.clear(); // empty existing data
+  for (int i = 0; i < tasks_.size(); ++i)  {
+    it = pending_tasks_.insert(pending_tasks.end(), i);
+  }
+}
 
 #ifdef TESTBUILD
 void TaskManager::Reset() {

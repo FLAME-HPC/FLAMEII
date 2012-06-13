@@ -6,6 +6,9 @@
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
+ *
+ * \note This object is meant to be used only by the main thread and is
+ * therefore not currently thread-safe.
  */
 #ifndef EXE__TASK_MANAGER_HPP_
 #define EXE__TASK_MANAGER_HPP_
@@ -19,84 +22,135 @@ namespace flame { namespace exe {
 
 typedef std::map<std::string, size_t> TaskNameMap;
 
-//! Task Manager object.
+//! \brief Task Manager object.
+//!
 //! This is a singleton class - only one instance should exist throughtout
 //! the simulation. Instances are accessed using TaskManager::GetInstance().
 //! Apart from the GetTask methods, all others should be called during the
 //! initialisation stage before threads are spawned, or guarded by mutexes
 class TaskManager {
-  public:
+  friend class TaskCoordinator;
 
+  public:
     typedef std::set<RunnableTask::id_type> IdSet;
 
-    //! Returns instance of singleton object
-    //!  When used in a multithreaded environment, this should be called
-    //!  at lease once before threads are spawned.
+    //! \brief Returns instance of singleton object
     static TaskManager& GetInstance() {
       static TaskManager instance;
       return instance;
     }
 
-    //! Registers and returns a new Task
+    //! \brief Registers and returns a new Task
     Task& CreateTask(std::string task_name,
                      std::string agent_name,
                      TaskFunction func_ptr);
 
-    //! Returns a registered Task given a task id
+    //! \brief Returns a registered Task given a task id
     Task& GetTask(RunnableTask::id_type task_id);
 
-    //! Returns a registered Task given a task name
+    //! \brief Returns a registered Task given a task name
     Task& GetTask(std::string task_name);
 
-    //! Returns the number of registered tasks
+    //! \brief Returns the number of registered tasks
     size_t get_task_count();
 
+    //! \brief Adds a dependency to a task.
     void AddDependency(std::string task_name, std::string dependency_name);
+
+    //! \brief Adds a dependency to a task
     void AddDependency(RunnableTask::id_type task_id,
                        RunnableTask::id_type dependency_id);
 
+    //! \brief Retrieves a set of dependencies for a given task
     IdSet& GetDependencies(RunnableTask::id_type task_id);
+    //! \brief Retrieves a set of dependencies for a given task
     IdSet& GetDependencies(std::string task_name);
+    //! \brief Retrieves a set of dependents for a given task
     IdSet& GetDependents(RunnableTask::id_type task_id);
+    //! \brief Retrieves a set of dependents for a given task
     IdSet& GetDependents(std::string task_name);
 
+    //! \brief Indicates that all task data have been entered and iteration
+    //! can begin.
+    //!
+    //! Methods that modify the list of tasks and dependency data will no
+    //! longer be allowed.
+    void Finalise();
+
+    //! \brief Returns true if Finalise() has been called
+    bool IsFinalised();
+
+    //! \brief Resets control data so a new iteration of tasks can begin
+    void ResetIterationData();
+
 #ifdef TESTBUILD
-    //! Delete all tasks
+    //! \brief Delete all tasks
     void Reset();
 
-    //! Returns the number of tasks that has no dependencies
+    //! \brief Returns the number of tasks that has no dependencies
     size_t get_num_roots() { return roots_.size(); }
 
-    //! Returns the number of tasks that has no dependents
+    //! \brief Returns the number of tasks that has no dependents
     size_t get_num_leaves() { return leaves_.size(); }
 #endif
 
   private:
-    //! This is a singleton class. Disable manual instantiation
-    TaskManager() {}
-    //! This is a singleton class. Disable copy constructor
+    // This is a singleton class. Disable manual instantiation
+    TaskManager() : finalised_(false) {}
+    // This is a singleton class. Disable copy constructor
     TaskManager(const TaskManager&);
-    //! This is a singleton class. Disable assignment operation
+    // This is a singleton class. Disable assignment operation
     void operator=(const TaskManager&);
 
+    //! \brief Returns true if given id is a valid task id
     bool IsValidID(RunnableTask::id_type task_id);
+
+    //! \brief Returns the corresponding task id given a task name
     RunnableTask::id_type GetId(std::string task_name);
 
 #ifdef DEBUG
+    //! \brief Determines whether the proposed dependency will create a cycle
     bool WillCauseCyclicDependency(RunnableTask::id_type task_id,
                                    RunnableTask::id_type dependency_id);
 #endif
 
+    //! \brief Vector of tasks objects. The vector index is used as the task id.
     boost::ptr_vector<Task> tasks_;
+
+    //! \brief Map associating task name to task id (index within tasks_)
     TaskNameMap name_map_;
 
-    // children_ alone should be sufficient to represent a graph, however we
-    // want to be able to quickly traverse backwards so we also store the
-    // reverse relationship (parents_)
+    //! \brief Set of tasks with no dependencies
     std::set<RunnableTask::id_type> roots_; // nodes with no dependencies
+
+    //! \brief Set of tasks with no dependents
     std::set<RunnableTask::id_type> leaves_; // nodes with no dependents
-    std::vector<IdSet> children_; // set of dependents for each node
+
+    //! \brief Set of dependencies for each task
+    //!
+    //! Used for backward traversal as well as determining next available task
+    //! upon task completion.
     std::vector<IdSet> parents_;  // set of dependencies for each node
+
+    //! \brief Set of dependents for each task
+    //!
+    //! Adjacency list representing the directed acyclic dependency graph
+    std::vector<IdSet> children_; // set of dependents for each node
+
+    //! \brief Flag indicating whether Finalise() has been called
+    bool finalised_;
+
+    // ---- data used for managing task iteration -------
+    //! \brief dependencies for pending tasks
+    std::vector<IdSet> pending_deps_;
+
+    //! \brief tasks that are ready for execution
+    std::vector<RunnableTask::id_type> ready_tasks_;
+
+    //! \brief tasks that are not yet ready for execution
+    std::set<RunnableTask::id_type> pending_tasks_;
+
+
 };
 
 }}  // namespace flame::exe
