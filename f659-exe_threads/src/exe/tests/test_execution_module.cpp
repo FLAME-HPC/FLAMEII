@@ -12,6 +12,7 @@
 #include "boost/test/unit_test.hpp"
 #include "mem/memory_manager.hpp"
 #include "../task_manager.hpp"
+#include "../task_interface.hpp"
 #include "../execution_thread.hpp"
 #include "include/flame.h"
 
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(runexe_setup) {
   }
 
   // Register task
-  e::Task& t = tm.CreateTask("test", "Circle", test_func);
+  e::Task& t = tm.CreateAgentTask("test", "Circle", test_func);
   t.AllowAccess("x_int");
   t.AllowAccess("y_dbl");
   t.AllowAccess("z_dbl", true);  // writeable

@@ -5,11 +5,11 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Agent function task
  */
 #include <utility>
 #include <string>
-#include "task.hpp"
+#include "agent_task.hpp"
 #include "exceptions/all.hpp"
 #include "mem/memory_manager.hpp"
 
@@ -18,10 +18,10 @@ namespace flame { namespace exe {
 namespace mem = flame::mem;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
-Task::Task(Task::id_type task_id, std::string task_name,
-           std::string agent_name, TaskFunction func_ptr)
-        : task_id_(task_id), task_name_(task_name),
-          agent_name_(agent_name), func_ptr_(func_ptr) {
+AgentTask::AgentTask(std::string task_name, std::string agent_name,
+                     TaskFunction func_ptr)
+    : agent_name_(agent_name), func_ptr_(func_ptr) {
+  task_name_ = task_name;
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
     throw flame::exceptions::invalid_agent("Invalid agent");
@@ -33,23 +33,15 @@ Task::Task(Task::id_type task_id, std::string task_name,
   shadow_ptr_ = mm.GetAgentShadow(agent_name);
 }
 
-flame::mem::MemoryIteratorPtr Task::GetMemoryIterator() const {
+flame::mem::MemoryIteratorPtr AgentTask::GetMemoryIterator() const {
   return shadow_ptr_->GetMemoryIterator();
 }
 
-void Task::AllowAccess(const std::string& var_name, bool writeable) {
+void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
   shadow_ptr_->AllowAccess(var_name, writeable);
 }
 
-std::string Task::get_task_name() const {
-  return task_name_;
-}
-
-Task::id_type Task::get_task_id() const {
-  return task_id_;
-}
-
-TaskFunction Task::GetFunction() const {
+TaskFunction AgentTask::GetFunction() const {
   return func_ptr_;
 }
 

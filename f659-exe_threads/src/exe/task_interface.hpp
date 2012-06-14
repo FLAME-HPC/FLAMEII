@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/runnable_task.hpp
+ * \file src/exe/task_interface.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -16,14 +16,9 @@ namespace flame { namespace exe {
 
 typedef boost::function<int (void*)> TaskFunction;
 
-class RunnableTask {
+class Task {
 
   public:
-    virtual ~RunnableTask() {}
-    virtual TaskFunction GetFunction() const = 0;
-    virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
-    virtual void TaskDone() = 0;
-
     typedef size_t id_type;
 
     enum TaskType {
@@ -32,6 +27,22 @@ class RunnableTask {
       MB_FUNCTION
     };
 
+    virtual ~Task() {}
+    virtual TaskFunction GetFunction() const = 0;
+
+    virtual TaskType get_task_type() const = 0;
+    virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
+    virtual void AllowAccess(const std::string& var_name,
+                             bool writeable = false) = 0;
+    virtual void TaskDone() = 0;
+
+    id_type get_task_id() const { return task_id_; }
+    void set_task_id(id_type id) { task_id_ = id; }
+    std::string get_task_name() { return task_name_; }
+
+  protected:
+    id_type task_id_;
+    std::string task_name_;
 };
 
 }}  // namespace flame::exe

@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include "boost/foreach.hpp"
 #include "task_manager.hpp"
+#include "agent_task.hpp"
 #include "exceptions/all.hpp"
 
 static inline void check_not_finalised(bool finalised) {
@@ -28,11 +29,26 @@ static inline void check_finalised(bool finalised) {
   }
 }
 
+
 namespace flame { namespace exe {
 
-Task& TaskManager::CreateTask(std::string task_name,
-                              std::string agent_name,
-                              TaskFunction func_ptr) {
+Task& TaskManager::CreateAgentTask(std::string task_name,
+                                   std::string agent_name,
+                                   TaskFunction func_ptr) {
+  AgentTask* task_ptr = new AgentTask(task_name, agent_name, func_ptr);
+
+  try {  // register new task with manager
+    RegisterTask(task_name, task_ptr);
+  } catch (const flame::exceptions::logic_error& E) {
+    delete task_ptr;  // free memory if registration failed.
+    throw E;  // rethrow exception
+  }
+
+  return *task_ptr;
+}
+
+// Separate out this bit so we can handle internal Tasks differently
+void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   if (finalised_) {
     throw flame::exceptions::logic_error("Finalise() called. No more updates");
   }
@@ -46,16 +62,14 @@ Task& TaskManager::CreateTask(std::string task_name,
   // map task name to idx of new vector entry
   Task::id_type id = tasks_.size();  // use next index as id
   name_map_.insert(lb, TaskNameMap::value_type(task_name, id));
-  Task *t = new Task(id, task_name, agent_name, func_ptr);
-  tasks_.push_back(t);
+  task_ptr->set_task_id(id);
+  tasks_.push_back(task_ptr);
 
   // initialise entries for dependency management
   parents_.push_back(IdSet());
   children_.push_back(IdSet());
   roots_.insert(id);
   leaves_.insert(id);
-
-  return *t;
 }
 
 

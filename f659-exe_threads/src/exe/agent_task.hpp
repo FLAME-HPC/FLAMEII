@@ -1,25 +1,25 @@
 /*!
- * \file src/exe/task.hpp
+ * \file src/exe/agent_task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Task that runs agent functions
  */
-#ifndef EXE__TASK_HPP_
-#define EXE__TASK_HPP_
+#ifndef EXE__AGENT_TASK_HPP_
+#define EXE__AGENT_TASK_HPP_
 #include <string>
 #include <utility>
 #include <map>
 #include <set>
 #include "mem/memory_manager.hpp"
 #include "mem/memory_iterator.hpp"
-#include "runnable_task.hpp"
+#include "task_interface.hpp"
 
 namespace flame { namespace exe {
 
-class Task : public RunnableTask {
+class AgentTask : public Task {
   friend class TaskManager;
 
   public:
@@ -32,11 +32,8 @@ class Task : public RunnableTask {
     //! Returns the name of the task
     std::string get_task_name() const;
 
-    //! Returns the id of the task
-    id_type get_task_id() const;
-
     //! Returns the the task type
-    id_type get_task_type() const;
+    TaskType get_task_type() const { return Task::AGENT_FUNCTION; }
 
     //! Returns the function object associated with this task
     TaskFunction GetFunction() const;
@@ -45,19 +42,14 @@ class Task : public RunnableTask {
 
   protected:
     // Tasks should only be created via Task Manager
-    Task(id_type task_id,
-         std::string task_name,
-         std::string agent_name,
-         TaskFunction func_ptr);
+    AgentTask(std::string task_name, std::string agent_name,
+              TaskFunction func_ptr);
 
   private:
-    id_type task_id_;
-    TaskType task_type_;
-    std::string task_name_;  //! Name of task
     std::string agent_name_;  //! Name of associated agent
     TaskFunction func_ptr_;  //! Function pointer associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
 };
 
 }}  // namespace flame::exe
-#endif  // EXE__TASK_HPP_
+#endif  // EXE__AGENT_TASK_HPP_

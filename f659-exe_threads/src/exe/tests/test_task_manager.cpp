@@ -12,6 +12,7 @@
 #include <string>
 #include "boost/test/unit_test.hpp"
 #include "include/flame.h"
+#include "../../mem/memory_manager.hpp"
 #include "../task_manager.hpp"
 
 BOOST_AUTO_TEST_SUITE(TaskManager)
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_CASE(taskmgr_initialise_and_test_singleton) {
   mgr.RegisterAgent("Circle");
 
   exe::TaskManager& tm1 = exe::TaskManager::GetInstance();
-  tm1.CreateTask(task_name, "Circle", &func1);
+  tm1.CreateAgentTask(task_name, "Circle", &func1);
 
   exe::TaskManager& tm2 = exe::TaskManager::GetInstance();
   exe::Task& task = tm2.GetTask(task_name);
@@ -55,12 +56,12 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager) {
 
 BOOST_AUTO_TEST_CASE(test_create_task) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
-  BOOST_CHECK_THROW(tm.CreateTask("t1", "NotAnAgent", &func1),
+  BOOST_CHECK_THROW(tm.CreateAgentTask("t1", "NotAnAgent", &func1),
                     flame::exceptions::invalid_agent);
-  BOOST_CHECK_THROW(tm.CreateTask("t1", "Circle", NULL),
+  BOOST_CHECK_THROW(tm.CreateAgentTask("t1", "Circle", NULL),
                     flame::exceptions::invalid_argument);
 
-  exe::Task& task = tm.CreateTask("t1", "Circle", &func1);
+  exe::Task& task = tm.CreateAgentTask("t1", "Circle", &func1);
   task.AllowAccess("x_int");
   task.AllowAccess("y_dbl", true);
   mem::MemoryIteratorPtr m_iter = task.GetMemoryIterator();
@@ -90,10 +91,10 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   BOOST_CHECK_EQUAL(tm.GetTaskCount(), 0);
 
   // add task
-  tm.CreateTask("t1", "Circle", &func1);
-  tm.CreateTask("t2", "Circle", &func1);
-  tm.CreateTask("t3", "Circle", &func1);
-  tm.CreateTask("t4", "Circle", &func1);
+  tm.CreateAgentTask("t1", "Circle", &func1);
+  tm.CreateAgentTask("t2", "Circle", &func1);
+  tm.CreateAgentTask("t3", "Circle", &func1);
+  tm.CreateAgentTask("t4", "Circle", &func1);
   BOOST_CHECK_EQUAL(tm.get_num_roots(), 4);
   BOOST_CHECK_EQUAL(tm.get_num_leaves(), 4);
   BOOST_CHECK_EQUAL(tm.GetTaskCount(), 4);
@@ -142,10 +143,10 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
 
 BOOST_AUTO_TEST_CASE(test_task_iteration) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
-  tm.CreateTask("t1", "Circle", &func1);
-  tm.CreateTask("t2", "Circle", &func1);
-  tm.CreateTask("t3", "Circle", &func1);
-  tm.CreateTask("t4", "Circle", &func1);
+  tm.CreateAgentTask("t1", "Circle", &func1);
+  tm.CreateAgentTask("t2", "Circle", &func1);
+  tm.CreateAgentTask("t3", "Circle", &func1);
+  tm.CreateAgentTask("t4", "Circle", &func1);
   tm.AddDependency("t3", "t1");
   tm.AddDependency("t4", "t1");
   tm.AddDependency("t4", "t2");
@@ -163,7 +164,7 @@ BOOST_AUTO_TEST_CASE(test_task_iteration) {
 
   // Once finalised, tasks and deps can no longer be added
   tm.Finalise();
-  BOOST_CHECK_THROW(tm.CreateTask("t8", "Circle", &func1),
+  BOOST_CHECK_THROW(tm.CreateAgentTask("t8", "Circle", &func1),
                     flame::exceptions::logic_error);
   BOOST_CHECK_THROW(tm.AddDependency("t3", "t2"),
                     flame::exceptions::logic_error);

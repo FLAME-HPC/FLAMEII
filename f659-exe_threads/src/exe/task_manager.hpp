@@ -18,7 +18,7 @@
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "boost/thread/mutex.hpp"
-#include "task.hpp"
+#include "task_interface.hpp"
 
 namespace flame { namespace exe {
 
@@ -34,7 +34,7 @@ class TaskManager {
   friend class TaskCoordinator;
 
   public:
-    typedef RunnableTask::id_type TaskId;
+    typedef Task::id_type TaskId;
     typedef std::set<TaskId> IdSet;
     typedef std::vector<TaskId> IdVector;
 
@@ -44,10 +44,10 @@ class TaskManager {
       return instance;
     }
 
-    //! \brief Registers and returns a new Task
-    Task& CreateTask(std::string task_name,
-                     std::string agent_name,
-                     TaskFunction func_ptr);
+    //! \brief Registers and returns a new Agent Task
+    Task& CreateAgentTask(std::string task_name,
+                          std::string agent_name,
+                          TaskFunction func_ptr);
 
     //! \brief Returns a registered Task given a task id
     Task& GetTask(TaskId task_id);
@@ -134,6 +134,8 @@ class TaskManager {
     TaskManager(const TaskManager&);
     // This is a singleton class. Disable assignment operation
     void operator=(const TaskManager&);
+
+    void RegisterTask(std::string task_name, Task* task_ptr);
 
     //! \brief Returns true if given id is a valid task id
     bool IsValidID(TaskId task_id) const;
