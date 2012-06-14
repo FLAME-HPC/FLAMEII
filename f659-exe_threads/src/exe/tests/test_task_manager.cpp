@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   // check initial data structure
   BOOST_CHECK_EQUAL(tm.get_num_roots(), 0);
   BOOST_CHECK_EQUAL(tm.get_num_leaves(), 0);
-  BOOST_CHECK_EQUAL(tm.get_task_count(), 0);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 0);
 
   // add task
   tm.CreateTask("t1", "Circle", &func1);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.CreateTask("t4", "Circle", &func1);
   BOOST_CHECK_EQUAL(tm.get_num_roots(), 4);
   BOOST_CHECK_EQUAL(tm.get_num_leaves(), 4);
-  BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 4);
 
   BOOST_CHECK_THROW(tm.AddDependency("t1", "x"),
                     flame::exceptions::invalid_argument);
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.AddDependency("t3", "t1");
   BOOST_CHECK_EQUAL(tm.get_num_roots(), 3);
   BOOST_CHECK_EQUAL(tm.get_num_leaves(), 3);
-  BOOST_CHECK_EQUAL(tm.get_task_count(), 4);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 4);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
   BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
   BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), 0);
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.Reset();
 }
 
-BOOST_AUTO_TEST_CASE(test_tm_finalisation) {
+BOOST_AUTO_TEST_CASE(test_task_iteration) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
   tm.CreateTask("t1", "Circle", &func1);
   tm.CreateTask("t2", "Circle", &func1);
@@ -152,8 +152,14 @@ BOOST_AUTO_TEST_CASE(test_tm_finalisation) {
   tm.AddDependency("t4", "t3");
 
   // tm not yet finalised
-  BOOST_CHECK_THROW(tm.ResetIterationData(),
-                    flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterReset(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterTaskAvailable(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterTaskDone(100), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterCompleted(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterGetReadyCount(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterGetPendingCount(), flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.IterGetAssignedCount(), flame::exceptions::logic_error);
 
   // Once finalised, tasks and deps can no longer be added
   tm.Finalise();
@@ -161,6 +167,85 @@ BOOST_AUTO_TEST_CASE(test_tm_finalisation) {
                     flame::exceptions::logic_error);
   BOOST_CHECK_THROW(tm.AddDependency("t3", "t2"),
                     flame::exceptions::logic_error);
+
+  BOOST_CHECK(tm.IterTaskAvailable());
+  BOOST_CHECK(!tm.IterCompleted());
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+
+  exe::TaskManager::TaskId t1 = tm.get_id("t1");  // test-only routine
+  exe::TaskManager::TaskId t2 = tm.get_id("t2");  // test-only routine
+  exe::TaskManager::TaskId t3 = tm.get_id("t3");  // test-only routine
+  exe::TaskManager::TaskId t4 = tm.get_id("t4");  // test-only routine
+
+  // completing a task that has not been popped
+  BOOST_CHECK_THROW(tm.IterTaskDone(t1), flame::exceptions::invalid_argument);
+
+  unsigned int count = 0;
+  while (tm.IterTaskAvailable()) {
+    tm.IterTaskPop();
+    count++;
+    BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2 - count);
+    BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), count);
+    BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
+  }
+  BOOST_CHECK_EQUAL(count, 2);
+  BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // t2 complete
+  tm.IterTaskDone(t2);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK(!tm.IterTaskAvailable());
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // t1 complete
+  tm.IterTaskDone(t1);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK(tm.IterTaskAvailable());
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // pop t3 which should now be ready
+  exe::TaskManager::TaskId t = tm.IterTaskPop();
+  BOOST_CHECK_EQUAL(t, t3);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK(!tm.IterTaskAvailable());
+  BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // t3 complete
+  tm.IterTaskDone(t3);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK(tm.IterTaskAvailable());
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // pop t4 which should now be ready
+  t = tm.IterTaskPop();
+  BOOST_CHECK_EQUAL(t, t4);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK(!tm.IterTaskAvailable());
+  BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
+  BOOST_CHECK(!tm.IterCompleted());
+
+  // t4 complete
+  tm.IterTaskDone(t4);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK(!tm.IterTaskAvailable());
+  BOOST_CHECK(tm.IterCompleted());
+
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {

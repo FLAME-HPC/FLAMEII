@@ -12,10 +12,12 @@
  */
 #ifndef EXE__TASK_MANAGER_HPP_
 #define EXE__TASK_MANAGER_HPP_
+#include <vector>
 #include <string>
 #include <set>
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
+#include "boost/thread/mutex.hpp"
 #include "task.hpp"
 
 namespace flame { namespace exe {
@@ -32,8 +34,9 @@ class TaskManager {
   friend class TaskCoordinator;
 
   public:
-    typedef std::set<RunnableTask::id_type> IdSet;
-    typedef std::vector<RunnableTask::id_type> IdVector;
+    typedef RunnableTask::id_type TaskId;
+    typedef std::set<TaskId> IdSet;
+    typedef std::vector<TaskId> IdVector;
 
     //! \brief Returns instance of singleton object
     static TaskManager& GetInstance() {
@@ -47,27 +50,26 @@ class TaskManager {
                      TaskFunction func_ptr);
 
     //! \brief Returns a registered Task given a task id
-    Task& GetTask(RunnableTask::id_type task_id);
+    Task& GetTask(TaskId task_id);
 
     //! \brief Returns a registered Task given a task name
     Task& GetTask(std::string task_name);
 
     //! \brief Returns the number of registered tasks
-    size_t get_task_count();
+    size_t GetTaskCount() const;
 
     //! \brief Adds a dependency to a task.
     void AddDependency(std::string task_name, std::string dependency_name);
 
     //! \brief Adds a dependency to a task
-    void AddDependency(RunnableTask::id_type task_id,
-                       RunnableTask::id_type dependency_id);
+    void AddDependency(TaskId task_id, TaskId dependency_id);
 
     //! \brief Retrieves a set of dependencies for a given task
-    IdSet& GetDependencies(RunnableTask::id_type task_id);
+    IdSet& GetDependencies(TaskId task_id);
     //! \brief Retrieves a set of dependencies for a given task
     IdSet& GetDependencies(std::string task_name);
     //! \brief Retrieves a set of dependents for a given task
-    IdSet& GetDependents(RunnableTask::id_type task_id);
+    IdSet& GetDependents(TaskId task_id);
     //! \brief Retrieves a set of dependents for a given task
     IdSet& GetDependents(std::string task_name);
 
@@ -79,10 +81,36 @@ class TaskManager {
     void Finalise();
 
     //! \brief Returns true if Finalise() has been called
-    bool IsFinalised();
+    bool IsFinalised() const;
 
     //! \brief Resets control data so a new iteration of tasks can begin
-    void ResetIterationData();
+    void IterReset();
+
+    //! \brief Returns true if there are tasks ready for execution
+    bool IterTaskAvailable() const;
+
+    //! \brief Returns true if all tasks have been executed
+    bool IterCompleted() const;
+
+    //! \brief Returns the number of tasks ready for execution
+    size_t IterGetReadyCount() const;
+
+    //! \brief Returns the number of tasks that are still waiting for their
+    //! dependencies to be met
+    size_t IterGetPendingCount() const;
+
+    //! \brief Returns the number of tasks that have been assigned but not
+    //! completed.
+    size_t IterGetAssignedCount() const;
+
+    //! \brief Indicates that a specific task has been completed
+    void IterTaskDone(TaskId task_id);
+
+    //! \brief Pops and returns a task that is ready for execution
+    //!
+    //! Throws flame::exceptions::none_available if the queue is empty
+    TaskId IterTaskPop();
+
 
 #ifdef TESTBUILD
     //! \brief Delete all tasks
@@ -93,6 +121,10 @@ class TaskManager {
 
     //! \brief Returns the number of tasks that has no dependents
     size_t get_num_leaves() { return leaves_.size(); }
+
+    TaskId get_id(std::string task_name) {
+      return GetId(task_name);
+    };
 #endif
 
   private:
@@ -104,16 +136,18 @@ class TaskManager {
     void operator=(const TaskManager&);
 
     //! \brief Returns true if given id is a valid task id
-    bool IsValidID(RunnableTask::id_type task_id);
+    bool IsValidID(TaskId task_id) const;
 
     //! \brief Returns the corresponding task id given a task name
-    RunnableTask::id_type GetId(std::string task_name);
+    TaskId GetId(std::string task_name) const;
 
 #ifdef DEBUG
     //! \brief Determines whether the proposed dependency will create a cycle
-    bool WillCauseCyclicDependency(RunnableTask::id_type task_id,
-                                   RunnableTask::id_type dependency_id);
+    bool WillCauseCyclicDependency(TaskId task_id, TaskId dependency_id);
 #endif
+
+    //! \brief Mutex used to control access to obj state
+    boost::mutex mutex_;
 
     //! \brief Vector of tasks objects. The vector index is used as the task id.
     boost::ptr_vector<Task> tasks_;
@@ -122,10 +156,10 @@ class TaskManager {
     TaskNameMap name_map_;
 
     //! \brief Set of tasks with no dependencies
-    std::set<RunnableTask::id_type> roots_; // nodes with no dependencies
+    std::set<TaskId> roots_; // nodes with no dependencies
 
     //! \brief Set of tasks with no dependents
-    std::set<RunnableTask::id_type> leaves_; // nodes with no dependents
+    std::set<TaskId> leaves_; // nodes with no dependents
 
     //! \brief Set of dependencies for each task
     //!
@@ -146,12 +180,13 @@ class TaskManager {
     std::vector<IdSet> pending_deps_;
 
     //! \brief tasks that are ready for execution
-    std::vector<RunnableTask::id_type> ready_tasks_;
+    IdVector ready_tasks_;
 
     //! \brief tasks that are not yet ready for execution
-    std::set<RunnableTask::id_type> pending_tasks_;
+    IdSet pending_tasks_;
 
-
+    //! \brief tasks that have been assigned but not completed
+    IdSet assigned_tasks_;
 };
 
 }}  // namespace flame::exe
