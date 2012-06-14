@@ -246,6 +246,14 @@ BOOST_AUTO_TEST_CASE(test_task_iteration) {
   BOOST_CHECK(!tm.IterTaskAvailable());
   BOOST_CHECK(tm.IterCompleted());
 
+  // reset for next iteration
+  tm.IterReset();
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK(tm.IterTaskAvailable());
+  BOOST_CHECK(!tm.IterCompleted());
+
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {
