@@ -140,6 +140,29 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   tm.Reset();
 }
 
+BOOST_AUTO_TEST_CASE(test_tm_finalisation) {
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+  tm.CreateTask("t1", "Circle", &func1);
+  tm.CreateTask("t2", "Circle", &func1);
+  tm.CreateTask("t3", "Circle", &func1);
+  tm.CreateTask("t4", "Circle", &func1);
+  tm.AddDependency("t3", "t1");
+  tm.AddDependency("t4", "t1");
+  tm.AddDependency("t4", "t2");
+  tm.AddDependency("t4", "t3");
+
+  // tm not yet finalised
+  BOOST_CHECK_THROW(tm.ResetIterationData(),
+                    flame::exceptions::logic_error);
+
+  // Once finalised, tasks and deps can no longer be added
+  tm.Finalise();
+  BOOST_CHECK_THROW(tm.CreateTask("t8", "Circle", &func1),
+                    flame::exceptions::logic_error);
+  BOOST_CHECK_THROW(tm.AddDependency("t3", "t2"),
+                    flame::exceptions::logic_error);
+}
+
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
   mgr.Reset();  // reset again so as not to affect next test suite

@@ -182,18 +182,17 @@ bool TaskManager::IsFinalised() {
 }
 
 void TaskManager::ResetIterationData() {
-  if (finalised_) {
+  if (!finalised_) {
     throw flame::exceptions::logic_error("Finalise() has not been called");
   }
 
-  // initialise data by copying exisiting dep data
   pending_deps_ = parents_; // create copy of dependency tree
-  ready_tasks_ = roots_; // tasks with no dependencies are ready to run
+  ready_tasks_ = IdVector(roots_.begin(), roots_.end()); // tasks with no deps
 
   // reset and initialise
   pending_tasks_.clear(); // empty existing data
   for (int i = 0; i < tasks_.size(); ++i)  {
-    it = pending_tasks_.insert(pending_tasks.end(), i);
+    pending_tasks_.insert(pending_tasks_.end(), i);
   }
 }
 
@@ -205,6 +204,7 @@ void TaskManager::Reset() {
   leaves_.clear();
   children_.clear();
   parents_.clear();
+  finalised_ = false;
 }
 #endif
 

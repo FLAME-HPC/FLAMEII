@@ -33,6 +33,7 @@ class TaskManager {
 
   public:
     typedef std::set<RunnableTask::id_type> IdSet;
+    typedef std::vector<RunnableTask::id_type> IdVector;
 
     //! \brief Returns instance of singleton object
     static TaskManager& GetInstance() {
