@@ -26,7 +26,6 @@ class Scheduler {
     typedef std::map<Task::TaskType, QueueId> RouteMap;
 
     Scheduler();
-    ~Scheduler();
 
     template <typename T>
     QueueId CreateQueue(size_t slots) {
@@ -48,8 +47,6 @@ class Scheduler {
     boost::condition_variable doneq_cond_;
     boost::ptr_vector<TaskQueue> queues_;
     RouteMap route_;
-
-
 
     std::vector<Task::id_type> doneq_;
 };

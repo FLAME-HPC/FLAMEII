@@ -20,8 +20,7 @@ class TaskQueue;
 class WorkerThread {
   public:
     explicit WorkerThread(TaskQueue* taskqueue_ptr);
-    ~WorkerThread();
-
+    void join();
     void Init();
     void ProcessQueue();
     void RunTask(Task::id_type task_id);

@@ -49,31 +49,25 @@ BOOST_AUTO_TEST_CASE(test_task_queue) {
   tm.CreateAgentTask("t2", "Circle", test_func);
   tm.CreateAgentTask("t3", "Circle", test_func);
   tm.CreateAgentTask("t4", "Circle", test_func);
-  //tm.AddDependency("t3", "t1");
-  //tm.AddDependency("t4", "t1");
-  //tm.AddDependency("t4", "t2");
-  //tm.AddDependency("t4", "t3");
-
-  /*
-  exe::Task::id_type t1 = tm.get_id("t1");  // test-only routine
-  exe::Task::id_type t2 = tm.get_id("t2");  // test-only routine
-  exe::Task::id_type t3 = tm.get_id("t3");  // test-only routine
-  exe::Task::id_type t4 = tm.get_id("t4");  // test-only routine
-  */
-
+  tm.AddDependency("t3", "t1");
+  tm.AddDependency("t4", "t1");
+  tm.AddDependency("t4", "t2");
+  tm.AddDependency("t4", "t3");
 
   exe::Scheduler s;
-  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(2);
+  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
   s.RunIteration();
-
-  tm.Reset();
+  s.RunIteration();
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager_exemod) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
   mgr.Reset();  // reset again so as not to affect next test suite
   BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)0);
+
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+  tm.Reset();
 }
 
 /*

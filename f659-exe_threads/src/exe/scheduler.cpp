@@ -20,10 +20,6 @@ Scheduler::Scheduler() {
   //ctor
 }
 
-Scheduler::~Scheduler() {
-  //dtor
-}
-
 void Scheduler::AssignType(QueueId qid, Task::TaskType type) {
   if (!IsValidQueueId(qid)) {
     throw flame::exceptions::invalid_argument("invalid queue id");
@@ -67,8 +63,9 @@ void Scheduler::RunIteration() {
       if (doneq_.empty()) {
         doneq_cond_.wait(lock);
       }
-      BOOST_FOREACH(Task::id_type task_id, doneq_) {
-        tm.IterTaskDone(task_id);
+      while (!doneq_.empty()) {
+        tm.IterTaskDone(doneq_.back());
+        doneq_.pop_back();
       }
     }
   }

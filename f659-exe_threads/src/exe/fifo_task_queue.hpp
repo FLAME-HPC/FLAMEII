@@ -27,11 +27,9 @@ class FIFOTaskQueue : public TaskQueue {
     Task::id_type GetNextTask();
 
     bool empty() const;
-    //Task::TaskType GetType() const;
 
   protected:
     size_t slots_;
-    //Task::TaskType type_;
     WorkerVector workers_;
 
   private:
