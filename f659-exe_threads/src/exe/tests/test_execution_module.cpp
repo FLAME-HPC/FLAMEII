@@ -13,13 +13,14 @@
 #include "mem/memory_manager.hpp"
 #include "../task_manager.hpp"
 #include "../task_interface.hpp"
-#include "../execution_thread.hpp"
+#include "../fifo_task_queue.hpp"
+#include "../scheduler.hpp"
 #include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
-namespace e = flame::exe;
-namespace m = flame::mem;
+namespace exe = flame::exe;
+namespace mem = flame::mem;
 
 
 FLAME_AGENT_FUNC(test_func) {
@@ -29,7 +30,55 @@ FLAME_AGENT_FUNC(test_func) {
   return 0;
 }
 
+BOOST_AUTO_TEST_CASE(initialise_memory_manager_exemod) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mgr.RegisterAgent("Circle");
+  mgr.RegisterAgentVar<int>("Circle", "x_int");
+  mgr.RegisterAgentVar<double>("Circle", "y_dbl");
+  mgr.RegisterAgentVar<double>("Circle", "z_dbl");
+  mgr.HintPopulationSize("Circle", (size_t)10);
+  BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)1);
+
+  mgr.GetVector<int>("Circle", "x_int")->push_back(1);
+  mgr.GetVector<double>("Circle", "y_dbl")->push_back(0.1);
+}
+
+BOOST_AUTO_TEST_CASE(test_task_queue) {
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+  tm.CreateAgentTask("t1", "Circle", test_func);
+  tm.CreateAgentTask("t2", "Circle", test_func);
+  tm.CreateAgentTask("t3", "Circle", test_func);
+  tm.CreateAgentTask("t4", "Circle", test_func);
+  //tm.AddDependency("t3", "t1");
+  //tm.AddDependency("t4", "t1");
+  //tm.AddDependency("t4", "t2");
+  //tm.AddDependency("t4", "t3");
+
+  /*
+  exe::Task::id_type t1 = tm.get_id("t1");  // test-only routine
+  exe::Task::id_type t2 = tm.get_id("t2");  // test-only routine
+  exe::Task::id_type t3 = tm.get_id("t3");  // test-only routine
+  exe::Task::id_type t4 = tm.get_id("t4");  // test-only routine
+  */
+
+
+  exe::Scheduler s;
+  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(2);
+  s.AssignType(q, exe::Task::AGENT_FUNCTION);
+  s.RunIteration();
+
+  tm.Reset();
+}
+
+BOOST_AUTO_TEST_CASE(reset_memory_manager_exemod) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mgr.Reset();  // reset again so as not to affect next test suite
+  BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)0);
+}
+
+/*
 BOOST_AUTO_TEST_CASE(runexe_setup) {
+
   m::MemoryManager& mm = m::MemoryManager::GetInstance();
   e::TaskManager& tm = e::TaskManager::GetInstance();
 
@@ -80,4 +129,5 @@ BOOST_AUTO_TEST_CASE(runexe_cleanup) {
   m::MemoryManager::GetInstance().Reset();
 }
 
+*/
 BOOST_AUTO_TEST_SUITE_END()

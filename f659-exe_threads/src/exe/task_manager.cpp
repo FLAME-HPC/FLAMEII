@@ -52,7 +52,7 @@ void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   if (finalised_) {
     throw flame::exceptions::logic_error("Finalise() called. No more updates");
   }
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   // Check for tasks with same name
   TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
@@ -61,6 +61,13 @@ void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   }
   // map task name to idx of new vector entry
   Task::id_type id = tasks_.size();  // use next index as id
+
+#ifdef DEBUG
+  if (Task::IsTermTask(id)) {
+    throw flame::exceptions::out_of_range("Too many tasks");
+  }
+#endif
+
   name_map_.insert(lb, TaskNameMap::value_type(task_name, id));
   task_ptr->set_task_id(id);
   tasks_.push_back(task_ptr);
@@ -114,7 +121,7 @@ void TaskManager::AddDependency(TaskManager::TaskId task_id,
     throw flame::exceptions::logic_error("Task cannot depend on itself");
   }
   check_not_finalised(finalised_);
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
 #ifdef DEBUG
   if (WillCauseCyclicDependency(task_id, dependency_id)) {
@@ -211,7 +218,7 @@ bool TaskManager::IsFinalised() const {
 
 void TaskManager::IterReset() {
   check_finalised(finalised_);
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   pending_deps_ = parents_; // create copy of dependency tree
   assigned_tasks_.clear();
@@ -219,7 +226,7 @@ void TaskManager::IterReset() {
 
   // reset and initialise
   pending_tasks_.clear(); // empty existing data
-  for (int i = 0; i < tasks_.size(); ++i)  {
+  for (size_t i = 0; i < tasks_.size(); ++i)  {
     if (roots_.find(i) == roots_.end()) {  // task not in ready queue
       pending_tasks_.insert(pending_tasks_.end(), i);
     }
@@ -256,7 +263,7 @@ size_t TaskManager::IterGetAssignedCount() const {
 
 TaskManager::TaskId TaskManager::IterTaskPop() {
   check_finalised(finalised_);
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   if (!IterTaskAvailable()) {
     throw flame::exceptions::none_available("No available tasks");
@@ -270,7 +277,7 @@ TaskManager::TaskId TaskManager::IterTaskPop() {
 
 void TaskManager::IterTaskDone(TaskManager::TaskId task_id) {
   check_finalised(finalised_);
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   IdSet::iterator it = assigned_tasks_.find(task_id);
   if (it == assigned_tasks_.end()) {
@@ -294,7 +301,7 @@ void TaskManager::IterTaskDone(TaskManager::TaskId task_id) {
 
 #ifdef TESTBUILD
 void TaskManager::Reset() {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   tasks_.clear();
   name_map_.clear();

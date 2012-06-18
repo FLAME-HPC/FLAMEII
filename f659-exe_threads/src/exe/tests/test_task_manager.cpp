@@ -255,6 +255,8 @@ BOOST_AUTO_TEST_CASE(test_task_iteration) {
   BOOST_CHECK(tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
 
+  // reset
+  tm.Reset();
 }
 
 BOOST_AUTO_TEST_CASE(reset_memory_manager) {

@@ -10,20 +10,30 @@
 #ifndef EXE__FIFO_TASK_QUEUE_HPP_
 #define EXE__FIFO_TASK_QUEUE_HPP_
 #include <queue>
+#include "worker_thread.hpp"
 #include "task_queue_interface.hpp"
 
 namespace flame { namespace exe {
 
-class FIFOTaskQueue
-{
+class FIFOTaskQueue : public TaskQueue {
   public:
-    FIFOTaskQueue(Task::TaskType task_type, size_t num_threads);
-    Task::TaskType GetType();
-    void PushTask(Task::id_type task_id);
+    typedef boost::ptr_vector<WorkerThread> WorkerVector;
+
+    FIFOTaskQueue(size_t slots);
+    ~FIFOTaskQueue();
+
+    void Enqueue(Task::id_type task_id);
+    void TaskDone(Task::id_type task_id);
+    Task::id_type GetNextTask();
+
+    bool empty() const;
+    //Task::TaskType GetType() const;
+
   protected:
-    size_t num_threads_;
-    Task::TaskType type_;
-    boost::mutex mutex_;
+    size_t slots_;
+    //Task::TaskType type_;
+    WorkerVector workers_;
+
   private:
     std::queue<Task::id_type> queue_;
 };

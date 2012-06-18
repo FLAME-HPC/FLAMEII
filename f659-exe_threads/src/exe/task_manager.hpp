@@ -31,7 +31,6 @@ typedef std::map<std::string, size_t> TaskNameMap;
 //! Apart from the GetTask methods, all others should be called during the
 //! initialisation stage before threads are spawned, or guarded by mutexes
 class TaskManager {
-  friend class TaskCoordinator;
 
   public:
     typedef Task::id_type TaskId;
@@ -148,8 +147,8 @@ class TaskManager {
     bool WillCauseCyclicDependency(TaskId task_id, TaskId dependency_id);
 #endif
 
-    //! \brief Mutex used to control access to obj state
-    boost::mutex mutex_;
+    //! \brief Mutex used to control access to task data
+    boost::mutex mutex_task_;
 
     //! \brief Vector of tasks objects. The vector index is used as the task id.
     boost::ptr_vector<Task> tasks_;
@@ -189,6 +188,7 @@ class TaskManager {
 
     //! \brief tasks that have been assigned but not completed
     IdSet assigned_tasks_;
+
 };
 
 }}  // namespace flame::exe

@@ -9,14 +9,28 @@
  */
 #ifndef EXE__WORKER_THREAD_HPP_
 #define EXE__WORKER_THREAD_HPP_
+#include "boost/thread.hpp"
+
+#include "task_interface.hpp"
 
 namespace flame { namespace exe {
 
+class TaskQueue;
+
 class WorkerThread {
   public:
-    WorkerThread();
-  protected:
+    explicit WorkerThread(TaskQueue* taskqueue_ptr);
+    ~WorkerThread();
+
+    void Init();
+    void ProcessQueue();
+    void RunTask(Task::id_type task_id);
+    void RegisterCompletedTask(Task::id_type task_id);
+
   private:
+    Task::id_type WaitForNextTask();
+    boost::thread thread_;
+    TaskQueue* tq_;
 };
 
 }}  // namespace flame::exe

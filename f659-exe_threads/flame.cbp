@@ -19,6 +19,7 @@
 				</Compiler>
 				<Linker>
 					<Add library="boost_unit_test_framework" />
+					<Add library="boost_thread-mt" />
 				</Linker>
 			</Target>
 			<Target title="Debug">
@@ -63,10 +64,10 @@
 		<Unit filename="src/compat/C/mem_api.cpp" />
 		<Unit filename="src/exe/agent_task.cpp" />
 		<Unit filename="src/exe/agent_task.hpp" />
-		<Unit filename="src/exe/execution_thread.cpp" />
-		<Unit filename="src/exe/execution_thread.hpp" />
 		<Unit filename="src/exe/fifo_task_queue.cpp" />
 		<Unit filename="src/exe/fifo_task_queue.hpp" />
+		<Unit filename="src/exe/scheduler.cpp" />
+		<Unit filename="src/exe/scheduler.hpp" />
 		<Unit filename="src/exe/task_interface.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />
 		<Unit filename="src/exe/task_manager.hpp" />

@@ -9,6 +9,7 @@
  */
 #ifndef EXE__RUNNABLE_TASK_HPP_
 #define EXE__RUNNABLE_TASK_HPP_
+#include <limits>
 #include "boost/function.hpp"
 #include "mem/memory_iterator.hpp"
 
@@ -28,8 +29,7 @@ class Task {
     };
 
     virtual ~Task() {}
-    virtual TaskFunction GetFunction() const = 0;
-
+    // virtual TaskFunction GetFunction() const = 0;
     virtual TaskType get_task_type() const = 0;
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
     virtual void AllowAccess(const std::string& var_name,
@@ -40,10 +40,20 @@ class Task {
     void set_task_id(id_type id) { task_id_ = id; }
     std::string get_task_name() { return task_name_; }
 
+    inline static bool IsTermTask(id_type task_id) {
+      return (task_id == GetTermTaskId());
+    }
+
+    inline static id_type GetTermTaskId() {
+      return std::numeric_limits<id_type>::max();
+    }
+
   protected:
     id_type task_id_;
     std::string task_name_;
 };
+
+
 
 }}  // namespace flame::exe
 #endif  // EXE__RUNNABLE_TASK_HPP_
