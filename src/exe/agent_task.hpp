@@ -1,27 +1,25 @@
 /*!
- * \file src/exe/task.cpp
+ * \file src/exe/agent_task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Task that runs agent functions
  */
-#ifndef EXE__TASK_HPP_
-#define EXE__TASK_HPP_
+#ifndef EXE__AGENT_TASK_HPP_
+#define EXE__AGENT_TASK_HPP_
 #include <string>
 #include <utility>
 #include <map>
 #include <set>
-#include "include/flame.h"
 #include "mem/memory_manager.hpp"
 #include "mem/memory_iterator.hpp"
-
-// TODO(lsc): Consider boost::function to replace AgentFuncPtr
+#include "task_interface.hpp"
 
 namespace flame { namespace exe {
 
-class Task {
+class AgentTask : public Task {
   friend class TaskManager;
 
   public:
@@ -34,19 +32,22 @@ class Task {
     //! Returns the name of the task
     std::string get_task_name() const;
 
-    //! Returns the function pointer associated with this task
-    AgentFuncPtr get_func_ptr() const;
+    //! Returns the the task type
+    TaskType get_task_type() const { return Task::AGENT_FUNCTION; }
+
+    //! Runs the task
+    void Run();
 
   protected:
     // Tasks should only be created via Task Manager
-    Task(std::string task_name, std::string agent_name, AgentFuncPtr func_ptr);
+    AgentTask(std::string task_name, std::string agent_name,
+              TaskFunction func_ptr);
 
   private:
-    std::string task_name_;  //! Name of task
     std::string agent_name_;  //! Name of associated agent
-    AgentFuncPtr func_ptr_;  //! Function pointer associated with task
+    TaskFunction func_;  //! Function associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
 };
 
 }}  // namespace flame::exe
-#endif  // EXE__TASK_HPP_
+#endif  // EXE__AGENT_TASK_HPP_

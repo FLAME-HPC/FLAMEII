@@ -20,5 +20,11 @@ class flame_exe_exception : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class none_available : public flame_exe_exception {
+  public:
+    explicit none_available(const std::string& msg)
+        : flame_exe_exception(msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__EXE_HPP_

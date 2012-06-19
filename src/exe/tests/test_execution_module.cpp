@@ -12,71 +12,147 @@
 #include "boost/test/unit_test.hpp"
 #include "mem/memory_manager.hpp"
 #include "../task_manager.hpp"
-#include "../execution_thread.hpp"
+#include "../task_interface.hpp"
+#include "../fifo_task_queue.hpp"
+#include "../scheduler.hpp"
 #include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
-namespace e = flame::exe;
-namespace m = flame::mem;
+namespace exe = flame::exe;
+namespace mem = flame::mem;
 
+const int AGENT_COUNT = 5000;
 
-FLAME_AGENT_FUNC(test_func) {
+FLAME_AGENT_FUNC(func_Y_10X) {
   int x = flame_mem_get_int("x_int");
-  double y = flame_mem_get_double("y_dbl");
-  flame_mem_set_double("z_dbl", (x*y));
+  flame_mem_set_double("y_dbl", (x * 10.0));
   return 0;
 }
 
-BOOST_AUTO_TEST_CASE(runexe_setup) {
-  m::MemoryManager& mm = m::MemoryManager::GetInstance();
-  e::TaskManager& tm = e::TaskManager::GetInstance();
-
-  // Register agent
-  mm.RegisterAgent("Circle");
-  mm.RegisterAgentVar<int>("Circle", "x_int");
-  mm.RegisterAgentVar<double>("Circle", "y_dbl");
-  mm.RegisterAgentVar<double>("Circle", "z_dbl");
-  mm.HintPopulationSize("Circle", 10);
-
-  // Populate data
-  std::vector<int>* x_ptr = mm.GetVector<int>("Circle", "x_int");
-  std::vector<double>* y_ptr = mm.GetVector<double>("Circle", "y_dbl");
-  std::vector<double>* z_ptr = mm.GetVector<double>("Circle", "z_dbl");
-  for (int i = 0; i < 10; ++i) {
-    x_ptr->push_back(i);
-    y_ptr->push_back(i * 2.0);
-    z_ptr->push_back(0.0);
-  }
-
-  // Register task
-  e::Task& t = tm.CreateTask("test", "Circle", test_func);
-  t.AllowAccess("x_int");
-  t.AllowAccess("y_dbl");
-  t.AllowAccess("z_dbl", true);  // writeable
+FLAME_AGENT_FUNC(func_Z_Xp1) {
+  int x = flame_mem_get_int("x_int");
+  flame_mem_set_double("z_dbl", (x + 1.0));
+  return 0;
 }
 
-BOOST_AUTO_TEST_CASE(runexe_run) {
-  flame::exe::ExecutionThread exe_thread;
-  exe_thread.Run("test");
-
-  e::TaskManager& tm = e::TaskManager::GetInstance();
-  e::Task& task = tm.GetTask("test");
-  m::MemoryIteratorPtr m_iter = task.GetMemoryIterator();
-  BOOST_CHECK_EQUAL(m_iter->get_size(), 10);
-
-  for (int i = 0; i < 10; ++i) {
-    BOOST_CHECK_EQUAL(m_iter->AtEnd(), false);
-    BOOST_CHECK_EQUAL(m_iter->Get<int>("x_int"), i);
-    BOOST_CHECK_EQUAL(m_iter->Get<double>("y_dbl"), i * 2.0);
-    BOOST_CHECK_EQUAL(m_iter->Get<double>("z_dbl"), i * i * 2.0);
-    m_iter->Step();
-  }
+FLAME_AGENT_FUNC(func_Y_XpY) {
+  int x = flame_mem_get_int("x_int");
+  double y = flame_mem_get_double("y_dbl");
+  flame_mem_set_double("y_dbl", (x + y));
+  return 0;
 }
 
-BOOST_AUTO_TEST_CASE(runexe_cleanup) {
-  e::TaskManager::GetInstance().Reset();
-  m::MemoryManager::GetInstance().Reset();
+
+FLAME_AGENT_FUNC(func_X_YpZ) {
+  double y = flame_mem_get_double("y_dbl");
+  double z = flame_mem_get_double("z_dbl");
+  flame_mem_set_int("x_int", static_cast<int>(y+z));
+  return 0;
+}
+
+BOOST_AUTO_TEST_CASE(initialise_memory_manager_exemod) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mgr.RegisterAgent("Circle");
+  mgr.RegisterAgentVar<int>("Circle", "x_int");
+  mgr.RegisterAgentVar<double>("Circle", "y_dbl");
+  mgr.RegisterAgentVar<double>("Circle", "z_dbl");
+  mgr.HintPopulationSize("Circle", (size_t)AGENT_COUNT);
+  BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)1);
+
+  std::vector<int> *x = mgr.GetVector<int>("Circle", "x_int");
+  std::vector<double> *y = mgr.GetVector<double>("Circle", "y_dbl");
+  std::vector<double> *z = mgr.GetVector<double>("Circle", "z_dbl");
+
+  for (int i = 0; i < AGENT_COUNT; ++i) {
+    x->push_back(i);
+    y->push_back(0.0);
+    z->push_back(0.0);
+  }
+
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
+  shadow->AllowAccess("x_int");
+  BOOST_CHECK_EQUAL(shadow->get_size(), AGENT_COUNT);
+}
+
+BOOST_AUTO_TEST_CASE(test_task_queue) {
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+  // t1 : y = x * 10
+  exe::Task &t1 = tm.CreateAgentTask("t1", "Circle", func_Y_10X);
+  t1.AllowAccess("x_int");
+  t1.AllowAccess("y_dbl", true);  // write access to y
+
+  // t2 : z = x + 1
+  exe::Task &t2 = tm.CreateAgentTask("t2", "Circle", func_Z_Xp1);
+  t2.AllowAccess("x_int");
+  t2.AllowAccess("z_dbl", true);  // write access to z
+
+  // t3 : y = y + x
+  exe::Task &t3 = tm.CreateAgentTask("t3", "Circle", func_Y_XpY);
+  t3.AllowAccess("x_int");
+  t3.AllowAccess("y_dbl", true);  // write access to y
+
+  // t4 : x = y + z
+  exe::Task &t4 = tm.CreateAgentTask("t4", "Circle", func_X_YpZ);
+  t4.AllowAccess("z_dbl");
+  t4.AllowAccess("y_dbl");
+  t4.AllowAccess("x_int", true);  // write access to x
+
+  // define task dependencies
+  tm.AddDependency("t3", "t1");
+  tm.AddDependency("t4", "t1");
+  tm.AddDependency("t4", "t2");
+  tm.AddDependency("t4", "t3");
+
+  exe::Scheduler s;
+  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
+  s.AssignType(q, exe::Task::AGENT_FUNCTION);
+  s.RunIteration();
+
+  // check content
+  // assuming the functions are run the the correct order, the results
+  // should be:
+  // x = 12i + 1
+  // y = 11i
+  // z = i + i
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
+  shadow->AllowAccess("x_int");
+  shadow->AllowAccess("y_dbl");
+  shadow->AllowAccess("z_dbl");
+  BOOST_CHECK_EQUAL(shadow->get_size(), AGENT_COUNT);
+  mem::MemoryIteratorPtr mptr = shadow->GetMemoryIterator();
+  BOOST_CHECK(!mptr->AtEnd());
+  for (int i = 0; i < AGENT_COUNT; i++) {
+    BOOST_CHECK_EQUAL(mptr->Get<int>("x_int"), 12*i + 1);
+    BOOST_CHECK_CLOSE(mptr->Get<double>("y_dbl"), 11*i, 0.00001);
+    BOOST_CHECK_CLOSE(mptr->Get<double>("z_dbl"), i+1, 0.00001);
+    mptr->Step();
+  }
+  BOOST_CHECK(mptr->AtEnd());
+
+  // run another iteration. Results should now be
+  // x = 144i + 13
+  // y = 132i + 11
+  // z = 12i + 2
+  s.RunIteration();
+  mptr->Rewind();
+  for (int i = 0; i < AGENT_COUNT; i++) {
+    BOOST_CHECK_EQUAL(mptr->Get<int>("x_int"), 144*i + 13);
+    BOOST_CHECK_CLOSE(mptr->Get<double>("y_dbl"), 132*i + 11, 0.00001);
+    BOOST_CHECK_CLOSE(mptr->Get<double>("z_dbl"), 12*i + 2, 0.00001);
+    mptr->Step();
+  }
+  BOOST_CHECK(mptr->AtEnd());
+}
+
+BOOST_AUTO_TEST_CASE(reset_memory_manager_exemod) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mgr.Reset();  // reset again so as not to affect next test suite
+  BOOST_CHECK_EQUAL(mgr.GetAgentCount(), (size_t)0);
+
+  exe::TaskManager& tm = exe::TaskManager::GetInstance();
+  tm.Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

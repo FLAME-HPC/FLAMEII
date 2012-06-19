@@ -11,6 +11,7 @@
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
 #include <typeinfo>
+#include "exceptions/all.hpp"
 
 namespace flame { namespace mem {
 
@@ -25,9 +26,9 @@ class VectorWrapperBase {
 
     virtual void* GetVectorPtr() = 0;
 
-    //! Returns a pointer to the first element in the internal
+    //! Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
-    virtual void* GetRawPtr() = 0;
+    virtual void* GetRawPtr(size_t offset = 0) = 0;
 
     //! Takes a raw pointer to the internal array element and
     //! returns a pointer to the next next element in the array
@@ -60,8 +61,15 @@ class VectorWrapper: public VectorWrapperBase {
       return &v_;
     }
 
-    void* GetRawPtr() {
-      return (v_.empty()) ? NULL : &(v_.front());
+    void* GetRawPtr(size_t offset) {
+      if (offset == 0) {
+        return (v_.empty()) ? NULL : &(v_.front());
+      } else {
+        if (offset >= v_.size()) {
+          throw flame::exceptions::invalid_argument("invalid offset");
+        }
+        return &v_[offset];
+      }
     }
 
     void* StepRawPtr(void* ptr) {

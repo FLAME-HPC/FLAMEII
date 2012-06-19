@@ -45,6 +45,10 @@ MemoryIteratorPtr AgentShadow::GetMemoryIterator() {
   return MemoryIteratorPtr(new MemoryIterator(this));
 }
 
+MemoryIteratorPtr AgentShadow::GetMemoryIterator(size_t offset, size_t count) {
+  return MemoryIteratorPtr(new MemoryIterator(this, offset, count));
+}
+
 size_t AgentShadow::get_size() const {
   return size_;
 }

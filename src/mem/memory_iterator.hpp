@@ -37,6 +37,12 @@ class MemoryIterator {
     //! Returns the population size
     size_t get_size() const;
 
+    //! Returns the iteration offset
+    size_t get_offset() const;
+
+    //! Returns the iteration count
+    size_t get_count() const;
+
     //! Returns the number of steps taken so far
     size_t get_position() const;
 
@@ -103,10 +109,13 @@ class MemoryIterator {
   protected:
     // Constructor limited to AgentShadow
     explicit MemoryIterator(AgentShadow* shadow);
+    MemoryIterator(AgentShadow* shadow, size_t offset, size_t count);
 
   private:
     size_t position_;  //! Current iterator position
     size_t size_;  //! Population size
+    size_t offset_;  //! Offset to start iterating from
+    size_t count_;  //! Number or elements to iterate through
     VoidPtrMap ptr_map_;  //! map of raw pointers of vars
     ConstVectorMap* vec_map_ptr_;  //! pointer to vec map
     WriteableSet* rw_set_ptr_;  //! Pointer to set of writeable vars

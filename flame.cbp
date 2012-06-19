@@ -16,9 +16,12 @@
 					<Add option="-g" />
 					<Add option="-DTESTBUILD" />
 					<Add option="-DDEBUG" />
+					<Add directory="/usr/include/libxml2" />
 				</Compiler>
 				<Linker>
 					<Add library="boost_unit_test_framework" />
+					<Add library="boost_thread-mt" />
+					<Add library="xml2" />
 				</Linker>
 			</Target>
 			<Target title="Debug">
@@ -61,18 +64,24 @@
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/compat/C/mem_api.cpp" />
-		<Unit filename="src/exe/execution_thread.cpp" />
-		<Unit filename="src/exe/execution_thread.hpp" />
-		<Unit filename="src/exe/task.cpp" />
-		<Unit filename="src/exe/task.hpp" />
+		<Unit filename="src/exe/agent_task.cpp" />
+		<Unit filename="src/exe/agent_task.hpp" />
+		<Unit filename="src/exe/fifo_task_queue.cpp" />
+		<Unit filename="src/exe/fifo_task_queue.hpp" />
+		<Unit filename="src/exe/scheduler.cpp" />
+		<Unit filename="src/exe/scheduler.hpp" />
+		<Unit filename="src/exe/task_interface.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />
 		<Unit filename="src/exe/task_manager.hpp" />
+		<Unit filename="src/exe/task_queue_interface.hpp" />
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/exe/tests/test_task_manager.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/exe/worker_thread.cpp" />
+		<Unit filename="src/exe/worker_thread.hpp" />
 		<Unit filename="src/mem/agent_memory.cpp" />
 		<Unit filename="src/mem/agent_memory.hpp" />
 		<Unit filename="src/mem/agent_shadow.cpp" />

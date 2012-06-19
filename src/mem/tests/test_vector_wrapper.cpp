@@ -45,6 +45,12 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   BOOST_CHECK_EQUAL(vd->size(), (size_t)3);
   BOOST_CHECK_EQUAL(pd->size(), (size_t)3);
 
+  // check GetRawPtr with different offsets
+  BOOST_CHECK_THROW(pi->GetRawPtr(100), flame::exceptions::invalid_argument);
+  BOOST_CHECK_EQUAL(1, *static_cast<int*>(pi->GetRawPtr()));
+  BOOST_CHECK_EQUAL(3, *static_cast<int*>(pi->GetRawPtr(2)));
+  BOOST_CHECK_EQUAL(2, *static_cast<int*>(pi->GetRawPtr(1)));
+
   // ---- iterate using raw pointers ---
 
   void* i = pi->GetRawPtr();

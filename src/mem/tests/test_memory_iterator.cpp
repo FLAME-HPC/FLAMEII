@@ -153,6 +153,54 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
     BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
     BOOST_CHECK_EQUAL(iptr->Step(), true);
   }
+
+  // Testing subset iteration
+  BOOST_CHECK_THROW(shadow->GetMemoryIterator(11, 1), e::invalid_argument);
+  BOOST_CHECK_THROW(shadow->GetMemoryIterator(1, 10), e::invalid_argument);
+  int j;
+
+  iptr = shadow->GetMemoryIterator(0, 10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  j = 0;
+  while (!iptr->AtEnd()) {
+    BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
+    iptr->Step();
+    j++;
+  }
+  BOOST_CHECK_EQUAL(j, 10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 10);
+
+  iptr = shadow->GetMemoryIterator(0, 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  j = 0;
+  while (!iptr->AtEnd()) {
+    BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
+    iptr->Step();
+    j++;
+  }
+  BOOST_CHECK_EQUAL(j, 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
+
+  iptr = shadow->GetMemoryIterator(2, 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  j = 2;
+  while (!iptr->AtEnd()) {
+    BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
+    iptr->Step();
+    j++;
+  }
+  BOOST_CHECK_EQUAL(j, 7);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
+
+  j = 2;
+  iptr->Rewind();
+  while (!iptr->AtEnd()) {
+    BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
+    iptr->Step();
+    j++;
+  }
+  BOOST_CHECK_EQUAL(j, 7);
+  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
 }
 
 BOOST_AUTO_TEST_CASE(memiter_reset_memory_manager) {
