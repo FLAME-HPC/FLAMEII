@@ -29,13 +29,12 @@ class Task {
     };
 
     virtual ~Task() {}
-    // virtual TaskFunction GetFunction() const = 0;
+    virtual void Run() = 0;
     virtual TaskType get_task_type() const = 0;
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
-    virtual void TaskDone() = 0;
-
+                             
     id_type get_task_id() const { return task_id_; }
     void set_task_id(id_type id) { task_id_ = id; }
     std::string get_task_name() { return task_name_; }

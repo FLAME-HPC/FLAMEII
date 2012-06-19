@@ -35,10 +35,8 @@ class AgentTask : public Task {
     //! Returns the the task type
     TaskType get_task_type() const { return Task::AGENT_FUNCTION; }
 
-    //! Returns the function object associated with this task
-    TaskFunction GetFunction() const;
-
-    void TaskDone() {}
+    //! Runs the task
+    void Run();
 
   protected:
     // Tasks should only be created via Task Manager
@@ -47,7 +45,7 @@ class AgentTask : public Task {
 
   private:
     std::string agent_name_;  //! Name of associated agent
-    TaskFunction func_ptr_;  //! Function pointer associated with task
+    TaskFunction func_;  //! Function associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
 };
 
