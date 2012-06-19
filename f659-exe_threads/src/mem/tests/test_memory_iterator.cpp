@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
 
   // Testing subset iteration
   BOOST_CHECK_THROW(shadow->GetMemoryIterator(11, 1), e::invalid_argument);
-  BOOST_CHECK_THROW(shadow->GetMemoryIterator(1,10), e::invalid_argument);
+  BOOST_CHECK_THROW(shadow->GetMemoryIterator(1, 10), e::invalid_argument);
   int j;
 
   iptr = shadow->GetMemoryIterator(0, 10);
