@@ -34,8 +34,8 @@ FIFOTaskQueue::~FIFOTaskQueue() {
   for (size_t i = 0; i < slots_; ++i) {
     Enqueue(Task::GetTermTaskId());
   }
-  BOOST_FOREACH(WorkerThread &t, workers_) {
-    t.join();  // block till thread actually ends
+  BOOST_FOREACH(WorkerThread &thread, workers_) {
+    thread.join();  // block till thread actually ends
   }
 }
 

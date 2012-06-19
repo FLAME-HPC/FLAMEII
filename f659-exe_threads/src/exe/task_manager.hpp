@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "boost/thread/mutex.hpp"
@@ -31,7 +32,6 @@ typedef std::map<std::string, size_t> TaskNameMap;
 //! Apart from the GetTask methods, all others should be called during the
 //! initialisation stage before threads are spawned, or guarded by mutexes
 class TaskManager {
-
   public:
     typedef Task::id_type TaskId;
     typedef std::set<TaskId> IdSet;
@@ -157,10 +157,10 @@ class TaskManager {
     TaskNameMap name_map_;
 
     //! \brief Set of tasks with no dependencies
-    std::set<TaskId> roots_; // nodes with no dependencies
+    std::set<TaskId> roots_;  // nodes with no dependencies
 
     //! \brief Set of tasks with no dependents
-    std::set<TaskId> leaves_; // nodes with no dependents
+    std::set<TaskId> leaves_;  // nodes with no dependents
 
     //! \brief Set of dependencies for each task
     //!
@@ -171,7 +171,7 @@ class TaskManager {
     //! \brief Set of dependents for each task
     //!
     //! Adjacency list representing the directed acyclic dependency graph
-    std::vector<IdSet> children_; // set of dependents for each node
+    std::vector<IdSet> children_;  // set of dependents for each node
 
     //! \brief Flag indicating whether Finalise() has been called
     bool finalised_;
@@ -188,7 +188,6 @@ class TaskManager {
 
     //! \brief tasks that have been assigned but not completed
     IdSet assigned_tasks_;
-
 };
 
 }}  // namespace flame::exe

@@ -7,6 +7,10 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+// Note: for some versions of Boost, valgrind --leak-check=full may claim
+// than "8 bytes in block" still reachable. This is not so and is safe to
+// ignore.
+// See: http://stackoverflow.com/questions/6321602/boost-thread-leakage-c
 #include <stdexcept>
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/condition_variable.hpp"
@@ -16,9 +20,6 @@
 #include "scheduler.hpp"
 
 namespace flame { namespace exe {
-Scheduler::Scheduler() {
-  //ctor
-}
 
 void Scheduler::AssignType(QueueId qid, Task::TaskType type) {
   if (!IsValidQueueId(qid)) {
@@ -41,7 +42,7 @@ bool Scheduler::IsValidQueueId(QueueId id) {
 void Scheduler::TaskDoneCallback(Task::id_type task_id) {
   boost::unique_lock<boost::mutex> lock(doneq_mutex_);
   doneq_.push_back(task_id);
-  doneq_cond_.notify_all();
+  doneq_cond_.notify_one();
 }
 
 void Scheduler::RunIteration() {
@@ -67,7 +68,7 @@ void Scheduler::RunIteration() {
         tm.IterTaskDone(doneq_.back());
         doneq_.pop_back();
       }
-    }
+    }  // lock freed on exiting block scope
   }
 
   tm.IterReset();  // prepare for next iteration
@@ -76,9 +77,13 @@ void Scheduler::RunIteration() {
 void Scheduler::EnqueueTask(Task::id_type task_id) {
   TaskManager &tm = TaskManager::GetInstance();
   Task& task = tm.GetTask(task_id);
-  QueueId qid = route_.at(task.get_task_type());  // identify queue
-  queues_.at(qid).Enqueue(task.get_task_id());
-}
 
+  try {
+    QueueId qid = route_.at(task.get_task_type());  // identify queue
+    queues_.at(qid).Enqueue(task.get_task_id());
+  } catch(const std::out_of_range& E) {
+    throw flame::exceptions::invalid_type("unassigned task type");
+  }
+}
 
 }}  // namespace flame::exe

@@ -30,7 +30,7 @@ void WorkerThread::ProcessQueue() {
 #endif
   Task::id_type task_id = tq_->GetNextTask();  // calls wait() if queue empty
 
-  while(!Task::IsTermTask(task_id)) {
+  while (!Task::IsTermTask(task_id)) {
     RunTask(task_id);
     tq_->TaskDone(task_id);  // register completed task
     task_id = tq_->GetNextTask();  // calls wait() if queue empty

@@ -28,8 +28,7 @@ class VectorWrapperBase {
 
     //! Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
-    virtual void* GetRawPtr(size_t offset=0) = 0;
-
+    virtual void* GetRawPtr(size_t offset = 0) = 0;
 
     //! Takes a raw pointer to the internal array element and
     //! returns a pointer to the next next element in the array

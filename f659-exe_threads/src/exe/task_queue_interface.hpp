@@ -21,13 +21,24 @@ class TaskQueue {
   friend class WorkerThread;
   public:
     virtual ~TaskQueue() {}
+
+    //! Adds a task to the queue
     virtual void Enqueue(Task::id_type task_id) = 0;
+
+    //! Indicates that a task has been completed
     virtual void TaskDone(Task::id_type task_id) = 0;
+
+    //! Waits for and returns the next available task
     virtual Task::id_type GetNextTask() = 0;
+
+    //! Returns true if the queue is empty
     virtual bool empty() const = 0;
+
+    //! Sets the callback function to be called when a task is completed
     void SetCallback(TaskQueueCallback func) {
       callback_ = func;
     }
+
   protected:
     boost::mutex mutex_;
     boost::condition_variable ready_;

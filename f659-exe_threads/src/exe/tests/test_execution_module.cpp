@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_SUITE(ExeModule)
 namespace exe = flame::exe;
 namespace mem = flame::mem;
 
-const int AGENT_COUNT = 10000;
+const int AGENT_COUNT = 5000;
 
 FLAME_AGENT_FUNC(func_Y_10X) {
   int x = flame_mem_get_int("x_int");
@@ -47,7 +47,7 @@ FLAME_AGENT_FUNC(func_Y_XpY) {
 FLAME_AGENT_FUNC(func_X_YpZ) {
   double y = flame_mem_get_double("y_dbl");
   double z = flame_mem_get_double("z_dbl");
-  flame_mem_set_int("x_int", (int)(y+z));
+  flame_mem_set_int("x_int", static_cast<int>(y+z));
   return 0;
 }
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager_exemod) {
   std::vector<double> *y = mgr.GetVector<double>("Circle", "y_dbl");
   std::vector<double> *z = mgr.GetVector<double>("Circle", "z_dbl");
 
-  for(int i = 0; i < AGENT_COUNT; ++i) {
+  for (int i = 0; i < AGENT_COUNT; ++i) {
     x->push_back(i);
     y->push_back(0.0);
     z->push_back(0.0);
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_task_queue) {
   // t3 : y = y + x
   exe::Task &t3 = tm.CreateAgentTask("t3", "Circle", func_Y_XpY);
   t3.AllowAccess("x_int");
-  t3.AllowAccess("y_dbl", true); // write access to y
+  t3.AllowAccess("y_dbl", true);  // write access to y
 
   // t4 : x = y + z
   exe::Task &t4 = tm.CreateAgentTask("t4", "Circle", func_X_YpZ);

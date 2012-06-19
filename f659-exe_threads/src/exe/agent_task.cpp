@@ -44,7 +44,7 @@ void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
 void AgentTask::Run() {
   mem::MemoryIteratorPtr m_ptr = GetMemoryIterator();
   m_ptr->Rewind();
-  while(!m_ptr->AtEnd()) {  // run function for each agent
+  while (!m_ptr->AtEnd()) {  // run function for each agent
     func_(static_cast<void*>(m_ptr.get()));
     // TODO(lsc): check rc == 0 to handle agent death
     m_ptr->Step();

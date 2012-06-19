@@ -29,7 +29,6 @@ static inline void check_finalised(bool finalised) {
   }
 }
 
-
 namespace flame { namespace exe {
 
 Task& TaskManager::CreateAgentTask(std::string task_name,
@@ -39,7 +38,7 @@ Task& TaskManager::CreateAgentTask(std::string task_name,
 
   try {  // register new task with manager
     RegisterTask(task_name, task_ptr);
-  } catch (const flame::exceptions::logic_error& E) {
+  } catch(const flame::exceptions::logic_error& E) {
     delete task_ptr;  // free memory if registration failed.
     throw E;  // rethrow exception
   }
@@ -113,7 +112,6 @@ void TaskManager::AddDependency(std::string task_name,
 
 void TaskManager::AddDependency(TaskManager::TaskId task_id,
                                 TaskManager::TaskId dependency_id) {
-
   if (!IsValidID(task_id) || !IsValidID(dependency_id)) {
     throw flame::exceptions::invalid_argument("Invalid id");
   }
@@ -145,7 +143,7 @@ TaskManager::IdSet& TaskManager::GetDependencies(TaskManager::TaskId id) {
   try {
     return parents_.at(id);
   }
-  catch (const std::out_of_range& E) {
+  catch(const std::out_of_range& E) {
     throw flame::exceptions::invalid_argument("Invalid id");
   }
 }
@@ -188,7 +186,7 @@ TaskManager::IdSet& TaskManager::GetDependents(TaskManager::TaskId id) {
   try {
     return children_.at(id);
   }
-  catch (const std::out_of_range& E) {
+  catch(const std::out_of_range& E) {
     throw flame::exceptions::invalid_argument("Invalid id");
   }
 }
@@ -220,18 +218,17 @@ void TaskManager::IterReset() {
   check_finalised(finalised_);
   boost::lock_guard<boost::mutex> lock(mutex_task_);
 
-  pending_deps_ = parents_; // create copy of dependency tree
+  pending_deps_ = parents_;  // create copy of dependency tree
   assigned_tasks_.clear();
-  ready_tasks_ = IdVector(roots_.begin(), roots_.end()); // tasks with no deps
+  ready_tasks_ = IdVector(roots_.begin(), roots_.end());  // tasks with no deps
 
   // reset and initialise
-  pending_tasks_.clear(); // empty existing data
+  pending_tasks_.clear();  // empty existing data
   for (size_t i = 0; i < tasks_.size(); ++i)  {
     if (roots_.find(i) == roots_.end()) {  // task not in ready queue
       pending_tasks_.insert(pending_tasks_.end(), i);
     }
   }
-
 }
 
 bool TaskManager::IterTaskAvailable() const {
@@ -282,14 +279,13 @@ void TaskManager::IterTaskDone(TaskManager::TaskId task_id) {
   IdSet::iterator it = assigned_tasks_.find(task_id);
   if (it == assigned_tasks_.end()) {
     throw flame::exceptions::invalid_argument("invalid task id");
-  }
-  else {
+  } else {
     assigned_tasks_.erase(it);
   }
 
-  IdSet& dependents = children_.at(task_id); // tasks that depend on task_id
+  IdSet& dependents = children_.at(task_id);  // tasks that depend on task_id
   for (it = dependents.begin(); it != dependents.end(); ++it) {
-    IdSet& d = pending_deps_.at(*it); // get pending deps for each dependency
+    IdSet& d = pending_deps_.at(*it);  // get pending deps for each dependency
     d.erase(task_id);  // this dependency is now fulfilled
     if (d.empty()) {  // all dependencies met?
       ready_tasks_.push_back(*it);  // new task ready for execution
