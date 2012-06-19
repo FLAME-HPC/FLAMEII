@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief C API for FLAME2 User API
  */
-#ifndef INCLUDE__FLAME_H_
-#define INCLUDE__FLAME_H_
+#ifndef HEADERS_INCLUDE_FLAME_H_
+#define HEADERS_INCLUDE_FLAME_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,4 +37,4 @@ void flame_mem_set_int_actual_(void* FLAME_AGENT_FUNC_ARG,
 #ifdef __cplusplus
 }
 #endif
-#endif  /* INCLUDE__FLAME_H_ */
+#endif  // HEADERS_INCLUDE_FLAME_H_

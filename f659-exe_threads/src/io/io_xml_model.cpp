@@ -40,14 +40,6 @@ std::string getElementValue(xmlNode * node) {
     return s;
 }
 
-void cleanUpXMLParser(xmlDoc *doc) {
-    /* Free the document */
-    xmlFreeDoc(doc);
-    /* Free the global variables that may
-     * have been allocated by the parser. */
-    xmlCleanupParser();
-}
-
 int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Used for return codes */
     int rc;
@@ -87,20 +79,19 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
         std::fprintf(stderr,
             "Error: Model file does not have root called 'xmodel': %s\n",
                 file_name.c_str());
-        cleanUpXMLParser(doc);
+        xmlFreeDoc(doc);
         return 3;
     }
 
     /* Catch error if version is not 2 */
-    const char* version_ptr = reinterpret_cast<const char*>(
-            xmlGetProp(root_element, (const xmlChar*)"version"));
-    std::string version = version_ptr;
-    delete version_ptr;
+    xmlChar * version_ptr = xmlGetProp(root_element, (const xmlChar*)"version");
+    std::string version = reinterpret_cast<const char*>(version_ptr);
+    xmlFree(version_ptr);
     if (version != "2") {
         std::fprintf(stderr,
                 "Error: Model file is not 'xmodel' version 2: %s\n",
                 file_name.c_str());
-        cleanUpXMLParser(doc);
+        xmlFreeDoc(doc);
         return 4;
     }
 
@@ -122,43 +113,38 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
             } else if (name == "models") {
                 rc = readIncludedModels(cur_node, directory, model);
                 if (rc != 0) {
-                    cleanUpXMLParser(doc);
+                    xmlFreeDoc(doc);
                     return rc;
                 }
             } else if (name == "environment") {
                 rc = readEnvironment(cur_node, model);
                 if (rc != 0) {
-                    cleanUpXMLParser(doc);
+                    xmlFreeDoc(doc);
                     return rc;
                 }
             } else if (name == "agents") {
                 rc = readAgents(cur_node, model);
                 if (rc != 0) {
-                    cleanUpXMLParser(doc);
+                    xmlFreeDoc(doc);
                     return rc;
                 }
             } else if (name == "messages") {
                 rc = readMessages(cur_node, model);
                 if (rc != 0) {
-                    cleanUpXMLParser(doc);
+                    xmlFreeDoc(doc);
                     return rc;
                 }
             } else {
                 rc = readUnknownElement(cur_node);
                 if (rc != 0) {
-                    cleanUpXMLParser(doc);
+                    xmlFreeDoc(doc);
                     return rc;
                 }
             }
         }
     }
 
-    /*
-     *Free the global variables that may
-     *have been allocated by the parser.
-     */
-     cleanUpXMLParser(doc);
-
+    xmlFreeDoc(doc);
     return 0;
 }
 

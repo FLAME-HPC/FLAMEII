@@ -21,23 +21,30 @@ namespace flame { namespace io { namespace xml {
 
 class IOXMLPop {
   public:
-    IOXMLPop() {}
-    int readXMLPop(std::string file_name, model::XModel * model);
-              // flame::mem::MemoryManager * memoryManager);
-    int writeXMLPop(std::string file_name, int iterationNo,
-            model::XModel * model);
-              // flame::mem::MemoryManager * memoryManager);
+    IOXMLPop();
+    int readXMLPop(std::string file_name,
+                    model::XModel * model,
+                    flame::mem::MemoryManager * memoryManager);
+    int writeXMLPop(std::string file_name,
+                    int iterationNo,
+                    model::XModel * model,
+                    flame::mem::MemoryManager * memoryManager);
     int createDataSchema(std::string const& file,
-            flame::model::XModel * model);
+                    flame::model::XModel * model);
     int validateData(std::string const& data_file,
-            std::string const& schema_file);
+                    std::string const& schema_file);
+    bool xmlPopPathIsSet();
+    std::string xmlPopPath();
+    void setXmlPopPath(std::string path);
 
   private:
     int processNode(xmlTextReaderPtr reader,
-            model::XModel * model,
-            // flame::mem::MemoryManager * memoryManager,
-            std::vector<std::string> * tags,
-            model::XMachine ** agent);
+                model::XModel * model,
+                flame::mem::MemoryManager * memoryManager,
+                std::vector<std::string> * tags,
+                model::XMachine ** agent);
+    std::string xml_pop_path;
+    bool xml_pop_path_is_set;
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_POP_HPP_

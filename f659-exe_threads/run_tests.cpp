@@ -10,3 +10,17 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Flame Test Suite
 #include <boost/test/unit_test.hpp>
+#include <libxml/parser.h>
+
+struct TestConfig {
+    TestConfig() {
+        /* global setup */
+    }
+    ~TestConfig() {
+        /* global teardown */
+        printf("Clean up xmllib\n");
+        xmlCleanupParser();
+    }
+};
+
+BOOST_GLOBAL_FIXTURE(TestConfig)

@@ -16,10 +16,12 @@
 					<Add option="-g" />
 					<Add option="-DTESTBUILD" />
 					<Add option="-DDEBUG" />
+					<Add directory="/usr/include/libxml2" />
 				</Compiler>
 				<Linker>
 					<Add library="boost_unit_test_framework" />
 					<Add library="boost_thread-mt" />
+					<Add library="xml2" />
 				</Linker>
 			</Target>
 			<Target title="Debug">

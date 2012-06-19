@@ -9,6 +9,7 @@
  */
 #ifndef EXCEPTIONS__MEM_HPP_
 #define EXCEPTIONS__MEM_HPP_
+#include <string>
 #include "base.hpp"
 
 namespace flame { namespace exceptions {

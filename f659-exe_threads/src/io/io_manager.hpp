@@ -11,6 +11,8 @@
 #define IO__IO_MANAGER_HPP_
 #include <string>
 #include <vector>
+#include "./io_xml_model.hpp"
+#include "./io_xml_pop.hpp"
 #include "../model/model_manager.hpp"
 
 namespace flame { namespace io {
@@ -20,8 +22,17 @@ class IOManager {
     enum FileType { xml = 0 };
     IOManager() {}
     int loadModel(std::string const& file, flame::model::XModel * model);
+    int readPop(std::string file_name,
+            model::XModel * model,
+            FileType fileType);
+    int writePop(std::string file_name,
+            int iterationNo,
+            model::XModel * model,
+            FileType fileType);
 
   private:
+    xml::IOXMLModel ioxmlmodel;
+    xml::IOXMLPop   ioxmlpop;
 };
 }}  // namespace flame::io
 #endif  // IO__IO_MANAGER_HPP_
