@@ -37,20 +37,113 @@ IOXMLPop::IOXMLPop() {
     xml_pop_path_is_set = false;
 }
 
+
+int writeXMLAgent(model::XMachine * agent, flame::mem::MemoryManager * memoryManager,
+        xmlTextWriterPtr writer) {
+    int rc;
+    size_t jj, kk;
+    /* List of memory vector readers populated for each agent */
+    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
+    /* The number of agents per agent type */
+    size_t noAgents;
+
+    /* For each memory variable */
+    for (jj = 0;
+        jj < agent->getVariables()->size(); jj++) {
+        /* Assign to local xvariable variable */
+        model::XVariable * var = agent->getVariables()->at(jj);
+
+        /* Set up vector readers for each memory variable
+         * dependent on variable data type and add to a
+         * list ready to be used to write each agents
+         * memory out in one go.
+         */
+        if (var->getType() == "int") {
+            /* Create vector reader.. */
+            intVecPtr roi =
+                    memoryManager->GetVector<int>(
+                            agent->getName(), var->getName());
+            /* ..and add to list of vectors. */
+            varVectors.push_back(roi);
+            /* Check array length */
+            if (jj == 0) noAgents = roi->size();
+            else if (roi->size() != noAgents) {
+fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
+                    var->getName().c_str());
+                return 3;
+            }
+        }
+        if (var->getType() == "double") {
+            /* Create vector reader.. */
+            doubleVecPtr rod =
+                    memoryManager->GetVector<double>(
+                            agent->getName(), var->getName());
+            /* ..and add to list of vectors. */
+            varVectors.push_back(rod);
+            /* Check array length */
+            if (jj == 0) noAgents = rod->size();
+            else if (rod->size() != noAgents) {
+fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
+                    var->getName().c_str());
+                return 3;
+            }
+        }
+    }
+
+    /* For each agent in the simulation */
+    for (kk = 0; kk < noAgents; kk++) {
+        /* Open root tag */
+        rc = writeXMLTag(writer, "xagent");
+        if (rc != 0) return rc;
+
+        /* Write agent name */
+        rc = writeXMLTag(writer, "name", agent->getName());
+        if (rc != 0) return rc;
+
+        /* For each memory variable */
+        for (jj = 0;
+            jj < agent->getVariables()->size(); jj++) {
+            /* Assign to local xvariable variable */
+            model::XVariable * var = agent->getVariables()->at(jj);
+
+            /* Write variable value dependent on the variable
+             * type by accessing the associated vector reader
+             * from the list of vector readers and taking the
+             * nth element corresponding with the nth agent.
+             */
+            if (var->getType() == "int") {
+                rc = writeXMLTag(writer, var->getName(),
+                        *(boost::get<intVecPtr>(
+                        varVectors.at(jj))->begin()+kk));
+                if (rc != 0) return rc;
+            }
+            if (var->getType() == "double") {
+                rc = writeXMLTag(writer, var->getName(),
+                    *(boost::get<doubleVecPtr>(
+                    varVectors.at(jj))->begin()+kk) );
+                if (rc != 0) return rc;
+            }
+        }
+
+        /* Close the element named xagent. */
+        writeXMLTag(writer);
+    }
+
+    /* Clear the memory vector reader list for the next agent type */
+    varVectors.clear();
+
+    return 0;
+}
+
 int IOXMLPop::writeXMLPop(std::string file_name,
-        int iterationNo,
-        model::XModel * model,
+        int iterationNo, model::XModel * model,
         flame::mem::MemoryManager * memoryManager) {
     /* Return code */
-    int rc;
+    int rc = 0;
     /* The xml text writer */
     xmlTextWriterPtr writer;
     /* Loop variables */
-    size_t ii, jj, kk;
-    /* The number of agents per agent type */
-    size_t noAgents;
-    /* List of memory vector readers populated for each agent */
-    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
+    size_t ii;
 
     printf("Writing file: %s\n", file_name.c_str());
 
@@ -73,107 +166,23 @@ int IOXMLPop::writeXMLPop(std::string file_name,
 
     /* For each agent type in the model */
     for (ii = 0; ii < model->getAgents()->size(); ii++) {
-        /* Assign to local agent variable */
-        model::XMachine * agent = model->getAgents()->at(ii);
-        /* For each memory variable */
-        for (jj = 0;
-            jj < agent->getVariables()->size(); jj++) {
-            /* Assign to local xvariable variable */
-            model::XVariable * var = agent->getVariables()->at(jj);
-
-            /* Set up vector readers for each memory variable
-             * dependent on variable data type and add to a
-             * list ready to be used to write each agents
-             * memory out in one go.
-             */
-            if (var->getType() == "int") {
-                /* Create vector reader.. */
-                intVecPtr roi =
-                        memoryManager->GetVector<int>(
-                                agent->getName(), var->getName());
-                /* ..and add to list of vectors. */
-                varVectors.push_back(roi);
-                /* Check array length */
-                if (jj == 0) noAgents = roi->size();
-                else if (roi->size() != noAgents) {
-    fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
-                        var->getName().c_str());
-                    return 3;
-                }
-            }
-            if (var->getType() == "double") {
-                /* Create vector reader.. */
-                doubleVecPtr rod =
-                        memoryManager->GetVector<double>(
-                                agent->getName(), var->getName());
-                /* ..and add to list of vectors. */
-                varVectors.push_back(rod);
-                /* Check array length */
-                if (jj == 0) noAgents = rod->size();
-                else if (rod->size() != noAgents) {
-    fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
-                        var->getName().c_str());
-                    return 3;
-                }
-            }
-        }
-
-        /* For each agent in the simulation */
-        for (kk = 0; kk < noAgents; kk++) {
-            /* Open root tag */
-            rc = writeXMLTag(writer, "xagent");
-            if (rc != 0) return rc;
-
-            /* Write agent name */
-            rc = writeXMLTag(writer, "name", agent->getName());
-            if (rc != 0) return rc;
-
-            /* For each memory variable */
-            for (jj = 0;
-                jj < agent->getVariables()->size(); jj++) {
-                /* Assign to local xvariable variable */
-                model::XVariable * var = agent->getVariables()->at(jj);
-
-                /* Write variable value dependent on the variable
-                 * type by accessing the associated vector reader
-                 * from the list of vector readers and taking the
-                 * nth element corresponding with the nth agent.
-                 */
-                if (var->getType() == "int") {
-                    rc = writeXMLTag(writer, var->getName(),
-                            *(boost::get<intVecPtr>(
-                            varVectors.at(jj))->begin()+kk));
-                    if (rc != 0) return rc;
-                }
-                if (var->getType() == "double") {
-                    rc = writeXMLTag(writer, var->getName(),
-                        *(boost::get<doubleVecPtr>(
-                        varVectors.at(jj))->begin()+kk) );
-                    if (rc != 0) return rc;
-                }
-            }
-
-            /* Close the element named xagent. */
-            writeXMLTag(writer);
-        }
-        /* Clear the memory vector reader list for the next agent type */
-        varVectors.clear();
+        rc = writeXMLAgent(model->getAgents()->at(ii), memoryManager, writer);
+        if (rc != 0) return rc;
     }
 
     /* End xml file, automatically ends states tag */
     rc = endXMLDoc(writer);
-    if (rc != 0) return rc;
 
     /* Free the xml writer */
     xmlFreeTextWriter(writer);
 
-    return 0;
+    return rc;
 }
 
 int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
         flame::mem::MemoryManager * memoryManager) {
     xmlTextReaderPtr reader;
-    int ret, rc;
+    int ret, rc = 0;
     /* Using vector instead of stack as need to access earlier tags */
     std::vector<std::string> tags;
     /* Pointer to current agent type, 0 if invalid */
@@ -182,37 +191,30 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
     /* Open file to read */
     reader = xmlReaderForFile(file_name.c_str(), NULL, 0);
     /* Check if file opened successfully */
-    if (reader != NULL) {
-        /* Read the first node */
-        ret = xmlTextReaderRead(reader);
-        /* Continue reading nodes until end */
-        while (ret == 1) {
-            /* Process node */
-            rc = processNode(reader, model, memoryManager,
-                    &tags, &agent);
-            /* If error clean up and return */
-            if (rc != 0) {
-                xmlFreeTextReader(reader);
-                return rc;
-            }
-            /* Read next node */
-            ret = xmlTextReaderRead(reader);
-        }
-        /* Clean up */
-        xmlFreeTextReader(reader);
-        /* If error reading node return */
-        if (ret != 0) {
-            fprintf(stderr, "Error: Failed to parse: '%s'\n",
-                file_name.c_str());
-            return 2;
-        }
-    } else {
-        /* If file not opened successfully */
+    if (reader == NULL) {
         fprintf(stderr, "Error: Unable to open: '%s'\n", file_name.c_str());
         return 1;
     }
 
-
+    /* Read the first node */
+    ret = xmlTextReaderRead(reader);
+    /* Continue reading nodes until end */
+    while (ret == 1 && rc == 0) {
+        /* Process node */
+        rc = processNode(reader, model, memoryManager, &tags, &agent);
+        /* Read next node */
+        ret = xmlTextReaderRead(reader);
+    }
+    /* Clean up */
+    xmlFreeTextReader(reader);
+    /* If return code error */
+    if(rc != 0) return rc;
+    /* If error reading node return */
+    if (ret != 0) {
+        fprintf(stderr, "Error: Failed to parse: '%s'\n",
+            file_name.c_str());
+        return 2;
+    }
 
     /* Return successfully */
     return 0;
@@ -556,11 +558,116 @@ int IOXMLPop::validateData(std::string const& data_file,
     return rc;
 }
 
-int IOXMLPop::processNode(xmlTextReaderPtr reader,
-        model::XModel * model,
-        flame::mem::MemoryManager * memoryManager,
-        std::vector<std::string> * tags,
+int processStartNode(std::vector<std::string> * tags, std::string name) {
+    /* If correct tag at correct depth */
+    if ((tags->size() == 0 && name == "states") ||
+        (tags->size() == 1 && name == "itno") ||
+        (tags->size() == 1 && name == "environment") ||
+        (tags->size() == 1 && name == "xagent") ||
+        tags->size() == 2) {
+        tags->push_back(name);
+    } else {
+        fprintf(stderr, "Error: Unknown tag: '%s'\n",
+                name.c_str());
+        return 3;
+    }
+    return 0;
+}
+
+int processTextNode(std::vector<std::string> * tags, xmlTextReaderPtr reader,
+        model::XMachine ** agent, model::XModel * model,
+        flame::mem::MemoryManager * memoryManager) {
+    if (tags->size() == 3 && tags->at(1) == "xagent") {
+        /* Read value */
+        std::string value =
+            reinterpret_cast<const char*>
+                (xmlTextReaderConstValue(reader));
+        /* If tag is the agent name */
+        if (tags->back() == "name") {
+            /* Check if agent is part of this model */
+            (*agent) = model->getAgent(value);
+            /* If agent name is unknown */
+            if (!(*agent)) {
+        fprintf(stderr, "Error: Agent type is not recognised: '%s'\n",
+                    value.c_str());
+                return 4;
+            }
+        } else {
+            /* Check if agent exists */
+            if (agent) {
+                model::XVariable * var =
+                    (*agent)->getVariable(tags->back());
+                /* Check if variable is part of the agent */
+                if (var) {
+                    /* Check variable type for casting */
+                    if (var->getType() == "int") {
+                        int intValue;
+                        try {
+                            intValue = boost::lexical_cast<int>(value);
+                        } catch(const boost::bad_lexical_cast&) {
+                            std::fprintf(stderr,
+            "Error: int variable is not an integer: '%s' in '%s'\n",
+                                value.c_str(),
+                                tags->back().c_str());
+                            return 6;
+                        }
+                        /* Add value to memory manager */
+                        std::vector<int>* vec =
+                            memoryManager->GetVector<int>(
+                                (*agent)->getName(), tags->back());
+                        vec->push_back(intValue);
+                    } else if (var->getType() == "double") {
+                        double doubleValue;
+                        try {
+                            doubleValue =
+                                    boost::lexical_cast<double>(value);
+                        } catch(const boost::bad_lexical_cast&) {
+                            std::fprintf(stderr,
+            "Error: double variable is not a double: '%s' in '%s'\n",
+                                value.c_str(),
+                                tags->back().c_str());
+                            return 6;
+                        }
+                        /* Add value to memory manager */
+                        std::vector<double>* vec =
+                            memoryManager->
+                                GetVector<double>(
+                                    (*agent)->getName(), tags->back());
+                        vec->push_back(doubleValue);
+                    }
+                } else {
+    fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
+                    tags->back().c_str());
+                    return 5;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+int processEndNode(std::vector<std::string> * tags, std::string name,
         model::XMachine ** agent) {
+    /* Check end tag closes opened tag */
+    if (tags->back() == name) {
+        /* If end of agent then reset agent pointer */
+        if (name == "xagent") (*agent) = 0;
+        tags->pop_back();
+    } else {
+        /* This error is handled by the xml library and
+         * should never be reached */
+fprintf(stderr, "Error: Tag is not closed properly: '%s' with '%s'\n",
+                name.c_str(),
+                tags->back().c_str());
+        return 9;
+    }
+    return 0;
+}
+
+int IOXMLPop::processNode(xmlTextReaderPtr reader, model::XModel * model,
+        flame::mem::MemoryManager * memoryManager,
+        std::vector<std::string> * tags, model::XMachine ** agent) {
+    int rc = 0;
     /* Node name */
     const xmlChar *xmlname;
     /* Node name as strings */
@@ -568,9 +675,7 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
 
     /* Read node name */
     xmlname = xmlTextReaderConstName(reader);
-    if (xmlname == NULL)
-    xmlname = BAD_CAST "--";
-
+    if (xmlname == NULL) xmlname = BAD_CAST "--";
     /* Convert xmlChar to string */
     name = reinterpret_cast<const char*>(xmlname);
 
@@ -583,103 +688,16 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader,
     /* Handle node */
     switch (xmlTextReaderNodeType(reader)) {
         case 1: /* Start element */
-            /* If correct tag at correct depth */
-            if ((tags->size() == 0 && name == "states") ||
-                (tags->size() == 1 && name == "itno") ||
-                (tags->size() == 1 && name == "environment") ||
-                (tags->size() == 1 && name == "xagent") ||
-                tags->size() == 2) {
-                tags->push_back(name);
-            } else {
-                fprintf(stderr, "Error: Unknown tag: '%s'\n",
-                        name.c_str());
-                return 3;
-            }
+            rc = processStartNode(tags, name);
             break;
         case 3: /* Text */
-            if (tags->size() == 3 && tags->at(1) == "xagent") {
-                /* Read value */
-                std::string value =
-                    reinterpret_cast<const char*>
-                        (xmlTextReaderConstValue(reader));
-                /* If tag is the agent name */
-                if (tags->back() == "name") {
-                    /* Check if agent is part of this model */
-                    (*agent) = model->getAgent(value);
-                    /* If agent name is unknown */
-                    if (!(*agent)) {
-                fprintf(stderr, "Error: Agent type is not recognised: '%s'\n",
-                            value.c_str());
-                        return 4;
-                    }
-                } else {
-                    /* Check if agent exists */
-                    if ((*agent)) {
-                        model::XVariable * var =
-                            (*agent)->getVariable(tags->back());
-                        /* Check if variable is part of the agent */
-                        if (var) {
-                            /* Check variable type for casting */
-                            if (var->getType() == "int") {
-                                int intValue;
-                                try {
-                                    intValue = boost::lexical_cast<int>(value);
-                                } catch(const boost::bad_lexical_cast&) {
-                                    std::fprintf(stderr,
-                    "Error: int variable is not an integer: '%s' in '%s'\n",
-                                        value.c_str(),
-                                        tags->back().c_str());
-                                    return 6;
-                                }
-                                /* Add value to memory manager */
-                                std::vector<int>* vec =
-                                    memoryManager->GetVector<int>(
-                                        (*agent)->getName(), tags->back());
-                                vec->push_back(intValue);
-                            } else if (var->getType() == "double") {
-                                double doubleValue;
-                                try {
-                                    doubleValue =
-                                            boost::lexical_cast<double>(value);
-                                } catch(const boost::bad_lexical_cast&) {
-                                    std::fprintf(stderr,
-                    "Error: double variable is not a double: '%s' in '%s'\n",
-                                        value.c_str(),
-                                        tags->back().c_str());
-                                    return 6;
-                                }
-                                /* Add value to memory manager */
-                                std::vector<double>* vec =
-                                    memoryManager->
-                                        GetVector<double>(
-                                            (*agent)->getName(), tags->back());
-                                vec->push_back(doubleValue);
-                            }
-                        } else {
-            fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
-                            tags->back().c_str());
-                            return 5;
-                        }
-                    }
-                }
-            }
+            rc = processTextNode(tags, reader, agent, model, memoryManager);
             break;
         case 15: /* End element */
-            /* Check end tag closes opened tag */
-            if (tags->back() == name) {
-                /* If end of agent then reset agent pointer */
-                if (name == "xagent") *agent = 0;
-                tags->pop_back();
-            } else {
-                /* This error is handled by the xml library and
-                 * should never be reached */
-        fprintf(stderr, "Error: Tag is not closed properly: '%s' with '%s'\n",
-                        name.c_str(),
-                        tags->back().c_str());
-                return 9;
-            }
+            rc = processEndNode(tags, name, agent);
             break;
     }
+    if(rc != 0) return rc;
 
     return 0;
 }
