@@ -38,6 +38,11 @@ int validateAgentConditionOrFilter(XCondition * xcondition, XMachine * agent,
 int validateSort(XIOput * xioput, XMessage * xmessage);
 int validateMessage(XMessage * xmessage, XModel * model);
 bool name_is_allowed(std::string name);
+int validateFunctionFiles(std::vector<std::string> names);
+int validateDataTypes(std::vector<XADT*> adts, XModel * model);
+int validateTimeUnits(std::vector<XTimeUnit*> timeUnits, XModel * model);
+int validateAgents(std::vector<XMachine*> agents, XModel * model);
+int validateMessages(std::vector<XMessage*> messages, XModel * model);
 
 /*!
  * \brief Validate the model
@@ -48,26 +53,13 @@ bool name_is_allowed(std::string name);
  * Detailed description.
  */
 int XModel::validate() {
-    int rc, errors = 0;
-    unsigned int ii;
+    int rc;
+    int errors = 0;
 
     /* Validate function files */
-    for (ii = 0; ii < functionFiles_.size(); ii++) {
-        rc = validateFunctionFile(functionFiles_.at(ii));
-        errors += rc;
-    }
-
+    errors += validateFunctionFiles(functionFiles_);
     /* Validate data types */
-    for (ii = 0; ii < adts_.size(); ii++) {
-        rc = validateADT(adts_.at(ii), this);
-        if (rc != 0) {
-            std::fprintf(stderr,
-                "       from data type: '%s'.\n",
-                adts_.at(ii)->getName().c_str());
-            errors += rc;
-        }
-    }
-
+    errors += validateDataTypes(adts_, this);
     /* Validate model constants */
     rc = validateVariables(&constants_, this, false);
     if (rc != 0) {
@@ -75,39 +67,12 @@ int XModel::validate() {
             "       from environment constants.\n");
         errors += rc;
     }
-
     /* Validate time units */
-    for (ii = 0; ii < timeUnits_.size(); ii++) {
-        rc = validateTimeunits(timeUnits_.at(ii), this);
-        if (rc != 0) {
-            std::fprintf(stderr,
-                "       from time unit: '%s'.\n",
-                timeUnits_.at(ii)->getName().c_str());
-            errors += rc;
-        }
-    }
-
+    errors += validateTimeUnits(timeUnits_, this);
     /* Validate agents */
-    for (ii = 0; ii < agents_.size(); ii++) {
-        rc = validateAgent(agents_.at(ii), this);
-        if (rc != 0) {
-            std::fprintf(stderr,
-                "       from agent: '%s'.\n",
-                agents_.at(ii)->getName().c_str());
-            errors += rc;
-        }
-    }
-
+    errors += validateAgents(agents_, this);
     /* Validate messages */
-    for (ii = 0; ii < messages_.size(); ii++) {
-        rc = validateMessage(messages_.at(ii), this);
-        if (rc != 0) {
-            std::fprintf(stderr,
-                "       from message: '%s'.\n",
-                messages_.at(ii)->getName().c_str());
-            errors += rc;
-        }
-    }
+    errors += validateMessages(messages_, this);
 
     /* If errors print out information */
     if (errors > 0) {
@@ -117,6 +82,79 @@ int XModel::validate() {
     }
 
     /* Return number of errors */
+    return errors;
+}
+
+int validateFunctionFiles(std::vector<std::string> names) {
+    int errors = 0;
+    unsigned int ii;
+    for (ii = 0; ii < names.size(); ii++) {
+        errors += validateFunctionFile(names.at(ii));
+    }
+    return errors;
+}
+
+int validateDataTypes(std::vector<XADT*> adts, XModel * model) {
+    int errors = 0;
+    unsigned int ii;
+    int rc;
+    for (ii = 0; ii < adts.size(); ii++) {
+        rc = validateADT(adts.at(ii), model);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from data type: '%s'.\n",
+                adts.at(ii)->getName().c_str());
+            errors += rc;
+        }
+    }
+    return errors;
+}
+
+int validateTimeUnits(std::vector<XTimeUnit*> timeUnits, XModel * model) {
+    int errors = 0;
+    unsigned int ii;
+    int rc;
+    for (ii = 0; ii < timeUnits.size(); ii++) {
+        rc = validateTimeunits(timeUnits.at(ii), model);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from time unit: '%s'.\n",
+                timeUnits.at(ii)->getName().c_str());
+            errors += rc;
+        }
+    }
+    return errors;
+}
+
+int validateAgents(std::vector<XMachine*> agents, XModel * model) {
+    int errors = 0;
+    unsigned int ii;
+    int rc;
+    for (ii = 0; ii < agents.size(); ii++) {
+        rc = validateAgent(agents.at(ii), model);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from agent: '%s'.\n",
+                agents.at(ii)->getName().c_str());
+            errors += rc;
+        }
+    }
+    return errors;
+}
+
+int validateMessages(std::vector<XMessage*> messages, XModel * model) {
+    int errors = 0;
+    unsigned int ii;
+    int rc;
+    for (ii = 0; ii < messages.size(); ii++) {
+        rc = validateMessage(messages.at(ii), model);
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from message: '%s'.\n",
+                messages.at(ii)->getName().c_str());
+            errors += rc;
+        }
+    }
     return errors;
 }
 

@@ -24,7 +24,12 @@ class XCondition {
     ~XCondition();
     void print();
     int processSymbols();
+    int processSymbolsTime();
+    int processSymbolsValues();
+    int processSymbolsConditions();
     int validate(XMachine * agent, XMessage * message, XModel * model);
+    int validateTime(XMachine * agent, XModel * model);
+    int validateValues(XMachine * agent, XMessage * xmessage);
 
   // private:
     bool isNot;

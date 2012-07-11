@@ -38,44 +38,39 @@ int XModel::clear() {
     allowedDataTypes_.clear();
     setup();
     /* Delete environment variables */
-    XVariable * var;
     while (!constants_.empty()) {
-        var = constants_.back();
-        delete var;
+        delete constants_.back();
         constants_.pop_back();
     }
     /* Clear adts vector */
-    XADT * xadt;
     while (!adts_.empty()) {
-        xadt = adts_.back();
-        delete xadt;
+        delete adts_.back();
         adts_.pop_back();
     }
     /* Clear time units vector */
-    XTimeUnit * xtimeunit;
     while (!timeUnits_.empty()) {
-        xtimeunit = timeUnits_.back();
-        delete xtimeunit;
+        delete timeUnits_.back();
         timeUnits_.pop_back();
     }
     /* Clear agents vector */
-    XMachine * xm;
     while (!agents_.empty()) {
-        xm = agents_.back();
-        delete xm;
+        delete agents_.back();
         agents_.pop_back();
     }
     /* Clear messages vector */
-    XMessage * xmessage;
     while (!messages_.empty()) {
-        xmessage = messages_.back();
-        delete xmessage;
+        delete messages_.back();
         messages_.pop_back();
     }
 
     return 0;
 }
 
+/*!
+ * \brief Print a model to stdout
+ *
+ * Print a whole model out to standard out.
+ */
 void XModel::print() {
     std::fprintf(stdout, "Model Name: %s\n", name_.c_str());
     unsigned int ii;

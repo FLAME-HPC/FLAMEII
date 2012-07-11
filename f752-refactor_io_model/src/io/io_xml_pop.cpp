@@ -241,7 +241,7 @@ void IOXMLPop::setXmlPopPath(std::string path) {
 int IOXMLPop::createDataSchema(std::string const& file,
         flame::model::XModel * model) {
     /* Return code */
-    int rc;
+    int rc = 0;
     std::vector<model::XMachine*>::iterator agent;
     std::vector<model::XVariable*>::iterator variable;
     /* The xml text writer */
@@ -260,37 +260,18 @@ int IOXMLPop::createDataSchema(std::string const& file,
 
     /* Open root tag */
     rc = writeXMLTag(writer, "xs:schema");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "xmlns:xs",
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "xmlns:xs",
             "http://www.w3.org/2001/XMLSchema");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "elementFormDefault", "qualified");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:annotation");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:documentation", "Auto-generated data schema");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "elementFormDefault", "qualified");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Auto-generated data schema");
     /* Close the element named xs:annotation. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Define agent name type */
-
-    rc = writeXMLTag(writer, "xs:simpleType");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "agentType");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:restriction");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "base", "xs:string");
-    if (rc != 0) return rc;
+    if (rc == 0) rc = writeXMLTag(writer, "xs:simpleType");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "agentType");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:restriction");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "base", "xs:string");
 
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end();
@@ -306,18 +287,13 @@ int IOXMLPop::createDataSchema(std::string const& file,
     }
 
     /* Close the element named xs:restriction. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:simpleType. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Define agent variables */
-    rc = writeXMLTag(writer, "xs:group");
-    if (rc != 0) return rc;
-    rc = writeXMLTagAttribute(writer, "name", "agent_vars");
-    if (rc != 0) return rc;
-    rc = writeXMLTag(writer, "xs:choice");
-    if (rc != 0) return rc;
+    if (rc == 0) rc = writeXMLTag(writer, "xs:group");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "agent_vars");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:choice");
 
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end();
@@ -334,9 +310,9 @@ int IOXMLPop::createDataSchema(std::string const& file,
     }
 
     /* Close the element named xs:choice. */
-    writeXMLTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:group. */
-    writeXMLTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer);
 
     for (agent = model->getAgents()->begin();
                 agent != model->getAgents()->end();
@@ -374,125 +350,62 @@ int IOXMLPop::createDataSchema(std::string const& file,
     }
 
     /* Define agents */
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "xagent");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:annotation");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:documentation", "Agent data");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "xagent");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Agent data");
     /* Close the element named xs:annotation. */
-    writeXMLTag(writer);
-
-    rc = writeXMLTag(writer, "xs:complexType");
-        if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:sequence");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "name");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "type", "agentType");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "name");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "type", "agentType");
     /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
-    rc = writeXMLTag(writer, "xs:group");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "ref", "agent_vars");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer, "xs:group");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "ref", "agent_vars");
     /* Close the element named xs:group. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:sequence. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:complexType. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* XML Tag structure */
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "states");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:complexType");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:sequence");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "name", "itno");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "type", "xs:nonNegativeInteger");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:annotation");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTag(writer, "xs:documentation", "Iteration number");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "states");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "itno");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "type", "xs:nonNegativeInteger");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Iteration number");
     /* Close the element named xs:annotation. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
-    rc = writeXMLTag(writer, "xs:element");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "ref", "xagent");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "minOccurs", "0");
-    if (rc != 0) return rc;
-
-    rc = writeXMLTagAttribute(writer, "maxOccurs", "unbounded");
-    if (rc != 0) return rc;
-
+    if (rc == 0) rc = writeXMLTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "ref", "xagent");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "minOccurs", "0");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "maxOccurs", "unbounded");
     /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:sequence. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:complexType. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* Close the element named xs:element. */
-    writeXMLTag(writer);
-
+    if (rc == 0) rc = writeXMLTag(writer);
     /* End xml file, automatically ends schema tag */
-    rc = endXMLDoc(writer);
-    if (rc != 0) return rc;
+    if (rc == 0) rc = endXMLDoc(writer);
 
     /* Free the xml writer */
     xmlFreeTextWriter(writer);
 
-    return 0;
+    return rc;
 }
 
 int openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
