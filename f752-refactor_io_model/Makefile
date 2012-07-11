@@ -91,6 +91,11 @@ CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
 	$(CPPLINT) $(SOURCES) $(HEADERS)
 
+CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
+cccc:
+	cccc $(SOURCES) $(HEADERS) --outdir=cccc; \
+	$(CCCCSUMMARY) cccc
+
 # dsymutil - only relevent on Mac OS X
 memtest: all
 	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
