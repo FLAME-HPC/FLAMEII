@@ -21,35 +21,39 @@ namespace model = flame::model;
 
 namespace flame { namespace io { namespace xml {
 
-int writeXMLTag(xmlTextWriterPtr writer);
-int writeXMLTag(xmlTextWriterPtr writer, std::string name);
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value);
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value);
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value);
-int writeXMLTagAttribute(xmlTextWriterPtr writer,
-        std::string name, std::string value);
-int endXMLDoc(xmlTextWriterPtr writer);
-
-typedef std::vector<int>* intVecPtr;
-typedef std::vector<double>* doubleVecPtr;
-
 IOXMLPop::IOXMLPop() {
     xml_pop_path_is_set = false;
 }
 
+template <class T>
+int IOXMLPop::setupVectorReader(model::XMachine * agent,
+        model::XVariable * var,
+        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
+        size_t jj) {
+    /* Create vector reader.. */
+    std::vector<T> * ro = memoryManager->GetVector<T>(
+                    agent->getName(), var->getName());
+    /* ..and add to list of vectors. */
+    varVectors->push_back(ro);
+    /* Check array length */
+    if (jj == 0) *noAgents = ro->size();
+    else if (ro->size() != *noAgents) {
+fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
+            var->getName().c_str());
+        return 3;
+    }
 
-int writeXMLAgent(model::XMachine * agent, flame::mem::MemoryManager * memoryManager,
-        xmlTextWriterPtr writer) {
-    int rc;
-    size_t jj, kk;
-    /* List of memory vector readers populated for each agent */
-    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
-    /* The number of agents per agent type */
-    size_t noAgents;
+    return 0;
+}
+
+int IOXMLPop::setupVectorReaders(model::XMachine * agent,
+        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors) {
+    size_t jj;
 
     /* For each memory variable */
-    for (jj = 0;
-        jj < agent->getVariables()->size(); jj++) {
+    for (jj = 0; jj < agent->getVariables()->size(); jj++) {
         /* Assign to local xvariable variable */
         model::XVariable * var = agent->getVariables()->at(jj);
 
@@ -58,37 +62,64 @@ int writeXMLAgent(model::XMachine * agent, flame::mem::MemoryManager * memoryMan
          * list ready to be used to write each agents
          * memory out in one go.
          */
+        if (var->getType() == "int")
+            setupVectorReader<int>(
+                    agent, var, memoryManager, noAgents, varVectors, jj);
+        if (var->getType() == "double")
+            setupVectorReader<double>(
+                    agent, var, memoryManager, noAgents, varVectors, jj);
+    }
+
+    return 0;
+}
+
+int IOXMLPop::writeXMLAgentVariables(model::XMachine * agent,
+        xmlTextWriterPtr writer,
+        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
+        size_t kk) {
+    size_t jj;
+    int rc;
+
+    /* For each memory variable */
+    for (jj = 0;
+        jj < agent->getVariables()->size(); jj++) {
+        /* Assign to local xvariable variable */
+        model::XVariable * var = agent->getVariables()->at(jj);
+
+        /* Write variable value dependent on the variable
+         * type by accessing the associated vector reader
+         * from the list of vector readers and taking the
+         * nth element corresponding with the nth agent.
+         */
         if (var->getType() == "int") {
-            /* Create vector reader.. */
-            intVecPtr roi =
-                    memoryManager->GetVector<int>(
-                            agent->getName(), var->getName());
-            /* ..and add to list of vectors. */
-            varVectors.push_back(roi);
-            /* Check array length */
-            if (jj == 0) noAgents = roi->size();
-            else if (roi->size() != noAgents) {
-fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
-                    var->getName().c_str());
-                return 3;
-            }
+            rc = writeXMLTag(writer, var->getName(),
+                    *(boost::get<intVecPtr>(
+                    varVectors->at(jj))->begin()+kk));
+            if (rc != 0) return rc;
         }
         if (var->getType() == "double") {
-            /* Create vector reader.. */
-            doubleVecPtr rod =
-                    memoryManager->GetVector<double>(
-                            agent->getName(), var->getName());
-            /* ..and add to list of vectors. */
-            varVectors.push_back(rod);
-            /* Check array length */
-            if (jj == 0) noAgents = rod->size();
-            else if (rod->size() != noAgents) {
-fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
-                    var->getName().c_str());
-                return 3;
-            }
+            rc = writeXMLTag(writer, var->getName(),
+                *(boost::get<doubleVecPtr>(
+                varVectors->at(jj))->begin()+kk) );
+            if (rc != 0) return rc;
         }
     }
+
+    return 0;
+}
+
+int IOXMLPop::writeXMLAgent(model::XMachine * agent,
+        flame::mem::MemoryManager * memoryManager, xmlTextWriterPtr writer) {
+    int rc;
+    size_t kk;
+    /* List of memory vector readers populated for each agent */
+    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
+    /* The number of agents per agent type */
+    size_t noAgents;
+
+    /* Setup vector readers for agent memory variables */
+    rc = setupVectorReaders(agent, memoryManager, &noAgents, &varVectors);
+    if (rc != 0) return rc;
 
     /* For each agent in the simulation */
     for (kk = 0; kk < noAgents; kk++) {
@@ -100,33 +131,12 @@ fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
         rc = writeXMLTag(writer, "name", agent->getName());
         if (rc != 0) return rc;
 
-        /* For each memory variable */
-        for (jj = 0;
-            jj < agent->getVariables()->size(); jj++) {
-            /* Assign to local xvariable variable */
-            model::XVariable * var = agent->getVariables()->at(jj);
-
-            /* Write variable value dependent on the variable
-             * type by accessing the associated vector reader
-             * from the list of vector readers and taking the
-             * nth element corresponding with the nth agent.
-             */
-            if (var->getType() == "int") {
-                rc = writeXMLTag(writer, var->getName(),
-                        *(boost::get<intVecPtr>(
-                        varVectors.at(jj))->begin()+kk));
-                if (rc != 0) return rc;
-            }
-            if (var->getType() == "double") {
-                rc = writeXMLTag(writer, var->getName(),
-                    *(boost::get<doubleVecPtr>(
-                    varVectors.at(jj))->begin()+kk) );
-                if (rc != 0) return rc;
-            }
-        }
+        /* Write agent variables */
+        rc = writeXMLAgentVariables(agent, writer, &varVectors, kk);
+        if (rc != 0) return rc;
 
         /* Close the element named xagent. */
-        writeXMLTag(writer);
+        writeXMLEndTag(writer);
     }
 
     /* Clear the memory vector reader list for the next agent type */
@@ -208,7 +218,7 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
     /* Clean up */
     xmlFreeTextReader(reader);
     /* If return code error */
-    if(rc != 0) return rc;
+    if (rc != 0) return rc;
     /* If error reading node return */
     if (ret != 0) {
         fprintf(stderr, "Error: Failed to parse: '%s'\n",
@@ -238,6 +248,172 @@ void IOXMLPop::setXmlPopPath(std::string path) {
     xml_pop_path_is_set = true;
 }
 
+int IOXMLPop::createDataSchemaHead(xmlTextWriterPtr writer) {
+    int rc = 0;
+    /* Open root tag */
+    rc = writeXMLTag(writer, "xs:schema");
+    if (rc == 0) rc = writeXMLTagAttribute(writer, "xmlns:xs",
+            "http://www.w3.org/2001/XMLSchema");
+    if (rc == 0) rc = writeXMLTagAttribute(writer,
+            "elementFormDefault", "qualified");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation",
+            "Auto-generated data schema");
+    /* Close the element named xs:annotation. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaAgentNameType(xmlTextWriterPtr writer,
+        flame::model::XModel * model) {
+    int rc = 0;
+    std::vector<model::XMachine*>::iterator agent;
+    /* Define agent name type */
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:simpleType",
+            "name", "agentType");
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:restriction",
+            "base", "xs:string");
+
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end();
+            agent++) {
+        if (rc == 0) rc = writeXMLTag(writer, "xs:enumeration");
+        if (rc == 0) rc = writeXMLTagAttribute(writer, "value",
+                (*agent)->getName());
+        /* Close the element named xs:enumeration. */
+        if (rc == 0) rc = writeXMLEndTag(writer);
+    }
+
+    /* Close the element named xs:restriction. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    /* Close the element named xs:simpleType. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
+        flame::model::XModel * model) {
+    int rc = 0;
+    std::vector<model::XMachine*>::iterator agent;
+    /* Define agent variables */
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:group",
+            "name", "agent_vars");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:choice");
+
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end();
+            agent++) {
+        rc = writeXMLTag(writer, "xs:group");
+        if (rc != 0) return rc;
+        std::string ref = "agent_";
+        ref.append((*agent)->getName());
+        ref.append("_vars");
+        rc = writeXMLTagAttribute(writer, "ref", ref);
+        if (rc != 0) return rc;
+        /* Close the element named xs:group. */
+        writeXMLEndTag(writer);
+    }
+
+    /* Close the element named xs:choice. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    /* Close the element named xs:group. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
+        std::vector<model::XVariable*>::iterator variable) {
+    int rc;
+    std::string type;
+    rc = writeXMLTagAndAttribute(writer, "xs:element", "name",
+            (*variable)->getName());
+    if (rc != 0) return rc;
+    if ((*variable)->getType() == "int") type = "xs:integer";
+    else if ((*variable)->getType() == "double") type = "xs:double";
+    else
+        type = "xs:string";
+    rc = writeXMLTagAttribute(writer, "type", type);
+    if (rc != 0) return rc;
+    /* Close the element named xs:element. */
+    rc = writeXMLEndTag(writer);
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaAgentVars(xmlTextWriterPtr writer,
+        flame::model::XModel * model) {
+    int rc = 0;
+    std::vector<model::XMachine*>::iterator agent;
+    std::vector<model::XVariable*>::iterator variable;
+    /* For each agent type */
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end(); agent++) {
+        std::string name = "agent_";
+        name.append((*agent)->getName());
+        name.append("_vars");
+        /* Create a group element for the agent type */
+        rc = writeXMLTagAndAttribute(writer, "xs:group", "name", name);
+        if (rc != 0) return rc;
+        rc = writeXMLTag(writer, "xs:sequence");
+        if (rc != 0) return rc;
+        for (variable = (*agent)->getVariables()->begin();
+                variable != (*agent)->getVariables()->end(); variable++) {
+            rc = createDataSchemaAgentVar(writer, variable);
+            if (rc != 0) return rc;
+        }
+        /* Close the element named xs:sequence. */
+        writeXMLEndTag(writer);
+        /* Close the element named xs:group. */
+        writeXMLEndTag(writer);
+    }
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaDefineAgents(xmlTextWriterPtr writer) {
+    int rc = 0;
+    /* Define agents */
+    rc = writeXMLTagAndAttribute(writer, "xs:element", "name", "xagent");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Agent data");
+    /* Close the element named xs:annotation. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer,
+            "xs:element", "name", "name", "type", "agentType");
+    /* Close the element named xs:element. */
+    if (rc == 0) rc = writeXMLEndTag(writer);
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:group",
+            "ref", "agent_vars");
+    /* Close the element named xs:group, xs:sequence,
+     * xs:complexType, xs:element */
+    if (rc == 0) rc = writeXMLEndTag(writer, 4);
+    return rc;
+}
+
+int IOXMLPop::createDataSchemaDefineTags(xmlTextWriterPtr writer) {
+    int rc = 0;
+    /* XML Tag structure */
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:element",
+            "name", "states");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer, "xs:element",
+            "name", "itno", "type", "xs:nonNegativeInteger");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
+    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation",
+            "Iteration number");
+    /* Close the element named xs:annotation, xs:element */
+    if (rc == 0) rc = writeXMLEndTag(writer, 2);
+    if (rc == 0) rc = writeXMLTagAndAttribute(writer,
+            "xs:element", "ref", "xagent", "minOccurs", "0",
+            "maxOccurs", "unbounded");
+    /* Close the element named xs:element, xs:sequence,
+     * xs:complexType, xs:element */
+    if (rc == 0) rc = writeXMLEndTag(writer, 4);
+    return rc;
+}
+
 int IOXMLPop::createDataSchema(std::string const& file,
         flame::model::XModel * model) {
     /* Return code */
@@ -257,148 +433,12 @@ int IOXMLPop::createDataSchema(std::string const& file,
     }
     /* Write tags on new lines */
     xmlTextWriterSetIndent(writer, 1);
-
-    /* Open root tag */
-    rc = writeXMLTag(writer, "xs:schema");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "xmlns:xs",
-            "http://www.w3.org/2001/XMLSchema");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "elementFormDefault", "qualified");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Auto-generated data schema");
-    /* Close the element named xs:annotation. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Define agent name type */
-    if (rc == 0) rc = writeXMLTag(writer, "xs:simpleType");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "agentType");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:restriction");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "base", "xs:string");
-
-    for (agent = model->getAgents()->begin();
-            agent != model->getAgents()->end();
-            agent++) {
-        rc = writeXMLTag(writer, "xs:enumeration");
-        if (rc != 0) return rc;
-
-        rc = writeXMLTagAttribute(writer, "value", (*agent)->getName());
-        if (rc != 0) return rc;
-
-        /* Close the element named xs:enumeration. */
-        writeXMLTag(writer);
-    }
-
-    /* Close the element named xs:restriction. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:simpleType. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Define agent variables */
-    if (rc == 0) rc = writeXMLTag(writer, "xs:group");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "agent_vars");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:choice");
-
-    for (agent = model->getAgents()->begin();
-            agent != model->getAgents()->end();
-            agent++) {
-        rc = writeXMLTag(writer, "xs:group");
-        if (rc != 0) return rc;
-        std::string ref = "agent_";
-        ref.append((*agent)->getName());
-        ref.append("_vars");
-        rc = writeXMLTagAttribute(writer, "ref", ref);
-        if (rc != 0) return rc;
-        /* Close the element named xs:group. */
-        writeXMLTag(writer);
-    }
-
-    /* Close the element named xs:choice. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:group. */
-    if (rc == 0) rc = writeXMLTag(writer);
-
-    for (agent = model->getAgents()->begin();
-                agent != model->getAgents()->end();
-                agent++) {
-        rc = writeXMLTag(writer, "xs:group");
-        if (rc != 0) return rc;
-        std::string name = "agent_";
-        name.append((*agent)->getName());
-        name.append("_vars");
-        rc = writeXMLTagAttribute(writer, "name", name);
-        if (rc != 0) return rc;
-        rc = writeXMLTag(writer, "xs:sequence");
-        if (rc != 0) return rc;
-        for (variable = (*agent)->getVariables()->begin();
-                variable != (*agent)->getVariables()->end();
-                variable++) {
-            rc = writeXMLTag(writer, "xs:element");
-            if (rc != 0) return rc;
-            rc = writeXMLTagAttribute(writer, "name", (*variable)->getName());
-            if (rc != 0) return rc;
-            std::string type;
-            if ((*variable)->getType() == "int") type = "xs:integer";
-            else if ((*variable)->getType() == "double") type = "xs:double";
-            else
-                type = "xs:string";
-            rc = writeXMLTagAttribute(writer, "type", type);
-            if (rc != 0) return rc;
-            /* Close the element named xs:element. */
-            writeXMLTag(writer);
-        }
-        /* Close the element named xs:sequence. */
-        writeXMLTag(writer);
-        /* Close the element named xs:group. */
-        writeXMLTag(writer);
-    }
-
-    /* Define agents */
-    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "xagent");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Agent data");
-    /* Close the element named xs:annotation. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "name");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "type", "agentType");
-    /* Close the element named xs:element. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    if (rc == 0) rc = writeXMLTag(writer, "xs:group");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "ref", "agent_vars");
-    /* Close the element named xs:group. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:sequence. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:complexType. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:element. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* XML Tag structure */
-    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "states");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:complexType");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:sequence");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "name", "itno");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "type", "xs:nonNegativeInteger");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:annotation");
-    if (rc == 0) rc = writeXMLTag(writer, "xs:documentation", "Iteration number");
-    /* Close the element named xs:annotation. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:element. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    if (rc == 0) rc = writeXMLTag(writer, "xs:element");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "ref", "xagent");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "minOccurs", "0");
-    if (rc == 0) rc = writeXMLTagAttribute(writer, "maxOccurs", "unbounded");
-    /* Close the element named xs:element. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:sequence. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:complexType. */
-    if (rc == 0) rc = writeXMLTag(writer);
-    /* Close the element named xs:element. */
-    if (rc == 0) rc = writeXMLTag(writer);
+    if (rc == 0) rc = createDataSchemaHead(writer);
+    if (rc == 0) rc = createDataSchemaAgentNameType(writer, model);
+    if (rc == 0) rc = createDataSchemaAgentVarChoice(writer, model);
+    if (rc == 0) rc = createDataSchemaAgentVars(writer, model);
+    if (rc == 0) rc = createDataSchemaDefineAgents(writer);
+    if (rc == 0) rc = createDataSchemaDefineTags(writer);
     /* End xml file, automatically ends schema tag */
     if (rc == 0) rc = endXMLDoc(writer);
 
@@ -408,7 +448,7 @@ int IOXMLPop::createDataSchema(std::string const& file,
     return rc;
 }
 
-int openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
+int IOXMLPop::openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
     *doc = xmlReadFile(data_file.c_str(), NULL, 0);
     /* Return error if the file was not successfully parsed */
     if (*doc == NULL) {
@@ -421,8 +461,10 @@ int openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
     return 0;
 }
 
-int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string const& schema_file,
-        xmlSchemaParserCtxtPtr * parser_ctxt, xmlSchemaPtr * schema, xmlDocPtr * schema_doc) {
+int IOXMLPop::openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt,
+        std::string const& schema_file,
+        xmlSchemaParserCtxtPtr * parser_ctxt, xmlSchemaPtr * schema,
+        xmlDocPtr * schema_doc) {
     *schema_doc = xmlReadFile(
                 schema_file.c_str(), NULL, XML_PARSE_NONET);
     /* the schema cannot be loaded or is not well-formed */
@@ -456,7 +498,8 @@ int IOXMLPop::validateData(std::string const& data_file,
     rc = openXMLDoc(&doc, data_file);
     /* If successful try and open schema */
     if (rc == 0)
-        rc = openXMLSchema(&valid_ctxt, schema_file, &parser_ctxt, &schema, &schema_doc);
+        rc = openXMLSchema(&valid_ctxt, schema_file,
+                &parser_ctxt, &schema, &schema_doc);
 
     /* 0 if valid, positive error code otherwise
      * -1 in case of internal or API error */
@@ -473,12 +516,12 @@ int IOXMLPop::validateData(std::string const& data_file,
     return rc;
 }
 
-int processStartNode(std::vector<std::string> * tags, std::string name) {
+int IOXMLPop::processStartNode(std::vector<std::string> * tags,
+        std::string name) {
     /* If correct tag at correct depth */
     if ((tags->size() == 0 && name == "states") ||
-        (tags->size() == 1 && name == "itno") ||
-        (tags->size() == 1 && name == "environment") ||
-        (tags->size() == 1 && name == "xagent") ||
+        (tags->size() == 1 &&
+        (name == "itno" || name == "environment" || name == "xagent")) ||
         tags->size() == 2) {
         tags->push_back(name);
     } else {
@@ -489,79 +532,82 @@ int processStartNode(std::vector<std::string> * tags, std::string name) {
     return 0;
 }
 
-int processTextNode(std::vector<std::string> * tags, xmlTextReaderPtr reader,
-        model::XMachine ** agent, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager) {
-    if (tags->size() == 3 && tags->at(1) == "xagent") {
-        /* Read value */
-        std::string value =
-            reinterpret_cast<const char*>
-                (xmlTextReaderConstValue(reader));
-        /* If tag is the agent name */
-        if (tags->back() == "name") {
-            /* Check if agent is part of this model */
-            (*agent) = model->getAgent(value);
-            /* If agent name is unknown */
-            if (!(*agent)) {
-        fprintf(stderr, "Error: Agent type is not recognised: '%s'\n",
-                    value.c_str());
-                return 4;
-            }
-        } else {
-            /* Check if agent exists */
-            if (agent) {
-                model::XVariable * var =
-                    (*agent)->getVariable(tags->back());
-                /* Check if variable is part of the agent */
-                if (var) {
-                    /* Check variable type for casting */
-                    if (var->getType() == "int") {
-                        int intValue;
-                        try {
-                            intValue = boost::lexical_cast<int>(value);
-                        } catch(const boost::bad_lexical_cast&) {
-                            std::fprintf(stderr,
-            "Error: int variable is not an integer: '%s' in '%s'\n",
-                                value.c_str(),
-                                tags->back().c_str());
-                            return 6;
-                        }
-                        /* Add value to memory manager */
-                        std::vector<int>* vec =
-                            memoryManager->GetVector<int>(
-                                (*agent)->getName(), tags->back());
-                        vec->push_back(intValue);
-                    } else if (var->getType() == "double") {
-                        double doubleValue;
-                        try {
-                            doubleValue =
-                                    boost::lexical_cast<double>(value);
-                        } catch(const boost::bad_lexical_cast&) {
-                            std::fprintf(stderr,
-            "Error: double variable is not a double: '%s' in '%s'\n",
-                                value.c_str(),
-                                tags->back().c_str());
-                            return 6;
-                        }
-                        /* Add value to memory manager */
-                        std::vector<double>* vec =
-                            memoryManager->
-                                GetVector<double>(
-                                    (*agent)->getName(), tags->back());
-                        vec->push_back(doubleValue);
-                    }
-                } else {
-    fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
-                    tags->back().c_str());
-                    return 5;
-                }
-            }
-        }
+template <class T>
+int IOXMLPop::processTextVariableCast(std::string value,
+        std::vector<std::string> * tags,
+        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent) {
+    T typeValue;
+    try {
+        typeValue = boost::lexical_cast<T>(value);
+    } catch(const boost::bad_lexical_cast&) {
+        std::fprintf(stderr,
+"Error: variable could not be cast to correct type: '%s' in '%s'\n",
+            value.c_str(),
+            tags->back().c_str());
+        return 6;
     }
+    /* Add value to memory manager */
+    std::vector<T>* vec =
+        memoryManager->GetVector<T>(
+            (*agent)->getName(), tags->back());
+    vec->push_back(typeValue);
     return 0;
 }
 
-int processEndNode(std::vector<std::string> * tags, std::string name,
+int IOXMLPop::processTextVariable(std::string value,
+        std::vector<std::string> * tags,
+        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent) {
+    int rc;
+    /* Get pointer to variable type */
+    model::XVariable * var = (*agent)->getVariable(tags->back());
+    /* Check if variable is part of the agent */
+    if (var) {
+        /* Check variable type for casting and
+         * use appropriate casting function */
+        if (var->getType() == "int") {
+            rc = processTextVariableCast<int>(
+                    value, tags, memoryManager, agent);
+            if (rc != 0) return rc;
+        } else if (var->getType() == "double") {
+            rc = processTextVariableCast<double>(
+                    value, tags, memoryManager, agent);
+            if (rc != 0) return rc;
+        }
+    } else {
+        fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
+                tags->back().c_str());
+        return 5;
+    }
+
+    return 0;
+}
+
+int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
+        xmlTextReaderPtr reader,
+        model::XMachine ** agent, model::XModel * model,
+        flame::mem::MemoryManager * memoryManager) {
+    int rc = 0;
+
+    /* Read value */
+    std::string value = reinterpret_cast<const char*>
+            (xmlTextReaderConstValue(reader));
+    /* If tag is the agent name */
+    if (tags->back() == "name") {
+        /* Check if agent is part of this model */
+        (*agent) = model->getAgent(value);
+        /* If agent name is unknown */
+        if (!(*agent)) {
+fprintf(stderr, "Error: Agent type is not recognised: '%s'\n", value.c_str());
+            rc = 4;
+        }
+    } else { if (*agent) /* Check if agent exists */
+        rc = processTextVariable(value, tags, memoryManager, agent);
+    }
+
+    return rc;
+}
+
+int IOXMLPop::processEndNode(std::vector<std::string> * tags, std::string name,
         model::XMachine ** agent) {
     /* Check end tag closes opened tag */
     if (tags->back() == name) {
@@ -606,18 +652,20 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader, model::XModel * model,
             rc = processStartNode(tags, name);
             break;
         case 3: /* Text */
-            rc = processTextNode(tags, reader, agent, model, memoryManager);
+            if (tags->size() == 3 && tags->at(1) == "xagent")
+                rc = processTextAgent(
+                    tags, reader, agent, model, memoryManager);
             break;
         case 15: /* End element */
             rc = processEndNode(tags, name, agent);
             break;
     }
-    if(rc != 0) return rc;
+    if (rc != 0) return rc;
 
     return 0;
 }
 
-int writeXMLTag(xmlTextWriterPtr writer) {
+int IOXMLPop::writeXMLEndTag(xmlTextWriterPtr writer) {
     int rc;
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
@@ -627,7 +675,16 @@ int writeXMLTag(xmlTextWriterPtr writer) {
     return 0;
 }
 
-int writeXMLTag(xmlTextWriterPtr writer, std::string name) {
+int IOXMLPop::writeXMLEndTag(xmlTextWriterPtr writer, int count) {
+    int rc, ii;
+    for (ii = 0; ii < count; ii++) {
+        rc = writeXMLEndTag(writer);
+        if (rc != 0) return rc;
+    }
+    return 0;
+}
+
+int IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name) {
     int rc;
     rc = xmlTextWriterStartElement(writer, BAD_CAST name.c_str());
     if (rc < 0) {
@@ -637,7 +694,8 @@ int writeXMLTag(xmlTextWriterPtr writer, std::string name) {
     return 0;
 }
 
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value) {
+int IOXMLPop::writeXMLTag(xmlTextWriterPtr writer,
+        std::string name, int value) {
     int rc;
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
                                                  "%d", value);
@@ -648,7 +706,8 @@ int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value) {
     return 0;
 }
 
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value) {
+int IOXMLPop::writeXMLTag(xmlTextWriterPtr writer,
+        std::string name, double value) {
     int rc;
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
                                                  "%f", value);
@@ -659,7 +718,8 @@ int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value) {
     return 0;
 }
 
-int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value) {
+int IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
+        std::string value) {
     int rc;
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(),
                                                  "%s", value.c_str());
@@ -670,7 +730,7 @@ int writeXMLTag(xmlTextWriterPtr writer, std::string name, std::string value) {
     return 0;
 }
 
-int writeXMLTagAttribute(xmlTextWriterPtr writer,
+int IOXMLPop::writeXMLTagAttribute(xmlTextWriterPtr writer,
         std::string name, std::string value) {
     int rc;
     rc = xmlTextWriterWriteAttribute(writer,
@@ -682,7 +742,43 @@ int writeXMLTagAttribute(xmlTextWriterPtr writer,
     return 0;
 }
 
-int endXMLDoc(xmlTextWriterPtr writer) {
+int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+        std::string name, std::string value) {
+    int rc;
+    rc = writeXMLTag(writer, tag);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name, value);
+    return rc;
+}
+
+int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+        std::string name1, std::string value1,
+        std::string name2, std::string value2) {
+    int rc;
+    rc = writeXMLTag(writer, tag);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name1, value1);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name2, value2);
+    return rc;
+}
+
+int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+        std::string name1, std::string value1,
+        std::string name2, std::string value2,
+        std::string name3, std::string value3) {
+    int rc;
+    rc = writeXMLTag(writer, tag);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name1, value1);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name2, value2);
+    if (rc != 0) return rc;
+    rc = writeXMLTagAttribute(writer, name3, value3);
+    return rc;
+}
+
+int IOXMLPop::endXMLDoc(xmlTextWriterPtr writer) {
     int rc;
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0) {
