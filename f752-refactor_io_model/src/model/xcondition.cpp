@@ -57,31 +57,25 @@ XCondition::~XCondition() {
     if (rhsCondition != 0) delete rhsCondition;
 }
 
-void printValues(std::string lhs, std::string op, std::string rhs,
+void XCondition::printValues(std::string lhs, std::string op, std::string rhs,
         bool lhsIsAgentVariable, bool rhsIsAgentVariable,
         bool lhsIsMessageVariable, bool rhsIsMessageVariable,
-        bool lhsIsValue, bool rhsIsValue,
-        double lhsDouble, double rhsDouble) {
-    if (lhsIsAgentVariable) {
-        std::fprintf(stdout, "a.%s", lhs.c_str());
-    } else if (lhsIsMessageVariable) {
-        std::fprintf(stdout, "m.%s", lhs.c_str());
-    } else if (lhsIsValue) {
-        std::fprintf(stdout, "%f", lhsDouble);
-    }
+        bool lhsIsValue, bool rhsIsValue, double lhsDouble, double rhsDouble) {
+    /* Handle lhs */
+    if (lhsIsAgentVariable) std::fprintf(stdout, "a.%s", lhs.c_str());
+    else if (lhsIsMessageVariable) std::fprintf(stdout, "m.%s", lhs.c_str());
+    else if (lhsIsValue) std::fprintf(stdout, "%f", lhsDouble);
     std::fprintf(stdout, " ");
+    /* Handle operator */
     std::fprintf(stdout, "%s", op.c_str());
     std::fprintf(stdout, " ");
-    if (rhsIsAgentVariable) {
-        std::fprintf(stdout, "a.%s", rhs.c_str());
-    } else if (rhsIsMessageVariable) {
-        std::fprintf(stdout, "m.%s", rhs.c_str());
-    } else if (rhsIsValue) {
-        std::fprintf(stdout, "%f", rhsDouble);
-    }
+    /* Handle rhs */
+    if (rhsIsAgentVariable) std::fprintf(stdout, "a.%s", rhs.c_str());
+    else if (rhsIsMessageVariable) std::fprintf(stdout, "m.%s", rhs.c_str());
+    else if (rhsIsValue) std::fprintf(stdout, "%f", rhsDouble);
 }
 
-void printConditions(XCondition * lhsCondition,
+void XCondition::printConditions(XCondition * lhsCondition,
         std::string op, XCondition * rhsCondition) {
     std::fprintf(stdout, "(");
     std::fprintf(stdout, "\n");
@@ -96,9 +90,9 @@ void printConditions(XCondition * lhsCondition,
     std::fprintf(stdout, ")");
 }
 
-void printTime(std::string timePeriod, std::string timePhaseVariable,
-        int timePhaseValue, int timeDuration, bool timePhaseIsVariable,
-        bool foundTimeDuration) {
+void XCondition::printTime(std::string timePeriod,
+        std::string timePhaseVariable, int timePhaseValue, int timeDuration,
+        bool timePhaseIsVariable, bool foundTimeDuration) {
     std::fprintf(stdout, "time(");
     std::fprintf(stdout, "%s", timePeriod.c_str());
     std::fprintf(stdout, ", ");
@@ -178,19 +172,23 @@ int XCondition::processSymbolsTime() {
     return errors;
 }
 
-int processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
+int XCondition::processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
         bool * hsIsValue, bool * hsIsMessageVariable, double * hsDouble) {
     int errors = 0;
+    /* Handle agent variable */
     if (boost::starts_with(*hs, "a.")) {
         *hsIsAgentVariable = true;
         *hsIsValue = false;
         hs->erase(0, 2);
+    /* Handle message variable */
     } else if (boost::starts_with(*hs, "m.")) {
         *hsIsMessageVariable = true;
         *hsIsValue = false;
         hs->erase(0, 2);
+    /* Handle number */
     } else {
         *hsIsValue = true;
+        /* Try and cast to a double */
         try {
             *hsDouble = boost::lexical_cast<double>(*hs);
         } catch(const boost::bad_lexical_cast& E) {
@@ -278,8 +276,8 @@ int XCondition::processSymbols() {
             isConditions = true;
             errors += processSymbolsConditions();
         } else {
-            std::fprintf(stderr, "Error: lhs and rhs are not both \
-values or both nested conditions\n");
+            std::fprintf(stderr,
+        "Error: lhs and rhs are not both values or both nested conditions\n");
             errors++;
         }
     }
@@ -316,28 +314,32 @@ int XCondition::validateTime(XMachine * agent, XModel * model) {
     return errors;
 }
 
-int validateValue(XMachine * agent, XMessage * xmessage, bool * hsIsAgentVariable,
+int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
+        bool * hsIsAgentVariable,
         std::string * hs, bool * hsIsMessageVariable) {
     int errors = 0;
+    /* Handle agent variable */
     if (*hsIsAgentVariable) {
+        /* Try and validate */
         if (!agent->validateVariableName(*hs)) {
             std::fprintf(stderr,
                 "Error: value is not a valid agent variable: '%s',\n",
                 hs->c_str());
             errors++;
         }
+    /* Handle message variable */
     } else if (*hsIsMessageVariable) {
+        /* If message type exists */
         if (xmessage != 0) {
+            /* Try and validate */
             if (!xmessage->validateVariableName(*hs)) {
                 std::fprintf(stderr,
-                    "Error: value is not a valid message variable: '%s',\n",
-                    hs->c_str());
+        "Error: value is not a valid message variable: '%s',\n", hs->c_str());
                 errors++;
             }
         } else {
             std::fprintf(stderr,
-                "Error: cannot validate value as the \
-                message type is invalid: '%s',\n",
+        "Error: cannot validate value as the message type is invalid: '%s',\n",
                 hs->c_str());
             errors++;
         }
