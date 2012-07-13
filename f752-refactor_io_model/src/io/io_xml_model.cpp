@@ -484,7 +484,7 @@ int IOXMLModel::readAgents(xmlNode * node,
 
 int IOXMLModel::readAgent(xmlNode * node,
         model::XModel * model) {
-    int rc; /* Return code */
+    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XMachine * xm = model->addAgent();
 
