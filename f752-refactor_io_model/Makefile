@@ -101,5 +101,7 @@ memtest: all
 	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
 	rm -fr $(EXECUTABLE).dSYM
 
+.PHONY: cccc
+
 # To run executable:
 # export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost_1_49_0/stage/lib

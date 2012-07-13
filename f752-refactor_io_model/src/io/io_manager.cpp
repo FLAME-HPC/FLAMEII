@@ -70,11 +70,13 @@ int IOManager::readPop(std::string file_name,
         /* Validate xml first */
         xmlpopxsd = ioxmlpop.xmlPopPath();
         xmlpopxsd.append("xmlpop.xsd");
+        /* Create data schema */
         rc = ioxmlpop.createDataSchema(xmlpopxsd, model);
         if (rc != 0) {
             fprintf(stderr, "Error: Could not create data schema\n");
             return rc;
         }
+        /* Validate data using schema */
         rc = ioxmlpop.validateData(file_name, xmlpopxsd);
         if (rc != 0) {
             fprintf(stderr, "Error: Could not validate data with schema\n");
@@ -96,14 +98,18 @@ int IOManager::writePop(std::string file_name,
     flame::mem::MemoryManager& memoryManager =
                 flame::mem::MemoryManager::GetInstance();
 
+    /* If file type selected is xml */
     if (fileType == xml) {
+        /* Check a path has been set */
         if (!ioxmlpop.xmlPopPathIsSet()) {
             fprintf(stderr, "Error: Path not set by reading pop data\n");
             return -1;
         }
+        /* Write out pop to xml */
         rc = ioxmlpop.writeXMLPop(file_name,
                 iterationNo, model, &memoryManager);
         return rc;
+    /* Through exception for unknown file types */
     } else {
         throw flame::exceptions::flame_io_exception("unknown file type");
     }

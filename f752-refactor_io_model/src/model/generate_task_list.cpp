@@ -15,16 +15,6 @@
 
 namespace flame { namespace model {
 
-int catalog_state_dependencies(XModel * model, std::vector<Task*> * tasks);
-int catalog_communication_dependencies(XModel * model,
-        std::vector<Task*> * tasks);
-int catalog_data_dependencies(XModel * model,
-        std::vector<Task*> * tasks);
-int check_dependency_loops(XModel * model);
-int calculate_dependencies(std::vector<Task*> * tasks);
-int calculate_task_list(std::vector<Task*> * tasks);
-void write_dependency_graph(std::string filename, std::vector<Task*> * tasks);
-
 /*!
  * \brief Generates task list
  * \return The return code
@@ -53,72 +43,73 @@ int ModelManager::generate_task_list() {
     return 0;
 }
 
-int catalog_state_dependencies(XModel * model, std::vector<Task*> * tasks) {
+int ModelManager::catalog_state_dependencies_functions(
+        XModel * model, std::vector<Task*> * tasks) {
     std::vector<XMachine*>::iterator agent;
-    std::vector<XFunction*>::iterator function;
-    std::vector<XFunction*>::iterator function2;
-
+    std::vector<XFunction*>::iterator f;
     /* For each agent */
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end(); ++agent) {
         /* For each function */
-        for (function = (*agent)->getFunctions()->begin();
-                function != (*agent)->getFunctions()->end(); ++function) {
+        for (f = (*agent)->getFunctions()->begin();
+                f != (*agent)->getFunctions()->end(); ++f) {
             /* Add function as a task to the task list */
             Task * task = new Task;
             task->setParentName((*agent)->getName());
-            task->setName((*function)->getName());
+            task->setName((*f)->getName());
             task->setTaskType(Task::xfunction);
             task->setPriorityLevel(5);
             tasks->push_back(task);
             /* Associate task with function */
-            (*function)->setTask(task);
-        }
-    }
-
-    /* For each agent */
-    for (agent = model->getAgents()->begin();
-            agent != model->getAgents()->end(); ++agent) {
-        /* For each function */
-        for (function = (*agent)->getFunctions()->begin();
-                function != (*agent)->getFunctions()->end(); ++function) {
-            /* Add state dependencies to tasks */
-            /* For each transition functions start state
-             * find transition functions that end in that state */
-            for (function2 = (*agent)->getFunctions()->begin();
-                    function2 != (*agent)->getFunctions()->end(); ++function2) {
-                if ((*function)->getCurrentState() ==
-                        (*function2)->getNextState()) {
-                    /*(*function)->getTask()->addParent(
-                            (*function)->getCurrentState(),
-                            Dependency::state,
-                            (*function2)->getTask());*/
-                    Dependency * d = new Dependency;
-                    d->setName((*function)->getCurrentState());
-                    d->setDependencyType(Dependency::state);
-                    d->setTask((*function2)->getTask());
-                    (*function)->getTask()->addDependency(d);
-                }
-            }
+            (*f)->setTask(task);
         }
     }
 
     return 0;
 }
 
-int catalog_communication_dependencies(XModel * model,
-        std::vector<Task*> * tasks) {
-    std::vector<Task*>::iterator task;
-    std::vector<XMessage*>::iterator message;
+int ModelManager::catalog_state_dependencies_transitions(XModel * model) {
     std::vector<XMachine*>::iterator agent;
-    std::vector<XFunction*>::iterator function;
-    std::vector<XIOput*>::iterator ioput;
+    std::vector<XFunction*>::iterator f;
+    std::vector<XFunction*>::iterator f2;
+    /* For each agent */
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end(); ++agent) {
+        /* For each function */
+        for (f = (*agent)->getFunctions()->begin();
+                f != (*agent)->getFunctions()->end(); ++f) {
+            /* Add state dependencies to tasks */
+            /* For each transition functions start state
+             * find transition functions that end in that state */
+            for (f2 = (*agent)->getFunctions()->begin();
+                    f2 != (*agent)->getFunctions()->end(); ++f2) {
+                if ((*f)->getCurrentState() == (*f2)->getNextState()) {
+                    Dependency * d = new Dependency;
+                    d->setName((*f)->getCurrentState());
+                    d->setDependencyType(Dependency::state);
+                    d->setTask((*f2)->getTask());
+                    (*f)->getTask()->addDependency(d);
+                }
+            }
+        }
+    }
+    return 0;
+}
 
-    /* Remove unused messages or
-     * messages not read or
-     * messages not sent and give warning. */
+int ModelManager::catalog_state_dependencies(
+        XModel * model, std::vector<Task*> * tasks) {
+    catalog_state_dependencies_functions(model, tasks);
+    catalog_state_dependencies_transitions(model);
 
-    /* Add sync_start and sync_finish for each message type */
+    return 0;
+}
+
+int ModelManager::catalog_communication_dependencies_syncs(
+        XModel * model,
+        std::vector<Task*> * tasks) {
+    std::vector<XMessage*>::iterator message;
+    /* Add sync_start and sync_finish
+     * for each message type */
     for (message = model->getMessages()->begin();
          message != model->getMessages()->end(); ++message) {
         /* Add sync start tasks to the task list */
@@ -143,6 +134,57 @@ int catalog_communication_dependencies(XModel * model,
                 Dependency::communication,
                 syncStartTask);
     }
+    return 0;
+}
+
+int ModelManager::catalog_communication_dependencies_ioput(XModel * model,
+        std::vector<XFunction*>::iterator function) {
+    std::vector<XIOput*>::iterator ioput;
+    std::vector<XMessage*>::iterator message;
+
+    /* Find outputting functions */
+    for (ioput = (*function)->getOutputs()->begin();
+         ioput != (*function)->getOutputs()->end(); ++ioput) {
+        /* Find associated messages */
+        for (message = model->getMessages()->begin();
+             message != model->getMessages()->end(); ++message) {
+            if ((*message)->getName() == (*ioput)->getMessageName())
+                /* Add communication dependency */
+                (*message)->getSyncStartTask()->addParent(
+                        (*ioput)->getMessageName(),
+                        Dependency::communication,
+                        (*function)->getTask());
+        }
+    }
+
+    /* Find inputting functions */
+    for (ioput = (*function)->getInputs()->begin();
+         ioput != (*function)->getInputs()->end(); ++ioput) {
+        /* Find associated messages */
+        for (message = model->getMessages()->begin();
+                message != model->getMessages()->end(); ++message) {
+            if ((*message)->getName() == (*ioput)->getMessageName())
+                /* Add communication dependency */
+                (*function)->getTask()->addParent(
+                        (*ioput)->getMessageName(),
+                        Dependency::communication,
+                        (*message)->getSyncFinishTask());
+        }
+    }
+
+    return 0;
+}
+
+int ModelManager::catalog_communication_dependencies(XModel * model,
+        std::vector<Task*> * tasks) {
+    std::vector<XMachine*>::iterator agent;
+    std::vector<XFunction*>::iterator function;
+
+    /* Remove unused messages or
+     * messages not read or
+     * messages not sent and give warning. */
+
+    catalog_communication_dependencies_syncs(model, tasks);
 
     /* Find dependencies */
     /* For each agent */
@@ -151,35 +193,42 @@ int catalog_communication_dependencies(XModel * model,
         /* For each function */
         for (function = (*agent)->getFunctions()->begin();
              function != (*agent)->getFunctions()->end(); ++function) {
-            /* Find outputting functions */
-            for (ioput = (*function)->getOutputs()->begin();
-                 ioput != (*function)->getOutputs()->end(); ++ioput) {
-                /* Find associated messages */
-                for (message = model->getMessages()->begin();
-                     message != model->getMessages()->end(); ++message) {
-                    if ((*message)->getName() == (*ioput)->getMessageName())
-                        (*message)->getSyncStartTask()->addParent(
-                                (*ioput)->getMessageName(),
-                                Dependency::communication,
-                                (*function)->getTask());
-                }
-            }
-
-            /* Find inputting functions */
-            for (ioput = (*function)->getInputs()->begin();
-                 ioput != (*function)->getInputs()->end(); ++ioput) {
-                /* Find associated messages */
-                for (message = model->getMessages()->begin();
-                        message != model->getMessages()->end(); ++message) {
-                    if ((*message)->getName() == (*ioput)->getMessageName())
-                        (*function)->getTask()->addParent(
-                                (*ioput)->getMessageName(),
-                                Dependency::communication,
-                                (*message)->getSyncFinishTask());
-                }
-            }
+            catalog_communication_dependencies_ioput(model, function);
         }
     }
+
+    return 0;
+}
+
+int ModelManager::catalog_data_dependencies_variable(
+        std::vector<XMachine*>::iterator agent,
+        std::vector<XVariable*>::iterator variable,
+        std::vector<Task*> * tasks) {
+    std::vector<XFunction*>::iterator function;
+    std::vector<XVariable*>::iterator variableFind;
+    /* Add variable to disk task */
+    Task * dataTask = new Task;
+    dataTask->setParentName((*agent)->getName());
+    dataTask->setName((*variable)->getName());
+    dataTask->setTaskType(Task::io_pop_write);
+    dataTask->setPriorityLevel(0);
+    tasks->push_back(dataTask);
+    /* Add dependency parents to task */
+    /* Find the last function that writes each variable */
+    XFunction * lastFunction = 0;
+    for (function = (*agent)->getFunctions()->begin();
+            function != (*agent)->getFunctions()->end(); ++function) {
+        variableFind = std::find(
+                (*function)->getReadWriteVariables()->begin(),
+                (*function)->getReadWriteVariables()->end(), (*variable));
+        if (variableFind != (*function)->getReadWriteVariables()->end()
+                || lastFunction == 0) lastFunction = (*function);
+    }
+    /* Add data dependency */
+    dataTask->addParent((*variable)->getName(), Dependency::data,
+            lastFunction->getTask());
+    /* Give function higher level */
+    dataTask->setLevel(lastFunction->getTask()->getLevel()+1);
 
     return 0;
 }
@@ -190,12 +239,10 @@ int catalog_communication_dependencies(XModel * model,
  * \param[in] model The FLAME model
  * \param[out] tasks The task list
  * \return Return error code
- * \todo .
- * \warning .
  *
  * For each agent memory variable add a task for writing the variable to disk.
  */
-int catalog_data_dependencies(XModel * model,
+int ModelManager::catalog_data_dependencies(XModel * model,
         std::vector<Task*> * tasks) {
     std::vector<XMachine*>::iterator agent;
     std::vector<XVariable*>::iterator variable;
@@ -207,43 +254,18 @@ int catalog_data_dependencies(XModel * model,
          agent != model->getAgents()->end(); ++agent) {
         for (variable = (*agent)->getVariables()->begin();
                 variable != (*agent)->getVariables()->end(); ++variable) {
-            /* Add variable to disk task */
-            Task * dataTask = new Task;
-            dataTask->setParentName((*agent)->getName());
-            dataTask->setName((*variable)->getName());
-            dataTask->setTaskType(Task::io_pop_write);
-            dataTask->setPriorityLevel(0);
-            tasks->push_back(dataTask);
-            /* Add dependency parents to task */
-            /* Find the last function that writes each variable */
-            XFunction * lastFunction = 0;
-            for (function = (*agent)->getFunctions()->begin();
-                    function != (*agent)->getFunctions()->end(); ++function) {
-                variableFind = std::find(
-                        (*function)->getReadWriteVariables()->begin(),
-                        (*function)->getReadWriteVariables()->end(),
-                        (*variable));
-                if (variableFind != (*function)->getReadWriteVariables()->end()
-                        || lastFunction == 0) {
-                    lastFunction = (*function);
-                }
-            }
-            dataTask->addParent(
-                    (*variable)->getName(),
-                    Dependency::data,
-                    lastFunction->getTask());
-            dataTask->setLevel(lastFunction->getTask()->getLevel()+1);
+            catalog_data_dependencies_variable(agent, variable, tasks);
         }
     }
 
     return 0;
 }
 
-int check_dependency_loops(XModel * model) {
+int ModelManager::check_dependency_loops(XModel * model) {
     return 0;
 }
 
-std::string taskTypeToString(Task::TaskType t) {
+std::string ModelManager::taskTypeToString(Task::TaskType t) {
     if (t == Task::io_pop_write) return "disk";
     else if (t == Task::sync_finish) return "comm";
     else if (t == Task::sync_start) return "comm";
@@ -252,7 +274,7 @@ std::string taskTypeToString(Task::TaskType t) {
         return "";
 }
 
-void printTaskList(std::vector<Task*> * tasks) {
+void ModelManager::printTaskList(std::vector<Task*> * tasks) {
     std::vector<Task*>::iterator task;
 
     fprintf(stdout, "Level\tPriority\tType\tName\n");
@@ -266,14 +288,13 @@ void printTaskList(std::vector<Task*> * tasks) {
     }
 }
 
-int calculate_dependencies(std::vector<Task*> * tasks) {
+int ModelManager::calculate_dependencies(std::vector<Task*> * tasks) {
     std::vector<Task*>::iterator task;
     size_t ii;
 
     /* Initialise task levels to be zero */
-    for (task = tasks->begin(); task != tasks->end(); ++task) {
+    for (task = tasks->begin(); task != tasks->end(); ++task)
         (*task)->setLevel(0);
-    }
 
     /* Calculate layers of dependency graph */
     /* This is achieved by finding functions with no dependencies */
@@ -300,19 +321,17 @@ int calculate_dependencies(std::vector<Task*> * tasks) {
                     /* If the dependency is not leveled or just been leveled
                      * at the current level that is being populated */
                     if ((dependency)->getTask()->getLevel() == 0 ||
-                        (dependency)->getTask()->getLevel() == currentLevel) {
+                        (dependency)->getTask()->getLevel() == currentLevel)
                         /* Set that current task has an unleveled dependency */
                         unleveled_dependency = true;
-                    }
                 }
                 /* If no unleveled dependencies */
-                if (!unleveled_dependency) {
+                if (!unleveled_dependency)
                     /* Add task to current level */
                     (*task)->setLevel(currentLevel);
-                } else {
+                else
                     /* Else leveling has not finished */
                     finished = false;
-                }
             }
         }
         /* Increment current level */
@@ -331,7 +350,7 @@ bool compare_task_levels(Task * i, Task * j) {
     }
 }
 
-int calculate_task_list(std::vector<Task*> * tasks) {
+int ModelManager::calculate_task_list(std::vector<Task*> * tasks) {
     /* Sort the task list by level */
     sort(tasks->begin(), tasks->end(), compare_task_levels);
 
@@ -340,11 +359,41 @@ int calculate_task_list(std::vector<Task*> * tasks) {
     return 0;
 }
 
-void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
+void ModelManager::write_dependency_graph_dependencies(
+        std::vector<Task*>::iterator task, FILE *file) {
+    size_t ii;
+    /* For every dependency */
+    /* Didn't use iterator here as caused valgrind errors */
+    for (ii = 0; ii < (*task)->getParents().size(); ii++) {
+        Dependency * dependency = (*task)->getParents().at(ii);
+        fputs("\t", file);
+        fputs((*task)->getParentName().c_str(), file);
+        fputs("_", file);
+        fputs((*task)->getName().c_str(), file);
+        fputs(" -> ", file);
+        fputs(dependency->getTask()->getParentName().c_str(), file);
+        fputs("_", file);
+        fputs(dependency->getTask()->getName().c_str(), file);
+        fputs(" [ label = \"<", file);
+        /* Check dependency type and output
+         * appropriate description */
+        if (dependency->getDependencyType() == Dependency::communication)
+            fputs("Message: ", file);
+        else if (dependency->getDependencyType() == Dependency::data)
+            fputs("Memory: ", file);
+        else if (dependency->getDependencyType() == Dependency::state)
+            fputs("State: ", file);
+        fputs(dependency->getName().c_str(), file);
+        fputs(">\" ];\n", file);
+    }
+}
+
+void ModelManager::write_dependency_graph(
+        std::string filename, std::vector<Task*> * tasks) {
     /* File to write to */
     FILE *file;
     std::vector<Task*>::iterator task;
-    size_t ii;
+
 
     /* print out the location of the source file */
     printf("Writing file: %s\n", filename.c_str());
@@ -369,34 +418,7 @@ void write_dependency_graph(std::string filename, std::vector<Task*> * tasks) {
         fputs((*task)->getName().c_str(), file);
         fputs("\"]\n", file);
 
-        /* For every dependency */
-        /* Didn't use iterator here as caused valgrind errors */
-        for (ii = 0; ii < (*task)->getParents().size(); ii++) {
-            Dependency * dependency = (*task)->getParents().at(ii);
-            fputs("\t", file);
-            fputs((*task)->getParentName().c_str(), file);
-            fputs("_", file);
-            fputs((*task)->getName().c_str(), file);
-            fputs(" -> ", file);
-            fputs(dependency->getTask()->getParentName().c_str(), file);
-            fputs("_", file);
-            fputs(dependency->getTask()->getName().c_str(), file);
-            fputs(" [ label = \"<", file);
-            if (dependency->getDependencyType() ==
-                    Dependency::communication) {
-                fputs("Message: ", file);
-            }
-            if (dependency->getDependencyType() ==
-                    Dependency::data) {
-                fputs("Memory: ", file);
-            }
-            if (dependency->getDependencyType() ==
-                    Dependency::state) {
-                fputs("State: ", file);
-            }
-            fputs(dependency->getName().c_str(), file);
-            fputs(">\" ];\n", file);
-        }
+        write_dependency_graph_dependencies(task, file);
     }
     fputs("}", file);
 

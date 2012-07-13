@@ -51,6 +51,34 @@ class XModel {
     std::vector<std::string> * getAllowedDataTypes();
 
   private:
+    int processVariable(XVariable * variable,
+            XModel * model);
+    int processVariables(std::vector<XVariable*> * variables_,
+            XModel * model);
+    int processAgentFunction(XFunction * function,
+            std::vector<XVariable*> * variables);
+    void validateVariables_name(XVariable * v, int * errors,
+            std::vector<XVariable*> * variables);
+    int validateVariables(std::vector<XVariable*> * variables_,
+            XModel * model, bool allowDyamicArrays);
+    int validateFunctionFile(std::string name);
+    int validateTimeunits(XTimeUnit * timeUnit, XModel * model);
+    int validateADT(XADT * adt, XModel * model);
+    int validateAgent(XMachine * agent, XModel * model);
+    int validateAgentFunction(XFunction * xfunction,
+            XMachine * agent, XModel * model);
+    int validateAgentCommunication(XIOput * xioput, XMachine * agent,
+            XModel * model);
+    int validateAgentConditionOrFilter(XCondition * xcondition,
+            XMachine * agent, XMessage * xmessage, XModel * model);
+    int validateSort(XIOput * xioput, XMessage * xmessage);
+    int validateMessage(XMessage * xmessage, XModel * model);
+    bool name_is_allowed(std::string name);
+    int validateFunctionFiles(std::vector<std::string> names);
+    int validateDataTypes(std::vector<XADT*> adts, XModel * model);
+    int validateTimeUnits(std::vector<XTimeUnit*> timeUnits, XModel * model);
+    int validateAgents(std::vector<XMachine*> agents, XModel * model);
+    int validateMessages(std::vector<XMessage*> messages, XModel * model);
     std::string name_;
     /*! \brief The absolute path to the model file */
     std::string path_;
