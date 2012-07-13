@@ -26,11 +26,20 @@ class IOXMLModel {
     int readXMLModel(std::string file_name, model::XModel * model);
 
   private:
+    void print_element_names(xmlNode * a_node);
+    std::string getElementName(xmlNode * node);
+    std::string getElementValue(xmlNode * node);
+    int validateXMLModelRootElement(
+            xmlNode *root_element, std::string file_name);
+    int readModelElements(xmlNode *root_element, model::XModel * model,
+            std::string directory);
     int readUnknownElement(xmlNode * node);
     int readIncludedModels(xmlNode * node,
             std::string directory, model::XModel * model);
     int readIncludedModel(xmlNode * node,
             std::string directory, model::XModel * model);
+    int readIncludedModelValidate(std::string directory,
+            std::string fileName, model::XModel * model, bool enable);
     int readEnvironment(xmlNode * node, model::XModel * model);
     int readFunctionFiles(xmlNode * node, model::XModel * model);
     int readDataTypes(xmlNode * node, model::XModel * model);
@@ -53,6 +62,10 @@ class IOXMLModel {
     int readMessage(xmlNode * node, model::XModel * model);
     int readSort(xmlNode * node, model::XIOput * xioput);
     int readCondition(xmlNode * node, model::XCondition * xcondition);
+    int readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
+    int readConditionSide(model::XCondition * xcondition,
+        model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
+        bool * hsIsCondition, xmlNode *cur_node);
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_MODEL_HPP_
