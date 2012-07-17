@@ -51,20 +51,29 @@ class XModel {
     std::vector<std::string> * getAllowedDataTypes();
 
   private:
+    void processVariableDynamicArray(XVariable * variable);
+    int processVariableStaticArray(XVariable * variable);
     int processVariable(XVariable * variable,
             XModel * model);
     int processVariables(std::vector<XVariable*> * variables_,
             XModel * model);
     int processAgentFunction(XFunction * function,
             std::vector<XVariable*> * variables);
-    void validateVariables_name(XVariable * v, int * errors,
+    void validateVariableName(XVariable * v, int * errors,
             std::vector<XVariable*> * variables);
+    void validateVariableType(XVariable * v, int * errors,
+            XModel * model, bool allowDyamicArrays);
     int validateVariables(std::vector<XVariable*> * variables_,
             XModel * model, bool allowDyamicArrays);
     int validateFunctionFile(std::string name);
-    int validateTimeunits(XTimeUnit * timeUnit, XModel * model);
+    int validateTimeUnitPeriod(XTimeUnit * timeUnit);
+    int validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model);
+    int validateTimeUnitName(XTimeUnit * timeUnit, XModel * model);
+    int validateTimeUnit(XTimeUnit * timeUnit, XModel * model);
     int validateADT(XADT * adt, XModel * model);
     int validateAgent(XMachine * agent, XModel * model);
+    int validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent,
+            XModel * model);
     int validateAgentFunction(XFunction * xfunction,
             XMachine * agent, XModel * model);
     int validateAgentCommunication(XIOput * xioput, XMachine * agent,
