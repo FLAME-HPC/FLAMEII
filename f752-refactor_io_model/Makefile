@@ -47,6 +47,7 @@ OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmachine.hpp \
              src/model/xmodel.hpp \
+             src/model/xmodel_validate.hpp \
              src/model/xvariable.hpp \
              src/model/xadt.hpp \
              src/model/xtimeunit.hpp \

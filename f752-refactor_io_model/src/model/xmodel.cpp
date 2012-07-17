@@ -100,6 +100,11 @@ void XModel::print() {
     }
 }
 
+int XModel::validate() {
+    XModelValidate validator(this);
+    return validator.validate();
+}
+
 void XModel::setPath(std::string path) {
     path_ = path;
 }
@@ -184,6 +189,10 @@ std::vector<XTimeUnit*> * XModel::getTimeUnits() {
 
 void XModel::addFunctionFile(std::string file) {
     functionFiles_.push_back(file);
+}
+
+std::vector<std::string> * XModel::getFunctionFiles() {
+    return &functionFiles_;
 }
 
 XMachine * XModel::addAgent() {

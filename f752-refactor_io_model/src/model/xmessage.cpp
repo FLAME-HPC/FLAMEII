@@ -14,22 +14,32 @@
 
 namespace flame { namespace model {
 
+XMessage::XMessage() {
+}
+
+/*!
+ * \brief Cleans up XMessage
+ *
+ * Cleans up XMessage by deleting the variables list.
+ */
 XMessage::~XMessage() {
     /* Delete variables */
-    XVariable * var;
     while (!variables_.empty()) {
-        var = variables_.back();
-        delete var;
+        delete variables_.back();
         variables_.pop_back();
     }
 }
 
+/*!
+ * \brief Prints XMessage
+ *
+ * Prints XMessage to standard out.
+ */
 void XMessage::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++) {
+    for (ii = 0; ii < getVariables()->size(); ii++)
         getVariables()->at(ii)->print();
-    }
 }
 
 void XMessage::setName(std::string name) {

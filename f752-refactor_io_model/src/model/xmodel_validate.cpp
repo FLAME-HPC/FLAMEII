@@ -13,9 +13,16 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "./xmodel_validate.hpp"
 #include "./model_manager.hpp"
 
 namespace flame { namespace model {
+
+XModelValidate::XModelValidate(XModel * m) {
+    model = m;
+}
+
+XModelValidate::~XModelValidate() {}
 
 /*!
  * \brief Validate the model
@@ -25,27 +32,27 @@ namespace flame { namespace model {
  * \todo Remove agents with no memory variables (if needed).
  * Detailed description.
  */
-int XModel::validate() {
+int XModelValidate::validate() {
     int rc;
     int errors = 0;
 
     /* Validate function files */
-    errors += validateFunctionFiles(functionFiles_);
+    errors += validateFunctionFiles(*model->getFunctionFiles());
     /* Validate data types */
-    errors += validateDataTypes(adts_, this);
+    errors += validateDataTypes(*model->getADTs(), model);
     /* Validate model constants */
-    rc = validateVariables(&constants_, this, false);
+    rc = validateVariables(model->getConstants(), model, false);
     if (rc != 0) {
         std::fprintf(stderr,
             "       from environment constants.\n");
         errors += rc;
     }
     /* Validate time units */
-    errors += validateTimeUnits(timeUnits_, this);
+    errors += validateTimeUnits(*model->getTimeUnits(), model);
     /* Validate agents */
-    errors += validateAgents(agents_, this);
+    errors += validateAgents(*model->getAgents(), model);
     /* Validate messages */
-    errors += validateMessages(messages_, this);
+    errors += validateMessages(*model->getMessages(), model);
 
     /* If errors print out information */
     if (errors > 0) {
@@ -58,7 +65,7 @@ int XModel::validate() {
     return errors;
 }
 
-int XModel::validateFunctionFiles(std::vector<std::string> names) {
+int XModelValidate::validateFunctionFiles(std::vector<std::string> names) {
     int errors = 0;
     unsigned int ii;
     for (ii = 0; ii < names.size(); ii++) {
@@ -67,7 +74,7 @@ int XModel::validateFunctionFiles(std::vector<std::string> names) {
     return errors;
 }
 
-int XModel::validateDataTypes(std::vector<XADT*> adts, XModel * model) {
+int XModelValidate::validateDataTypes(std::vector<XADT*> adts, XModel * model) {
     int errors = 0;
     unsigned int ii;
     int rc;
@@ -83,7 +90,7 @@ int XModel::validateDataTypes(std::vector<XADT*> adts, XModel * model) {
     return errors;
 }
 
-int XModel::validateTimeUnits(
+int XModelValidate::validateTimeUnits(
         std::vector<XTimeUnit*> timeUnits, XModel * model) {
     int errors = 0;
     unsigned int ii;
@@ -100,7 +107,8 @@ int XModel::validateTimeUnits(
     return errors;
 }
 
-int XModel::validateAgents(std::vector<XMachine*> agents, XModel * model) {
+int XModelValidate::validateAgents(std::vector<XMachine*> agents,
+        XModel * model) {
     int errors = 0;
     unsigned int ii;
     int rc;
@@ -116,7 +124,8 @@ int XModel::validateAgents(std::vector<XMachine*> agents, XModel * model) {
     return errors;
 }
 
-int XModel::validateMessages(std::vector<XMessage*> messages, XModel * model) {
+int XModelValidate::validateMessages(std::vector<XMessage*> messages,
+        XModel * model) {
     int errors = 0;
     unsigned int ii;
     int rc;
@@ -132,7 +141,7 @@ int XModel::validateMessages(std::vector<XMessage*> messages, XModel * model) {
     return errors;
 }
 
-int XModel::validateAgent(XMachine * agent, XModel * model) {
+int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     int rc, errors = 0;
     unsigned int ii;
 
@@ -168,7 +177,7 @@ int XModel::validateAgent(XMachine * agent, XModel * model) {
     return errors;
 }
 
-void XModel::processVariableDynamicArray(XVariable * variable) {
+void XModelValidate::processVariableDynamicArray(XVariable * variable) {
     /* Handle dynamic arrays in variable type */
     /* If the type can end in _array */
     if (variable->getType().size() > 6) {
@@ -197,7 +206,7 @@ bool castStringToInt(std::string * str, int * i) {
     return true;
 }
 
-int XModel::processVariableStaticArray(XVariable * variable) {
+int XModelValidate::processVariableStaticArray(XVariable * variable) {
     int errors = 0;
     /* Handle static arrays in variable name */
     int arraySize;
@@ -238,7 +247,7 @@ int XModel::processVariableStaticArray(XVariable * variable) {
     return errors;
 }
 
-int XModel::processVariable(XVariable * variable,
+int XModelValidate::processVariable(XVariable * variable,
         XModel * model) {
     int errors = 0;
     unsigned int ii;
@@ -275,7 +284,7 @@ int XModel::processVariable(XVariable * variable,
     return errors;
 }
 
-int XModel::processVariables(std::vector<XVariable*> * variables,
+int XModelValidate::processVariables(std::vector<XVariable*> * variables,
         XModel * model) {
     int rc, errors = 0;
     unsigned int ii;
@@ -295,7 +304,7 @@ int XModel::processVariables(std::vector<XVariable*> * variables,
     return errors;
 }
 
-int XModel::processAgentFunction(XFunction * function,
+int XModelValidate::processAgentFunction(XFunction * function,
         std::vector<XVariable*> * variables) {
     std::vector<XVariable*>::iterator variable;
 
@@ -311,7 +320,7 @@ int XModel::processAgentFunction(XFunction * function,
     return 0;
 }
 
-void XModel::validateVariableName(XVariable * v, int * errors,
+void XModelValidate::validateVariableName(XVariable * v, int * errors,
         std::vector<XVariable*> * variables) {
     unsigned int jj;
     /* Check names are valid */
@@ -334,7 +343,7 @@ void XModel::validateVariableName(XVariable * v, int * errors,
     }
 }
 
-void XModel::validateVariableType(XVariable * v, int * errors,
+void XModelValidate::validateVariableType(XVariable * v, int * errors,
         XModel * model, bool allowDyamicArrays) {
     unsigned int jj;
     bool foundValidDataType = false;
@@ -365,7 +374,7 @@ void XModel::validateVariableType(XVariable * v, int * errors,
     }
 }
 
-int XModel::validateVariables(std::vector<XVariable*> * variables,
+int XModelValidate::validateVariables(std::vector<XVariable*> * variables,
         XModel * model, bool allowDyamicArrays) {
     int rc, errors = 0;
     unsigned int ii;
@@ -386,7 +395,7 @@ int XModel::validateVariables(std::vector<XVariable*> * variables,
     return errors;
 }
 
-int XModel::validateFunctionFile(std::string name) {
+int XModelValidate::validateFunctionFile(std::string name) {
     int errors = 0;
 
     /* Name ends in '.c' */
@@ -400,7 +409,7 @@ int XModel::validateFunctionFile(std::string name) {
     return errors;
 }
 
-int XModel::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
+int XModelValidate::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
     int errors = 0;
     bool castSuccessful = true;
     int period;
@@ -427,7 +436,7 @@ int XModel::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
     return errors;
 }
 
-int XModel::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
     unsigned int ii;
     bool unitIsValid = false;
@@ -446,7 +455,7 @@ int XModel::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModel::validateTimeUnitName(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::validateTimeUnitName(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
     unsigned int ii;
 
@@ -477,7 +486,7 @@ int XModel::validateTimeUnitName(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModel::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
 
     errors += validateTimeUnitName(timeUnit, model);
@@ -487,7 +496,7 @@ int XModel::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModel::validateADT(XADT * adt, XModel * model) {
+int XModelValidate::validateADT(XADT * adt, XModel * model) {
     int errors = 0;
     unsigned int jj;
     bool dataTypeNameIsValid;
@@ -525,8 +534,8 @@ int XModel::validateADT(XADT * adt, XModel * model) {
     return errors;
 }
 
-int XModel::validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent,
-        XModel * model) {
+int XModelValidate::validateAgentFunctionIOput(XFunction * xfunction,
+        XMachine * agent, XModel * model) {
     unsigned int kk;
     int rc, errors = 0;
 
@@ -556,8 +565,8 @@ int XModel::validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent,
     return errors;
 }
 
-int XModel::validateAgentFunction(XFunction * xfunction, XMachine * agent,
-        XModel * model) {
+int XModelValidate::validateAgentFunction(XFunction * xfunction,
+        XMachine * agent, XModel * model) {
     int errors = 0;
 
     /* Process function first */
@@ -597,8 +606,8 @@ int XModel::validateAgentFunction(XFunction * xfunction, XMachine * agent,
     return errors;
 }
 
-int XModel::validateAgentCommunication(XIOput * xioput, XMachine * agent,
-        XModel * model) {
+int XModelValidate::validateAgentCommunication(XIOput * xioput,
+        XMachine * agent, XModel * model) {
     int errors = 0;
     XMessage * xmessage = model->getMessage(xioput->getMessageName());
 
@@ -637,7 +646,7 @@ int XModel::validateAgentCommunication(XIOput * xioput, XMachine * agent,
     return errors;
 }
 
-int XModel::validateAgentConditionOrFilter(XCondition * xcondition,
+int XModelValidate::validateAgentConditionOrFilter(XCondition * xcondition,
         XMachine * agent, XMessage * xmessage, XModel * model) {
     int rc, errors = 0;
 
@@ -649,7 +658,7 @@ int XModel::validateAgentConditionOrFilter(XCondition * xcondition,
     return errors;
 }
 
-int XModel::validateSort(XIOput * xioput, XMessage * xmessage) {
+int XModelValidate::validateSort(XIOput * xioput, XMessage * xmessage) {
     int errors = 0;
 
     /* Validate key as a message variable */
@@ -680,7 +689,7 @@ int XModel::validateSort(XIOput * xioput, XMessage * xmessage) {
     return errors;
 }
 
-int XModel::validateMessage(XMessage * xmessage, XModel * model) {
+int XModelValidate::validateMessage(XMessage * xmessage, XModel * model) {
     int errors = 0;
     unsigned int ii;
 
@@ -717,7 +726,7 @@ bool char_is_disallowed(char c) {
  * If no disallowed character is found then you end with name.end() which is
  * taken to be success and true is returned.
  */
-bool XModel::name_is_allowed(std::string name) {
+bool XModelValidate::name_is_allowed(std::string name) {
     return std::find_if(name.begin(), name.end(),
             char_is_disallowed) == name.end();
 }

@@ -51,6 +51,11 @@ XCondition::XCondition() {
     rhsDouble = 0.0;
 }
 
+/*!
+ * \brief Cleans up XCondtion
+ *
+ * Cleans up XCondtion by deleting any nexted conditions.
+ */
 XCondition::~XCondition() {
     /* Delete any nested conditions */
     if (lhsCondition != 0) delete lhsCondition;
