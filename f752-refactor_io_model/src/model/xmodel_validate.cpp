@@ -440,8 +440,9 @@ int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
     unsigned int ii;
     bool unitIsValid = false;
-    /* Check unit is valid */
+    /* Unit can either be 'iteration' */
     if (timeUnit->getUnit() == "iteration") unitIsValid = true;
+    /* Or unit can be another time unit name */
     for (ii = 0; ii < model->getTimeUnits()->size(); ii++)
         if (timeUnit != model->getTimeUnits()->at(ii) &&
                 timeUnit->getUnit() == model->getTimeUnits()->at(ii)->getName())

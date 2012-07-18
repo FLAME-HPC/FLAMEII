@@ -326,13 +326,16 @@ int IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
         std::vector<model::XVariable*>::iterator variable) {
     int rc;
     std::string type;
+    /* Write tag */
     rc = writeXMLTagAndAttribute(writer, "xs:element", "name",
             (*variable)->getName());
     if (rc != 0) return rc;
+    /* Select correct schema data type */
     if ((*variable)->getType() == "int") type = "xs:integer";
     else if ((*variable)->getType() == "double") type = "xs:double";
     else
         type = "xs:string";
+    /* Write schema data type attribute */
     rc = writeXMLTagAttribute(writer, "type", type);
     if (rc != 0) return rc;
     /* Close the element named xs:element. */
@@ -518,7 +521,8 @@ int IOXMLPop::validateData(std::string const& data_file,
 
 int IOXMLPop::processStartNode(std::vector<std::string> * tags,
         std::string name) {
-    /* If correct tag at correct depth */
+    /* If correct tag at correct depth with
+     * correct tag name */
     if ((tags->size() == 0 && name == "states") ||
         (tags->size() == 1 &&
         (name == "itno" || name == "environment" || name == "xagent")) ||
@@ -745,6 +749,7 @@ int IOXMLPop::writeXMLTagAttribute(xmlTextWriterPtr writer,
 int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name, std::string value) {
     int rc;
+    /* Write tag with 1 attribute */
     rc = writeXMLTag(writer, tag);
     if (rc != 0) return rc;
     rc = writeXMLTagAttribute(writer, name, value);
@@ -755,6 +760,7 @@ int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name1, std::string value1,
         std::string name2, std::string value2) {
     int rc;
+    /* Write tag with 2 attributes */
     rc = writeXMLTag(writer, tag);
     if (rc != 0) return rc;
     rc = writeXMLTagAttribute(writer, name1, value1);
@@ -768,6 +774,8 @@ int IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name2, std::string value2,
         std::string name3, std::string value3) {
     int rc;
+    /* Write tag with
+     * 3 attributes */
     rc = writeXMLTag(writer, tag);
     if (rc != 0) return rc;
     rc = writeXMLTagAttribute(writer, name1, value1);

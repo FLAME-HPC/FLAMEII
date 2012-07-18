@@ -266,10 +266,12 @@ int ModelManager::check_dependency_loops(XModel * model) {
 }
 
 std::string ModelManager::taskTypeToString(Task::TaskType t) {
+    /* Convert Task task to printable string */
     if (t == Task::io_pop_write) return "disk";
     else if (t == Task::sync_finish) return "comm";
     else if (t == Task::sync_start) return "comm";
     else if (t == Task::xfunction) return "func";
+    /* If task not recognised return empty string */
     else
         return "";
 }
