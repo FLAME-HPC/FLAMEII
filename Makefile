@@ -47,6 +47,7 @@ OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmachine.hpp \
              src/model/xmodel.hpp \
+             src/model/xmodel_validate.hpp \
              src/model/xvariable.hpp \
              src/model/xadt.hpp \
              src/model/xtimeunit.hpp \
@@ -91,10 +92,17 @@ CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
 	$(CPPLINT) $(SOURCES) $(HEADERS)
 
+CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
+cccc:
+	cccc $(SOURCES) $(HEADERS) --outdir=cccc; \
+	$(CCCCSUMMARY) cccc
+
 # dsymutil - only relevent on Mac OS X
 memtest: all
 	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
 	rm -fr $(EXECUTABLE).dSYM
+
+.PHONY: cccc
 
 # To run executable:
 # export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost_1_49_0/stage/lib

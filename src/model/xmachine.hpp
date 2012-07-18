@@ -18,7 +18,7 @@ namespace flame { namespace model {
 
 class XMachine {
   public:
-    XMachine() {}
+    XMachine();
     ~XMachine();
     void print();
     void setName(std::string name);

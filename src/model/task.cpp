@@ -14,6 +14,11 @@
 
 namespace flame { namespace model {
 
+/*!
+ * \brief Initialises Task
+ *
+ * Initialises Task and sets level to be zero.
+ */
 Task::Task() {
     level_ = 0;
 }
@@ -53,6 +58,7 @@ std::string Task::getName() {
 }
 
 std::string Task::getFullName() {
+    /* Return full name made from name and parent name */
     std::string fullName = name_ + "_" + parentName_;
     return fullName;
 }
@@ -75,6 +81,7 @@ size_t Task::getLevel() {
 
 void Task::addParent(std::string name,
             Dependency::DependencyType type, Task * task) {
+    /* Create a new dependency and add to parents list */
     Dependency * d = new Dependency;
     d->setName(name);
     d->setDependencyType(type);

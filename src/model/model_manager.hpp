@@ -33,6 +33,32 @@ class ModelManager {
     std::vector<Task*> * get_task_list();
 
   private:
+    int catalog_state_dependencies_functions(
+            XModel * model, std::vector<Task*> * tasks);
+    int catalog_state_dependencies_transitions(XModel * model);
+    int catalog_state_dependencies(XModel * model, std::vector<Task*> * tasks);
+    int catalog_communication_dependencies_syncs(
+            XModel * model,
+            std::vector<Task*> * tasks);
+    int catalog_communication_dependencies_ioput(XModel * model,
+            std::vector<XFunction*>::iterator function);
+    int catalog_communication_dependencies(XModel * model,
+            std::vector<Task*> * tasks);
+    int catalog_data_dependencies_variable(
+            std::vector<XMachine*>::iterator agent,
+            std::vector<XVariable*>::iterator variable,
+            std::vector<Task*> * tasks);
+    int catalog_data_dependencies(XModel * model,
+            std::vector<Task*> * tasks);
+    int check_dependency_loops(XModel * model);
+    int calculate_dependencies(std::vector<Task*> * tasks);
+    int calculate_task_list(std::vector<Task*> * tasks);
+    void write_dependency_graph_dependencies(
+            std::vector<Task*>::iterator task, FILE *file);
+    void write_dependency_graph(std::string filename,
+            std::vector<Task*> * tasks);
+    std::string taskTypeToString(Task::TaskType t);
+    void printTaskList(std::vector<Task*> * tasks);
     XModel model_;
     std::vector<Task*> tasks_;
 };
