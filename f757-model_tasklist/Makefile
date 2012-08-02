@@ -87,7 +87,7 @@ $(OBJECTS): $(DEPS)
 
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE); \
-	$(RM) -rf cccc
+	$(RM) -r cccc
 
 CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
@@ -101,7 +101,7 @@ cccc:
 # dsymutil - only relevent on Mac OS X
 memtest: all
 	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
-	rm -fr $(EXECUTABLE).dSYM
+	$(RM) -r $(EXECUTABLE).dSYM
 
 .PHONY: cccc
 
