@@ -11,6 +11,8 @@
 #define MODEL__MODEL_MANAGER_HPP_
 #include <string>
 #include <vector>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/property_map/property_map.hpp>
 #include "./xadt.hpp"
 #include "./xcondition.hpp"
 #include "./xfunction.hpp"
@@ -23,6 +25,12 @@
 #include "./task.hpp"
 
 namespace flame { namespace model {
+
+// Define graph type
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS> Graph;
+// Define vertex and edge descriptor types
+typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+typedef boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
 
 class ModelManager {
   public:
@@ -61,6 +69,8 @@ class ModelManager {
     void printTaskList(std::vector<Task*> * tasks);
     XModel model_;
     std::vector<Task*> tasks_;
+    // New boost graph definitions
+    Graph graph_;
 };
 
 }}  // namespace flame::model

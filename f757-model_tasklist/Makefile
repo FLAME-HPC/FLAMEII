@@ -7,7 +7,7 @@ LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_system$(BOOSTLIB) \
              -lboost_filesystem$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers $(shell xml2-config --cflags)
+INCLUDE    = -I./headers $(shell xml2-config --cflags) -I/Users/stc/workspace/boost/boost_1_49_0
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
@@ -38,9 +38,9 @@ MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
              src/mem/tests/test_memory_manager.cpp \
              src/mem/tests/test_vector_wrapper.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp \
-             $(MEM_TEST) \
+			 $(MODEL_TEST)
+#             $(MEM_TEST) \
              $(IO_TEST_MAN) \
-             $(MODEL_TEST) \
              $(IO_TEST_POP) \
              $(IO_TEST_MODEL)        
 OBJECTS    = $(SOURCES:.cpp=.o)
@@ -86,7 +86,8 @@ $(OBJECTS): $(DEPS)
 	$(CC) -c $(CFLAGS) $(INCLUDE) $< -o $@
 
 clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE)
+	$(RM) $(OBJECTS) $(EXECUTABLE); \
+	$(RM) -rf cccc
 
 CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
@@ -105,4 +106,4 @@ memtest: all
 .PHONY: cccc
 
 # To run executable:
-# export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost_1_49_0/stage/lib
+# export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost/boost_1_49_0/stage/lib

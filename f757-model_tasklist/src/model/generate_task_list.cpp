@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/graphviz.hpp>
 #include "./model_manager.hpp"
 #include "./task.hpp"
 
@@ -21,24 +24,62 @@ namespace flame { namespace model {
  * Produces task list with state/data/communication dependencies.
  */
 int ModelManager::generate_task_list() {
-    int rc;
-    /* Catalog state dependencies */
+/*    int rc;
+    // Catalog state dependencies
     rc = catalog_state_dependencies(&model_, &tasks_);
-    /* Catalog communication dependencies */
+    // Catalog communication dependencies
     rc = catalog_communication_dependencies(&model_, &tasks_);
-    /* Check for dependency loops */
+    // Check for dependency loops
     rc = check_dependency_loops(&model_);
-    /* Calculate dependencies */
+    // Calculate dependencies
     rc = calculate_dependencies(&tasks_);
-    /* Catalog data dependencies */
+    // Catalog data dependencies
     rc = catalog_data_dependencies(&model_, &tasks_);
-    /* Calculate task list using dependencies */
+    // Calculate task list using dependencies
     rc = calculate_task_list(&tasks_);
 
 #ifdef TESTBUILD
-    /* Output dependency graph to view via graphviz dot */
+    // Output dependency graph to view via graphviz dot
     write_dependency_graph("dgraph.dot", &tasks_);
 #endif
+*/
+
+    std::map<std::string, vertex_descriptor> name2vertex;
+    /*std::string vertex_name = "test";
+    vertex_descriptor v;
+    if (name2vertex.find(vertex_name) == name2vertex.end()) {
+        v = add_vertex(graph_);
+        name2vertex.insert(make_pair(vertex_name, v));
+    } else {
+        v = name2vertex[vertex_name];
+    }*/
+
+    vertex_descriptor v1 = add_vertex(graph_);
+    name2vertex.insert(make_pair(std::string("a"), v1));
+    vertex_descriptor v2 = add_vertex(graph_);
+    name2vertex.insert(make_pair(std::string("b"), v2));
+    vertex_descriptor v3 = add_vertex(graph_);
+    name2vertex.insert(make_pair(std::string("c"), v3));
+    add_edge(v1, v2, graph_);
+    add_edge(v1, v3, graph_);
+
+    typedef boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+    IndexMap index = get(boost::vertex_index, graph_);
+
+    std::vector<std::string> name_vec(num_vertices(graph_));
+    boost::iterator_property_map<std::vector<std::string>::iterator, IndexMap> name(name_vec.begin(), index);
+    std::map<std::string, vertex_descriptor>::iterator i;
+    for (i = name2vertex.begin(); i != name2vertex.end(); ++i)
+       name[i->second] = i->first;
+
+    std::vector<vertex_descriptor> topo_order(num_vertices(graph_));
+    boost::topological_sort(graph_, topo_order.rbegin());
+    std::cout << "topological order:\n";
+     for (std::vector<vertex_descriptor>::iterator i = topo_order.begin();
+         i != topo_order.end(); ++i)
+       std::cout << name[*i] << "\n";
+
+     boost::write_graphviz(std::cout, graph_);
 
     return 0;
 }
