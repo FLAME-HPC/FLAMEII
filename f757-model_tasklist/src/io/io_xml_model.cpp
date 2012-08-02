@@ -611,6 +611,7 @@ int IOXMLModel::readTransition(xmlNode * node,
             /* Handle each child */
             if (name == "name")
                 xfunction->setName(getElementValue(cur_node));
+            else if (name == "description") {}
             else if (name == "currentState")
                 xfunction->setCurrentState(getElementValue(cur_node));
             else if (name == "nextState")
