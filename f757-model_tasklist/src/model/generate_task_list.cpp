@@ -44,6 +44,7 @@ int ModelManager::generate_task_list() {
 #endif
 */
 
+    //Todo Map to Task not string
     std::map<std::string, vertex_descriptor> name2vertex;
     /*std::string vertex_name = "test";
     vertex_descriptor v;
@@ -54,12 +55,17 @@ int ModelManager::generate_task_list() {
         v = name2vertex[vertex_name];
     }*/
 
+    std::map<vertex_descriptor, std::string> vertex2name;
+
     vertex_descriptor v1 = add_vertex(graph_);
     name2vertex.insert(make_pair(std::string("a"), v1));
+    vertex2name.insert(make_pair(v1, std::string("a")));
     vertex_descriptor v2 = add_vertex(graph_);
     name2vertex.insert(make_pair(std::string("b"), v2));
+    vertex2name.insert(make_pair(v2, std::string("b")));
     vertex_descriptor v3 = add_vertex(graph_);
     name2vertex.insert(make_pair(std::string("c"), v3));
+    vertex2name.insert(make_pair(v3, std::string("c")));
     add_edge(v1, v2, graph_);
     add_edge(v1, v3, graph_);
 
@@ -76,8 +82,10 @@ int ModelManager::generate_task_list() {
     boost::topological_sort(graph_, topo_order.rbegin());
     std::cout << "topological order:\n";
      for (std::vector<vertex_descriptor>::iterator i = topo_order.begin();
-         i != topo_order.end(); ++i)
+         i != topo_order.end(); ++i) {
        std::cout << name[*i] << "\n";
+       std::cout << vertex2name.find(*i)->second << "\n";
+     }
 
      boost::write_graphviz(std::cout, graph_);
 

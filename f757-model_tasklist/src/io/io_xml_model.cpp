@@ -72,7 +72,7 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     xmlNode *root_element = NULL;
 
     /* Find file directory to help open any submodels */
-    boost::filesystem3::path filePath(file_name);
+    boost::filesystem::path filePath(file_name);
     directory = filePath.parent_path().string();
     directory.append("/");
 
@@ -80,7 +80,7 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     fprintf(stdout, "Reading '%s'\n", file_name.c_str());
 
     /* Save absolute path to check the file is not read again */
-    model->setPath(boost::filesystem3::absolute(filePath).string());
+    model->setPath(boost::filesystem::absolute(filePath).string());
 
     /* Parse the file and get the DOM */
     doc = xmlReadFile(file_name.c_str(), NULL, 0);
@@ -186,7 +186,7 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
 
         /* Check sub model is not a duplicate */
         if (!model->addIncludedModel(
-            boost::filesystem3::absolute(fileName).string())) {
+            boost::filesystem::absolute(fileName).string())) {
             std::fprintf(stderr,
                 "Error: Included model is a duplicate: '%s'\n",
                 fileName.c_str());

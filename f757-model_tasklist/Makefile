@@ -7,7 +7,7 @@ LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_system$(BOOSTLIB) \
              -lboost_filesystem$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers $(shell xml2-config --cflags) -I/Users/stc/workspace/boost/boost_1_49_0
+INCLUDE    = -I./headers $(shell xml2-config --cflags) -I/Users/stc/workspace/boost/boost_1_50_0
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
@@ -88,6 +88,9 @@ $(OBJECTS): $(DEPS)
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE); \
 	$(RM) -r cccc
+
+doc:
+	doxygen
 
 CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
