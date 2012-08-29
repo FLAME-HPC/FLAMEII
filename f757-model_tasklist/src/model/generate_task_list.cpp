@@ -22,15 +22,15 @@ namespace flame { namespace model {
  */
 int ModelManager::generate_task_list() {
     XGraph functionStateGraph;
-
     int rc;
+
     // Catalog state dependencies
     rc = catalog_state_dependencies(&model_, &functionStateGraph);
     // Catalog communication dependencies
-        rc = catalog_communication_dependencies(&model_, &functionStateGraph);
+    rc = catalog_communication_dependencies(&model_, &functionStateGraph);
     // Check for dependency loops
-        /*    rc = check_dependency_loops(&model_);
-    // Calculate dependencies
+    rc = functionStateGraph.check_dependency_loops();
+            /*    // Calculate dependencies
     rc = calculate_dependencies(&tasks_);
     // Catalog data dependencies
     rc = catalog_data_dependencies(&model_, &tasks_);
@@ -297,10 +297,6 @@ int ModelManager::catalog_data_dependencies(XModel * model,
         }
     }
 
-    return 0;
-}
-
-int ModelManager::check_dependency_loops(XModel * model) {
     return 0;
 }
 

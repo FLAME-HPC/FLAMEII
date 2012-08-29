@@ -51,7 +51,6 @@ class ModelManager {
             std::vector<Task*> * tasks);
     int catalog_data_dependencies(XModel * model,
             std::vector<Task*> * tasks);
-    int check_dependency_loops(XModel * model);
     int calculate_dependencies(std::vector<Task*> * tasks);
     int calculate_task_list(std::vector<Task*> * tasks);
     std::string taskTypeToString(Task::TaskType t);

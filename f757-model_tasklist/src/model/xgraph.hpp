@@ -34,6 +34,7 @@ class XGraph {
     ~XGraph();
     void addVertex(Task * t);
     void addEdge(Task * to, Task * from, Dependency * d);
+    int check_dependency_loops();
     void write_graphviz();
     void write_dependency_graph(std::string filename);
 

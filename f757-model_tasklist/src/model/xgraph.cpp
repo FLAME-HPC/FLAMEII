@@ -39,6 +39,40 @@ vertex_descriptor XGraph::getVertex(Task * t) {
     return 0;
 }
 
+struct has_cycle { };
+
+// Visitor function object passed to depth_first_search
+// Contains back_edge method that is called when the depth_first_search
+// explores an edge to an already discovered vertex
+struct cycle_detector : public boost::default_dfs_visitor {
+    cycle_detector(edge_descriptor& cycle_edge) : cycle_edge_(cycle_edge) {}
+    void back_edge(edge_descriptor edge_t, const Graph &) {
+        cycle_edge_ = edge_t;
+        throw has_cycle();
+    }
+  protected:
+    edge_descriptor& cycle_edge_;
+};
+
+int XGraph::check_dependency_loops() {
+    // Possible cyclic edge
+    edge_descriptor edge;
+    // Visitor cycle detector for use with depth_first_search
+    cycle_detector vis(edge);
+
+    try {
+        // Depth first search applied to graph
+        depth_first_search(graph_, visitor(vis));
+    } catch (has_cycle) {
+        // If has_cycle is caught
+        Dependency * d = edge2dependency_.find(edge)->second;
+        std::cout << "Error: cycle detected " << d->getName() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 void XGraph::write_graphviz() {
     boost::write_graphviz(std::cout, graph_);
 }
