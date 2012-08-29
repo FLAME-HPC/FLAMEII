@@ -27,7 +27,8 @@ MODEL_SRC  = src/model/xvariable.cpp \
              src/model/model_manager.cpp \
              src/model/generate_task_list.cpp \
              src/model/task.cpp \
-             src/model/dependency.cpp
+             src/model/dependency.cpp \
+             src/model/xgraph.cpp
 MODEL_TEST = src/model/tests/test_model_manager.cpp
 MEM_SRC    = src/mem/memory_manager.cpp \
              src/mem/agent_memory.cpp \
@@ -45,6 +46,8 @@ SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp \
              $(IO_TEST_MODEL)        
 OBJECTS    = $(SOURCES:.cpp=.o)
 HEADERS    = src/io/io_xml_model.hpp \
+			 src/io/io_xml_pop.hpp \
+			 src/io/io_manager.hpp \
              src/model/xmachine.hpp \
              src/model/xmodel.hpp \
              src/model/xmodel_validate.hpp \
@@ -55,16 +58,15 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmessage.hpp \
              src/model/xioput.hpp \
              src/model/xcondition.hpp \
-             src/io/io_xml_pop.hpp \
+             src/model/model_manager.hpp \
+             src/model/task.hpp \
+             src/model/dependency.hpp \
+             src/model/xgraph.hpp \
              src/mem/memory_manager.hpp \
              src/mem/agent_memory.hpp \
              src/mem/agent_shadow.hpp \
              src/mem/memory_iterator.hpp \
              src/mem/vector_wrapper.hpp \
-             src/model/model_manager.hpp \
-             src/io/io_manager.hpp \
-             src/model/task.hpp \
-             src/model/dependency.hpp \
              headers/exceptions/io.hpp \
              headers/exceptions/base.hpp \
              headers/exceptions/mem.hpp \

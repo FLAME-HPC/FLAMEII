@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE(test_generate_task_list) {
     }
 
     /* Remove created dgraph.dot */
-    std::string dgraph = "dgraph.dot";
+/*    std::string dgraph = "dgraph.dot";
     printf("Removing file: %s\n", dgraph.c_str());
     if (remove(dgraph.c_str()) != 0)
         fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-            dgraph.c_str());
+            dgraph.c_str());*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()

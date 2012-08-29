@@ -24,13 +24,6 @@ Task::Task() {
 }
 
 Task::~Task() {
-    /* Delete dependencies */
-    Dependency * dependency;
-    while (!parents_.empty()) {
-        dependency = parents_.back();
-        delete dependency;
-        parents_.pop_back();
-    }
 }
 
 void Task::setTaskID(size_t id) {
@@ -77,24 +70,6 @@ void Task::setLevel(size_t level) {
 
 size_t Task::getLevel() {
     return level_;
-}
-
-void Task::addParent(std::string name,
-            Dependency::DependencyType type, Task * task) {
-    /* Create a new dependency and add to parents list */
-    Dependency * d = new Dependency;
-    d->setName(name);
-    d->setDependencyType(type);
-    d->setTask(task);
-    parents_.push_back(d);
-}
-
-void Task::addDependency(Dependency * d) {
-    parents_.push_back(d);
-}
-
-std::vector<Dependency*> Task::getParents() {
-    return parents_;
 }
 
 void Task::setPriorityLevel(size_t l) {

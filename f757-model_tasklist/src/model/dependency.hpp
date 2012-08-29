@@ -25,13 +25,10 @@ class Dependency {
     std::string getName();
     void setDependencyType(DependencyType type);
     DependencyType getDependencyType();
-    void setTask(Task * task);
-    Task * getTask();
 
   private:
     /* State name/Message name/Memory variable name */
     std::string name_;
-    Task * task_;
     DependencyType dependencyType_;
 };
 }}  // namespace flame::model

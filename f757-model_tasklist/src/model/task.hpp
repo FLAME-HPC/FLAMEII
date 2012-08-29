@@ -31,10 +31,6 @@ class Task {
     TaskType getTaskType();
     void setLevel(size_t level);
     size_t getLevel();
-    void addParent(std::string name,
-            Dependency::DependencyType type, Task * task);
-    void addDependency(Dependency * d);
-    std::vector<Dependency*> getParents();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
 
@@ -43,9 +39,6 @@ class Task {
     size_t taskID_;
     /* Task type: a label to determine which queue the task belongs to */
     TaskType taskType_;
-    /* Dependency list: references of tasks that must be completed before
-     * this task can be executed */
-    std::vector<Dependency*> parents_;
     /* Priority level: determines the priority of this task should there
      * be more than one task in the queue */
     size_t priorityLevel_;

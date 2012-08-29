@@ -21,7 +21,6 @@ namespace flame { namespace model {
  */
 Dependency::Dependency() {
     name_ = "";
-    task_ = 0;
 }
 
 void Dependency::setName(std::string name) {
@@ -38,14 +37,6 @@ void Dependency::setDependencyType(DependencyType type) {
 
 Dependency::DependencyType Dependency::getDependencyType() {
     return dependencyType_;
-}
-
-void Dependency::setTask(Task * task) {
-    task_ = task;
-}
-
-Task * Dependency::getTask() {
-    return task_;
 }
 
 }}  // namespace flame::model
