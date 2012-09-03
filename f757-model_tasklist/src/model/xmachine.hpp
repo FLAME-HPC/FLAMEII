@@ -13,6 +13,7 @@
 #include <vector>
 #include "./xvariable.hpp"
 #include "./xfunction.hpp"
+#include "./xgraph.hpp"
 
 namespace flame { namespace model {
 
@@ -29,11 +30,20 @@ class XMachine {
     XFunction * addFunction();
     std::vector<XFunction*> * getFunctions();
     bool validateVariableName(std::string name);
+    int findStartState();
+    std::string getStartState();
+    int generateFunctionDependencyGraph();
+    XGraph * getFunctionDependencyGraph();
+    int checkCyclicDependencies();
 
   private:
+    int add_function_tasks_to_graph();
+    int add_function_dependencies_to_graph();
     std::string name_;
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;
+    std::string startState_;
+    XGraph functionDependencyGraph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMACHINE_HPP_

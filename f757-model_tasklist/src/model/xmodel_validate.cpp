@@ -174,6 +174,15 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
         }
     }
 
+    // Validate single start state
+    rc = agent->findStartState();
+    if (rc != 0) errors += rc;
+    else {
+        // Validate no cyclic dependencies
+        errors += agent->generateFunctionDependencyGraph();
+        errors += agent->checkCyclicDependencies();
+    }
+
     return errors;
 }
 
@@ -308,13 +317,20 @@ int XModelValidate::processAgentFunction(XFunction * function,
         std::vector<XVariable*> * variables) {
     std::vector<XVariable*>::iterator variable;
 
-    /* If memory access information was not given set all memory
-     * variable access as being read write */
+    // If memory access information was not given set all memory
+    // variable access as being read write.
     if (!function->getMemoryAccessInfoAvailable()) {
         for (variable = variables->begin();
                 variable != variables->end(); ++variable) {
             function->addReadWriteVariable((*variable));
         }
+    // Else check memory access variables are valid
+    } else {
+        // Check variable names are valid variables in memory
+
+        // Check there are no duplicate variables
+        // (from across both lists)
+
     }
 
     return 0;

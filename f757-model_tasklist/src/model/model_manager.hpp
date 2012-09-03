@@ -36,21 +36,21 @@ class ModelManager {
     std::vector<Task*> * get_task_list();
 
   private:
-    int catalog_state_dependencies_functions(XModel * model, XGraph * graph);
-    int catalog_state_dependencies_transitions(XModel * model, XGraph * graph);
-    int catalog_state_dependencies(XModel * model, XGraph * graph);
+    int calculate_graph_layers();
     int catalog_communication_dependencies_syncs(
             XModel * model, XGraph * graph);
     int catalog_communication_dependencies_ioput(XModel * model,
             std::vector<XFunction*>::iterator function, XGraph * graph);
     int catalog_communication_dependencies(XModel * model,
             XGraph * graph);
-    int catalog_data_dependencies_variable(
+    int catalog_dataio_dependencies_variable(
             std::vector<XMachine*>::iterator agent,
             std::vector<XVariable*>::iterator variable,
-            std::vector<Task*> * tasks);
+            XGraph * graph);
+    int catalog_dataio_dependencies(XModel * model,
+            XGraph * graph);
     int catalog_data_dependencies(XModel * model,
-            std::vector<Task*> * tasks);
+            XGraph * graph);
     int calculate_dependencies(std::vector<Task*> * tasks);
     int calculate_task_list(std::vector<Task*> * tasks);
     std::string taskTypeToString(Task::TaskType t);

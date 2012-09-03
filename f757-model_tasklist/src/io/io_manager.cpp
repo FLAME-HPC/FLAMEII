@@ -25,10 +25,6 @@ int IOManager::loadModel(std::string const& file,
     rc = ioxmlmodel.readXMLModel(file, model);
     if (rc != 0) return rc;
 
-    /* Validate model */
-    rc = model->validate();
-    if (rc != 0) return rc;
-
     /* Register agents with memory manager */
     unsigned int ii, jj;
     for (ii = 0; ii < model->getAgents()->size(); ii++) {

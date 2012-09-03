@@ -31,12 +31,34 @@ std::string Dependency::getName() {
     return name_;
 }
 
+void Dependency::setParentName(std::string name) {
+    parentName_ = name;
+}
+
+std::string Dependency::getParentName() {
+    return parentName_;
+}
+
 void Dependency::setDependencyType(DependencyType type) {
     dependencyType_ = type;
 }
 
 Dependency::DependencyType Dependency::getDependencyType() {
     return dependencyType_;
+}
+
+std::string Dependency::getGraphName() {
+    std::string graphName;
+    if (dependencyType_ == Dependency::communication)
+        graphName.append("Message: ");
+    else if (dependencyType_ == Dependency::data)
+        graphName.append("Memory: ");
+    else if (dependencyType_ == Dependency::state)
+        graphName.append("State: ");
+    else if (dependencyType_ == Dependency::init)
+        graphName.append("Initialise: ");
+    graphName.append(name_);
+    return graphName;
 }
 
 }}  // namespace flame::model

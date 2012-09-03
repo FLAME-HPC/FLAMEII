@@ -15,6 +15,8 @@
 namespace flame { namespace model {
 
 XMachine::XMachine() {
+    name_ = "";
+    startState_ = "";
 }
 
 /*!
@@ -89,6 +91,126 @@ bool XMachine::validateVariableName(std::string name) {
     for (ii = 0; ii < variables_.size(); ii++)
         if (name == variables_.at(ii)->getName()) return true;
     return false;
+}
+
+int XMachine::findStartState() {
+    // Map of state names and boolean for valid start state
+    std::set<std::string> states;
+    std::set<std::string>::iterator s;
+    std::vector<XFunction*>::iterator f;
+
+    // Reset state state value
+    startState_ = "";
+
+    // For each function add current state to possible start states list
+    for (f = functions_.begin(); f != functions_.end(); ++f)
+        states.insert((*f)->getCurrentState());
+    // For each function cancel states that are next states
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        s = states.find((*f)->getNextState());
+        // If state is valid, remove from start state list
+        if(s != states.end()) states.erase(s);
+    }
+    // No start states found
+    if (states.size() == 0) {
+        std::fprintf(stderr,
+            "Error: %s agent doesn't have a start state\n", name_.c_str());
+        return 1;
+    }
+    // Multiple start states found
+    if (states.size() > 1) {
+        std::fprintf(stderr,
+            "Error: %s agent has multiple possible start states:\n", name_.c_str());
+        for (s = states.begin(); s != states.end(); s++)
+            std::fprintf(stderr, "\t%s\n", s->c_str());
+        return 2;
+    }
+    // One start state
+    startState_ = (*states.begin());
+
+    return 0;
+}
+
+std::string XMachine::getStartState() {
+    return startState_;
+}
+
+int XMachine::add_function_tasks_to_graph() {
+    std::vector<XFunction*>::iterator f;
+
+    // Add initalise task to make traversing graph easier
+    Task * init_task = new Task;
+    init_task->setParentName(getName());
+    init_task->setName("Initialise");
+    init_task->setTaskType(Task::init_agent);
+    init_task->setPriorityLevel(5);
+    Vertex v = functionDependencyGraph_.addVertex(init_task);
+    functionDependencyGraph_.setStartVector(v);
+
+    // For each function
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        // Add function as a task to the task list
+        Task * task = new Task;
+        task->setParentName(getName());
+        task->setName((*f)->getName());
+        task->setTaskType(Task::xfunction);
+        task->setPriorityLevel(5);
+        functionDependencyGraph_.addVertex(task);
+        // Associate task with function
+        (*f)->setTask(task);
+        // If function current state is the agent start state
+        // then add dependency from function to init task
+        if ((*f)->getCurrentState() == startState_) {
+            Dependency * d = new Dependency;
+            d->setParentName(getName());
+            d->setName("Initialise");
+            d->setDependencyType(Dependency::init);
+            functionDependencyGraph_.addEdge(init_task, task, d);
+        }
+    }
+
+    return 0;
+}
+
+int XMachine::add_function_dependencies_to_graph() {
+    std::vector<XFunction*>::iterator f;
+    std::vector<XFunction*>::iterator f2;
+
+    // For each function
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        // Add state dependencies to tasks
+        // For each transition functions start state
+        // find transition functions that end in that state
+        for (f2 = functions_.begin(); f2 != functions_.end(); ++f2) {
+            if ((*f)->getCurrentState() == (*f2)->getNextState()) {
+                Dependency * d = new Dependency;
+                d->setParentName(getName());
+                d->setName((*f)->getCurrentState());
+                d->setDependencyType(Dependency::state);
+                functionDependencyGraph_.addEdge((*f2)->getTask(), (*f)->getTask(), d);
+            }
+        }
+    }
+
+    return 0;
+}
+
+int XMachine::generateFunctionDependencyGraph() {
+    int rc = 0;
+
+    // Add functions to graph
+    rc += add_function_tasks_to_graph();
+    rc += add_function_dependencies_to_graph();
+
+    return 0;
+}
+
+XGraph * XMachine::getFunctionDependencyGraph() {
+    return &functionDependencyGraph_;
+}
+
+int XMachine::checkCyclicDependencies() {
+    return functionDependencyGraph_.check_dependency_loops();
 }
 
 }}  // namespace flame::model

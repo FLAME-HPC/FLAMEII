@@ -22,28 +22,34 @@ namespace flame { namespace model {
 // Define graph type
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS> Graph;
 // Define vertex and edge descriptor types
-typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-typedef boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 // Define vertex and edge mappings
-typedef std::map<vertex_descriptor, Task *> VertexMap;
-typedef std::map<edge_descriptor, Dependency *> EdgeMap;
+typedef std::map<Vertex, Task *> VertexMap;
+typedef std::map<Edge, Dependency *> EdgeMap;
 
 class XGraph {
   public:
     XGraph() {}
     ~XGraph();
-    void addVertex(Task * t);
+    Vertex addVertex(Task * t);
     void addEdge(Task * to, Task * from, Dependency * d);
     int check_dependency_loops();
     void write_graphviz();
-    void write_dependency_graph(std::string filename);
+    void test_layers();
+    void setStartVector(Vertex sv);
+#ifdef TESTBUILD
+    Graph * getGraph() { return &graph_; }
+#endif
 
   private:
-    vertex_descriptor getVertex(Task * t);
-    void write_dependency_graph_dependencies(FILE *file);
+    Vertex getVertex(Task * t);
+    Task * getTask(Vertex v);
+    Dependency * getDependency(Edge e);
     Graph graph_;
     VertexMap vertex2task_;
     EdgeMap edge2dependency_;
+    Vertex startVertex_;
 };
 
 }}  // namespace flame::model

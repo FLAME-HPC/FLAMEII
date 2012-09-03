@@ -52,7 +52,7 @@ std::string Task::getName() {
 
 std::string Task::getFullName() {
     /* Return full name made from name and parent name */
-    std::string fullName = name_ + "_" + parentName_;
+    std::string fullName = parentName_ + "." + name_;
     return fullName;
 }
 

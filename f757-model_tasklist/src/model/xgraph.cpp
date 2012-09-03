@@ -9,9 +9,12 @@
  */
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <string>
 #include <vector>
 #include <utility>
+#include <exception>
+#include <fstream>
 #include "./xgraph.hpp"
 
 namespace flame { namespace model {
@@ -20,18 +23,22 @@ XGraph::~XGraph() {
     /* Free tasks and dependencies memory */
 }
 
-void XGraph::addVertex(Task * t) {
-    vertex_descriptor v = add_vertex(graph_);
+Vertex XGraph::addVertex(Task * t) {
+    Vertex v = add_vertex(graph_);
     vertex2task_.insert(std::make_pair(v, t));
+
+    std::cout << v << t->getFullName() << std::endl;
+
+    return v;
 }
 
 void XGraph::addEdge(Task * to, Task * from, Dependency * d) {
-    std::pair<edge_descriptor, bool> e =
+    std::pair<Edge, bool> e =
         add_edge(getVertex(to), getVertex(from), graph_);
     edge2dependency_.insert(std::make_pair(e.first, d));
 }
 
-vertex_descriptor XGraph::getVertex(Task * t) {
+Vertex XGraph::getVertex(Task * t) {
     VertexMap::iterator it;
     for (it = vertex2task_.begin(); it != vertex2task_.end(); ++it) {
         if ((*it).second == t) return (*it).first;
@@ -39,118 +46,129 @@ vertex_descriptor XGraph::getVertex(Task * t) {
     return 0;
 }
 
-struct has_cycle { };
+Task * XGraph::getTask(Vertex v) {
+    return vertex2task_.find(v)->second;
+}
 
-// Visitor function object passed to depth_first_search
-// Contains back_edge method that is called when the depth_first_search
-// explores an edge to an already discovered vertex
-struct cycle_detector : public boost::default_dfs_visitor {
-    cycle_detector(edge_descriptor& cycle_edge) : cycle_edge_(cycle_edge) {}
-    void back_edge(edge_descriptor edge_t, const Graph &) {
-        cycle_edge_ = edge_t;
-        throw has_cycle();
+Dependency * XGraph::getDependency(Edge e) {
+    return edge2dependency_.find(e)->second;
+}
+
+struct func_layer : public boost::default_bfs_visitor {
+    // Vertex discovered when traversing out edges
+    void discover_vertex(Vertex u, const Graph & g) const {
+        std::cout << "Discover: " << u << std::endl;
     }
+    // Vertex finished when all of its out edge vertices traversed
+    void finish_vertex(Vertex u, const Graph & g) const {
+        std::cout << "Finish:   " << u << std::endl;
+    }
+};
+
+void XGraph::test_layers() {
+    func_layer vis;
+
+    boost::breadth_first_search(graph_, startVertex_, boost::visitor(vis));
+}
+
+void XGraph::setStartVector(Vertex sv) {
+    startVertex_ = sv;
+}
+
+/*!
+ \brief Has cycle exception struct
+
+ Has cycle exception used by cycle detector and passes
+ back edge to already discovered vertex.
+*/
+struct has_cycle : public std::exception {
+    has_cycle(Edge d) : d_(d) {}
+    const Edge edge() const throw() {
+        return d_;
+    }
+
   protected:
-    edge_descriptor& cycle_edge_;
+    Edge d_;
+};
+
+/*!
+ \brief Visitor function cycle detector struct
+
+ Visitor function object passed to depth_first_search.
+ Contains back_edge method that is called when the depth_first_search
+ explores an edge to an already discovered vertex.
+*/
+struct cycle_detector : public boost::default_dfs_visitor {
+    void back_edge(Edge edge_t, const Graph &) {
+        throw has_cycle(edge_t);
+    }
 };
 
 int XGraph::check_dependency_loops() {
-    // Possible cyclic edge
-    edge_descriptor edge;
     // Visitor cycle detector for use with depth_first_search
-    cycle_detector vis(edge);
+    cycle_detector vis;
 
     try {
         // Depth first search applied to graph
-        depth_first_search(graph_, visitor(vis));
-    } catch (has_cycle) {
-        // If has_cycle is caught
-        Dependency * d = edge2dependency_.find(edge)->second;
-        std::cout << "Error: cycle detected " << d->getName() << std::endl;
+        boost::depth_first_search(graph_, visitor(vis));
+    // If cyclic dependency is caught
+    } catch (has_cycle& err) {
+        // Find associated dependency
+        Dependency * d = getDependency(err.edge());
+        // Find associated tasks
+        Task * t1 = getTask(boost::source(err.edge(), graph_));
+        Task * t2 = getTask(boost::target(err.edge(), graph_));
+        std::fprintf(stderr,
+                    "Error: cycle detected %s -> %s -> %s\n",
+                    t1->getFullName().c_str(),
+                    d->getName().c_str(),
+                    t2->getFullName().c_str());
         return 1;
     }
 
     return 0;
 }
 
+struct vertex_label_writer {
+    vertex_label_writer(VertexMap * vm) : vertex2task(vm) {}
+    void operator()(std::ostream& out, const Vertex& v) const {
+        Task * t = vertex2task->find(v)->second;
+        out << " [label=\"" << t->getFullName() << "\"]";
+    }
+  protected:
+    VertexMap * vertex2task;
+};
+
+struct edge_label_writer {
+    enum ArrowType { arrowForward = 0, arrowBackward };
+    edge_label_writer(EdgeMap * em, ArrowType at) : edge2dependency(em), arrowType(at) {}
+    void operator()(std::ostream& out, const Edge& e) const {
+        Dependency * d = edge2dependency->find(e)->second;
+        out << " [label=\"" << d->getGraphName() << "\"";
+        if (arrowType == edge_label_writer::arrowBackward) out << " dir = back";
+        out << "]";
+    }
+  protected:
+    EdgeMap * edge2dependency;
+    ArrowType arrowType;
+};
+
+struct graph_writer {
+    void operator()(std::ostream& out) const {
+        out << "node [shape = rect]" << std::endl;
+    }
+};
+
 void XGraph::write_graphviz() {
-    boost::write_graphviz(std::cout, graph_);
-}
+    std::fstream graphfile;
+    graphfile.open("graph.dot", std::fstream::out);
 
-void XGraph::write_dependency_graph_dependencies(FILE *file) {
-    std::pair<boost::graph_traits<Graph>::edge_iterator,
-              boost::graph_traits<Graph>::edge_iterator> ep;
-    vertex_descriptor u, v;
-    // For each edge in the graph
-    for (ep = edges(graph_); ep.first != ep.second; ++ep.first) {
-        // Get the two vertices that are joined by this edge
-        u = boost::source(*ep.first, graph_);
-        v = boost::target(*ep.first, graph_);
-        // Find the associated tasks of the verticies
-        Task * t1 = vertex2task_.find(u)->second;
-        Task * t2 = vertex2task_.find(v)->second;
-        // Find the associated dependency of the edge
-        Dependency * dependency = edge2dependency_.find(*ep.first)->second;
-        // Write info to file
-        fputs("\t", file);
-        fputs(t1->getParentName().c_str(), file);
-        fputs("_", file);
-        fputs(t1->getName().c_str(), file);
-        fputs(" -> ", file);
-        fputs(t2->getParentName().c_str(), file);
-        fputs("_", file);
-        fputs(t2->getName().c_str(), file);
-        fputs(" [ label = \"<", file);
-        // Check dependency type and output
-        // appropriate description
-        if (dependency->getDependencyType() == Dependency::communication)
-            fputs("Message: ", file);
-        else if (dependency->getDependencyType() == Dependency::data)
-            fputs("Memory: ", file);
-        else if (dependency->getDependencyType() == Dependency::state)
-            fputs("State: ", file);
-        fputs(dependency->getName().c_str(), file);
-        fputs(">\" ];\n", file);
-    }
-}
+    boost::write_graphviz(graphfile, graph_,
+            vertex_label_writer(&vertex2task_),
+            edge_label_writer(&edge2dependency_, edge_label_writer::arrowBackward),
+            graph_writer());
 
-void XGraph::write_dependency_graph(std::string filename) {
-    /* File to write to */
-    FILE *file;
-
-    /* print out the location of the source file */
-    printf("Writing file: %s\n", filename.c_str());
-    /* open the file to write to */
-    file = fopen(filename.c_str(), "w");
-
-    fputs("digraph dependency_graph {\n", file);
-    fputs("\trankdir=BT;\n", file);
-    fputs("\tsize=\"8,5;\"\n", file);
-    fputs("\tnode [shape = rect];\n", file);
-
-    fputs("\t\n\t/* Tasks */\n", file);
-    /* For each task */
-    std::pair<boost::graph_traits<Graph>::vertex_iterator,
-              boost::graph_traits<Graph>::vertex_iterator> vi;
-    for (vi = boost::vertices(graph_); vi.first != vi.second; ++vi.first) {
-        Task * task = vertex2task_.find(*vi.first)->second;
-        fputs("\t", file);
-        fputs(task->getParentName().c_str(), file);
-        fputs("_", file);
-        fputs(task->getName().c_str(), file);
-        fputs("[label = \"", file);
-        fputs(task->getParentName().c_str(), file);
-        fputs("\\n", file);
-        fputs(task->getName().c_str(), file);
-        fputs("\"]\n", file);
-    }
-    // For each dependency
-    write_dependency_graph_dependencies(file);
-
-    fputs("}", file);
-
-    /* Close the file */
-    fclose(file);
+    graphfile.clear();
 }
 
 }}   // namespace flame::model

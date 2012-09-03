@@ -139,7 +139,9 @@ int IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
 
 int IOXMLModel::readUnknownElement(xmlNode * node) {
     std::fprintf(stderr,
-            "Warning: Model file has unknown element '%s'\n", node->name);
+            "Warning: Model file has unknown element '%s' on line %d\n",
+            node->name,
+            node->line);
 
     /* Return zero to carry on as normal */
     return 0;
@@ -623,6 +625,8 @@ int IOXMLModel::readTransition(xmlNode * node,
                 rc = readOutputs(cur_node, xfunction);
             else if (name == "inputs")
                 rc = readInputs(cur_node, xfunction);
+            else if (name == "memoryAccess")
+                rc = readMemoryAccess(cur_node, xfunction);
             else
                 rc = readUnknownElement(cur_node);
             if (rc != 0) return rc;
@@ -808,6 +812,61 @@ int IOXMLModel::readCondition(xmlNode * node,
                         &xc->rhsIsCondition, cur_node);
             } else if (name == "value") {
                 xc->tempValue = getElementValue(cur_node);
+            } else {
+                rc = readUnknownElement(cur_node);
+            }
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readMemoryAccessVariables(xmlNode * node, std::vector<model::XVariable*> * variables) {
+    int rc = 0; /* Return code */
+    xmlNode *cur_node = NULL;
+
+    /* Loop through each child of message */
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child and call appropriate
+             * processing function */
+            if (name == "variableName") {
+                model::XVariable * xvariable = new model::XVariable;
+                xvariable->setName(getElementValue(cur_node));
+                variables->push_back(xvariable);
+            } else {
+                rc = readUnknownElement(cur_node);
+            }
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readMemoryAccess(xmlNode * node, model::XFunction * xfunction) {
+    int rc = 0; /* Return code */
+    xmlNode *cur_node = NULL;
+
+    // Set memory access information to be available
+    xfunction->setMemoryAccessInfoAvailable(true);
+
+    /* Loop through each child of message */
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child and call appropriate
+             * processing function */
+            if (name == "readOnly") {
+                rc = readMemoryAccessVariables(cur_node,
+                        xfunction->getReadOnlyVariables());
+            } else if (name == "readWrite") {
+                rc = readMemoryAccessVariables(cur_node,
+                        xfunction->getReadWriteVariables());
             } else {
                 rc = readUnknownElement(cur_node);
             }

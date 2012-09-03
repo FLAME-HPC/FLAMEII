@@ -17,7 +17,7 @@ namespace flame { namespace model {
 
 class Task {
   public:
-    enum TaskType { xfunction = 0, sync_start, sync_finish, io_pop_write };
+    enum TaskType { xfunction = 0, sync_start, sync_finish, io_pop_write, init_agent };
     Task();
     ~Task();
     void setTaskID(size_t id);
