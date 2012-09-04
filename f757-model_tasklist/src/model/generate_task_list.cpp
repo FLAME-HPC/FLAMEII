@@ -32,6 +32,8 @@ int ModelManager::generate_task_list() {
     // Calculate task list using dependencies
 //    rc = calculate_task_list(&tasks_);
 
+    rc = add_branch_vertices_to_graph();
+
     rc = calculate_graph_layers();
 
 #ifdef TESTBUILD
@@ -43,6 +45,18 @@ int ModelManager::generate_task_list() {
     return 0;
 }
 
+int ModelManager::add_branch_vertices_to_graph() {
+    std::vector<XMachine*>::iterator agent;
+
+    /* For each agent */
+    for (agent = model_.getAgents()->begin();
+         agent != model_.getAgents()->end(); ++agent) {
+        (*agent)->getFunctionDependencyGraph()->add_branch_vertices_to_graph();
+    }
+
+    return 0;
+}
+
 int ModelManager::calculate_graph_layers() {
     std::vector<XMachine*>::iterator agent;
 
@@ -50,7 +64,7 @@ int ModelManager::calculate_graph_layers() {
     for (agent = model_.getAgents()->begin();
          agent != model_.getAgents()->end(); ++agent) {
         // test
-        (*agent)->getFunctionDependencyGraph()->write_graphviz();
+        //(*agent)->getFunctionDependencyGraph()->write_graphviz("graph.dot");
 
         (*agent)->getFunctionDependencyGraph()->test_layers();
     }

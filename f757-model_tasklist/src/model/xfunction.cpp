@@ -12,6 +12,7 @@
 #include <vector>
 #include <stdexcept>
 #include "./xfunction.hpp"
+#include "./task.hpp"
 
 namespace flame { namespace model {
 

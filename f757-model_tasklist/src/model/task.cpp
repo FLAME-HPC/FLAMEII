@@ -21,6 +21,7 @@ namespace flame { namespace model {
  */
 Task::Task() {
     level_ = 0;
+    function_ = 0;
 }
 
 Task::~Task() {
@@ -78,6 +79,14 @@ void Task::setPriorityLevel(size_t l) {
 
 size_t Task::getPriorityLevel() {
     return priorityLevel_;
+}
+
+void Task::setFunction(XFunction * f) {
+    function_ = f;
+}
+
+XFunction * Task::getFunction() {
+    return function_;
 }
 
 }}  // namespace flame::model

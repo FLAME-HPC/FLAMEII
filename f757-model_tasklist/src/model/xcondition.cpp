@@ -290,7 +290,8 @@ int XCondition::processSymbols() {
     return errors;
 }
 
-int XCondition::validateTime(XMachine * agent, XModel * model) {
+int XCondition::validateTime(XMachine * agent, XModel * model,
+        XCondition * rootCondition) {
     int errors = 0;
     unsigned int ii;
     /* Check time period is valid time unit */
@@ -314,14 +315,19 @@ int XCondition::validateTime(XMachine * agent, XModel * model) {
     "Error: time phase variable is not a valid agent variable: '%s',\n",
                 timePhaseVariable.c_str());
             errors++;
+        } else {
+            // If agent variable is valid then add to
+            // read only variable list
+            rootCondition->readOnlyVariables_.insert(
+                agent->getVariable(timePhaseVariable));
         }
     }
     return errors;
 }
 
 int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
-        bool * hsIsAgentVariable,
-        std::string * hs, bool * hsIsMessageVariable) {
+        bool * hsIsAgentVariable, std::string * hs,
+        bool * hsIsMessageVariable, XCondition * rootCondition) {
     int errors = 0;
     /* Handle agent variable */
     if (*hsIsAgentVariable) {
@@ -331,6 +337,10 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
                 "Error: value is not a valid agent variable: '%s',\n",
                 hs->c_str());
             errors++;
+        } else {
+            // If agent variable is valid then add to
+            // read only variable list
+            rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs));
         }
     /* Handle message variable */
     } else if (*hsIsMessageVariable) {
@@ -352,30 +362,31 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
     return errors;
 }
 
-int XCondition::validateValues(XMachine * agent, XMessage * xmessage) {
+int XCondition::validateValues(XMachine * agent, XMessage * xmessage,
+        XCondition * rootCondition) {
     int errors = 0;
     /* If values validate any agent or message variables */
     errors += validateValue(agent, xmessage, &lhsIsAgentVariable,
-            &lhs, &lhsIsMessageVariable);
+            &lhs, &lhsIsMessageVariable, rootCondition);
     errors += validateValue(agent, xmessage, &rhsIsAgentVariable,
-                &rhs, &rhsIsMessageVariable);
+                &rhs, &rhsIsMessageVariable, rootCondition);
 
     return errors;
 }
 
 int XCondition::validate(XMachine * agent, XMessage * xmessage,
-        XModel * model) {
+        XModel * model, XCondition * rootCondition) {
     int rc, errors = 0;
 
     if (isTime) {
-        errors += validateTime(agent, model);
+        errors += validateTime(agent, model, rootCondition);
     } else if (isValues) {
-        errors += validateValues(agent, xmessage);
+        errors += validateValues(agent, xmessage, rootCondition);
     } else if (isConditions) {
         /* If nested conditions validate them */
-        rc = lhsCondition->validate(agent, xmessage, model);
+        rc = lhsCondition->validate(agent, xmessage, model, rootCondition);
         errors += rc;
-        rc = rhsCondition->validate(agent, xmessage, model);
+        rc = rhsCondition->validate(agent, xmessage, model, rootCondition);
         errors += rc;
     }
 

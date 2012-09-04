@@ -34,10 +34,13 @@ class XGraph {
     ~XGraph();
     Vertex addVertex(Task * t);
     void addEdge(Task * to, Task * from, Dependency * d);
+    Edge addEdge(Vertex to, Vertex from, Dependency * d);
     int check_dependency_loops();
-    void write_graphviz();
+    int check_function_conditions();
+    void write_graphviz(std::string fileName);
     void test_layers();
     void setStartVector(Vertex sv);
+    void add_branch_vertices_to_graph();
 #ifdef TESTBUILD
     Graph * getGraph() { return &graph_; }
 #endif

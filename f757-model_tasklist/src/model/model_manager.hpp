@@ -36,6 +36,7 @@ class ModelManager {
     std::vector<Task*> * get_task_list();
 
   private:
+    int add_branch_vertices_to_graph();
     int calculate_graph_layers();
     int catalog_communication_dependencies_syncs(
             XModel * model, XGraph * graph);

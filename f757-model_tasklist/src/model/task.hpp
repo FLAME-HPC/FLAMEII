@@ -15,9 +15,11 @@
 
 namespace flame { namespace model {
 
+class XFunction;
+
 class Task {
   public:
-    enum TaskType { xfunction = 0, sync_start, sync_finish, io_pop_write, init_agent };
+    enum TaskType { xfunction = 0, sync_start, sync_finish, io_pop_write, init_agent, xcondition };
     Task();
     ~Task();
     void setTaskID(size_t id);
@@ -33,6 +35,8 @@ class Task {
     size_t getLevel();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
+    void setFunction(XFunction * f);
+    XFunction * getFunction();
 
   private:
     /* Task identifier: a unique handle for each task */
@@ -48,6 +52,8 @@ class Task {
     std::string name_;
     /* Level number: used to initially order tasks in the queue */
     size_t level_;
+    /*! \brief Pointer to any associated agent function */
+    XFunction * function_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

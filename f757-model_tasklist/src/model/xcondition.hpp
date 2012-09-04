@@ -10,10 +10,11 @@
 #ifndef MODEL__XCONDITION_HPP_
 #define MODEL__XCONDITION_HPP_
 #include <string>
-#include <vector>
+#include <set>
 
 namespace flame { namespace model {
 
+class XVariable;
 class XMachine;
 class XMessage;
 class XModel;
@@ -27,9 +28,12 @@ class XCondition {
     int processSymbolsTime();
     int processSymbolsValues();
     int processSymbolsConditions();
-    int validate(XMachine * agent, XMessage * message, XModel * model);
-    int validateTime(XMachine * agent, XModel * model);
-    int validateValues(XMachine * agent, XMessage * xmessage);
+    int validate(XMachine * agent, XMessage * message, XModel * model,
+            XCondition * rootCondition);
+    int validateTime(XMachine * agent, XModel * model,
+            XCondition * rootCondition);
+    int validateValues(XMachine * agent, XMessage * xmessage,
+            XCondition * rootCondition);
     bool isNot;
     bool isTime;
     bool isValues;
@@ -58,6 +62,8 @@ class XCondition {
     bool foundTimeDuration;
     XCondition * lhsCondition;
     XCondition * rhsCondition;
+    /*! \brief Agent variables that the condition reads */
+    std::set<XVariable*> readOnlyVariables_;
 
   private:
     void printValues(std::string lhs, std::string op, std::string rhs,
@@ -73,8 +79,8 @@ class XCondition {
     int processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
             bool * hsIsValue, bool * hsIsMessageVariable, double * hsDouble);
     int validateValue(XMachine * agent, XMessage * xmessage,
-            bool * hsIsAgentVariable,
-            std::string * hs, bool * hsIsMessageVariable);
+            bool * hsIsAgentVariable, std::string * hs,
+            bool * hsIsMessageVariable, XCondition * rootCondition);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XCONDITION_HPP_

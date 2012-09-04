@@ -13,10 +13,11 @@
 #include <vector>
 #include "./xioput.hpp"
 #include "./xcondition.hpp"
-#include "./task.hpp"
 #include "./xvariable.hpp"
 
 namespace flame { namespace model {
+
+class Task;
 
 class XFunction {
   public:

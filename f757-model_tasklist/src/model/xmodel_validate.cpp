@@ -178,9 +178,13 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     rc = agent->findStartState();
     if (rc != 0) errors += rc;
     else {
-        // Validate no cyclic dependencies
+        // Generate function dependency graph
         errors += agent->generateFunctionDependencyGraph();
+        // Check graph for no cyclic dependencies
         errors += agent->checkCyclicDependencies();
+        // Check functions from state with more than one
+        // out going function all have conditions
+        errors += agent->checkFunctionConditions();
     }
 
     return errors;
@@ -669,7 +673,7 @@ int XModelValidate::validateAgentConditionOrFilter(XCondition * xcondition,
 
     rc = xcondition->processSymbols();
     errors += rc;
-    rc = xcondition->validate(agent, xmessage, model);
+    rc = xcondition->validate(agent, xmessage, model, xcondition);
     errors += rc;
 
     return errors;

@@ -155,6 +155,7 @@ int XMachine::add_function_tasks_to_graph() {
         task->setName((*f)->getName());
         task->setTaskType(Task::xfunction);
         task->setPriorityLevel(5);
+        task->setFunction((*f));
         functionDependencyGraph_.addVertex(task);
         // Associate task with function
         (*f)->setTask(task);
@@ -211,6 +212,10 @@ XGraph * XMachine::getFunctionDependencyGraph() {
 
 int XMachine::checkCyclicDependencies() {
     return functionDependencyGraph_.check_dependency_loops();
+}
+
+int XMachine::checkFunctionConditions() {
+    return functionDependencyGraph_.check_function_conditions();
 }
 
 }}  // namespace flame::model
