@@ -32,41 +32,40 @@ int ModelManager::generate_task_list() {
     // Calculate task list using dependencies
 //    rc = calculate_task_list(&tasks_);
 
-    rc = add_branch_vertices_to_graph();
+    rc = add_condition_vertices_to_graph();
 
-    rc = calculate_graph_layers();
+    rc = add_variable_verticies_to_graph();
 
 #ifdef TESTBUILD
     // Output function dependency graph to view via graphviz dot
-    //functionStateGraph.write_dependency_graph("dgraph.dot");
+    // functionStateGraph.write_dependency_graph("dgraph.dot");
 //    functionStateGraph.write_graphviz();
 #endif
 
     return 0;
 }
 
-int ModelManager::add_branch_vertices_to_graph() {
+int ModelManager::add_condition_vertices_to_graph() {
     std::vector<XMachine*>::iterator agent;
 
     /* For each agent */
     for (agent = model_.getAgents()->begin();
          agent != model_.getAgents()->end(); ++agent) {
-        (*agent)->getFunctionDependencyGraph()->add_branch_vertices_to_graph();
+        (*agent)->getFunctionDependencyGraph()->
+                add_condition_vertices_to_graph();
     }
 
     return 0;
 }
 
-int ModelManager::calculate_graph_layers() {
+int ModelManager::add_variable_verticies_to_graph() {
     std::vector<XMachine*>::iterator agent;
 
     /* For each agent */
     for (agent = model_.getAgents()->begin();
          agent != model_.getAgents()->end(); ++agent) {
-        // test
-        //(*agent)->getFunctionDependencyGraph()->write_graphviz("graph.dot");
-
-        (*agent)->getFunctionDependencyGraph()->test_layers();
+        (*agent)->getFunctionDependencyGraph()->
+                add_variable_verticies_to_graph((*agent)->getVariables());
     }
     return 0;
 }
@@ -122,7 +121,7 @@ int ModelManager::catalog_communication_dependencies_ioput(XModel * model,
                 d->setParentName((*ioput)->getMessageName());
                 d->setDependencyType(Dependency::communication);
                 graph->addEdge((*function)->getTask(),
-                        (*message)->getSyncStartTask(),d);
+                        (*message)->getSyncStartTask(), d);
             }
         }
     }
@@ -140,7 +139,7 @@ int ModelManager::catalog_communication_dependencies_ioput(XModel * model,
                 d->setParentName((*ioput)->getMessageName());
                 d->setDependencyType(Dependency::communication);
                 graph->addEdge((*message)->getSyncFinishTask(),
-                        (*function)->getTask(),d);
+                        (*function)->getTask(), d);
             }
         }
     }
@@ -233,30 +232,6 @@ int ModelManager::catalog_dataio_dependencies(XModel * model,
             catalog_dataio_dependencies_variable(agent, variable, graph);
         }
     }
-
-    return 0;
-}
-
-int ModelManager::catalog_data_dependencies(XModel * model,
-            XGraph * graph) {
-    /*std::vector<XMachine*>::iterator agent;
-    std::vector<XFunction*>::iterator function;
-
-    // For each agent
-    for (agent = model->getAgents()->begin();
-         agent != model->getAgents()->end(); ++agent) {
-        // For each agent function
-        for (function = (*agent)->getFunctions()->begin();
-                function != (*agent)->getFunctions()->end(); ++function) {
-            // For each associated task add vertices for reading and writing
-            // to associated memory access variables
-
-            // Add task for any conditions and add associated data
-            // dependencies for condition memory variables used
-        }
-    }*/
-
-    graph->test_layers();
 
     return 0;
 }

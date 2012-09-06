@@ -12,14 +12,17 @@
 #include <string>
 #include <vector>
 #include "./dependency.hpp"
+#include "./xgraph.hpp"
 
 namespace flame { namespace model {
 
 class XFunction;
+class XVariable;
 
 class Task {
   public:
-    enum TaskType { xfunction = 0, sync_start, sync_finish, io_pop_write, init_agent, xcondition };
+    enum TaskType { xfunction = 0, sync_start, sync_finish,
+                    io_pop_write, init_agent, xcondition, xvariable };
     Task();
     ~Task();
     void setTaskID(size_t id);
@@ -54,6 +57,9 @@ class Task {
     size_t level_;
     /*! \brief Pointer to any associated agent function */
     XFunction * function_;
+    /*! \brief Map holding variables that this task writes and
+     *         the corresponding vertex */
+    std::map<XVariable*, Vertex> variableVertex;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

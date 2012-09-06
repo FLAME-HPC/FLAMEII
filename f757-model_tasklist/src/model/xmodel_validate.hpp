@@ -48,6 +48,7 @@ class XModelValidate {
     int validateTimeUnit(XTimeUnit * timeUnit, XModel * model);
     int validateADT(XADT * adt, XModel * model);
     int validateAgent(XMachine * agent, XModel * model);
+    int validateAgentStateGraph(XMachine * agent);
     int validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent,
             XModel * model);
     int validateAgentFunction(XFunction * xfunction,

@@ -1,7 +1,7 @@
 CC         = g++
 CFLAGS     = -g -Wall -pedantic -DTESTBUILD
 LDFLAGS    = 
-# Boost library naming support, -mp for multithreading support
+# Boost library naming support, -mt for multithreading, -d for debug
 BOOSTLIB   = -mt
 LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_system$(BOOSTLIB) \

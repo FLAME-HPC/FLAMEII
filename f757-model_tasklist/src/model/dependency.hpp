@@ -18,7 +18,8 @@ class Task;
 
 class Dependency {
   public:
-    enum DependencyType { state = 0, communication, data, init, condition };
+    enum DependencyType { state = 0, communication, data, init,
+        condition, variable };
     Dependency();
     ~Dependency() {}
     void setName(std::string name);

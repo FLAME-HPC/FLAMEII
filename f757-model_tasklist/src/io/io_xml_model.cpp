@@ -821,7 +821,8 @@ int IOXMLModel::readCondition(xmlNode * node,
     return 0;
 }
 
-int IOXMLModel::readMemoryAccessVariables(xmlNode * node, std::vector<model::XVariable*> * variables) {
+int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
+        std::vector<model::XVariable*> * variables) {
     int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 

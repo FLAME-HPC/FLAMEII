@@ -62,6 +62,10 @@ XCondition::~XCondition() {
     if (rhsCondition != 0) delete rhsCondition;
 }
 
+std::set<XVariable*> * XCondition::getReadOnlyVariables() {
+    return &readOnlyVariables_;
+}
+
 void XCondition::printValues(std::string lhs, std::string op, std::string rhs,
         bool lhsIsAgentVariable, bool rhsIsAgentVariable,
         bool lhsIsMessageVariable, bool rhsIsMessageVariable,

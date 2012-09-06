@@ -31,17 +31,17 @@ BOOST_AUTO_TEST_CASE(test_graph_layers) {
     model::Vertex v4 = add_vertex(*graph);
     model::Vertex v5 = add_vertex(*graph);
     model::Vertex v6 = add_vertex(*graph);
-    add_edge(v0, v2, *graph); // 0->2
-    add_edge(v2, v1, *graph); // 2->1
-    add_edge(v1, v3, *graph); // 1->3
+    add_edge(v0, v2, *graph);  // 0->2
+    add_edge(v2, v1, *graph);  // 2->1
+    add_edge(v1, v3, *graph);  // 1->3
 
-    add_edge(v0, v4, *graph); // 0->4
-    add_edge(v4, v6, *graph); // 4->6
-    add_edge(v6, v5, *graph); // 6->5
+    add_edge(v0, v4, *graph);  // 0->4
+    add_edge(v4, v6, *graph);  // 4->6
+    add_edge(v6, v5, *graph);  // 6->5
 
-    //xgraph.write_graphviz();
+    // xgraph.write_graphviz();
 
-    //xgraph.test_layers();
+    // xgraph.test_layers();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

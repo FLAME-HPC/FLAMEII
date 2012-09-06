@@ -141,6 +141,24 @@ int XModelValidate::validateMessages(std::vector<XMessage*> messages,
     return errors;
 }
 
+int XModelValidate::validateAgentStateGraph(XMachine * agent) {
+    int rc, errors = 0;
+    // Validate single start state
+    rc = agent->findStartState();
+    if (rc != 0) {
+        errors += rc;
+    } else {
+        // Generate function dependency graph
+        errors += agent->generateFunctionDependencyGraph();
+        // Check graph for no cyclic dependencies
+        errors += agent->checkCyclicDependencies();
+        // Check functions from state with more than one
+        // out going function all have conditions
+        errors += agent->checkFunctionConditions();
+    }
+    return errors;
+}
+
 int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     int rc, errors = 0;
     unsigned int ii;
@@ -174,18 +192,7 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
         }
     }
 
-    // Validate single start state
-    rc = agent->findStartState();
-    if (rc != 0) errors += rc;
-    else {
-        // Generate function dependency graph
-        errors += agent->generateFunctionDependencyGraph();
-        // Check graph for no cyclic dependencies
-        errors += agent->checkCyclicDependencies();
-        // Check functions from state with more than one
-        // out going function all have conditions
-        errors += agent->checkFunctionConditions();
-    }
+    errors += validateAgentStateGraph(agent);
 
     return errors;
 }
@@ -334,7 +341,6 @@ int XModelValidate::processAgentFunction(XFunction * function,
 
         // Check there are no duplicate variables
         // (from across both lists)
-
     }
 
     return 0;

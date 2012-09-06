@@ -36,8 +36,8 @@ class ModelManager {
     std::vector<Task*> * get_task_list();
 
   private:
-    int add_branch_vertices_to_graph();
-    int calculate_graph_layers();
+    int add_condition_vertices_to_graph();
+    int add_variable_verticies_to_graph();
     int catalog_communication_dependencies_syncs(
             XModel * model, XGraph * graph);
     int catalog_communication_dependencies_ioput(XModel * model,
@@ -49,8 +49,6 @@ class ModelManager {
             std::vector<XVariable*>::iterator variable,
             XGraph * graph);
     int catalog_dataio_dependencies(XModel * model,
-            XGraph * graph);
-    int catalog_data_dependencies(XModel * model,
             XGraph * graph);
     int calculate_dependencies(std::vector<Task*> * tasks);
     int calculate_task_list(std::vector<Task*> * tasks);

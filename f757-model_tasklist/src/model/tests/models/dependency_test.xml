@@ -27,17 +27,24 @@
 <functions>
 
 <function>
-<name>f1</name>
+<name>f0</name>
 <description></description>
 <currentState>s1</currentState>
 <nextState>s2</nextState>
 <outputs>
   <output><messageName>m1</messageName></output>
 </outputs>
+<memoryAccess>
+<readOnly>
+</readOnly>
+<readWrite>
+<variableName>a</variableName>
+</readWrite>
+</memoryAccess>
 </function>
 
 <function>
-<name>f2</name>
+<name>f1</name>
 <description></description>
 <currentState>s2</currentState>
 <nextState>s3</nextState>
@@ -60,7 +67,7 @@
 </function>
 
 <function>
-<name>f3</name>
+<name>f2</name>
 <description></description>
 <currentState>s2</currentState>
 <nextState>s3</nextState>
@@ -75,7 +82,7 @@
 </function>
 
 <function>
-<name>f4</name>
+<name>f3</name>
 <description></description>
 <currentState>s3</currentState>
 <nextState>s4</nextState>
@@ -90,7 +97,7 @@
 </function>
 
 <function>
-<name>f5</name>
+<name>f4</name>
 <description></description>
 <currentState>s4</currentState>
 <nextState>s5</nextState>
@@ -99,13 +106,6 @@
   <input><messageName>m2</messageName></input>
   <input><messageName>m3</messageName></input>
 </inputs>
-<memoryAccess>
-<readOnly>
-<variableName>a</variableName>
-</readOnly>
-<readWrite>
-</readWrite>
-</memoryAccess>
 </function>
 
 </functions>

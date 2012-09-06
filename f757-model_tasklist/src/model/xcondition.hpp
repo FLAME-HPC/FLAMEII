@@ -34,6 +34,7 @@ class XCondition {
             XCondition * rootCondition);
     int validateValues(XMachine * agent, XMessage * xmessage,
             XCondition * rootCondition);
+    std::set<XVariable*> * getReadOnlyVariables();
     bool isNot;
     bool isTime;
     bool isValues;

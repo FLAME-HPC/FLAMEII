@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
 #include "./xmachine.hpp"
 
 namespace flame { namespace model {
@@ -109,7 +110,7 @@ int XMachine::findStartState() {
     for (f = functions_.begin(); f != functions_.end(); ++f) {
         s = states.find((*f)->getNextState());
         // If state is valid, remove from start state list
-        if(s != states.end()) states.erase(s);
+        if (s != states.end()) states.erase(s);
     }
     // No start states found
     if (states.size() == 0) {
@@ -120,7 +121,8 @@ int XMachine::findStartState() {
     // Multiple start states found
     if (states.size() > 1) {
         std::fprintf(stderr,
-            "Error: %s agent has multiple possible start states:\n", name_.c_str());
+            "Error: %s agent has multiple possible start states:\n",
+            name_.c_str());
         for (s = states.begin(); s != states.end(); s++)
             std::fprintf(stderr, "\t%s\n", s->c_str());
         return 2;
@@ -138,37 +140,9 @@ std::string XMachine::getStartState() {
 int XMachine::add_function_tasks_to_graph() {
     std::vector<XFunction*>::iterator f;
 
-    // Add initalise task to make traversing graph easier
-    Task * init_task = new Task;
-    init_task->setParentName(getName());
-    init_task->setName("Initialise");
-    init_task->setTaskType(Task::init_agent);
-    init_task->setPriorityLevel(5);
-    Vertex v = functionDependencyGraph_.addVertex(init_task);
-    functionDependencyGraph_.setStartVector(v);
-
     // For each function
-    for (f = functions_.begin(); f != functions_.end(); ++f) {
-        // Add function as a task to the task list
-        Task * task = new Task;
-        task->setParentName(getName());
-        task->setName((*f)->getName());
-        task->setTaskType(Task::xfunction);
-        task->setPriorityLevel(5);
-        task->setFunction((*f));
-        functionDependencyGraph_.addVertex(task);
-        // Associate task with function
-        (*f)->setTask(task);
-        // If function current state is the agent start state
-        // then add dependency from function to init task
-        if ((*f)->getCurrentState() == startState_) {
-            Dependency * d = new Dependency;
-            d->setParentName(getName());
-            d->setName("Initialise");
-            d->setDependencyType(Dependency::init);
-            functionDependencyGraph_.addEdge(init_task, task, d);
-        }
-    }
+    for (f = functions_.begin(); f != functions_.end(); ++f)
+        functionDependencyGraph_.add_function_task_to_graph(*f);
 
     return 0;
 }
@@ -188,7 +162,8 @@ int XMachine::add_function_dependencies_to_graph() {
                 d->setParentName(getName());
                 d->setName((*f)->getCurrentState());
                 d->setDependencyType(Dependency::state);
-                functionDependencyGraph_.addEdge((*f2)->getTask(), (*f)->getTask(), d);
+                functionDependencyGraph_.addEdge((*f2)->getTask(),
+                        (*f)->getTask(), d);
             }
         }
     }
