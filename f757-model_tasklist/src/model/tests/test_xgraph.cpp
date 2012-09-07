@@ -15,10 +15,47 @@
 #include <vector>
 #include <string>
 #include "../xgraph.hpp"
+#include "../dependency.hpp"
+#include "../xfunction.hpp"
 
 namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(XGraph)
+
+BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
+    model::XGraph xgraph;
+
+    // Create variable 'a'
+    model::XVariable v("a");
+    // Create variables list and add 'a'
+    std::vector<model::XVariable*> variables;
+    variables.push_back(&v);
+    // Create functions, add 'a' to RW variables, and add to graph
+    model::XFunction finit("Init");
+    finit.getReadWriteVariables()->push_back(&v);
+    xgraph.add_init_task_to_graph(&finit);
+    model::XFunction f0("0");
+    f0.getReadWriteVariables()->push_back(&v);
+    xgraph.add_function_task_to_graph(&f0);
+    model::XFunction f1("1");
+    f1.getReadWriteVariables()->push_back(&v);
+    xgraph.add_function_task_to_graph(&f1);
+    model::XFunction f2("2");
+    f2.getReadOnlyVariables()->push_back(&v);
+    xgraph.add_function_task_to_graph(&f2);
+    // Add edges between functions to graph
+    xgraph.addEdge(finit.getTask(), f0.getTask(), model::Dependency::init);
+    xgraph.addEdge(f0.getTask(), f1.getTask(), model::Dependency::state);
+    xgraph.addEdge(f1.getTask(), f2.getTask(), model::Dependency::state);
+    xgraph.addEdge(f0.getTask(), f2.getTask(), model::Dependency::state);
+
+    //xgraph.write_graphviz("test1.dot");
+    // Init graph conditions
+    xgraph.add_condition_vertices_to_graph();
+    // Init variable edges
+    xgraph.add_variable_vertices_to_graph(&variables);
+    //xgraph.write_graphviz("test2.dot");
+}
 
 BOOST_AUTO_TEST_CASE(test_graph_layers) {
     model::XGraph xgraph;

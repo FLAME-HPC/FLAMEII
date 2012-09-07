@@ -36,8 +36,6 @@ class ModelManager {
     std::vector<Task*> * get_task_list();
 
   private:
-    int add_condition_vertices_to_graph();
-    int add_variable_verticies_to_graph();
     int catalog_communication_dependencies_syncs(
             XModel * model, XGraph * graph);
     int catalog_communication_dependencies_ioput(XModel * model,

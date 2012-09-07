@@ -16,6 +16,7 @@ namespace flame { namespace model {
 class XVariable {
   public:
     XVariable();
+    XVariable(std::string name);
     void print();
     void setName(std::string name);
     std::string getName();

@@ -21,7 +21,8 @@ namespace flame { namespace model {
  * Produces task list with state/data/communication dependencies.
  */
 int ModelManager::generate_task_list() {
-    int rc;
+//    int rc;
+    std::vector<XMachine*>::iterator agent;
 
     // Calculate dependencies
 //    rc = calculate_dependencies(&tasks_);
@@ -32,9 +33,26 @@ int ModelManager::generate_task_list() {
     // Calculate task list using dependencies
 //    rc = calculate_task_list(&tasks_);
 
-    rc = add_condition_vertices_to_graph();
+    /* For each agent */
+    for (agent = model_.getAgents()->begin();
+         agent != model_.getAgents()->end(); ++agent) {
+        // Add condition vertices
+        (*agent)->getFunctionDependencyGraph()->
+                add_condition_vertices_to_graph();
+        // Add init vertex
+        (*agent)->add_init_vertex_to_graph();
+        // Add variable verticies
+        (*agent)->getFunctionDependencyGraph()->
+                add_variable_vertices_to_graph((*agent)->getVariables());
 
-    rc = add_variable_verticies_to_graph();
+        (*agent)->getFunctionDependencyGraph()->write_graphviz("test1.dot");
+
+        // Contract variable vertices
+        (*agent)->getFunctionDependencyGraph()->
+                contract_variable_verticies_from_graph();
+
+        (*agent)->getFunctionDependencyGraph()->write_graphviz("test2.dot");
+    }
 
 #ifdef TESTBUILD
     // Output function dependency graph to view via graphviz dot
@@ -42,31 +60,6 @@ int ModelManager::generate_task_list() {
 //    functionStateGraph.write_graphviz();
 #endif
 
-    return 0;
-}
-
-int ModelManager::add_condition_vertices_to_graph() {
-    std::vector<XMachine*>::iterator agent;
-
-    /* For each agent */
-    for (agent = model_.getAgents()->begin();
-         agent != model_.getAgents()->end(); ++agent) {
-        (*agent)->getFunctionDependencyGraph()->
-                add_condition_vertices_to_graph();
-    }
-
-    return 0;
-}
-
-int ModelManager::add_variable_verticies_to_graph() {
-    std::vector<XMachine*>::iterator agent;
-
-    /* For each agent */
-    for (agent = model_.getAgents()->begin();
-         agent != model_.getAgents()->end(); ++agent) {
-        (*agent)->getFunctionDependencyGraph()->
-                add_variable_verticies_to_graph((*agent)->getVariables());
-    }
     return 0;
 }
 

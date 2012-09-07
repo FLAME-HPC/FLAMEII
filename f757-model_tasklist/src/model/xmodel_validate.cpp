@@ -192,6 +192,7 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
         }
     }
 
+    // Validate agent state graph
     errors += validateAgentStateGraph(agent);
 
     return errors;
@@ -628,7 +629,11 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
         errors += validateAgentConditionOrFilter(xfunction->getCondition(),
                 agent, 0, model);
 
+    // Validate agent communication
     errors += validateAgentFunctionIOput(xfunction, agent, model);
+
+    // Validate agent memory access
+    // Todo Make sure variables are valid and only mentioned once
 
     return errors;
 }
