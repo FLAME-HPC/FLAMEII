@@ -52,6 +52,8 @@ int ModelManager::generate_task_list() {
                 contract_variable_verticies_from_graph();
 
         (*agent)->getFunctionDependencyGraph()->write_graphviz("test2.dot");
+
+        (*agent)->getFunctionDependencyGraph()->remove_redendant_dependencies();
     }
 
 #ifdef TESTBUILD

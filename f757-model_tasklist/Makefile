@@ -1,13 +1,14 @@
 CC         = g++
 CFLAGS     = -g -Wall -pedantic -DTESTBUILD
-LDFLAGS    = 
+BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
+LDFLAGS    = -L$(BOOSTDIR)/stage/lib
 # Boost library naming support, -mt for multithreading, -d for debug
-BOOSTLIB   = -mt
+BOOSTLIB   = 
 LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_system$(BOOSTLIB) \
              -lboost_filesystem$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers $(shell xml2-config --cflags) -I/Users/stc/workspace/boost/boost_1_50_0
+INCLUDE    = -I./headers $(shell xml2-config --cflags) -I$(BOOSTDIR)
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
@@ -112,4 +113,4 @@ memtest: all
 .PHONY: cccc
 
 # To run executable:
-# export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost/boost_1_49_0/stage/lib
+# export DYLD_LIBRARY_PATH=/Users/stc/workspace/boost/boost_1_48_0/stage/lib

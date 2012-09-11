@@ -52,6 +52,7 @@ class XGraph {
     Vertex add_function_task_to_graph(XFunction * function);
     Vertex add_init_task_to_graph(XFunction * function);
     void contract_variable_verticies_from_graph();
+    void remove_redendant_dependencies();
 #ifdef TESTBUILD
     Graph * getGraph() { return &graph_; }
 #endif

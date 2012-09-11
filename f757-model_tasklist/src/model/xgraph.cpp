@@ -10,6 +10,9 @@
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/transitive_reduction.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -19,6 +22,28 @@
 #include "./xcondition.hpp"
 #include "./xfunction.hpp"
 #include "./task.hpp"
+
+namespace boost {
+// Required to use transitive reduction function easily
+// (based upon similar code for using transitive closure,
+// found in its header file).
+template <typename Graph, typename GraphTC>
+void transitive_reduction(const Graph & g, GraphTC & tc)
+{
+    if (num_vertices(g) == 0) return;
+
+    typedef typename property_map<Graph, vertex_index_t>::const_type
+            VertexIndexMap;
+    VertexIndexMap index_map = get(vertex_index, g);
+
+    typedef typename graph_traits<GraphTC>::vertex_descriptor tc_vertex;
+    std::vector<tc_vertex> to_tc_vec(num_vertices(g));
+    iterator_property_map<tc_vertex *, VertexIndexMap, tc_vertex, tc_vertex&>
+            g_to_tc_map(&to_tc_vec[0], index_map);
+
+    transitive_reduction(g, tc, g_to_tc_map, index_map);
+}
+}  // namespace boost
 
 namespace flame { namespace model {
 
@@ -143,13 +168,13 @@ void XGraph::discover_last_variable_writes(XVariable * variable,
         for (boost::tie(iei, iei_end) = boost::in_edges(vertex, graph_);
                             iei != iei_end; ++iei) {
             // Only if edge dependency is state or condition
-            Dependency * d = getDependency(*iei);
+            Dependency * d = getDependency((Edge)*iei);
             if (d->getDependencyType() == Dependency::state ||
                     d->getDependencyType() == Dependency::condition ||
                     d->getDependencyType() == Dependency::init)
             {
                 // Get source vertex of the in edge
-                Vertex v = boost::source(*iei, graph_);
+                Vertex v = boost::source((Edge)*iei, graph_);
 
                 if (containsVariableName(
                         getTask(v)->getFunction()->getReadWriteVariables(), variable))
@@ -221,7 +246,7 @@ void XGraph::add_variable_vertices_to_graph(
                     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
                     for (boost::tie(oei, oei_end) = boost::out_edges(*sit, graph_);
                                             oei != oei_end; ++oei) {
-                        Vertex v2 = boost::target(*oei, graph_);
+                        Vertex v2 = boost::target((Edge)*oei, graph_);
                         if (getTask(v2)->getTaskType() == Task::xvariable &&
                                 getTask(v2)->getName() == (*varit)->getName()) {
                             Dependency * d = new Dependency;
@@ -325,52 +350,84 @@ void XGraph::setStartVector(Vertex sv) {
 }
 
 void XGraph::contract_variable_verticies_from_graph() {
-    VertexIterator vi, vi_end, vi_next;
+    VertexIterator vi, vi_end;
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
     boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
-    std::set<Edge> edgeToDelete;
     std::set<Vertex> vertexToDelete;
-    std::set<Edge>::iterator eit;
     std::set<Vertex>::iterator vit;
-    std::set<Vertex>::iterator vit2;
     // For each variable vertex
-    tie(vi, vi_end) = boost::vertices(graph_);
-    for (vi_next = vi; vi != vi_end; vi = vi_next) {
-        if (getTask(*vi_next)->getTaskType() == Task::xvariable) {
-            std::set<Vertex> sourceVertices;
-            std::set<Vertex> targetVertices;
-            // Remove in and out edges
-            for (boost::tie(oei, oei_end) = boost::out_edges(*vi, graph_);
-                    oei != oei_end; ++oei) {
-                 //boost::remove_edge(*oei, graph_);
-                edgeToDelete.insert(*oei);
-                targetVertices.insert(boost::target(*oei, graph_));
-            }
+    for (boost::tie(vi, vi_end) = boost::vertices(graph_);
+            vi != vi_end; ++vi) {
+        // If vertex is a variable
+        if (getTask(*vi)->getTaskType() == Task::xvariable) {
+            // Add an edge from all vertex sources to all vertex targets
             for (boost::tie(iei, iei_end) = boost::in_edges(*vi, graph_);
-                    iei != iei_end; ++iei) {
-                 //boost::remove_edge(*oei, graph_);
-                edgeToDelete.insert(*iei);
-                sourceVertices.insert(boost::source(*iei, graph_));
-            }
-            // Add an edge from each vertex in edge to each vertex out edge
-            for (vit = sourceVertices.begin(); vit != sourceVertices.end(); ++vit) {
-                for (vit2 = targetVertices.begin(); vit2 != targetVertices.end(); ++vit2) {
-                    addEdge(getTask(*vit), getTask(*vit2), Dependency::variable);
-                }
-            }
+                    iei != iei_end; ++iei)
+                for (boost::tie(oei, oei_end) = boost::out_edges(*vi, graph_);
+                        oei != oei_end; ++oei)
+                    addEdge(getTask(boost::source((Edge)*iei, graph_)),
+                            getTask(boost::target((Edge)*oei, graph_)),
+                            Dependency::variable);
 
-            // Remove vertex
-            ++vi_next;
-            //remove_vertex(*vi, graph_);
+            // Remove edges of vertex
+            clear_vertex(*vi, graph_);
+            // Add vertex to delete list (as cannot delete vertex within
+            // an iterator)
             vertexToDelete.insert(*vi);
-        } else {
-            ++vi_next;
         }
     }
-    for (eit = edgeToDelete.begin(); eit != edgeToDelete.end(); ++eit)
-        boost::remove_edge((*eit),  graph_);
+    // Delete vertices in delete list
     for (vit = vertexToDelete.begin(); vit != vertexToDelete.end(); ++vit)
         boost::remove_vertex((*vit),  graph_);
+}
+
+
+
+void XGraph::remove_redendant_dependencies() {
+    //typedef boost::adjacency_list <> GraphTC;
+    //GraphTC TC;
+    Graph GTC;
+
+    transitive_reduction(graph_, GTC);
+
+    std::ofstream out2("t2.dot");
+    boost::write_graphviz(out2, GTC);
+
+    std::ofstream out1("t1.dot");
+    boost::write_graphviz(out1, graph_);
+
+    {
+      using namespace boost;
+      typedef property < vertex_name_t, char >Name;
+      typedef property < vertex_index_t, std::size_t, Name > Index;
+      typedef adjacency_list < listS, listS, directedS, Index > graph_t;
+      typedef graph_traits < graph_t >::vertex_descriptor vertex_t;
+      graph_t G;
+      std::vector < vertex_t > verts(4);
+      for (int i = 0; i < 4; ++i)
+        verts[i] = add_vertex(Index(i, Name('a' + i)), G);
+      add_edge(verts[0], verts[1], G);
+      add_edge(verts[1], verts[2], G);
+      add_edge(verts[2], verts[3], G);
+      add_edge(verts[0], verts[2], G);
+      add_edge(verts[0], verts[3], G);
+
+      std::cout << "Graph G:" << std::endl;
+      print_graph(G);//, get(vertex_name, G));
+
+      typedef adjacency_list <> GraphTC;
+      GraphTC TC;
+
+      transitive_reduction(G, TC);
+
+      std::cout << std::endl << "Graph G+:" << std::endl;
+      char name[] = "abcd";
+      print_graph(TC);//, name);
+      std::cout << std::endl;
+
+      //std::ofstream out("tc-out.dot");
+      //boost::write_graphviz(out, TC, make_label_writer(name));
+    }
 }
 
 /*!
@@ -437,7 +494,7 @@ int XGraph::check_function_conditions() {
             // For each out edge
             for (boost::tie(oei, oei_end) = boost::out_edges(*vp.first, graph_);
                 oei != oei_end; ++oei) {
-                    Task * t = getTask(boost::target(*oei, graph_));
+                    Task * t = getTask(boost::target((Edge)*oei, graph_));
                     XCondition * condition = t->getFunction()->getCondition();
                     // If condition is null then return an error
                     if (condition == 0) {
