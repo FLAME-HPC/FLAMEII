@@ -16,6 +16,7 @@
 #include "./xadt.hpp"
 #include "./xtimeunit.hpp"
 #include "./xmessage.hpp"
+#include "./xmodel_validate.hpp"
 
 namespace flame { namespace model {
 
@@ -41,6 +42,7 @@ class XModel {
     XTimeUnit * addTimeUnit();
     std::vector<XTimeUnit*> * getTimeUnits();
     void addFunctionFile(std::string file);
+    std::vector<std::string> * getFunctionFiles();
     XMachine * addAgent();
     std::vector<XMachine*> * getAgents();
     XMachine * getAgent(std::string name);

@@ -15,6 +15,11 @@
 
 namespace flame { namespace model {
 
+/*!
+ * \brief Initialises XFunction
+ *
+ * Initialises XFunction with no condition and no memory access info.
+ */
 XFunction::XFunction() {
     /* Initialise pointers */
     condition_ = 0;
@@ -22,25 +27,31 @@ XFunction::XFunction() {
     memoryAccessInfoAvailable_ = false;
 }
 
+/*!
+ * \brief Cleans up XFunction
+ *
+ * Cleans up XFunction by deleting condition and ioputs.
+ */
 XFunction::~XFunction() {
     /* Delete inputs */
-    XIOput * xinput;
     while (!inputs_.empty()) {
-        xinput = inputs_.back();
-        delete xinput;
+        delete inputs_.back();
         inputs_.pop_back();
     }
     /* Delete outputs */
-    XIOput * xoutput;
     while (!outputs_.empty()) {
-        xoutput = outputs_.back();
-        delete xoutput;
+        delete outputs_.back();
         outputs_.pop_back();
     }
     /* Delete any condition */
     if (condition_ != 0) delete condition_;
 }
 
+/*!
+ * \brief Prints the XFunction
+ *
+ * Prints the XFunction to standard out.
+ */
 void XFunction::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());
@@ -51,13 +62,9 @@ void XFunction::print() {
         condition_->print();
     }
     std::fprintf(stdout, "\t\tInputs:\n");
-    for (ii = 0; ii < inputs_.size(); ii++) {
-        inputs_.at(ii)->print();
-    }
+    for (ii = 0; ii < inputs_.size(); ii++) inputs_.at(ii)->print();
     std::fprintf(stdout, "\t\tOutputs:\n");
-    for (ii = 0; ii < outputs_.size(); ii++) {
-        outputs_.at(ii)->print();
-    }
+    for (ii = 0; ii < outputs_.size(); ii++) outputs_.at(ii)->print();
 }
 
 void XFunction::setName(std::string name) {
@@ -105,12 +112,10 @@ std::vector<XIOput*> * XFunction::getOutputs() {
 }
 
 XCondition * XFunction::addCondition() {
-    if (condition_ == 0) {
-        condition_ = new XCondition;
-    } else {
+    if (condition_ == 0) condition_ = new XCondition;
+    else
         throw std::invalid_argument(
             "a condition has already been added to the function");
-    }
     return condition_;
 }
 

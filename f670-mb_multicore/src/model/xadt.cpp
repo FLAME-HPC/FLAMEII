@@ -14,16 +14,24 @@
 
 namespace flame { namespace model {
 
+/*!
+ * \brief Initialises XADT
+ *
+ * Initialises XADT with not holding dynamic arrays.
+ */
 XADT::XADT() {
     holdsDynamicArray_ = false;
 }
 
+/*!
+ * \brief Cleans up XADT
+ *
+ * Cleans up XADT by deleting variable list.
+ */
 XADT::~XADT() {
     /* Delete variables */
-    XVariable * var;
     while (!variables_.empty()) {
-        var = variables_.back();
-        delete var;
+        delete variables_.back();
         variables_.pop_back();
     }
 }
@@ -31,9 +39,8 @@ XADT::~XADT() {
 void XADT::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tADT Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++) {
+    for (ii = 0; ii < getVariables()->size(); ii++)
         getVariables()->at(ii)->print();
-    }
 }
 
 void XADT::setName(std::string name) {

@@ -14,32 +14,39 @@
 
 namespace flame { namespace model {
 
+XMachine::XMachine() {
+}
+
+/*!
+ * \brief Cleans up XMachine
+ *
+ * Cleans up XMachine by deleting variable list and functions list.
+ */
 XMachine::~XMachine() {
     /* Delete variables */
-    XVariable * var;
     while (!variables_.empty()) {
-        var = variables_.back();
-        delete var;
+        delete variables_.back();
         variables_.pop_back();
     }
     /* Delete functions */
-    XFunction * xfunction;
     while (!functions_.empty()) {
-        xfunction = functions_.back();
-        delete xfunction;
+        delete functions_.back();
         functions_.pop_back();
     }
 }
 
+/*!
+ * \brief Prints XMachine
+ *
+ * Prints XMachine to standard out.
+ */
 void XMachine::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++) {
+    for (ii = 0; ii < getVariables()->size(); ii++)
         getVariables()->at(ii)->print();
-    }
-    for (ii = 0; ii < functions_.size(); ii++) {
+    for (ii = 0; ii < functions_.size(); ii++)
         functions_.at(ii)->print();
-    }
 }
 
 void XMachine::setName(std::string name) {
@@ -62,9 +69,8 @@ std::vector<XVariable*> * XMachine::getVariables() {
 
 XVariable * XMachine::getVariable(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++) {
+    for (ii = 0; ii < variables_.size(); ii++)
         if (variables_.at(ii)->getName() == name) return variables_.at(ii);
-    }
     return 0;
 }
 

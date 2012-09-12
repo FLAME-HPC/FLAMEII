@@ -24,9 +24,12 @@ class XCondition {
     ~XCondition();
     void print();
     int processSymbols();
+    int processSymbolsTime();
+    int processSymbolsValues();
+    int processSymbolsConditions();
     int validate(XMachine * agent, XMessage * message, XModel * model);
-
-  // private:
+    int validateTime(XMachine * agent, XModel * model);
+    int validateValues(XMachine * agent, XMessage * xmessage);
     bool isNot;
     bool isTime;
     bool isValues;
@@ -55,6 +58,23 @@ class XCondition {
     bool foundTimeDuration;
     XCondition * lhsCondition;
     XCondition * rhsCondition;
+
+  private:
+    void printValues(std::string lhs, std::string op, std::string rhs,
+            bool lhsIsAgentVariable, bool rhsIsAgentVariable,
+            bool lhsIsMessageVariable, bool rhsIsMessageVariable,
+            bool lhsIsValue, bool rhsIsValue,
+            double lhsDouble, double rhsDouble);
+    void printConditions(XCondition * lhsCondition,
+            std::string op, XCondition * rhsCondition);
+    void printTime(std::string timePeriod, std::string timePhaseVariable,
+            int timePhaseValue, int timeDuration, bool timePhaseIsVariable,
+            bool foundTimeDuration);
+    int processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
+            bool * hsIsValue, bool * hsIsMessageVariable, double * hsDouble);
+    int validateValue(XMachine * agent, XMessage * xmessage,
+            bool * hsIsAgentVariable,
+            std::string * hs, bool * hsIsMessageVariable);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XCONDITION_HPP_

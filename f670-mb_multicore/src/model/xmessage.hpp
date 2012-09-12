@@ -18,7 +18,7 @@ namespace flame { namespace model {
 
 class XMessage {
   public:
-    XMessage() {}
+    XMessage();
     ~XMessage();
     void print();
     void setName(std::string name);

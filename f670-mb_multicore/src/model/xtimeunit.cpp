@@ -13,9 +13,20 @@
 
 namespace flame { namespace model {
 
+XTimeUnit::XTimeUnit() {
+}
+
 XTimeUnit::~XTimeUnit() {
 }
 
+/*!
+ * \brief Prints XTimeUnit
+ *
+ * Prints XTimeUnit to standard out including
+ * name,
+ * unit and
+ * period.
+ */
 void XTimeUnit::print() {
     std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\tUnit  : %s\n", getUnit().c_str());
