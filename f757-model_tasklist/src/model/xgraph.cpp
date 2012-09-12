@@ -23,28 +23,6 @@
 #include "./xfunction.hpp"
 #include "./task.hpp"
 
-namespace boost {
-// Required to use transitive reduction function easily
-// (based upon similar code for using transitive closure,
-// found in its header file).
-template <typename Graph, typename GraphTC>
-void transitive_reduction(const Graph & g, GraphTC & tc)
-{
-    if (num_vertices(g) == 0) return;
-
-    typedef typename property_map<Graph, vertex_index_t>::const_type
-            VertexIndexMap;
-    VertexIndexMap index_map = get(vertex_index, g);
-
-    typedef typename graph_traits<GraphTC>::vertex_descriptor tc_vertex;
-    std::vector<tc_vertex> to_tc_vec(num_vertices(g));
-    iterator_property_map<tc_vertex *, VertexIndexMap, tc_vertex, tc_vertex&>
-            g_to_tc_map(&to_tc_vec[0], index_map);
-
-    transitive_reduction(g, tc, g_to_tc_map, index_map);
-}
-}  // namespace boost
-
 namespace flame { namespace model {
 
 XGraph::~XGraph() {
@@ -381,53 +359,33 @@ void XGraph::contract_variable_verticies_from_graph() {
         boost::remove_vertex((*vit),  graph_);
 }
 
-
-
 void XGraph::remove_redendant_dependencies() {
-    //typedef boost::adjacency_list <> GraphTC;
-    //GraphTC TC;
-    Graph GTC;
+    size_t ii;
+    // The resultant transitive reduction graph
+    Graph trgraph;
 
-    transitive_reduction(graph_, GTC);
+    // Create a map to get a property of a graph, in this case the vertex index
+    typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
+                VertexIndexMap;
+    VertexIndexMap index_map = get(boost::vertex_index, graph_);
+    // A vector of vertices to hold trgraph vertices
+    std::vector<Vertex> to_tc_vec(boost::num_vertices(graph_));
+    // Property map iterator
+    // Iterator: Vertex *
+    // OffsetMap: VertexIndexMap
+    // Value type of iterator: Vertex
+    // Reference type of iterator: Vertex&
+    boost::iterator_property_map<Vertex *, VertexIndexMap, Vertex, Vertex&>
+                    g_to_tc_map(&to_tc_vec[0], index_map);
 
-    std::ofstream out2("t2.dot");
-    boost::write_graphviz(out2, GTC);
+    transitive_reduction(graph_, trgraph, g_to_tc_map, index_map);
 
-    std::ofstream out1("t1.dot");
-    boost::write_graphviz(out1, graph_);
+    // Create new vertex task mapping for trgraph
+    for (ii = 0; ii < boost::num_vertices(graph_); ii++)
+        trvertex2task_.insert(std::make_pair(to_tc_vec[ii], getTask(ii)));
 
-    {
-      using namespace boost;
-      typedef property < vertex_name_t, char >Name;
-      typedef property < vertex_index_t, std::size_t, Name > Index;
-      typedef adjacency_list < listS, listS, directedS, Index > graph_t;
-      typedef graph_traits < graph_t >::vertex_descriptor vertex_t;
-      graph_t G;
-      std::vector < vertex_t > verts(4);
-      for (int i = 0; i < 4; ++i)
-        verts[i] = add_vertex(Index(i, Name('a' + i)), G);
-      add_edge(verts[0], verts[1], G);
-      add_edge(verts[1], verts[2], G);
-      add_edge(verts[2], verts[3], G);
-      add_edge(verts[0], verts[2], G);
-      add_edge(verts[0], verts[3], G);
-
-      std::cout << "Graph G:" << std::endl;
-      print_graph(G);//, get(vertex_name, G));
-
-      typedef adjacency_list <> GraphTC;
-      GraphTC TC;
-
-      transitive_reduction(G, TC);
-
-      std::cout << std::endl << "Graph G+:" << std::endl;
-      char name[] = "abcd";
-      print_graph(TC);//, name);
-      std::cout << std::endl;
-
-      //std::ofstream out("tc-out.dot");
-      //boost::write_graphviz(out, TC, make_label_writer(name));
-    }
+    write_graphviz("test1.dot", graph_, vertex2task_);
+    write_graphviz("test2.dot", trgraph, trvertex2task_);
 }
 
 /*!
@@ -512,9 +470,9 @@ int XGraph::check_function_conditions() {
 }
 
 struct vertex_label_writer {
-    explicit vertex_label_writer(VertexMap * vm) : vertex2task(vm) {}
+    explicit vertex_label_writer(VertexMap& vm) : vertex2task(vm) {}
     void operator()(std::ostream& out, const Vertex& v) const {
-        Task * t = vertex2task->find(v)->second;
+        Task * t = vertex2task.find(v)->second;
         out << " [label=\"" << t->getName() << "\"";
         if (t->getTaskType() == Task::xfunction)
             out << " shape=rect, style=filled, fillcolor=yellow";
@@ -527,13 +485,15 @@ struct vertex_label_writer {
         out << "]";
     }
   protected:
-    VertexMap * vertex2task;
+    VertexMap& vertex2task;
 };
 
 struct edge_label_writer {
     enum ArrowType { arrowForward = 0, arrowBackward };
-    edge_label_writer(EdgeMap * em, ArrowType at)
-        : edge2dependency(em), arrowType(at) {}
+    edge_label_writer(//EdgeMap * em,
+            ArrowType at) :
+        //edge2dependency(em),
+          arrowType(at) {}
     void operator()(std::ostream& out, const Edge& e) const {
         //Dependency * d = edge2dependency->find(e)->second;
         out << " [";
@@ -542,7 +502,7 @@ struct edge_label_writer {
         out << "]";
     }
   protected:
-    EdgeMap * edge2dependency;
+    //EdgeMap * edge2dependency;
     ArrowType arrowType;
 };
 
@@ -552,13 +512,13 @@ struct graph_writer {
     }
 };
 
-void XGraph::write_graphviz(std::string fileName) {
+void XGraph::write_graphviz(std::string fileName, Graph& graph, VertexMap& vertexMap) {
     std::fstream graphfile;
     graphfile.open(fileName.c_str(), std::fstream::out);
 
-    boost::write_graphviz(graphfile, graph_,
-            vertex_label_writer(&vertex2task_),
-            edge_label_writer(&edge2dependency_,
+    boost::write_graphviz(graphfile, graph,
+            vertex_label_writer(vertexMap),
+            edge_label_writer(//&edge2dependency_,
                 edge_label_writer::arrowForward),
             graph_writer());
 

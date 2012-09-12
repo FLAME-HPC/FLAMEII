@@ -45,13 +45,13 @@ int ModelManager::generate_task_list() {
         (*agent)->getFunctionDependencyGraph()->
                 add_variable_vertices_to_graph((*agent)->getVariables());
 
-        (*agent)->getFunctionDependencyGraph()->write_graphviz("test1.dot");
+        //(*agent)->getFunctionDependencyGraph()->write_graphviz("test1.dot");
 
         // Contract variable vertices
         (*agent)->getFunctionDependencyGraph()->
                 contract_variable_verticies_from_graph();
 
-        (*agent)->getFunctionDependencyGraph()->write_graphviz("test2.dot");
+        //(*agent)->getFunctionDependencyGraph()->write_graphviz("test2.dot");
 
         (*agent)->getFunctionDependencyGraph()->remove_redendant_dependencies();
     }

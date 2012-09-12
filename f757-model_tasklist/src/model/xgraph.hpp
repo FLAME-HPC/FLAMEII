@@ -23,7 +23,9 @@ class XVariable;
 class Task;
 
 // Define graph type
-// (bidirectional for access to boost::in_edges as well as boost::out_edges)
+// Vectors used for vertex and edge containers
+// Bidirectional for access to boost::in_edges as well as boost::out_edges
+// Index type used to index vertices
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
 // Define vertex and edge descriptor types
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
@@ -45,7 +47,7 @@ class XGraph {
     Edge addEdge(Vertex to, Vertex from, Dependency * d);
     int check_dependency_loops();
     int check_function_conditions();
-    void write_graphviz(std::string fileName);
+    void write_graphviz(std::string fileName, Graph& graph, VertexMap& vertexMap);
     void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
     void add_condition_vertices_to_graph();
@@ -67,6 +69,8 @@ class XGraph {
             std::set<Vertex> * writing);
     Graph graph_;
     VertexMap vertex2task_;
+    /* Transitive reduction vertices to tasks map */
+    VertexMap trvertex2task_;
     EdgeMap edge2dependency_;
     Vertex startVertex_;
 };
