@@ -28,6 +28,7 @@ class XModel {
     void setup();
     void print();
     int validate();
+    int initialise();
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);

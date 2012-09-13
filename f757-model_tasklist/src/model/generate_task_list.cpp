@@ -33,29 +33,6 @@ int ModelManager::generate_task_list() {
     // Calculate task list using dependencies
 //    rc = calculate_task_list(&tasks_);
 
-    /* For each agent */
-    for (agent = model_.getAgents()->begin();
-         agent != model_.getAgents()->end(); ++agent) {
-        // Add condition vertices
-        (*agent)->getFunctionDependencyGraph()->
-                add_condition_vertices_to_graph();
-        // Add init vertex
-        (*agent)->add_init_vertex_to_graph();
-        // Add variable verticies
-        (*agent)->getFunctionDependencyGraph()->
-                add_variable_vertices_to_graph((*agent)->getVariables());
-
-        //(*agent)->getFunctionDependencyGraph()->write_graphviz("test1.dot");
-
-        // Contract variable vertices
-        (*agent)->getFunctionDependencyGraph()->
-                contract_variable_verticies_from_graph();
-
-        //(*agent)->getFunctionDependencyGraph()->write_graphviz("test2.dot");
-
-        (*agent)->getFunctionDependencyGraph()->remove_redendant_dependencies();
-    }
-
 #ifdef TESTBUILD
     // Output function dependency graph to view via graphviz dot
     // functionStateGraph.write_dependency_graph("dgraph.dot");

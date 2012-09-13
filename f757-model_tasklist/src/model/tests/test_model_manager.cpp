@@ -98,7 +98,8 @@ BOOST_AUTO_TEST_CASE(test_graph_layers) {
     model::ModelManager modelManager;
 
     // Load test model
-    rc = modelManager.loadModel("src/model/tests/models/dependency_test.xml");
+    //rc = modelManager.loadModel("src/model/tests/models/dependency_test.xml");
+    rc = modelManager.loadModel("src/model/tests/models/infection.xml");
     BOOST_CHECK(rc == 0);
     // Generate task list
     rc = modelManager.generate_task_list();

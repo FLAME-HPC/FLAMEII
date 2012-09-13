@@ -137,46 +137,49 @@ std::string XMachine::getStartState() {
     return startState_;
 }
 
-int XMachine::add_function_tasks_to_graph() {
-    std::vector<XFunction*>::iterator f;
+int XMachine::generateDependencyGraph() {
 
-    // For each function
-    for (f = functions_.begin(); f != functions_.end(); ++f)
-        functionDependencyGraph_.add_function_task_to_graph(*f);
+    functionDependencyGraph_.write_graphviz("test1.dot");
+
+    // Contract state vertices
+    functionDependencyGraph_.contractStateVerticies();
+
+    functionDependencyGraph_.write_graphviz("test2.dot");
+
+    // Add condition vertices
+    functionDependencyGraph_.add_condition_vertices_to_graph();
+    // Add init vertex
+    add_init_vertex_to_graph();
+
+    functionDependencyGraph_.write_graphviz("test3.dot");
+
+    // Add variable vertices
+    functionDependencyGraph_.add_variable_vertices_to_graph(getVariables());
+    // Remove state dependencies
+    functionDependencyGraph_.remove_state_dependencies();
+
+    functionDependencyGraph_.write_graphviz("test4.dot");
+
+    // Contract variable vertices
+    functionDependencyGraph_.contract_variable_verticies_from_graph();
+
+    functionDependencyGraph_.write_graphviz("test5.dot");
+
+    functionDependencyGraph_.remove_redendant_dependencies();
+
+    functionDependencyGraph_.write_graphviz("test6.dot");
 
     return 0;
 }
 
-int XMachine::add_function_dependencies_to_graph() {
-    std::vector<XFunction*>::iterator f;
-    std::vector<XFunction*>::iterator f2;
+/*
+ * This function is called from the model validator and
+ * is then used to check for cycles and function conditions.
+ */
+int XMachine::generateStateGraph() {
+    functionDependencyGraph_.addTransitionFunctions(functions_);
 
-    // For each function
-    for (f = functions_.begin(); f != functions_.end(); ++f) {
-        // Add state dependencies to tasks
-        // For each transition functions start state
-        // find transition functions that end in that state
-        for (f2 = functions_.begin(); f2 != functions_.end(); ++f2) {
-            if ((*f)->getCurrentState() == (*f2)->getNextState()) {
-                Dependency * d = new Dependency;
-                d->setParentName(getName());
-                d->setName((*f)->getCurrentState());
-                d->setDependencyType(Dependency::state);
-                functionDependencyGraph_.addEdge((*f2)->getTask(),
-                        (*f)->getTask(), d);
-            }
-        }
-    }
-
-    return 0;
-}
-
-int XMachine::generateFunctionDependencyGraph() {
-    int rc = 0;
-
-    // Add functions to graph
-    rc += add_function_tasks_to_graph();
-    rc += add_function_dependencies_to_graph();
+    functionDependencyGraph_.write_graphviz("test1.dot");
 
     return 0;
 }

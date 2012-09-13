@@ -32,15 +32,14 @@ class XMachine {
     bool validateVariableName(std::string name);
     int findStartState();
     std::string getStartState();
-    int generateFunctionDependencyGraph();
+    int generateStateGraph();
     XGraph * getFunctionDependencyGraph();
     int checkCyclicDependencies();
     int checkFunctionConditions();
     int add_init_vertex_to_graph();
+    int generateDependencyGraph();
 
   private:
-    int add_function_tasks_to_graph();
-    int add_function_dependencies_to_graph();
     std::string name_;
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;

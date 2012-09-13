@@ -15,12 +15,12 @@
 #include <string>
 #include <map>
 #include "./dependency.hpp"
+#include "./task.hpp"
 
 namespace flame { namespace model {
 
 class XFunction;
 class XVariable;
-class Task;
 
 // Define graph type
 // Vectors used for vertex and edge containers
@@ -39,7 +39,7 @@ typedef std::map<Edge, Dependency *> EdgeMap;
 
 class XGraph {
   public:
-    XGraph() {}
+    XGraph();
     ~XGraph();
     Vertex addVertex(Task * t);
     void addEdge(Task * to, Task * from, Dependency * d);
@@ -47,31 +47,36 @@ class XGraph {
     Edge addEdge(Vertex to, Vertex from, Dependency * d);
     int check_dependency_loops();
     int check_function_conditions();
-    void write_graphviz(std::string fileName, Graph& graph, VertexMap& vertexMap);
+    void write_graphviz(std::string fileName);
     void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
+    void addTransitionFunctions(std::vector<XFunction*> functions);
+    void contractStateVerticies();
     void add_condition_vertices_to_graph();
-    Vertex add_function_task_to_graph(XFunction * function);
     Vertex add_init_task_to_graph(XFunction * function);
     void contract_variable_verticies_from_graph();
     void remove_redendant_dependencies();
+    void remove_state_dependencies();
 #ifdef TESTBUILD
-    Graph * getGraph() { return &graph_; }
+    Graph * getGraph() { return graph_; }
 #endif
 
   private:
+    void contractVerticies(Task::TaskType taskType,
+            Dependency::DependencyType dependencyType);
+    Task * addStateToGraph(std::string name);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v);
     Dependency * getDependency(Edge e);
+    void removeTask(Vertex v);
+    void removeDependency(Edge e);
     void discover_last_variable_writes(XVariable * variable,
             Vertex vertex,
             std::set<Vertex> * finished,
             std::set<Vertex> * writing);
-    Graph graph_;
-    VertexMap vertex2task_;
-    /* Transitive reduction vertices to tasks map */
-    VertexMap trvertex2task_;
-    EdgeMap edge2dependency_;
+    Graph * graph_;
+    VertexMap * vertex2task_;
+    EdgeMap * edge2dependency_;
     Vertex startVertex_;
 };
 

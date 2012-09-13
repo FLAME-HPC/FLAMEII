@@ -105,6 +105,18 @@ int XModel::validate() {
     return validator.validate();
 }
 
+int XModel::initialise() {
+    std::vector<XMachine*>::iterator agent;
+
+    // For each agent generate graphs
+    for (agent = getAgents()->begin();
+         agent != getAgents()->end(); ++agent) {
+        (*agent)->generateDependencyGraph();
+    }
+
+    return 0;
+}
+
 void XModel::setPath(std::string path) {
     path_ = path;
 }

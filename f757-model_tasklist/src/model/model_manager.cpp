@@ -28,7 +28,7 @@ int ModelManager::loadModel(std::string const& file) {
     int rc;
     flame::io::IOManager ioManager;
 
-    /* Read model */
+    // Read model
     rc = ioManager.loadModel(file, &model_);
     if (rc != 0) {
         std::fprintf(stderr,
@@ -37,13 +37,22 @@ int ModelManager::loadModel(std::string const& file) {
         return 1;
     }
 
-    /* Validate model */
+    // Validate model
     rc = model_.validate();
     if (rc != 0) {
         std::fprintf(stderr,
-            "Error: Model XML file could not be validated.\n");
+            "Error: Model from XML file could not be validated.\n");
         model_.clear();
         return 2;
+    }
+
+    // Initialise model (generate graphs and task list)
+    rc = model_.initialise();
+    if (rc != 0) {
+        std::fprintf(stderr,
+            "Error: Model from XML file could not be initialised.\n");
+        model_.clear();
+        return 3;
     }
 
     return 0;

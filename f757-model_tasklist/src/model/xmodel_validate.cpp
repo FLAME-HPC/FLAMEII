@@ -148,8 +148,8 @@ int XModelValidate::validateAgentStateGraph(XMachine * agent) {
     if (rc != 0) {
         errors += rc;
     } else {
-        // Generate function dependency graph
-        errors += agent->generateFunctionDependencyGraph();
+        // Generate state graph
+        errors += agent->generateStateGraph();
         // Check graph for no cyclic dependencies
         errors += agent->checkCyclicDependencies();
         // Check functions from state with more than one
