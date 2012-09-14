@@ -33,6 +33,10 @@ class XModelValidate {
             XModel * model);
     int processVariables(std::vector<XVariable*> * variables_,
             XModel * model);
+    bool variableExists(std::string name, std::vector<XVariable*> * variables);
+    int processMemoryAccessVariable(std::string name,
+            std::vector<XVariable*> * variables,
+            std::set<std::string> * usedVariables);
     int processAgentFunction(XFunction * function,
             std::vector<XVariable*> * variables);
     void validateVariableName(XVariable * v, int * errors,

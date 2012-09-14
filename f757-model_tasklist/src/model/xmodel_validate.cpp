@@ -325,26 +325,71 @@ int XModelValidate::processVariables(std::vector<XVariable*> * variables,
     return errors;
 }
 
+bool XModelValidate::variableExists(std::string name,
+        std::vector<XVariable*> * variables) {
+    std::vector<XVariable*>::iterator vit;
+
+    for (vit = variables->begin(); vit != variables->end(); vit++)
+            if(name == (*vit)->getName()) return true;
+    return false;
+}
+
+int XModelValidate::processMemoryAccessVariable(std::string name,
+        std::vector<XVariable*> * variables, std::set<std::string> * usedVariables) {
+    int errors = 0;
+
+    if (variableExists(name, variables)) {
+        // Check if variable already used
+        std::set<std::string>::iterator it = usedVariables->find(name);
+        // If not found
+        if (it == usedVariables->end()) {
+            // Add variable name to used list
+            usedVariables->insert(name);
+        } else {
+            std::fprintf(stderr,
+                "Error: Memory access variable name is a duplicate: '%s',\n",
+                name.c_str());
+            errors++;
+        }
+
+    } else {
+        std::fprintf(stderr,
+            "Error: Memory access variable name is not valid: '%s',\n",
+            name.c_str());
+        errors++;
+    }
+
+    return errors;
+}
+
 int XModelValidate::processAgentFunction(XFunction * function,
         std::vector<XVariable*> * variables) {
-    std::vector<XVariable*>::iterator variable;
+    std::vector<std::string>::iterator variable;
+    std::vector<XVariable*>::iterator variable2;
+    std::set<std::string> usedVariables;
+    int errors = 0;
 
     // If memory access information was not given set all memory
     // variable access as being read write.
     if (!function->getMemoryAccessInfoAvailable()) {
-        for (variable = variables->begin();
-                variable != variables->end(); ++variable) {
-            function->addReadWriteVariable((*variable));
+        for (variable2 = variables->begin();
+                variable2 != variables->end(); ++variable2) {
+            function->addReadWriteVariable((*variable2)->getName());
         }
     // Else check memory access variables are valid
     } else {
         // Check variable names are valid variables in memory
-
-        // Check there are no duplicate variables
-        // (from across both lists)
+        for (variable = function->getReadOnlyVariables()->begin();
+                variable != function->getReadOnlyVariables()->end();
+                variable++)
+            errors += processMemoryAccessVariable((*variable), variables, &usedVariables);
+        for (variable = function->getReadWriteVariables()->begin();
+                variable != function->getReadWriteVariables()->end();
+                variable++)
+            errors += processMemoryAccessVariable((*variable), variables, &usedVariables);
     }
 
-    return 0;
+    return errors;
 }
 
 void XModelValidate::validateVariableName(XVariable * v, int * errors,

@@ -148,20 +148,25 @@ int XMachine::generateDependencyGraph() {
 
     // Add condition vertices
     functionDependencyGraph_.add_condition_vertices_to_graph();
-    // Add init vertex
-    add_init_vertex_to_graph();
 
     functionDependencyGraph_.write_graphviz("test3.dot");
 
+    // Add init vertex
+    add_init_vertex_to_graph();
+    // Add condition dependencies
+    functionDependencyGraph_.add_condition_dependencies();
     // Add variable vertices
     functionDependencyGraph_.add_variable_vertices_to_graph(getVariables());
     // Remove state dependencies
     functionDependencyGraph_.remove_state_dependencies();
 
+
     functionDependencyGraph_.write_graphviz("test4.dot");
 
     // Contract variable vertices
     functionDependencyGraph_.contract_variable_verticies_from_graph();
+    // Remove init vertex
+    functionDependencyGraph_.remove_init_task();
 
     functionDependencyGraph_.write_graphviz("test5.dot");
 
@@ -193,7 +198,7 @@ int XMachine::add_init_vertex_to_graph() {
     // Make init function write all memory variables
     std::vector<XVariable*>::iterator i;
     for (i = variables_.begin(); i != variables_.end(); i++)
-        initFunc->getReadWriteVariables()->push_back(*i);
+        initFunc->getReadWriteVariables()->push_back((*i)->getName());
     // Add edges from init function to vertices from start state
     std::vector<XFunction*>::iterator f;
     for (f = functions_.begin(); f != functions_.end(); ++f) {

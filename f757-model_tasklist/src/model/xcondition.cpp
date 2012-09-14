@@ -62,7 +62,7 @@ XCondition::~XCondition() {
     if (rhsCondition != 0) delete rhsCondition;
 }
 
-std::set<XVariable*> * XCondition::getReadOnlyVariables() {
+std::set<std::string> * XCondition::getReadOnlyVariables() {
     return &readOnlyVariables_;
 }
 
@@ -323,7 +323,7 @@ int XCondition::validateTime(XMachine * agent, XModel * model,
             // If agent variable is valid then add to
             // read only variable list
             rootCondition->readOnlyVariables_.insert(
-                agent->getVariable(timePhaseVariable));
+                agent->getVariable(timePhaseVariable)->getName());
         }
     }
     return errors;
@@ -344,7 +344,7 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
         } else {
             // If agent variable is valid then add to
             // read only variable list
-            rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs));
+            rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs)->getName());
         }
     /* Handle message variable */
     } else if (*hsIsMessageVariable) {

@@ -822,7 +822,7 @@ int IOXMLModel::readCondition(xmlNode * node,
 }
 
 int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
-        std::vector<model::XVariable*> * variables) {
+        std::vector<std::string> * variables) {
     int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
@@ -835,9 +835,7 @@ int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
             /* Handle each child and call appropriate
              * processing function */
             if (name == "variableName") {
-                model::XVariable * xvariable = new model::XVariable;
-                xvariable->setName(getElementValue(cur_node));
-                variables->push_back(xvariable);
+                variables->push_back(getElementValue(cur_node));
             } else {
                 rc = readUnknownElement(cur_node);
             }

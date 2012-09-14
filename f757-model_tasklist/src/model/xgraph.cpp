@@ -109,6 +109,27 @@ Vertex XGraph::add_init_task_to_graph(XFunction * function) {
     return v;
 }
 
+void XGraph::remove_init_task() {
+    std::pair<VertexIterator, VertexIterator> vp;
+    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+    std::set<Edge> edgesToRemove;
+    std::set<Edge>::iterator eit;
+    Vertex toDelete;
+
+    for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+        Task * t = getTask(*vp.first);
+        if (t->getTaskType() == Task::init_agent) {
+            for (boost::tie(oei, oei_end) = boost::out_edges(*vp.first, *graph_);
+                oei != oei_end; ++oei)
+                edgesToRemove.insert((Edge)*oei);
+            for (eit = edgesToRemove.begin(); eit != edgesToRemove.end(); eit++)
+                removeDependency(*eit);
+            toDelete = *vp.first;
+        }
+    }
+    removeTask(toDelete);
+}
+
 Vertex XGraph::addVertex(Task * t) {
     Vertex v = add_vertex(*graph_);
     vertex2task_->insert(std::make_pair(v, t));
@@ -176,14 +197,14 @@ struct func_layer : public boost::default_bfs_visitor {
     std::vector<Vertex> * breadth_first_vertices_;
 };
 
-bool containsVariableName(std::vector<XVariable*> * variables, XVariable * variable) {
-    std::vector<XVariable*>::iterator it;
+bool containsVariableName(std::vector<std::string> * variables, std::string variable) {
+    std::vector<std::string>::iterator it;
     for (it = variables->begin(); it != variables->end(); it++)
-        if ((*it)->getName() == variable->getName()) return true;
+        if ((*it) == variable) return true;
     return false;
 }
 
-void XGraph::discover_last_variable_writes(XVariable * variable,
+void XGraph::discover_last_variable_writes(std::string variable,
         Vertex vertex,
         std::set<Vertex> * finished,
         std::set<Vertex> * writing) {
@@ -221,7 +242,7 @@ void XGraph::add_variable_vertices_to_graph(
     std::vector<Vertex> breadth_first_vertices;
     std::vector<Vertex>::iterator vit;
     std::set<Vertex>::iterator sit;
-    std::vector<XVariable*>::iterator varit;
+    std::vector<std::string>::iterator varit;
     std::pair<VertexIterator, VertexIterator> vp;
 
     std::set<Vertex> finished;
@@ -233,21 +254,22 @@ void XGraph::add_variable_vertices_to_graph(
     // For each vertex in depth order
     for (vit = breadth_first_vertices.begin();
          vit != breadth_first_vertices.end(); vit++) {
-        std::vector<XVariable*> * rov =
+        std::vector<std::string> * rov =
             getTask(*vit)->getFunction()->getReadOnlyVariables();
-        std::vector<XVariable*> * rwv =
+        std::vector<std::string> * rwv =
             getTask(*vit)->getFunction()->getReadWriteVariables();
 
+        // For writing variables create new vertex and add edge
         for (varit = rwv->begin(); varit != rwv->end(); varit++) {
             // Add out going edge to new variable vertex
             Task * varTask = new Task;
             //varTask->setParentName();
-            varTask->setName((*varit)->getName());
+            varTask->setName((*varit));
             varTask->setTaskType(Task::xvariable);
             Vertex variableVertex = addVertex(varTask);
             Dependency * d = new Dependency;
             //d->setParentName("v");
-            d->setName((*varit)->getName());
+            d->setName((*varit));
             d->setDependencyType(Dependency::variable);
             addEdge(*vit, variableVertex, d);
         }
@@ -268,9 +290,9 @@ void XGraph::add_variable_vertices_to_graph(
                                             oei != oei_end; ++oei) {
                         Vertex v2 = boost::target((Edge)*oei, *graph_);
                         if (getTask(v2)->getTaskType() == Task::xvariable &&
-                                getTask(v2)->getName() == (*varit)->getName()) {
+                                getTask(v2)->getName() == (*varit)) {
                             Dependency * d = new Dependency;
-                            d->setName((*varit)->getName());
+                            d->setName((*varit));
                             d->setDependencyType(Dependency::variable);
                             addEdge(v2, (*vit), d);
                         }
@@ -284,6 +306,40 @@ void XGraph::add_variable_vertices_to_graph(
 
         for (varit = rwv->begin(); varit != rwv->end(); varit++)
             discover_last_variable_writes(*varit, *vit, &finished, &writing);
+    }
+}
+
+void XGraph::discover_conditions(Vertex vertex, Vertex current,
+        std::set<Vertex> * conditions) {
+    boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
+
+    // For each in edge
+    for (boost::tie(iei, iei_end) = boost::in_edges(current, *graph_);
+        iei != iei_end; ++iei) {
+        // Get source vertex of the in edge
+        Vertex v = boost::source((Edge)*iei, *graph_);
+        // If vertex is a condition then depend on it
+        if (getTask(v)->getTaskType() == Task::xcondition)
+            conditions->insert(v);
+
+        discover_conditions(vertex, v, conditions);
+    }
+}
+
+void XGraph::add_condition_dependencies() {
+    std::pair<VertexIterator, VertexIterator> vp;
+    std::set<Vertex> conditions;
+    std::set<Vertex>::iterator cit;
+    // For each function/condition vertex
+    for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+        if (getTask(*vp.first)->getTaskType() == Task::xfunction ||
+                getTask(*vp.first)->getTaskType() == Task::xcondition) {
+            conditions.clear();
+            discover_conditions(*vp.first, *vp.first, &conditions);
+            // Add edge for each condition vertex found
+            for (cit = conditions.begin(); cit != conditions.end(); cit++)
+                addEdge(getTask(*cit), getTask(*vp.first), Dependency::condition);
+        }
     }
 }
 
@@ -362,11 +418,11 @@ void XGraph::add_condition_vertices_to_graph() {
                     // Copy memory access info from condition to xfunction
                     // Only keep unique copies
                     if (t->getFunction()->getCondition()) {
-                        std::set<XVariable*> * rov =
+                        std::set<std::string> * rov =
                                 t->getFunction()->getCondition()
                                     ->getReadOnlyVariables();
-                        std::set<XVariable*>::iterator vit;
-                        std::vector<XVariable*>::iterator vit2;
+                        std::set<std::string>::iterator vit;
+                        std::vector<std::string>::iterator vit2;
                         for (vit = rov->begin(); vit != rov->end(); vit++) {
                             vit2 = std::find(f->getReadOnlyVariables()->begin(),
                                     f->getReadOnlyVariables()->end(), (*vit));

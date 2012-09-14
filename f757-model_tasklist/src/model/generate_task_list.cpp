@@ -160,14 +160,14 @@ int ModelManager::catalog_dataio_dependencies_variable(
     /* Add dependency parents to task */
     /* Find the last function that writes each variable */
     XFunction * lastFunction = 0;
-    for (function = (*agent)->getFunctions()->begin();
+/*    for (function = (*agent)->getFunctions()->begin();
             function != (*agent)->getFunctions()->end(); ++function) {
         variableFind = std::find(
                 (*function)->getReadWriteVariables()->begin(),
                 (*function)->getReadWriteVariables()->end(), (*variable));
         if (variableFind != (*function)->getReadWriteVariables()->end()
                 || lastFunction == 0) lastFunction = (*function);
-    }
+    }*/
     /* Add data dependency */
     Dependency * d = new Dependency;
     d->setName((*variable)->getName());

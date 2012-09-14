@@ -68,7 +68,7 @@ class IOXMLModel {
         bool * hsIsCondition, xmlNode *cur_node);
     int readMemoryAccess(xmlNode * node, model::XFunction * xfunction);
     int readMemoryAccessVariables(xmlNode * node,
-        std::vector<model::XVariable*> * variables);
+        std::vector<std::string> * variables);
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_MODEL_HPP_

@@ -142,19 +142,19 @@ bool XFunction::getMemoryAccessInfoAvailable() {
     return memoryAccessInfoAvailable_;
 }
 
-void XFunction::addReadOnlyVariable(XVariable * v) {
-    readOnlyVariables_.push_back(v);
+void XFunction::addReadOnlyVariable(std::string name) {
+    readOnlyVariables_.push_back(name);
 }
 
-std::vector<XVariable*> * XFunction::getReadOnlyVariables() {
+std::vector<std::string> * XFunction::getReadOnlyVariables() {
     return &readOnlyVariables_;
 }
 
-void XFunction::addReadWriteVariable(XVariable * v) {
-    readWriteVariables_.push_back(v);
+void XFunction::addReadWriteVariable(std::string name) {
+    readWriteVariables_.push_back(name);
 }
 
-std::vector<XVariable*> * XFunction::getReadWriteVariables() {
+std::vector<std::string> * XFunction::getReadWriteVariables() {
     return &readWriteVariables_;
 }
 

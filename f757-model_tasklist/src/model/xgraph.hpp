@@ -54,9 +54,11 @@ class XGraph {
     void contractStateVerticies();
     void add_condition_vertices_to_graph();
     Vertex add_init_task_to_graph(XFunction * function);
+    void remove_init_task();
     void contract_variable_verticies_from_graph();
     void remove_redendant_dependencies();
     void remove_state_dependencies();
+    void add_condition_dependencies();
 #ifdef TESTBUILD
     Graph * getGraph() { return graph_; }
 #endif
@@ -70,7 +72,9 @@ class XGraph {
     Dependency * getDependency(Edge e);
     void removeTask(Vertex v);
     void removeDependency(Edge e);
-    void discover_last_variable_writes(XVariable * variable,
+    void discover_conditions(Vertex vertex, Vertex current,
+            std::set<Vertex> * conditions);
+    void discover_last_variable_writes(std::string variable,
             Vertex vertex,
             std::set<Vertex> * finished,
             std::set<Vertex> * writing);

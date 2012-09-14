@@ -34,7 +34,7 @@ class XCondition {
             XCondition * rootCondition);
     int validateValues(XMachine * agent, XMessage * xmessage,
             XCondition * rootCondition);
-    std::set<XVariable*> * getReadOnlyVariables();
+    std::set<std::string> * getReadOnlyVariables();
     bool isNot;
     bool isTime;
     bool isValues;
@@ -64,7 +64,7 @@ class XCondition {
     XCondition * lhsCondition;
     XCondition * rhsCondition;
     /*! \brief Agent variables that the condition reads */
-    std::set<XVariable*> readOnlyVariables_;
+    std::set<std::string> readOnlyVariables_;
 
   private:
     void printValues(std::string lhs, std::string op, std::string rhs,
