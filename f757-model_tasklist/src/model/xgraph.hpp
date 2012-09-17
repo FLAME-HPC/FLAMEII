@@ -50,12 +50,11 @@ class XGraph {
     void write_graphviz(std::string fileName);
     void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
-    void addTransitionFunctions(std::vector<XFunction*> functions);
-    void contractStateVerticies();
+    void addTransitionFunctions(std::vector<XFunction*> functions, std::string startState);
+    void addConditionVertices();
+    void contractStateVertices();
     void add_condition_vertices_to_graph();
-    Vertex add_init_task_to_graph(XFunction * function);
-    void remove_init_task();
-    void contract_variable_verticies_from_graph();
+    void contract_variable_vertices_from_graph();
     void remove_redendant_dependencies();
     void remove_state_dependencies();
     void add_condition_dependencies();
@@ -64,13 +63,14 @@ class XGraph {
 #endif
 
   private:
-    void contractVerticies(Task::TaskType taskType,
+    void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
-    Task * addStateToGraph(std::string name);
+    Task * addStateToGraph(std::string name, std::string startState);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v);
     Dependency * getDependency(Edge e);
     void removeTask(Vertex v);
+    void removeTasks(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
     void discover_conditions(Vertex vertex, Vertex current,
             std::set<Vertex> * conditions);
@@ -79,7 +79,7 @@ class XGraph {
             std::set<Vertex> * finished,
             std::set<Vertex> * writing);
     Graph * graph_;
-    VertexMap * vertex2task_;
+    std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;
     Vertex startVertex_;
 };

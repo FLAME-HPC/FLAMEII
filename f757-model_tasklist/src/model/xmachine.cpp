@@ -141,18 +141,14 @@ int XMachine::generateDependencyGraph() {
 
     functionDependencyGraph_.write_graphviz("test1.dot");
 
+    // Add condition vertices
+    functionDependencyGraph_.addConditionVertices();
+
     // Contract state vertices
-    functionDependencyGraph_.contractStateVerticies();
+    functionDependencyGraph_.contractStateVertices();
 
     functionDependencyGraph_.write_graphviz("test2.dot");
 
-    // Add condition vertices
-    functionDependencyGraph_.add_condition_vertices_to_graph();
-
-    functionDependencyGraph_.write_graphviz("test3.dot");
-
-    // Add init vertex
-    add_init_vertex_to_graph();
     // Add condition dependencies
     functionDependencyGraph_.add_condition_dependencies();
     // Add variable vertices
@@ -160,19 +156,16 @@ int XMachine::generateDependencyGraph() {
     // Remove state dependencies
     functionDependencyGraph_.remove_state_dependencies();
 
+    functionDependencyGraph_.write_graphviz("test3.dot");
+
+    // Contract variable vertices
+    functionDependencyGraph_.contract_variable_vertices_from_graph();
 
     functionDependencyGraph_.write_graphviz("test4.dot");
 
-    // Contract variable vertices
-    functionDependencyGraph_.contract_variable_verticies_from_graph();
-    // Remove init vertex
-    functionDependencyGraph_.remove_init_task();
-
-    functionDependencyGraph_.write_graphviz("test5.dot");
-
     functionDependencyGraph_.remove_redendant_dependencies();
 
-    functionDependencyGraph_.write_graphviz("test6.dot");
+    functionDependencyGraph_.write_graphviz("test5.dot");
 
     return 0;
 }
@@ -182,34 +175,7 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-    functionDependencyGraph_.addTransitionFunctions(functions_);
-
-    functionDependencyGraph_.write_graphviz("test1.dot");
-
-    return 0;
-}
-
-int XMachine::add_init_vertex_to_graph() {
-    // (makes other algorithms simpler)
-    XFunction * initFunc = new XFunction;
-    initFunc->setName("Init");
-    Vertex v = functionDependencyGraph_.add_init_task_to_graph(initFunc);
-    functionDependencyGraph_.setStartVector(v);
-    // Make init function write all memory variables
-    std::vector<XVariable*>::iterator i;
-    for (i = variables_.begin(); i != variables_.end(); i++)
-        initFunc->getReadWriteVariables()->push_back((*i)->getName());
-    // Add edges from init function to vertices from start state
-    std::vector<XFunction*>::iterator f;
-    for (f = functions_.begin(); f != functions_.end(); ++f) {
-        if ((*f)->getCurrentState() == startState_) {
-            Dependency * d = new Dependency;
-            d->setParentName(getName());
-            d->setName((*f)->getCurrentState());
-            d->setDependencyType(Dependency::init);
-            functionDependencyGraph_.addEdge(initFunc->getTask(), (*f)->getTask(), d);
-        }
-    }
+    functionDependencyGraph_.addTransitionFunctions(functions_, startState_);
 
     return 0;
 }

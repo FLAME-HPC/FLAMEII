@@ -36,7 +36,6 @@ class XMachine {
     XGraph * getFunctionDependencyGraph();
     int checkCyclicDependencies();
     int checkFunctionConditions();
-    int add_init_vertex_to_graph();
     int generateDependencyGraph();
 
   private:
