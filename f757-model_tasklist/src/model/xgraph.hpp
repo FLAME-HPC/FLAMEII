@@ -36,7 +36,7 @@ typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
 // Define vertex and edge mappings
-typedef std::map<Vertex, Task *> VertexMap;
+// typedef std::map<Vertex, Task *> VertexMap;
 typedef std::map<Edge, Dependency *> EdgeMap;
 
 class XGraph {
@@ -50,6 +50,7 @@ class XGraph {
     int checkFunctionConditions();
 #ifdef TESTBUILD
     Graph * getGraph() { return graph_; }
+    void testBoostGraphLibrary();
 #endif
 
   private:

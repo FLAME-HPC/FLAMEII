@@ -697,6 +697,8 @@ void XGraph::remove_redendant_dependencies() {
     // Make vertex2task_ point to trvertex2task
     delete vertex2task_;
     vertex2task_ = trvertex2task;
+    // Clear edge2dependency_ as edges no longer valid
+    edge2dependency_->clear();
 }
 
 /*!
@@ -809,19 +811,21 @@ struct vertex_label_writer {
 
 struct edge_label_writer {
     enum ArrowType { arrowForward = 0, arrowBackward };
-    edge_label_writer(  // EdgeMap * em,
+    edge_label_writer(EdgeMap * em,
             ArrowType at) :
-        // edge2dependency(em),
+        edge2dependency(em),
           arrowType(at) {}
     void operator()(std::ostream& out, const Edge& e) const {
-        // Dependency * d = edge2dependency->find(e)->second;
+        Dependency * d = 0;
+        EdgeMap::iterator it = edge2dependency->find(e);
+        if (it != edge2dependency->end()) d = (*it).second;
         out << " [";
-        // out << " [label=\"" << d->getGraphName() << "\"";
-        if (arrowType == edge_label_writer::arrowBackward) out << " dir = back";
+        if (d) out << "label=\"" << d->getGraphName() << "\" ";
+        if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
         out << "]";
     }
   protected:
-    // EdgeMap * edge2dependency;
+    EdgeMap * edge2dependency;
     ArrowType arrowType;
 };
 
@@ -837,11 +841,42 @@ void XGraph::write_graphviz(std::string fileName) {
 
     boost::write_graphviz(graphfile, *graph_,
             vertex_label_writer(vertex2task_),
-            edge_label_writer(  // &edge2dependency_,
+            edge_label_writer(edge2dependency_,
                 edge_label_writer::arrowForward),
             graph_writer());
 
     graphfile.clear();
 }
+
+#ifdef TESTBUILD
+void XGraph::testBoostGraphLibrary() {
+    std::pair<Edge, bool> e1, e2, e3;
+    std::map<Edge, int> edge2int;
+
+    e1 = add_edge(0, 1, *graph_);
+    std::cout << "Add edge " << e1.first << " " << e1.second << std::endl;
+    edge2int.insert(std::make_pair(e1.first, 6));
+    e2 = add_edge(0, 1, *graph_);
+    std::cout << "Add edge " << e2.first << " " << e2.second << std::endl;
+    edge2int.insert(std::make_pair(e2.first, 7));
+    e3 = add_edge(0, 1, *graph_);
+    std::cout << "Add edge " << e3.first << " " << e3.second << std::endl;
+    edge2int.insert(std::make_pair(e3.first, 8));
+
+    //printf("Edge %d\n", e.first);
+
+    boost::graph_traits<Graph>::edge_iterator iei, iei_end;
+    for (boost::tie(iei, iei_end) = boost::edges(*graph_); iei != iei_end; ++iei)
+        std::cout << (*iei) << " " << edge2int.find((Edge)(*iei))->second << std::endl;
+
+    std::cout << "Remove " << e2.first << " " << edge2int.find((Edge)e2.first)->second << std::endl;
+    boost::remove_edge(e2.first, *graph_);
+
+    for (boost::tie(iei, iei_end) = boost::edges(*graph_); iei != iei_end; ++iei)
+        std::cout << (*iei) << " " << edge2int.find((Edge)(*iei))->second << std::endl;
+
+    graph_->clear();
+}
+#endif
 
 }}   // namespace flame::model
