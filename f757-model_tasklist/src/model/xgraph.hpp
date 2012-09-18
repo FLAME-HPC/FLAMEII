@@ -66,6 +66,7 @@ class XGraph {
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Task * addStateToGraph(std::string name, std::string startState);
+    Task * addMessageToGraph(std::string name);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v);
     Dependency * getDependency(Edge e);

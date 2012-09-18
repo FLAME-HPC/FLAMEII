@@ -64,6 +64,21 @@ Task * XGraph::addStateToGraph(std::string name, std::string startState) {
     return task;
 }
 
+Task * XGraph::addMessageToGraph(std::string name) {
+    // Check if state has already been added
+    std::vector<Task *>::iterator vit;
+    for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
+        if ((*vit)->getTaskType() == Task::xmessage &&
+                (*vit)->getName() == name) return (*vit);
+
+    // Add state as a task to the task list
+    Task * task = new Task;
+    task->setName(name);
+    task->setTaskType(Task::xmessage);
+    addVertex(task);
+    return task;
+}
+
 void XGraph::addTransitionFunctions(std::vector<XFunction*> functions,
         std::string startState) {
     std::vector<XFunction*>::iterator fit;
@@ -90,40 +105,42 @@ void XGraph::addTransitionFunctions(std::vector<XFunction*> functions,
         d = new Dependency;
         d->setDependencyType(Dependency::state);
         addEdge((*fit)->getTask(), nextState, d);
+        // Add communication
+        std::vector<XIOput*>::iterator ioput;
+        std::vector<XMessage*>::iterator message;
+        /* Find outputting functions */
+        for (ioput = (*fit)->getOutputs()->begin();
+             ioput != (*fit)->getOutputs()->end(); ++ioput) {
+            Task * message = addMessageToGraph((*ioput)->getMessageName());
+            /* Add communication dependency */
+            Dependency * d = new Dependency;
+            d->setName((*ioput)->getMessageName());
+            d->setDependencyType(Dependency::communication);
+            addEdge(functionTask, message, d);
+            std::cout << "Add output " << (*ioput)->getMessageName() << " from " << (*fit)->getName() << std::endl;
+        }
+
+        /* Find inputting functions */
+        for (ioput = (*fit)->getInputs()->begin();
+             ioput != (*fit)->getInputs()->end(); ++ioput) {
+            Task * message = addMessageToGraph((*ioput)->getMessageName());
+            /* Add communication dependency */
+            Dependency * d = new Dependency;
+            d->setName((*ioput)->getMessageName());
+            d->setDependencyType(Dependency::communication);
+            addEdge(message, functionTask, d);
+            std::cout << "Add input " << (*ioput)->getMessageName() << " from " << (*fit)->getName() << std::endl;
+        }
     }
 }
 
 Vertex XGraph::addVertex(Task * t) {
     Vertex v = add_vertex(*graph_);
-    //vertex2task_->insert(std::make_pair(v, t));
     vertex2task_->push_back(t);
-
-/*    std::cout << "Add vertex = " << v << " = " << t->getName() << std::endl;
-    VertexIterator vi,vi_end;
-    for (tie(vi,vi_end) = boost::vertices(*graph_); vi != vi_end; ++vi)
-        std::cout << *vi << std::endl;
-    size_t ii;
-    for (ii = 0; ii < vertex2task_->size(); ii++)
-        std::cout << ii << " = " << vertex2task_->at(ii)->getName() << std::endl;
-*/
     return v;
 }
 
 void XGraph::removeTask(Vertex v) {
-/*    size_t index = vindex[v];
-    size_t ii;
-    for (ii = 0; ii < vertex2task_->size(); ii++)
-            std::cout << ii << " = " << vertex2task_->at(ii)->getName() << std::endl;
-
-    std::cout << "Remove vertex = " << v << ", index = " << index << std::endl;
-
-    VertexIterator vi,vi_end;
-    for (tie(vi,vi_end) = boost::vertices(*graph_); vi != vi_end; ++vi)
-            std::cout << *vi << std::endl;
-
-    std::cout << "Remove vertex = " << index << " = " << vertex2task_->at(index)->getName() << std::endl;
-
-*/
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
     boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
     std::set<Edge>::iterator eit;
@@ -141,9 +158,6 @@ void XGraph::removeTask(Vertex v) {
     vertex2task_->erase(vertex2task_->begin() + v);
     // Remove edge from graph
     boost::remove_vertex(v, *graph_);
-/*
-    for (ii = 0; ii < vertex2task_->size(); ii++)
-            std::cout << ii << " = " << vertex2task_->at(ii)->getName() << std::endl;*/
 }
 
 // Tasks removed largest first so that indexes are not changed
@@ -184,9 +198,6 @@ Vertex XGraph::getVertex(Task * t) {
 
     for (ii = 0; ii < vertex2task_->size(); ii++)
         if (vertex2task_->at(ii) == t) return ii;
-    //for (it = vertex2task_->begin(); it != vertex2task_->end(); ++it) {
-    //    if ((*it).second == t) return (*it).first;
-    //}
     return 0;
 }
 
@@ -287,58 +298,63 @@ void XGraph::add_variable_vertices_to_graph(
     // For each vertex in depth order
     for (vit = breadth_first_vertices.begin();
          vit != breadth_first_vertices.end(); vit++) {
-        std::vector<std::string> * rov =
-            getTask(*vit)->getFunction()->getReadOnlyVariables();
-        std::vector<std::string> * rwv =
-            getTask(*vit)->getFunction()->getReadWriteVariables();
+        // If vertex is a function or condition
+        if (getTask(*vit)->getTaskType() == Task::xfunction ||
+                getTask(*vit)->getTaskType() == Task::xcondition ||
+                getTask(*vit)->getTaskType() == Task::init_agent) {
+            std::vector<std::string> * rov =
+                getTask(*vit)->getFunction()->getReadOnlyVariables();
+            std::vector<std::string> * rwv =
+                getTask(*vit)->getFunction()->getReadWriteVariables();
 
-        // For writing variables create new vertex and add edge
-        for (varit = rwv->begin(); varit != rwv->end(); varit++) {
-            // Add out going edge to new variable vertex
-            Task * varTask = new Task;
-            //varTask->setParentName();
-            varTask->setName((*varit));
-            varTask->setTaskType(Task::xvariable);
-            Vertex variableVertex = addVertex(varTask);
-            Dependency * d = new Dependency;
-            //d->setParentName("v");
-            d->setName((*varit));
-            d->setDependencyType(Dependency::variable);
-            addEdge(*vit, variableVertex, d);
-        }
+            // For writing variables create new vertex and add edge
+            for (varit = rwv->begin(); varit != rwv->end(); varit++) {
+                // Add out going edge to new variable vertex
+                Task * varTask = new Task;
+                //varTask->setParentName();
+                varTask->setName((*varit));
+                varTask->setTaskType(Task::xvariable);
+                Vertex variableVertex = addVertex(varTask);
+                Dependency * d = new Dependency;
+                //d->setParentName("v");
+                d->setName((*varit));
+                d->setDependencyType(Dependency::variable);
+                addEdge(*vit, variableVertex, d);
+            }
 
-        // Link reading variables to current variable vertex
-        for (varit = rov->begin(); varit != rwv->end();) {
-            if(varit != rov->end()) {
-                finished.clear();
-                writing.clear();
+            // Link reading variables to current variable vertex
+            for (varit = rov->begin(); varit != rwv->end();) {
+                if(varit != rov->end()) {
+                    finished.clear();
+                    writing.clear();
 
-                discover_last_variable_writes(*varit, *vit, &finished, &writing);
+                    discover_last_variable_writes(*varit, *vit, &finished, &writing);
 
-                // For each writing vertex
-                for (sit = writing.begin(); sit != writing.end(); ++sit) {
-                    // Find out edge for variable
-                    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-                    for (boost::tie(oei, oei_end) = boost::out_edges(*sit, *graph_);
-                                            oei != oei_end; ++oei) {
-                        Vertex v2 = boost::target((Edge)*oei, *graph_);
-                        if (getTask(v2)->getTaskType() == Task::xvariable &&
-                                getTask(v2)->getName() == (*varit)) {
-                            Dependency * d = new Dependency;
-                            d->setName((*varit));
-                            d->setDependencyType(Dependency::variable);
-                            addEdge(v2, (*vit), d);
+                    // For each writing vertex
+                    for (sit = writing.begin(); sit != writing.end(); ++sit) {
+                        // Find out edge for variable
+                        boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+                        for (boost::tie(oei, oei_end) = boost::out_edges(*sit, *graph_);
+                                                oei != oei_end; ++oei) {
+                            Vertex v2 = boost::target((Edge)*oei, *graph_);
+                            if (getTask(v2)->getTaskType() == Task::xvariable &&
+                                    getTask(v2)->getName() == (*varit)) {
+                                Dependency * d = new Dependency;
+                                d->setName((*varit));
+                                d->setDependencyType(Dependency::variable);
+                                addEdge(v2, (*vit), d);
+                            }
                         }
                     }
+
+                    varit++;
                 }
-
-                varit++;
+                if(varit == rov->end()) varit = rwv->begin();
             }
-            if(varit == rov->end()) varit = rwv->begin();
-        }
 
-        for (varit = rwv->begin(); varit != rwv->end(); varit++)
-            discover_last_variable_writes(*varit, *vit, &finished, &writing);
+            for (varit = rwv->begin(); varit != rwv->end(); varit++)
+                discover_last_variable_writes(*varit, *vit, &finished, &writing);
+        }
     }
 
     // Remove init vertex
@@ -655,12 +671,14 @@ int XGraph::check_function_conditions() {
     std::pair<VertexIterator, VertexIterator> vp;
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
-        // If out edges is larger than 1
-        if (boost::out_degree(*vp.first, *graph_) > 1) {
-            boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-            // For each out edge
-            for (boost::tie(oei, oei_end) = boost::out_edges(*vp.first, *graph_);
-                oei != oei_end; ++oei) {
+        // If state
+        if (getTask(*vp.first)->getTaskType() == Task::xstate) {
+            // If out edges is larger than 1
+            if (boost::out_degree(*vp.first, *graph_) > 1) {
+                boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+                // For each out edge
+                for (boost::tie(oei, oei_end) = boost::out_edges(*vp.first, *graph_);
+                    oei != oei_end; ++oei) {
                     Task * t = getTask(boost::target((Edge)*oei, *graph_));
                     XCondition * condition = t->getFunction()->getCondition();
                     // If condition is null then return an error
@@ -672,6 +690,7 @@ int XGraph::check_function_conditions() {
                         return 1;
                     }
                 }
+            }
         }
     }
 
@@ -691,6 +710,8 @@ struct vertex_label_writer {
             out << " shape=rect, style=filled, fillcolor=red";
         if (t->getTaskType() == Task::xvariable)
             out << " shape=ellipse";
+        if (t->getTaskType() == Task::xmessage)
+            out << " shape=parallelogram, style=filled, fillcolor=lightblue";
         out << "]";
     }
   protected:

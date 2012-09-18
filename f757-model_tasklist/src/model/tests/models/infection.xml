@@ -164,9 +164,6 @@
 <rhs><value>1</value></rhs>
 </rhs>
 </condition>
-<outputs>
-  <output><messageName>disease_infection</messageName></output>
-</outputs>
 <memoryAccess>
 <readOnly>
 <variableName>resistant</variableName>
@@ -181,9 +178,6 @@
 <description></description>
 <currentState>connection_forces_calculated</currentState>
 <nextState>connections_updated</nextState>
-<inputs>
-  <input><messageName>location</messageName></input>
-</inputs>
 <memoryAccess>
 <readOnly>
 <variableName>x</variableName>
@@ -230,9 +224,6 @@
 <description></description>
 <currentState>post_spread</currentState>
 <nextState>disease_transmission_end</nextState>
-<inputs>
-  <input><messageName>location</messageName></input>
-</inputs>
 <memoryAccess>
 <readOnly>
 </readOnly>
@@ -249,9 +240,6 @@
 <description></description>
 <currentState>possibly_infected</currentState>
 <nextState>disease_transmission_end</nextState>
-<inputs>
-  <input><messageName>location</messageName></input>
-</inputs>
 <memoryAccess>
 <readOnly>
 <variableName>infected</variableName>

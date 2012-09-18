@@ -21,7 +21,7 @@ class XVariable;
 class Task {
   public:
     enum TaskType { xfunction = 0, sync_start, sync_finish, xstate,
-                    io_pop_write, init_agent, xcondition, xvariable };
+                    io_pop_write, init_agent, xcondition, xvariable, xmessage };
     Task();
     ~Task();
     void setTaskID(size_t id);
