@@ -11,6 +11,7 @@
 #define MODEL__XMODEL_VALIDATE_HPP_
 #include <string>
 #include <vector>
+#include <set>
 #include "./xmachine.hpp"
 #include "./xvariable.hpp"
 #include "./xadt.hpp"

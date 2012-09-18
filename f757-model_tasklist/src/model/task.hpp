@@ -56,9 +56,6 @@ class Task {
     size_t level_;
     /*! \brief Pointer to any associated agent function */
     XFunction * function_;
-    /*! \brief Map holding variables that this task writes and
-     *         the corresponding vertex */
-    //std::map<XVariable*, Vertex> variableVertex;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

@@ -22,7 +22,7 @@ class Task;
 class XFunction {
   public:
     XFunction();
-    XFunction(std::string name);
+    explicit XFunction(std::string name);
     ~XFunction();
     void print();
     void setName(std::string name);

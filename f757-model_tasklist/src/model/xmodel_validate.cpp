@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "./xmodel_validate.hpp"
 #include "./model_manager.hpp"
@@ -330,12 +331,13 @@ bool XModelValidate::variableExists(std::string name,
     std::vector<XVariable*>::iterator vit;
 
     for (vit = variables->begin(); vit != variables->end(); vit++)
-            if(name == (*vit)->getName()) return true;
+            if (name == (*vit)->getName()) return true;
     return false;
 }
 
 int XModelValidate::processMemoryAccessVariable(std::string name,
-        std::vector<XVariable*> * variables, std::set<std::string> * usedVariables) {
+        std::vector<XVariable*> * variables,
+        std::set<std::string> * usedVariables) {
     int errors = 0;
 
     if (variableExists(name, variables)) {
@@ -382,11 +384,13 @@ int XModelValidate::processAgentFunction(XFunction * function,
         for (variable = function->getReadOnlyVariables()->begin();
                 variable != function->getReadOnlyVariables()->end();
                 variable++)
-            errors += processMemoryAccessVariable((*variable), variables, &usedVariables);
+            errors += processMemoryAccessVariable(
+                    (*variable), variables, &usedVariables);
         for (variable = function->getReadWriteVariables()->begin();
                 variable != function->getReadWriteVariables()->end();
                 variable++)
-            errors += processMemoryAccessVariable((*variable), variables, &usedVariables);
+            errors += processMemoryAccessVariable(
+                    (*variable), variables, &usedVariables);
     }
 
     return errors;

@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 #include "./dependency.hpp"
 #include "./task.hpp"
 
@@ -26,7 +27,8 @@ class XVariable;
 // Vectors used for vertex and edge containers
 // Bidirectional for access to boost::in_edges as well as boost::out_edges
 // Index type used to index vertices
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
+typedef boost::adjacency_list
+        <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
 // Define vertex and edge descriptor types
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
@@ -41,16 +43,23 @@ class XGraph {
   public:
     XGraph();
     ~XGraph();
+    int generateStateGraph(std::vector<XFunction*> functions,
+            std::string startState);
+    int generateDependencyGraph(std::vector<XVariable*> * variables);
+    int checkCyclicDependencies();
+    int checkFunctionConditions();
+#ifdef TESTBUILD
+    Graph * getGraph() { return graph_; }
+#endif
+
+  private:
     Vertex addVertex(Task * t);
     void addEdge(Task * to, Task * from, Dependency * d);
     void addEdge(Task * to, Task * from, Dependency::DependencyType type);
     Edge addEdge(Vertex to, Vertex from, Dependency * d);
-    int check_dependency_loops();
-    int check_function_conditions();
     void write_graphviz(std::string fileName);
     void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
-    void addTransitionFunctions(std::vector<XFunction*> functions, std::string startState);
     void addConditionVertices();
     void contractStateVertices();
     void add_condition_vertices_to_graph();
@@ -58,11 +67,7 @@ class XGraph {
     void remove_redendant_dependencies();
     void remove_state_dependencies();
     void add_condition_dependencies();
-#ifdef TESTBUILD
-    Graph * getGraph() { return graph_; }
-#endif
-
-  private:
+    void AddVariableOutput(std::vector<XVariable*> * variables);
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Task * addStateToGraph(std::string name, std::string startState);

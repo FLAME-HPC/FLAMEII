@@ -21,12 +21,12 @@ namespace flame { namespace model {
  *
  * Initialises XFunction with no condition and no memory access info.
  */
-XFunction::XFunction() :
-    condition_(0),
+XFunction::XFunction()
+    : condition_(0),
     memoryAccessInfoAvailable_(false) {}
 
-XFunction::XFunction(std::string name) :
-    name_(name),
+XFunction::XFunction(std::string name)
+    : name_(name),
     condition_(0),
     memoryAccessInfoAvailable_(false) {}
 

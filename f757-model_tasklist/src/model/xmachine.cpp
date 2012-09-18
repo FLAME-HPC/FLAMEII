@@ -138,36 +138,7 @@ std::string XMachine::getStartState() {
 }
 
 int XMachine::generateDependencyGraph() {
-
-    functionDependencyGraph_.write_graphviz("test1.dot");
-
-    // Add condition vertices
-    functionDependencyGraph_.addConditionVertices();
-
-    // Contract state vertices
-    functionDependencyGraph_.contractStateVertices();
-
-    functionDependencyGraph_.write_graphviz("test2.dot");
-
-    // Add condition dependencies
-    functionDependencyGraph_.add_condition_dependencies();
-    // Add variable vertices
-    functionDependencyGraph_.add_variable_vertices_to_graph(getVariables());
-    // Remove state dependencies
-    functionDependencyGraph_.remove_state_dependencies();
-
-    functionDependencyGraph_.write_graphviz("test3.dot");
-
-    // Contract variable vertices
-    functionDependencyGraph_.contract_variable_vertices_from_graph();
-
-    functionDependencyGraph_.write_graphviz("test4.dot");
-
-    functionDependencyGraph_.remove_redendant_dependencies();
-
-    functionDependencyGraph_.write_graphviz("test5.dot");
-
-    return 0;
+    return functionDependencyGraph_.generateDependencyGraph(getVariables());
 }
 
 /*
@@ -175,9 +146,7 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-    functionDependencyGraph_.addTransitionFunctions(functions_, startState_);
-
-    return 0;
+    return functionDependencyGraph_.generateStateGraph(functions_, startState_);
 }
 
 XGraph * XMachine::getFunctionDependencyGraph() {
@@ -185,11 +154,11 @@ XGraph * XMachine::getFunctionDependencyGraph() {
 }
 
 int XMachine::checkCyclicDependencies() {
-    return functionDependencyGraph_.check_dependency_loops();
+    return functionDependencyGraph_.checkCyclicDependencies();
 }
 
 int XMachine::checkFunctionConditions() {
-    return functionDependencyGraph_.check_function_conditions();
+    return functionDependencyGraph_.checkFunctionConditions();
 }
 
 }}  // namespace flame::model

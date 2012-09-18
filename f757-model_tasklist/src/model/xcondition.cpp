@@ -11,6 +11,7 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdio>
 #include <string>
+#include <set>
 #include "./xcondition.hpp"
 #include "./xmachine.hpp"
 #include "./xmessage.hpp"
@@ -344,7 +345,8 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
         } else {
             // If agent variable is valid then add to
             // read only variable list
-            rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs)->getName());
+            rootCondition->readOnlyVariables_.insert(
+                    agent->getVariable(*hs)->getName());
         }
     /* Handle message variable */
     } else if (*hsIsMessageVariable) {
