@@ -222,7 +222,13 @@ void XGraph::removeTasks(std::vector<Vertex> * tasks) {
 }
 
 void XGraph::removeDependency(Edge e) {
-    edge2dependency_->erase(edge2dependency_->find(e));
+    // Find dependency
+    EdgeMap::iterator it = edge2dependency_->find(e);
+    // If found then free
+    if (it != edge2dependency_->end()) {
+        delete (*it).second;
+        edge2dependency_->erase(it);
+    }
     // Remove edge from graph
     boost::remove_edge(e, *graph_);
 }
