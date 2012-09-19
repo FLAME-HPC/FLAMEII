@@ -41,6 +41,8 @@ XGraph::~XGraph() {
     EdgeMap::iterator eit;
     for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
         delete ((*eit).second);
+    // Free graph
+    delete graph_;
 }
 
 int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {

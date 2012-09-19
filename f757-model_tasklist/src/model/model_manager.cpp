@@ -9,6 +9,7 @@
  */
 #include <string>
 #include <vector>
+#include <cstdio>
 #include "./model_manager.hpp"
 #include "../io/io_manager.hpp"
 
