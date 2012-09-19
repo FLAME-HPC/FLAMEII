@@ -38,6 +38,10 @@ XGraph::~XGraph() {
     std::vector<Task *>::iterator vit;
     for (vit = vertex2task_->begin(); vit != vertex2task_->end(); vit++)
         delete (*vit);
+    // Free vertex task mapping
+    delete vertex2task_;
+    // Free edge dependency mapping
+    delete edge2dependency_;
     // Free graph
     delete graph_;
 }
