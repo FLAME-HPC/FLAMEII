@@ -34,13 +34,10 @@ XGraph::XGraph() {
 }
 
 XGraph::~XGraph() {
-    /* Free tasks and dependencies memory */
+    /* Free task memory */
     std::vector<Task *>::iterator vit;
     for (vit = vertex2task_->begin(); vit != vertex2task_->end(); vit++)
         delete (*vit);
-    EdgeMap::iterator eit;
-    for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
-        delete ((*eit).second);
     // Free graph
     delete graph_;
 }
@@ -602,6 +599,9 @@ void XGraph::remove_redendant_dependencies() {
     delete vertex2task_;
     vertex2task_ = trvertex2task;
     // Clear edge2dependency_ as edges no longer valid
+    EdgeMap::iterator eit;
+    for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
+        delete ((*eit).second);
     edge2dependency_->clear();
 }
 
