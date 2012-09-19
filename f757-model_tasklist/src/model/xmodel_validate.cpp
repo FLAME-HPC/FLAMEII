@@ -707,7 +707,7 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
     if (xioput->isSort()) errors += validateSort(xioput, xmessage);
 
     /* If random then validate */
-    if (xioput->isRandomSet())
+    if (xioput->isRandomSet()) {
         if (xioput->getRandomString() == "true") { xioput->setRandom(true);
         } else if (xioput->getRandomString() == "false") {
             xioput->setRandom(false);
@@ -716,6 +716,7 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
                 xioput->getRandomString().c_str());
             errors++;
         }
+    }
 
     /* Cannot be sorted and random at the same time */
     if (xioput->isSort() && xioput->isRandom()) { std::fprintf(stderr,

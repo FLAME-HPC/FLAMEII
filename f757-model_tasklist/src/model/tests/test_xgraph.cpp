@@ -82,10 +82,11 @@ BOOST_AUTO_TEST_CASE(test_graph_layers) {
     add_edge(v0, v4, *graph);  // 0->4
     add_edge(v4, v6, *graph);  // 4->6
     add_edge(v6, v5, *graph);  // 6->5
-*/
+
     // xgraph.write_graphviz();
 
     // xgraph.test_layers();
+*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()
