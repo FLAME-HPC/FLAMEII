@@ -63,7 +63,6 @@ class XGraph {
     void setStartVector(Vertex sv);
     void addConditionVertices();
     void contractStateVertices();
-    void add_condition_vertices_to_graph();
     void contract_variable_vertices_from_graph();
     void remove_redendant_dependencies();
     void remove_state_dependencies();

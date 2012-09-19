@@ -9,7 +9,7 @@
  */
 #include <cstdio>
 #include <string>
-#include <vector>
+#include <set>
 #include "./task.hpp"
 
 namespace flame { namespace model {
@@ -21,10 +21,12 @@ namespace flame { namespace model {
  */
 Task::Task() {
     level_ = 0;
-    function_ = 0;
+    hasCondition_ = false;
 }
 
 Task::~Task() {
+    // Delete any function
+    //delete function_;
 }
 
 void Task::setTaskID(size_t id) {
@@ -81,12 +83,28 @@ size_t Task::getPriorityLevel() {
     return priorityLevel_;
 }
 
-void Task::setFunction(XFunction * f) {
-    function_ = f;
+void Task::setHasCondition(bool hasCondition) {
+    hasCondition_ = hasCondition;
 }
 
-XFunction * Task::getFunction() {
-    return function_;
+bool Task::hasCondition() {
+    return hasCondition_;
+}
+
+void Task::addReadVariable(std::string name) {
+    readVariables_.insert(name);
+}
+
+std::set<std::string> Task::getReadVariables() {
+    return readVariables_;
+}
+
+void Task::addWriteVariable(std::string name) {
+    writeVariables_.insert(name);
+}
+
+std::set<std::string> Task::getWriteVariables() {
+    return writeVariables_;
 }
 
 }}  // namespace flame::model

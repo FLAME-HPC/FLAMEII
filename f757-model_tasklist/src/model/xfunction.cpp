@@ -47,7 +47,7 @@ XFunction::~XFunction() {
         outputs_.pop_back();
     }
     /* Delete any condition */
-    if (condition_ != 0) delete condition_;
+    delete condition_;
 }
 
 /*!

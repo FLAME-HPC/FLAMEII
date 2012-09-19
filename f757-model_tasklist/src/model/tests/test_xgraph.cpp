@@ -23,9 +23,9 @@ namespace model = flame::model;
 BOOST_AUTO_TEST_SUITE(XGraph)
 
 BOOST_AUTO_TEST_CASE(test_xgraph) {
-    model::XGraph xgraph;
+    //model::XGraph xgraph;
 
-    xgraph.testBoostGraphLibrary();
+    //xgraph.testBoostGraphLibrary();
 }
 
 BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
 }
 
 BOOST_AUTO_TEST_CASE(test_graph_layers) {
-    model::XGraph xgraph;
+/*    model::XGraph xgraph;
 
     model::Graph * graph = xgraph.getGraph();
     model::Vertex v0 = add_vertex(*graph);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_graph_layers) {
     add_edge(v0, v4, *graph);  // 0->4
     add_edge(v4, v6, *graph);  // 4->6
     add_edge(v6, v5, *graph);  // 6->5
-
+*/
     // xgraph.write_graphviz();
 
     // xgraph.test_layers();

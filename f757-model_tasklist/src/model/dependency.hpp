@@ -14,8 +14,6 @@
 
 namespace flame { namespace model {
 
-class Task;
-
 class Dependency {
   public:
     enum DependencyType { state = 0, communication, data, init,

@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(test_generate_task_list) {
 }
 
 BOOST_AUTO_TEST_CASE(test_find_start_state) {
-    int rc;
+/*    int rc;
     model::XMachine agent;
     model::XFunction * f;
 
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_find_start_state) {
     f->setNextState("a");
     rc = agent.findStartState();
     BOOST_CHECK(rc == 2);
-    BOOST_CHECK(agent.getStartState() == "");
+    BOOST_CHECK(agent.getStartState() == "");*/
 }
 
 BOOST_AUTO_TEST_CASE(test_graph_layers) {

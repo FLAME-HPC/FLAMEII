@@ -10,13 +10,10 @@
 #ifndef MODEL__TASK_HPP_
 #define MODEL__TASK_HPP_
 #include <string>
-#include <vector>
+#include <set>
 #include "./dependency.hpp"
 
 namespace flame { namespace model {
-
-class XFunction;
-class XVariable;
 
 class Task {
   public:
@@ -37,8 +34,14 @@ class Task {
     size_t getLevel();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
-    void setFunction(XFunction * f);
-    XFunction * getFunction();
+    //void setFunction(XFunction * f);
+    //XFunction * getFunction();
+    void addReadVariable(std::string name);
+    std::set<std::string> getReadVariables();
+    void addWriteVariable(std::string name);
+    std::set<std::string> getWriteVariables();
+    void setHasCondition(bool hasCondition);
+    bool hasCondition();
 
   private:
     /* Task identifier: a unique handle for each task */
@@ -55,7 +58,12 @@ class Task {
     /* Level number: used to initially order tasks in the queue */
     size_t level_;
     /*! \brief Pointer to any associated agent function */
-    XFunction * function_;
+    //XFunction * function_;
+    std::set<std::string> readVariables_;
+    std::set<std::string> writeVariables_;
+    /*! \brief Used to check if functions from a state with multiple
+     * outgoing transitions all have conditions */
+    bool hasCondition_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_
