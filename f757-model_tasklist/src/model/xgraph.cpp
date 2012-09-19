@@ -602,6 +602,9 @@ void XGraph::remove_redendant_dependencies() {
     delete graph_;
     graph_ = trgraph;
     // Make vertex2task_ point to trvertex2task
+    std::vector<Task *>::iterator vit;
+    for (vit = vertex2task_->begin(); vit != vertex2task_->end(); vit++)
+        delete (*vit);
     delete vertex2task_;
     vertex2task_ = trvertex2task;
     // Clear edge2dependency_ as edges no longer valid
