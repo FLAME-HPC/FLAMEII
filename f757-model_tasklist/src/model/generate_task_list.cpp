@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Generates task list
  */
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <algorithm>
