@@ -9,7 +9,6 @@
  */
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -305,21 +304,6 @@ int XGraph::generateStateGraph(std::vector<XFunction*> functions,
     return 0;
 }
 
-struct func_layer : public boost::default_bfs_visitor {
-    explicit func_layer(std::vector<Vertex> * bfv) :
-            breadth_first_vertices_(bfv) {}
-    // Vertex discovered when traversing out edges
-    void discover_vertex(Vertex u, const Graph & g) const {
-        // Add vertex to end of vertices vector
-        breadth_first_vertices_->push_back(u);
-    }
-    // Vertex finished when all of its out edge vertices traversed
-    void finish_vertex(Vertex u, const Graph & g) const {
-    }
-  protected:
-    std::vector<Vertex> * breadth_first_vertices_;
-};
-
 bool containsVariableName(std::set<std::string> variables,
         std::string variable) {
     std::set<std::string>::iterator it;
@@ -411,9 +395,10 @@ void XGraph::add_variable_vertices_to_graph(
     // Add all variables to init task write list
     for (i = variables->begin(); i != variables->end(); i++)
         initTask->addWriteVariable((*i)->getName());
-    // Create breadth first list of vertices
-    func_layer vis(&breadth_first_vertices);
-    boost::breadth_first_search(*graph_, initVertex, boost::visitor(vis));
+    // Create topological sorted list of vertices
+    boost::topological_sort(*graph_, std::back_inserter(breadth_first_vertices));
+    // The result is output in reverse topological order so reverse
+    std::reverse(breadth_first_vertices.begin(), breadth_first_vertices.end());
     // For each vertex in breadth first order
     for (vit = breadth_first_vertices.begin();
          vit != breadth_first_vertices.end(); vit++) {
@@ -520,17 +505,6 @@ void XGraph::remove_state_dependencies() {
     for (etrit = edgesToRemove.begin(); etrit != edgesToRemove.end(); etrit++)
         removeDependency(*etrit);
 }
-
-struct add_branch_vertices : public boost::default_bfs_visitor {
-    // Vertex discovered when traversing out edges
-    void discover_vertex(Vertex u, const Graph & g) const {
-        std::cout << "Discover: " << u << std::endl;
-    }
-    // Vertex finished when all of its out edge vertices traversed
-    void finish_vertex(Vertex u, const Graph & g) const {
-        std::cout << "Finish:   " << u << std::endl;
-    }
-};
 
 void XGraph::addConditionVertices() {
     std::pair<VertexIterator, VertexIterator> vp;
@@ -777,35 +751,29 @@ void XGraph::writeGraphviz(std::string fileName) {
 
 #ifdef TESTBUILD
 void XGraph::testBoostGraphLibrary() {
-    std::pair<Edge, bool> e1, e2, e3;
-    std::map<Edge, int> edge2int;
+    std::vector<Vertex> breadth_first_vertices;
+    std::vector<Vertex>::iterator vit;
 
-    e1 = add_edge(0, 1, *graph_);
-    std::cout << "Add edge " << e1.first << " " << e1.second << std::endl;
-    edge2int.insert(std::make_pair(e1.first, 6));
-    e2 = add_edge(0, 1, *graph_);
-    std::cout << "Add edge " << e2.first << " " << e2.second << std::endl;
-    edge2int.insert(std::make_pair(e2.first, 7));
-    e3 = add_edge(0, 1, *graph_);
-    std::cout << "Add edge " << e3.first << " " << e3.second << std::endl;
-    edge2int.insert(std::make_pair(e3.first, 8));
+    Vertex v0 = add_vertex(*graph_);
 
-    // printf("Edge %d\n", e.first);
+    add_edge(v0, 1, *graph_);
+    add_edge(0, 2, *graph_);
+    add_edge(0, 3, *graph_);
+    add_edge(1, 7, *graph_);
+    add_edge(2, 4, *graph_);
+    add_edge(4, 7, *graph_);
+    add_edge(2, 5, *graph_);
+    add_edge(5, 6, *graph_);
+    add_edge(6, 7, *graph_);
+    add_edge(4, 5, *graph_);
 
-    boost::graph_traits<Graph>::edge_iterator iei, iei_end;
-    for (boost::tie(iei, iei_end) = boost::edges(*graph_);
-            iei != iei_end; ++iei)
-        std::cout << (*iei) << " " <<
-            edge2int.find((Edge)(*iei))->second << std::endl;
+    boost::topological_sort(*graph_, std::back_inserter(breadth_first_vertices));
+    std::reverse(breadth_first_vertices.begin(), breadth_first_vertices.end());
 
-    std::cout << "Remove " << e2.first << " " <<
-            edge2int.find((Edge)e2.first)->second << std::endl;
-    boost::remove_edge(e2.first, *graph_);
-
-    for (boost::tie(iei, iei_end) = boost::edges(*graph_);
-            iei != iei_end; ++iei)
-        std::cout << (*iei) << " " <<
-            edge2int.find((Edge)(*iei))->second << std::endl;
+    for (vit = breadth_first_vertices.begin();
+             vit != breadth_first_vertices.end(); vit++) {
+        std::cout << *vit << std::endl;
+    }
 
     graph_->clear();
 }

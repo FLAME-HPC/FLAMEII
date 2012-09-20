@@ -23,9 +23,9 @@ namespace model = flame::model;
 BOOST_AUTO_TEST_SUITE(XGraph)
 
 BOOST_AUTO_TEST_CASE(test_xgraph) {
-/*    model::XGraph xgraph;
+    model::XGraph xgraph;
 
-    xgraph.testBoostGraphLibrary();*/
+    xgraph.testBoostGraphLibrary();
 }
 
 BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
