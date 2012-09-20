@@ -17,26 +17,28 @@
 #include <set>
 #include "./dependency.hpp"
 #include "./task.hpp"
+#include "./xfunction.hpp"
+#include "./xvariable.hpp"
 
 namespace flame { namespace model {
 
-class XFunction;
-class XVariable;
-
-// Define graph type
-// Vectors used for vertex and edge containers
-// Bidirectional for access to boost::in_edges as well as boost::out_edges
-// Index type used to index vertices
+/* \brief Define graph type
+ *
+ * Vectors are used for vertex and edge containers.
+ * Bidirectional graph used for access to boost::in_edges
+ * as well as boost::out_edges.
+ */
 typedef boost::adjacency_list
         <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-// Define vertex and edge descriptor types
+/* \brief Define vertex descriptor type */
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+/* \brief Define edge descriptor type */
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-// Define vertex and edge iterators
+/* \brief Define vertex iterator */
 typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
+/* \brief Define edge iterator */
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-// Define vertex and edge mappings
-// typedef std::map<Vertex, Task *> VertexMap;
+/* \brief Define edge mapping */
 typedef std::map<Edge, Dependency *> EdgeMap;
 
 class XGraph {
@@ -55,10 +57,20 @@ class XGraph {
 
   private:
     Vertex addVertex(Task * t);
+    Vertex addVertex(std::string name, Task::TaskType type);
     void addEdge(Task * to, Task * from, Dependency * d);
-    void addEdge(Task * to, Task * from, Dependency::DependencyType type);
+    void addEdge(Task * to, Task * from, std::string name,
+            Dependency::DependencyType type);
     Edge addEdge(Vertex to, Vertex from, Dependency * d);
-    void write_graphviz(std::string fileName);
+    Edge addEdge(Vertex to, Vertex from, std::string name,
+            Dependency::DependencyType type);
+    void writeGraphviz(std::string fileName);
+    void generateStateGraphStates(XFunction * function, Task * task,
+            std::string startState);
+    void generateStateGraphVariables(XFunction * function, Task * task);
+    void generateStateGraphMessages(XFunction * function, Task * task);
+    void addEdgeToLastVariableWrites(std::set<std::string> rov,
+            Vertex v);
     void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
     void addConditionVertices();

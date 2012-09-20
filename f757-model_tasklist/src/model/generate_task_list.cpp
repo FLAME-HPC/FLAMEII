@@ -64,7 +64,7 @@ void ModelManager::printTaskList(std::vector<Task*> * tasks) {
                 static_cast<unsigned int>((*task)->getLevel()),
                 static_cast<unsigned int>((*task)->getPriorityLevel()),
                 taskTypeToString((*task)->getTaskType()).c_str(),
-                (*task)->getFullName().c_str());
+                (*task)->getName().c_str());
     }
 }
 

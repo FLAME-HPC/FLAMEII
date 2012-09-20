@@ -340,14 +340,16 @@ int XModelValidate::processMemoryAccessVariable(std::string name,
         std::set<std::string> * usedVariables) {
     int errors = 0;
 
+    // If variable exists
     if (variableExists(name, variables)) {
         // Check if variable already used
         std::set<std::string>::iterator it = usedVariables->find(name);
-        // If not found
+        // If not already used
         if (it == usedVariables->end()) {
             // Add variable name to used list
             usedVariables->insert(name);
         } else {
+            // If variable already used
             std::fprintf(stderr,
                 "Error: Memory access variable name is a duplicate: '%s',\n",
                 name.c_str());
@@ -355,6 +357,7 @@ int XModelValidate::processMemoryAccessVariable(std::string name,
         }
 
     } else {
+        // If variable does not exist
         std::fprintf(stderr,
             "Error: Memory access variable name is not valid: '%s',\n",
             name.c_str());
@@ -687,6 +690,21 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
     return errors;
 }
 
+int XModelValidate::validateRandomString(XIOput * xioput) {
+    if (xioput->getRandomString() == "true") {
+        xioput->setRandom(true);
+    } else if (xioput->getRandomString() == "false") {
+        xioput->setRandom(false);
+    } else {
+        std::fprintf(stderr,
+        "Error: input random is not 'true' or 'false': '%s',\n",
+            xioput->getRandomString().c_str());
+        return 1;
+    }
+
+    return 0;
+}
+
 int XModelValidate::validateAgentCommunication(XIOput * xioput,
         XMachine * agent, XModel * model) {
     int errors = 0;
@@ -707,16 +725,7 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
     if (xioput->isSort()) errors += validateSort(xioput, xmessage);
 
     /* If random then validate */
-    if (xioput->isRandomSet()) {
-        if (xioput->getRandomString() == "true") { xioput->setRandom(true);
-        } else if (xioput->getRandomString() == "false") {
-            xioput->setRandom(false);
-        } else { std::fprintf(stderr,
-            "Error: input random is not 'true' or 'false': '%s',\n",
-                xioput->getRandomString().c_str());
-            errors++;
-        }
-    }
+    if (xioput->isRandomSet()) errors += validateRandomString(xioput);
 
     /* Cannot be sorted and random at the same time */
     if (xioput->isSort() && xioput->isRandom()) { std::fprintf(stderr,

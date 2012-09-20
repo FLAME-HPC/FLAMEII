@@ -19,23 +19,17 @@ class Task {
   public:
     enum TaskType { xfunction = 0, sync_start, sync_finish, xstate,
                     io_pop_write, init_agent, xcondition, xvariable, xmessage };
-    Task();
-    ~Task();
+    Task(std::string name, TaskType type);
     void setTaskID(size_t id);
     size_t getTaskID();
-    void setParentName(std::string name);
-    std::string getParentName();
     void setName(std::string name);
     std::string getName();
-    std::string getFullName();
     void setTaskType(TaskType type);
     TaskType getTaskType();
     void setLevel(size_t level);
     size_t getLevel();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
-    //void setFunction(XFunction * f);
-    //XFunction * getFunction();
     void addReadVariable(std::string name);
     std::set<std::string> getReadVariables();
     void addWriteVariable(std::string name);
@@ -44,6 +38,8 @@ class Task {
     bool hasCondition();
 
   private:
+    /* Function name/Message name/Memory variable name */
+    std::string name_;
     /* Task identifier: a unique handle for each task */
     size_t taskID_;
     /* Task type: a label to determine which queue the task belongs to */
@@ -51,18 +47,13 @@ class Task {
     /* Priority level: determines the priority of this task should there
      * be more than one task in the queue */
     size_t priorityLevel_;
-    /* Agent/Message name */
-    std::string parentName_;
-    /* Function name/Message name/Memory variable name */
-    std::string name_;
     /* Level number: used to initially order tasks in the queue */
     size_t level_;
-    /*! \brief Pointer to any associated agent function */
-    //XFunction * function_;
+    /*! \brief Names of variables that are read (RO and RW variables) */
     std::set<std::string> readVariables_;
+    /*! \brief Names of variables that are written (RW variables) */
     std::set<std::string> writeVariables_;
-    /*! \brief Used to check if functions from a state with multiple
-     * outgoing transitions all have conditions */
+    /*! \brief Does this task have an associated condition */
     bool hasCondition_;
 };
 }}  // namespace flame::model

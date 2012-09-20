@@ -19,9 +19,9 @@ namespace flame { namespace model {
  *
  * Initialises Dependency.
  */
-Dependency::Dependency() {
-    name_ = "";
-}
+Dependency::Dependency(std::string name, DependencyType type)
+    : name_(name), dependencyType_(type)
+{}
 
 void Dependency::setName(std::string name) {
     name_ = name;
@@ -29,14 +29,6 @@ void Dependency::setName(std::string name) {
 
 std::string Dependency::getName() {
     return name_;
-}
-
-void Dependency::setParentName(std::string name) {
-    parentName_ = name;
-}
-
-std::string Dependency::getParentName() {
-    return parentName_;
 }
 
 void Dependency::setDependencyType(DependencyType type) {

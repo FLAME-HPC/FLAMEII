@@ -18,12 +18,9 @@ class Dependency {
   public:
     enum DependencyType { state = 0, communication, data, init,
         condition, variable };
-    Dependency();
-    ~Dependency() {}
+    Dependency(std::string name, DependencyType type);
     void setName(std::string name);
     std::string getName();
-    void setParentName(std::string name);
-    std::string getParentName();
     void setDependencyType(DependencyType type);
     DependencyType getDependencyType();
     std::string getGraphName();
@@ -31,8 +28,6 @@ class Dependency {
   private:
     /* State name/Message name/Memory variable name */
     std::string name_;
-    /* Agent/Message name */
-    std::string parentName_;
     DependencyType dependencyType_;
 };
 }}  // namespace flame::model

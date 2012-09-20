@@ -333,20 +333,17 @@ int XCondition::validateTime(XMachine * agent, XModel * model,
 int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
         bool * hsIsAgentVariable, std::string * hs,
         bool * hsIsMessageVariable, XCondition * rootCondition) {
-    int errors = 0;
     /* Handle agent variable */
     if (*hsIsAgentVariable) {
         /* Try and validate */
         if (!agent->validateVariableName(*hs)) {
             std::fprintf(stderr,
-                "Error: value is not a valid agent variable: '%s',\n",
-                hs->c_str());
-            errors++;
+        "Error: value is not a valid agent variable: '%s',\n", hs->c_str());
+            return 1;
         } else {
             // If agent variable is valid then add to
             // read only variable list
-            rootCondition->readOnlyVariables_.insert(
-                    agent->getVariable(*hs)->getName());
+rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs)->getName());
         }
     /* Handle message variable */
     } else if (*hsIsMessageVariable) {
@@ -356,16 +353,16 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
             if (!xmessage->validateVariableName(*hs)) {
                 std::fprintf(stderr,
         "Error: value is not a valid message variable: '%s',\n", hs->c_str());
-                errors++;
+                return 1;
             }
         } else {
             std::fprintf(stderr,
         "Error: cannot validate value as the message type is invalid: '%s',\n",
                 hs->c_str());
-            errors++;
+            return 1;
         }
     }
-    return errors;
+    return 0;
 }
 
 int XCondition::validateValues(XMachine * agent, XMessage * xmessage,

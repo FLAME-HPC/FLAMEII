@@ -63,6 +63,7 @@ class XModelValidate {
     int validateAgentConditionOrFilter(XCondition * xcondition,
             XMachine * agent, XMessage * xmessage, XModel * model);
     int validateSort(XIOput * xioput, XMessage * xmessage);
+    int validateRandomString(XIOput * xioput);
     int validateMessage(XMessage * xmessage, XModel * model);
     bool name_is_allowed(std::string name);
     int validateFunctionFiles(std::vector<std::string> names);

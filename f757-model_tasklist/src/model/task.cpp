@@ -19,14 +19,11 @@ namespace flame { namespace model {
  *
  * Initialises Task and sets level to be zero.
  */
-Task::Task() {
+Task::Task(std::string name, TaskType type)
+    : name_(name), taskType_(type)
+{
     level_ = 0;
     hasCondition_ = false;
-}
-
-Task::~Task() {
-    // Delete any function
-    //delete function_;
 }
 
 void Task::setTaskID(size_t id) {
@@ -37,26 +34,12 @@ size_t Task::getTaskID() {
     return taskID_;
 }
 
-void Task::setParentName(std::string name) {
-    parentName_ = name;
-}
-
-std::string Task::getParentName() {
-    return parentName_;
-}
-
 void Task::setName(std::string name) {
     name_ = name;
 }
 
 std::string Task::getName() {
     return name_;
-}
-
-std::string Task::getFullName() {
-    /* Return full name made from name and parent name */
-    std::string fullName = parentName_ + "." + name_;
-    return fullName;
 }
 
 void Task::setTaskType(TaskType type) {
