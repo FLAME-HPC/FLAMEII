@@ -42,7 +42,9 @@ std::fprintf(stderr, "Error: Model from XML file could not be validated.\n");
         return 2;
     }
 
-    // Initialise model (generate graphs and task list)
+    // Initialise model
+    // Generate graphs and task list
+    // Register with memory manager
     if (model_.initialise() != 0) {
 std::fprintf(stderr, "Error: Model from XML file could not be initialised.\n");
         model_.clear();

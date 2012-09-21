@@ -108,10 +108,15 @@ int XModel::validate() {
 int XModel::initialise() {
     std::vector<XMachine*>::iterator agent;
 
-    // For each agent generate graphs
+    // For each agent
     for (agent = getAgents()->begin();
          agent != getAgents()->end(); ++agent) {
+        // Generate graphs
+        std::printf("Generating model tasks\n");
         (*agent)->generateDependencyGraph();
+        // Register with memory manager
+        std::printf("Registering model with FLAME system\n");
+        (*agent)->registerWithMemoryManager();
     }
 
     return 0;
@@ -207,8 +212,15 @@ std::vector<std::string> * XModel::getFunctionFiles() {
     return &functionFiles_;
 }
 
-XMachine * XModel::addAgent() {
-    XMachine * xmachine = new XMachine;
+XMachine * XModel::addAgent(std::string name) {
+    // Try and get agent
+    XMachine * xmachine = getAgent(name);
+    // If agent already exists then return it
+    if (xmachine) return xmachine;
+    // If agent does not exist then create new agent
+    xmachine = new XMachine;
+    // Assign name to new agent
+    xmachine->setName(name);
     agents_.push_back(xmachine);
     return xmachine;
 }

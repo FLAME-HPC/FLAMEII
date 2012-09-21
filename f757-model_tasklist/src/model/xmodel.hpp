@@ -44,7 +44,7 @@ class XModel {
     std::vector<XTimeUnit*> * getTimeUnits();
     void addFunctionFile(std::string file);
     std::vector<std::string> * getFunctionFiles();
-    XMachine * addAgent();
+    XMachine * addAgent(std::string name);
     std::vector<XMachine*> * getAgents();
     XMachine * getAgent(std::string name);
     XMessage * addMessage();

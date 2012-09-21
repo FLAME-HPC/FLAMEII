@@ -28,6 +28,26 @@ BOOST_AUTO_TEST_CASE(test_xgraph) {
     xgraph.testBoostGraphLibrary();
 }
 
+BOOST_AUTO_TEST_CASE(generateDependencyGraph) {
+/*    int rc;
+    flame::io::IOManager ioManager;
+    flame::model::XModel model;
+
+    rc = ioManager.loadModel("model", &model);
+    BOOST_CHECK(rc == 0);
+    rc = model.validate();
+    BOOST_CHECK(rc == 0);
+
+    std::vector<flame::model::XMachine*>::iterator agent;
+
+        // For each agent generate graphs
+        for (agent = model.getAgents()->begin();
+             agent != model.getAgents()->end(); ++agent) {
+            (*agent)->generateDependencyGraph();
+        }
+*/
+}
+
 BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
     model::XGraph xgraph;
 /*

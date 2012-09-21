@@ -50,6 +50,7 @@ class XGraph {
     int generateDependencyGraph(std::vector<XVariable*> * variables);
     int checkCyclicDependencies();
     int checkFunctionConditions();
+    void setAgentName(std::string agentName);
 #ifdef TESTBUILD
     Graph * getGraph() { return graph_; }
     void testBoostGraphLibrary();
@@ -65,34 +66,37 @@ class XGraph {
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
     void writeGraphviz(std::string fileName);
+    Task * generateStateGraphStatesAddStateToGraph(
+            std::string name, std::string startState);
     void generateStateGraphStates(XFunction * function, Task * task,
             std::string startState);
     void generateStateGraphVariables(XFunction * function, Task * task);
+    Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
     void addEdgeToLastVariableWrites(std::set<std::string> rov,
             Vertex v);
-    void add_variable_vertices_to_graph(std::vector<XVariable*> * variables);
+    void addVariableVerticesToGraph(std::vector<XVariable*> * variables);
     void setStartVector(Vertex sv);
     void addConditionVertices();
     void contractStateVertices();
-    void contract_variable_vertices_from_graph();
-    void remove_redendant_dependencies();
-    void remove_state_dependencies();
-    void add_condition_dependencies();
+    void contractVariableVertices();
+    void removeRedundantDependencies();
+    void removeStateDependencies();
+    void addConditionDependencies();
     void AddVariableOutput(std::vector<XVariable*> * variables);
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
-    Task * addStateToGraph(std::string name, std::string startState);
-    Task * addMessageToGraph(std::string name);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v);
     Dependency * getDependency(Edge e);
     void removeTask(Vertex v);
     void removeTasks(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    void discover_conditions(Vertex vertex, Vertex current,
+    void discoverConditions(Vertex vertex, Vertex current,
             std::set<Vertex> * conditions);
-    void discover_last_variable_writes(std::string variable,
+    bool containsVariableName(std::set<std::string> variables,
+            std::string variable);
+    void discoverLastVariableWrites(std::string variable,
             Vertex vertex,
             std::set<Vertex> * finished,
             std::set<Vertex> * writing);
@@ -100,6 +104,7 @@ class XGraph {
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;
     Vertex startVertex_;
+    std::string agentName_;
 };
 
 }}  // namespace flame::model

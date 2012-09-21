@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include "./xmachine.hpp"
+#include "../mem/memory_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -54,6 +55,7 @@ void XMachine::print() {
 
 void XMachine::setName(std::string name) {
     name_ = name;
+    functionDependencyGraph_.setAgentName(name);
 }
 
 const std::string XMachine::getName() {
@@ -159,6 +161,32 @@ int XMachine::checkCyclicDependencies() {
 
 int XMachine::checkFunctionConditions() {
     return functionDependencyGraph_.checkFunctionConditions();
+}
+
+int XMachine::registerWithMemoryManager() {
+    std::vector<XVariable*>::iterator vit;
+    size_t pop_size_hint = 100;
+        flame::mem::MemoryManager& memoryManager =
+                    flame::mem::MemoryManager::GetInstance();
+
+    /* Register agent with memory manager */
+    memoryManager.RegisterAgent(name_);
+    /* Register agent memory variables */
+    for (vit = variables_.begin(); vit != variables_.end(); vit++) {
+        if ((*vit)->getType() == "int") {
+            /* Register int variable */
+            memoryManager.RegisterAgentVar<int>
+                (name_, (*vit)->getName());
+        } else if ((*vit)->getType() == "double") {
+            /* Register double variable */
+            memoryManager.RegisterAgentVar<double>
+                (name_, (*vit)->getName());
+        }
+    }
+    /* Population Size hint */
+    memoryManager.HintPopulationSize(name_, pop_size_hint);
+
+    return 0;
 }
 
 }}  // namespace flame::model

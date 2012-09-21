@@ -360,6 +360,7 @@ int IOXMLModel::readTimeUnit(xmlNode * node,
             if (rc != 0) return rc;
         }
     }
+
     return 0;
 }
 
@@ -474,7 +475,7 @@ int IOXMLModel::readAgent(xmlNode * node,
         model::XModel * model) {
     int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
-    model::XMachine * xm = model->addAgent();
+    model::XMachine * xm = 0;
 
     /* Loop through each child of xagent */
     for (cur_node = node->children;
@@ -484,7 +485,7 @@ int IOXMLModel::readAgent(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "name")
-                xm->setName(getElementValue(cur_node));
+                xm = model->addAgent(getElementValue(cur_node));
             else if (name == "description") {}
             else if (name == "memory")
                 rc = readVariables(cur_node, xm->getVariables());
@@ -621,10 +622,8 @@ int IOXMLModel::readTransition(xmlNode * node,
             else if (name == "condition")
                 /* Create condition from function */
                 rc = readCondition(cur_node, xfunction->addCondition());
-            else if (name == "outputs")
-                rc = readOutputs(cur_node, xfunction);
-            else if (name == "inputs")
-                rc = readInputs(cur_node, xfunction);
+            else if (name == "outputs") rc = readOutputs(cur_node, xfunction);
+            else if (name == "inputs") rc = readInputs(cur_node, xfunction);
             else if (name == "memoryAccess")
                 rc = readMemoryAccess(cur_node, xfunction);
             else

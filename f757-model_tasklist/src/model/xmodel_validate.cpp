@@ -96,15 +96,28 @@ int XModelValidate::validateTimeUnits(
     int errors = 0;
     unsigned int ii;
     int rc;
+
+    // Process time unit (unit and period)
+    for (ii = 0; ii < timeUnits.size(); ii++) {
+        rc = processTimeUnit(timeUnits.at(ii));
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from time unit: '%s'.\n",
+                timeUnits.at(ii)->getName().c_str());
+            errors++;
+        }
+    }
+
     for (ii = 0; ii < timeUnits.size(); ii++) {
         rc = validateTimeUnit(timeUnits.at(ii), model);
         if (rc != 0) {
             std::fprintf(stderr,
                 "       from time unit: '%s'.\n",
                 timeUnits.at(ii)->getName().c_str());
-            errors += rc;
+            errors++;
         }
     }
+
     return errors;
 }
 
@@ -488,7 +501,7 @@ int XModelValidate::validateFunctionFile(std::string name) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
+int XModelValidate::processTimeUnitPeriod(XTimeUnit * timeUnit) {
     int errors = 0;
     bool castSuccessful = true;
     int period;
@@ -515,7 +528,7 @@ int XModelValidate::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
     unsigned int ii;
     bool unitIsValid = false;
@@ -535,43 +548,55 @@ int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitName(XTimeUnit * timeUnit, XModel * model) {
-    int errors = 0;
-    unsigned int ii;
+int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+    std::vector<XTimeUnit*>::iterator it;
 
     /* Check name is valid */
     if (!name_is_allowed(timeUnit->getName())) {
         std::fprintf(stderr,
             "Error: Time unit name is not valid: '%s',\n",
             timeUnit->getName().c_str());
-        errors++;
+        return 1;
     }
-
-    /* Check for
-     * duplicate names */
-    for (ii = 0; ii < model->getTimeUnits()->size(); ii++)
-        if (timeUnit != model->getTimeUnits()->at(ii) &&
-            timeUnit->getName() == model->getTimeUnits()->at(ii)->getName()) {
-            std::fprintf(stderr, "Error: Duplicate time unit name: '%s',\n",
-                timeUnit->getName().c_str());
-            errors++;
-        }
 
     /* Check that name is not iteration */
     if (timeUnit->getName() == "iteration") {
         std::fprintf(stderr, "Error: Time unit name cannot be 'iteration',\n");
-        errors++;
+        return 1;
     }
 
-    return errors;
+    /* Check for
+     * duplicate names */
+    for (it = model->getTimeUnits()->begin();
+            it != model->getTimeUnits()->end(); it++) {
+        // If time units are not the same check names
+        if (timeUnit != (*it) &&
+            timeUnit->getName() == (*it)->getName()) {
+            // If the time unit is an exact duplicate then delete
+            if (timeUnit->getPeriod() ==
+                    (*it)->getPeriod() &&
+                    timeUnit->getUnit() == (*it)->getUnit()) {
+                // Remove exact duplicate
+                model->getTimeUnits()->erase(
+                        std::find(model->getTimeUnits()->begin(),
+                                model->getTimeUnits()->end(), timeUnit));
+                return 0;
+            } else {
+                std::fprintf(stderr, "Error: Duplicate time unit name: '%s'\n",
+                    timeUnit->getName().c_str());
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }
 
-int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::processTimeUnit(XTimeUnit * timeUnit) {
     int errors = 0;
 
-    errors += validateTimeUnitName(timeUnit, model);
-    errors += validateTimeUnitUnit(timeUnit, model);
-    errors += validateTimeUnitPeriod(timeUnit);
+    errors += processTimeUnitUnit(timeUnit, model);
+    errors += processTimeUnitPeriod(timeUnit);
 
     return errors;
 }

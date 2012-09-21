@@ -20,8 +20,7 @@ namespace flame { namespace model {
  * Initialises Task and sets level to be zero.
  */
 Task::Task(std::string name, TaskType type)
-    : name_(name), taskType_(type)
-{
+    : name_(name), taskType_(type) {
     level_ = 0;
     hasCondition_ = false;
 }

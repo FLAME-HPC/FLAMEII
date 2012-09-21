@@ -47,10 +47,10 @@ class XModelValidate {
     int validateVariables(std::vector<XVariable*> * variables_,
             XModel * model, bool allowDyamicArrays);
     int validateFunctionFile(std::string name);
-    int validateTimeUnitPeriod(XTimeUnit * timeUnit);
-    int validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model);
-    int validateTimeUnitName(XTimeUnit * timeUnit, XModel * model);
     int validateTimeUnit(XTimeUnit * timeUnit, XModel * model);
+    int processTimeUnitPeriod(XTimeUnit * timeUnit);
+    int processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model);
+    int processTimeUnit(XTimeUnit * timeUnit);
     int validateADT(XADT * adt, XModel * model);
     int validateAgent(XMachine * agent, XModel * model);
     int validateAgentStateGraph(XMachine * agent);

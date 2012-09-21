@@ -37,6 +37,7 @@ class XMachine {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     int generateDependencyGraph();
+    int registerWithMemoryManager();
 
   private:
     std::string name_;
