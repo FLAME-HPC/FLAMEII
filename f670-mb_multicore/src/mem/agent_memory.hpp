@@ -60,6 +60,8 @@ class AgentMemory {
     template <typename T>
     std::vector<T>* GetVector(const std::string& var_name) {
       VectorWrapperBase* ptr;
+      registration_closed_ = true;  // no more new variables
+      
       try {
         ptr = &(mem_map_.at(var_name));
       }
@@ -72,7 +74,6 @@ class AgentMemory {
         throw exc::invalid_type("Invalid data type specified");
       }
 #endif
-      registration_closed_ = true;
       return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 

@@ -19,18 +19,19 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
   if (mem_map_.size() == 0) {
     throw exc::invalid_agent("no agent memory variables registered");
   }
-
+  registration_closed_ = true;  // no more new variables
+  
   // iterate through all vectors and reserve size based on hint
   MemoryMap::iterator it;
   for (it = mem_map_.begin(); it != mem_map_.end(); ++it) {
     it->second->reserve(size_hint);
   }
-  registration_closed_ = true;  // no more new variables
+  
 }
 
 VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
+  registration_closed_ = true;  // no more new variables
   try {
-    registration_closed_ = true;
     return &(mem_map_.at(var_name));
   }
   catch(const boost::bad_ptr_container_operation& E) {
