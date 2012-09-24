@@ -82,6 +82,12 @@
 		</Unit>
 		<Unit filename="src/exe/worker_thread.cpp" />
 		<Unit filename="src/exe/worker_thread.hpp" />
+		<Unit filename="src/mb/board_writer.cpp" />
+		<Unit filename="src/mb/board_writer.hpp" />
+		<Unit filename="src/mb/message.cpp" />
+		<Unit filename="src/mb/message.hpp" />
+		<Unit filename="src/mb/message_board.cpp" />
+		<Unit filename="src/mb/message_board.hpp" />
 		<Unit filename="src/mem/agent_memory.cpp" />
 		<Unit filename="src/mem/agent_memory.hpp" />
 		<Unit filename="src/mem/agent_shadow.cpp" />

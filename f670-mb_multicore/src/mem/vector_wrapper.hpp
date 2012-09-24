@@ -37,6 +37,8 @@ class VectorWrapperBase {
 
     virtual const std::type_info* GetDataType() const = 0;
 
+    virtual VectorWrapperBase* clone_empty() const = 0;
+
     //! Simulate a virtual copy constructor
     virtual VectorWrapperBase* clone() const = 0;
 };
@@ -82,6 +84,8 @@ class VectorWrapper: public VectorWrapperBase {
     const std::type_info* GetDataType() const {
       return data_type_;
     }
+
+    VectorWrapper<T>* clone_empty() const { return new VectorWrapper<T>(); }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
 
