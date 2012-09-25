@@ -112,10 +112,8 @@ int XModel::initialise() {
     for (agent = getAgents()->begin();
          agent != getAgents()->end(); ++agent) {
         // Generate graphs
-        std::printf("Generating model tasks\n");
         (*agent)->generateDependencyGraph();
         // Register with memory manager
-        std::printf("Registering model with FLAME system\n");
         (*agent)->registerWithMemoryManager();
     }
 

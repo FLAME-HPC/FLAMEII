@@ -30,8 +30,9 @@ class XMachine {
     XFunction * addFunction();
     std::vector<XFunction*> * getFunctions();
     bool validateVariableName(std::string name);
-    int findStartState();
+    int findStartEndStates();
     std::string getStartState();
+    std::set<std::string> getEndStates();
     int generateStateGraph();
     XGraph * getFunctionDependencyGraph();
     int checkCyclicDependencies();
@@ -44,6 +45,7 @@ class XMachine {
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;
     std::string startState_;
+    std::set<std::string> endStates_;
     XGraph functionDependencyGraph_;
 };
 }}  // namespace flame::model

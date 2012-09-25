@@ -77,16 +77,24 @@ void Task::addReadVariable(std::string name) {
     readVariables_.insert(name);
 }
 
-std::set<std::string> Task::getReadVariables() {
-    return readVariables_;
+std::set<std::string>* Task::getReadVariables() {
+    return &readVariables_;
 }
 
 void Task::addWriteVariable(std::string name) {
     writeVariables_.insert(name);
 }
 
-std::set<std::string> Task::getWriteVariables() {
-    return writeVariables_;
+std::set<std::string>* Task::getWriteVariables() {
+    return &writeVariables_;
+}
+
+SetWritingTasks * Task::getLastWrites() {
+    return &lastWrites_;
+}
+
+std::set<size_t> * Task::getLastConditions() {
+    return &lastConditions_;
 }
 
 }}  // namespace flame::model

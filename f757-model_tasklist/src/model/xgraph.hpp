@@ -46,7 +46,7 @@ class XGraph {
     XGraph();
     ~XGraph();
     int generateStateGraph(std::vector<XFunction*> functions,
-            std::string startState);
+            std::string startState, std::set<std::string> endStates);
     int generateDependencyGraph(std::vector<XVariable*> * variables);
     int checkCyclicDependencies();
     int checkFunctionConditions();
@@ -76,7 +76,7 @@ class XGraph {
     void addEdgeToLastVariableWrites(std::set<std::string> rov,
             Vertex v);
     void addVariableVerticesToGraph(std::vector<XVariable*> * variables);
-    void setStartVector(Vertex sv);
+    void setStartTask(Task * task);
     void addConditionVertices();
     void contractStateVertices();
     void contractVariableVertices();
@@ -92,9 +92,7 @@ class XGraph {
     void removeTask(Vertex v);
     void removeTasks(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    void discoverConditions(Vertex vertex, Vertex current,
-            std::set<Vertex> * conditions);
-    bool containsVariableName(std::set<std::string> variables,
+    bool containsVariableName(std::set<std::string> * variables,
             std::string variable);
     void discoverLastVariableWrites(std::string variable,
             Vertex vertex,
@@ -103,7 +101,9 @@ class XGraph {
     Graph * graph_;
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;
-    Vertex startVertex_;
+    Task * startTask_;
+    std::set<Task *> endTasks_;
+    Task * endTask_;
     std::string agentName_;
 };
 

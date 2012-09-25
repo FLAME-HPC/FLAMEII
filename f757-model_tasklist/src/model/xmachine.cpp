@@ -96,47 +96,59 @@ bool XMachine::validateVariableName(std::string name) {
     return false;
 }
 
-int XMachine::findStartState() {
+int XMachine::findStartEndStates() {
     // Map of state names and boolean for valid start state
-    std::set<std::string> states;
+    std::set<std::string> startStates;
     std::set<std::string>::iterator s;
     std::vector<XFunction*>::iterator f;
 
     // Reset state state value
     startState_ = "";
+    endStates_.clear();
 
-    // For each function add current state to possible start states list
-    for (f = functions_.begin(); f != functions_.end(); ++f)
-        states.insert((*f)->getCurrentState());
-    // For each function cancel states that are next states
+    // For each function
     for (f = functions_.begin(); f != functions_.end(); ++f) {
-        s = states.find((*f)->getNextState());
-        // If state is valid, remove from start state list
-        if (s != states.end()) states.erase(s);
+        // Add current state to possible end states list
+        endStates_.insert((*f)->getNextState());
+        // Add current state to possible start states list
+        startStates.insert((*f)->getCurrentState());
+    }
+    // For each function
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        // If start states contain a next state then remove
+        s = startStates.find((*f)->getNextState());
+        if (s != startStates.end()) startStates.erase(s);
+        // If end states contain a current state then remove
+        s = endStates_.find((*f)->getCurrentState());
+        if (s != endStates_.end()) endStates_.erase(s);
     }
     // No start states found
-    if (states.size() == 0) {
+    if (startStates.size() == 0) {
         std::fprintf(stderr,
             "Error: %s agent doesn't have a start state\n", name_.c_str());
         return 1;
     }
     // Multiple start states found
-    if (states.size() > 1) {
+    if (startStates.size() > 1) {
         std::fprintf(stderr,
             "Error: %s agent has multiple possible start states:\n",
             name_.c_str());
-        for (s = states.begin(); s != states.end(); s++)
+        for (s = startStates.begin(); s != startStates.end(); s++)
             std::fprintf(stderr, "\t%s\n", s->c_str());
         return 2;
     }
     // One start state
-    startState_ = (*states.begin());
+    startState_ = (*startStates.begin());
 
     return 0;
 }
 
 std::string XMachine::getStartState() {
     return startState_;
+}
+
+std::set<std::string> XMachine::getEndStates() {
+    return endStates_;
 }
 
 int XMachine::generateDependencyGraph() {
@@ -148,7 +160,7 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-    return functionDependencyGraph_.generateStateGraph(functions_, startState_);
+    return functionDependencyGraph_.generateStateGraph(functions_, startState_, endStates_);
 }
 
 XGraph * XMachine::getFunctionDependencyGraph() {

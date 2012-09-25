@@ -158,7 +158,7 @@ int XModelValidate::validateMessages(std::vector<XMessage*> messages,
 int XModelValidate::validateAgentStateGraph(XMachine * agent) {
     int rc, errors = 0;
     // Validate single start state
-    rc = agent->findStartState();
+    rc = agent->findStartEndStates();
     if (rc != 0) {
         errors += rc;
     } else {
