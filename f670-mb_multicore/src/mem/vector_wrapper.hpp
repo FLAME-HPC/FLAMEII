@@ -11,6 +11,7 @@
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
 #include <typeinfo>
+#include "boost/any.hpp"
 #include "exceptions/all.hpp"
 
 namespace flame { namespace mem {
@@ -34,6 +35,9 @@ class VectorWrapperBase {
     //! returns a pointer to the next next element in the array
     //! or NULL if the end of the array is reached
     virtual void* StepRawPtr(void* ptr) = 0;
+
+    //! Appends to vector using value wrapped in boost::any
+    virtual void push_back(boost::any value) = 0;
 
     virtual const std::type_info* GetDataType() const = 0;
 
@@ -85,6 +89,15 @@ class VectorWrapper: public VectorWrapperBase {
       return data_type_;
     }
 
+    //! Appends to vector using value wrapped in boost::any
+    void push_back(boost::any value) {
+      try {
+        v_.push_back(boost::any_cast<T>(value));
+      } catch (const boost::bad_any_cast& E) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+    }
+    
     VectorWrapper<T>* clone_empty() const { return new VectorWrapper<T>(); }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }

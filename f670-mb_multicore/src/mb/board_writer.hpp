@@ -1,23 +1,32 @@
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
 #include <string>
-#include <typeinfo>
+#include "boost/function.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
+#include "type_validator.hpp"
 #include "message_board.hpp"
 
 namespace flame { namespace mb {
 
-typedef std::map<std::string, const std::type_info*> TypeMap;
+class Message;  // forward declaration
+
+typedef boost::shared_ptr<Message> MessageHandle;
 typedef flame::mem::VectorWrapperBase GenericVector;
+typedef boost::function<void (Message*)> MessagePostCallback;
 
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
 
-class BoardWriter {
+class BoardWriter : public TypeValidator {
   friend class MessageBoard;
 
   public:
+    //! Returns a Message instance that can .Post() to this writer
+    MessageHandle GetMessage(void);
+
+    //! Callback function for storing posted messages
+    void PostCallback(Message* msg);
 
   protected:
     // Limit constructor to MessageBoard
@@ -27,8 +36,7 @@ class BoardWriter {
 
   private:
     std::string msg_name_;  //! Message name
-    MemoryMap mem_map_;  //! map to assing VectorWrapper to var names
-    TypeMap type_map_;  //! lookup table for datatypes
+    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
 };
 
 }}  // namespace flame::mb

@@ -35,7 +35,7 @@ BoardWriter* MessageBoard::GetBoardWriter(void) {
   writers_.push_back(b);
 
   // for each board variable, create an empty clone of data vectors
-  BOOST_FOREACH(MemoryMap::value_type p, mem_map_) {
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
     b->RegisterVar(p.first, p.second->clone_empty());
   }
 
