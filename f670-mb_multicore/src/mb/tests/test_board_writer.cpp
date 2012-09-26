@@ -141,4 +141,45 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writers) {
   BOOST_CHECK_EQUAL(board.GetCount(), (size_t)10);
 }
 
+BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
+  mb::MessageBoard board = mb::MessageBoard("msg1");
+  board.RegisterVar<int>("int");
+  board.RegisterVar<double>("dbl");
+  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
+
+  mb::BoardWriterHandle writer1, writer2;
+  mb::MessageHandle msg1, msg2, msg2b;
+
+  writer1 = board.GetBoardWriter();
+  writer2 = board.GetBoardWriter();
+
+  msg1 = writer1->GetMessage();
+  msg2 = writer2->GetMessage();
+  msg2b = writer2->GetMessage();
+
+  msg1->Set<int>("int", 10);
+  msg1->Set<double>("dbl", 0.1);
+
+  msg2->Set<int>("int", 20);
+  msg2->Set<double>("dbl", 0.2);
+
+  msg2b->Set<int>("int", 30);
+  msg2b->Set<double>("dbl", 0.3);
+
+  msg1->Post();
+  msg2->Post();
+  msg2->Post();
+  msg1->Post();
+  msg1->Post();
+  msg2b->Post();
+  msg1->Post();
+
+  BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)4);
+  BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)3);
+
+  board.Sync();
+  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)7);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
