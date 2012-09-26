@@ -12,6 +12,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <utility>  // for pair<>
 #include "./dependency.hpp"
 
 namespace flame { namespace model {
@@ -64,7 +65,6 @@ class Task {
     bool hasCondition_;
     SetWritingTasks lastWrites_;
     std::set<size_t> lastConditions_;
-
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

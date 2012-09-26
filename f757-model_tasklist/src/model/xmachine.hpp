@@ -11,6 +11,7 @@
 #define MODEL__XMACHINE_HPP_
 #include <string>
 #include <vector>
+#include <set>
 #include "./xvariable.hpp"
 #include "./xfunction.hpp"
 #include "./xgraph.hpp"

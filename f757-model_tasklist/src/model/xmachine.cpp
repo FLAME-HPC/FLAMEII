@@ -98,12 +98,11 @@ bool XMachine::validateVariableName(std::string name) {
 
 int XMachine::findStartEndStates() {
     // Map of state names and boolean for valid start state
-    std::set<std::string> startStates;
+    std::set<std::string> startStates = "";
     std::set<std::string>::iterator s;
     std::vector<XFunction*>::iterator f;
 
-    // Reset state state value
-    startState_ = "";
+    // Reset end states list
     endStates_.clear();
 
     // For each function
@@ -122,17 +121,15 @@ int XMachine::findStartEndStates() {
         s = endStates_.find((*f)->getCurrentState());
         if (s != endStates_.end()) endStates_.erase(s);
     }
-    // No start states found
     if (startStates.size() == 0) {
+        // No start states found
         std::fprintf(stderr,
             "Error: %s agent doesn't have a start state\n", name_.c_str());
         return 1;
-    }
-    // Multiple start states found
-    if (startStates.size() > 1) {
+    } else if (startStates.size() > 1) {
+        // Multiple start states found
         std::fprintf(stderr,
-            "Error: %s agent has multiple possible start states:\n",
-            name_.c_str());
+    "Error: %s agent has multiple possible start states:\n", name_.c_str());
         for (s = startStates.begin(); s != startStates.end(); s++)
             std::fprintf(stderr, "\t%s\n", s->c_str());
         return 2;
@@ -160,7 +157,8 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-    return functionDependencyGraph_.generateStateGraph(functions_, startState_, endStates_);
+    return functionDependencyGraph_.generateStateGraph(
+            functions_, startState_, endStates_);
 }
 
 XGraph * XMachine::getFunctionDependencyGraph() {

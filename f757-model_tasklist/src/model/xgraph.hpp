@@ -75,14 +75,13 @@ class XGraph {
     void generateStateGraphMessages(XFunction * function, Task * task);
     void addEdgeToLastVariableWrites(std::set<std::string> rov,
             Vertex v);
-    void addVariableVerticesToGraph(std::vector<XVariable*> * variables);
+    void addDataAndConditionDependencies(std::vector<XVariable*> * variables);
     void setStartTask(Task * task);
-    void addConditionVertices();
+    void transformConditionalStatesToConditions();
     void contractStateVertices();
     void contractVariableVertices();
     void removeRedundantDependencies();
     void removeStateDependencies();
-    void addConditionDependencies();
     void AddVariableOutput(std::vector<XVariable*> * variables);
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);

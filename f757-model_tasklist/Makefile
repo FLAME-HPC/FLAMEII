@@ -1,5 +1,5 @@
 CC         = g++
-CFLAGS     = -g -Wall -pedantic -DTESTBUILD
+CFLAGS     = -g -Wall -pedantic -DTESTBUILD #-DUSE_VARIABLE_VERTICES
 BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
 LDFLAGS    = -L$(BOOSTDIR)/stage/lib
 # Boost library naming support, -mt for multithreading, -d for debug

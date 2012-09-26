@@ -167,31 +167,28 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_1.dot");
 #endif
-
-    // Add condition vertices
-    addConditionVertices();
-
+    // Transform conditional states (more than one out edge)
+    // into a condition task
+    transformConditionalStatesToConditions();
     // Contract state vertices
     contractStateVertices();
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_2.dot");
 #endif
-
-    // Add variable vertices
-    addVariableVerticesToGraph(variables);
-
-    // Add condition dependencies
-    addConditionDependencies();
-
+    // Add data and condition dependencies
+    addDataAndConditionDependencies(variables);
     // Remove state dependencies
     removeStateDependencies();
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_3.dot");
 #endif
-    // Add data io
+    // Add data output tasks
     AddVariableOutput(variables);
+#ifdef USE_VARIABLE_VERTICES
     // Contract variable vertices
     contractVariableVertices();
+#endif
+
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_4.dot");
 #endif
@@ -411,7 +408,7 @@ void removeVarWriteSet(std::string name,
     }
 }
 
-void XGraph::addVariableVerticesToGraph(
+void XGraph::addDataAndConditionDependencies(
         std::vector<XVariable*> * variables) {
     std::vector<Vertex> sorted_vertices;
     std::vector<Vertex>::iterator vit;
@@ -419,70 +416,70 @@ void XGraph::addVariableVerticesToGraph(
     std::vector<XVariable*>::iterator i;
     std::pair<VertexIterator, VertexIterator> vp;
     std::set<Task*>::iterator t_it;
+    std::set<size_t>::iterator it;
 
     // Add init function to provide first writes of all variables
-    Task * initTask = new Task("Init", Task::init_agent);
+    Task * initTask = new Task(std::string("Start\\n" + agentName_),
+            Task::init_agent);
     Vertex initVertex = addVertex(initTask);
     // Add edge from init to start vertex
-    addEdge(initTask, startTask_, "Init", Dependency::init);
+    addEdge(initTask, startTask_, "Start", Dependency::init);
     // Add all variables to init task write list
     for (i = variables->begin(); i != variables->end(); i++) {
         initTask->addWriteVariable((*i)->getName());
-        initTask->getLastWrites()->insert(std::make_pair((*i)->getName(), initVertex));
+        initTask->getLastWrites()->insert(
+                std::make_pair((*i)->getName(), initVertex));
     }
     // Add end function to provide last writes to ioput
-    endTask_ = new Task("End", Task::init_agent);
+    endTask_ = new Task(std::string("End\\n" + agentName_), Task::init_agent);
     addVertex(endTask_);
     for (t_it = endTasks_.begin(); t_it != endTasks_.end(); t_it++)
         addEdge((*t_it), endTask_, "End", Dependency::init);
 
-    // Add edge from init to start vertex
-    addEdge(initTask, startTask_, "Init", Dependency::init);
-    // Add all variables to init task write list
-    for (i = variables->begin(); i != variables->end(); i++) {
-        initTask->addWriteVariable((*i)->getName());
-        initTask->getLastWrites()->insert(std::make_pair((*i)->getName(), initVertex));
-    }
-
-//    std::cout << "initVertex = " << initVertex << std::endl;
-//    std::cout << "startVertex_ = " << getVertex(startTask_) << std::endl;
-
-//    std::cout << "1" << std::endl;
-
     // Create topological sorted list of vertices
-    boost::topological_sort(*graph_, std::back_inserter(sorted_vertices)); // try front_inserter ?
-    // The result is output in reverse topological order so reverse
-    std::reverse(sorted_vertices.begin(), sorted_vertices.end());
-
-//    std::cout << "2" << std::endl;
+    boost::topological_sort(*graph_, std::back_inserter(sorted_vertices));
 
     // For each vertex in topological order
-    for (vit = sorted_vertices.begin();
-         vit != sorted_vertices.end(); vit++) {
-//        std::cout << "2a" << std::endl;
+    // Iterate in reverse as output order is reversed
+    vit = sorted_vertices.end();
+    do {
+        vit--;
         // If vertex is a function, condition, or init task
         Task * task = getTask((*vit));
-//        std::cout << "2b" << std::endl;
         if (task->getTaskType() == Task::xfunction ||
                 task->getTaskType() == Task::xcondition ||
                 task->getTaskType() == Task::init_agent) {
-
-//            std::cout << "Task: " << task->getName() << std::endl;
-
-            // Copy last writing from incoming functions
+            // For each in edge task
             boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
             boost::tie(iei, iei_end) = boost::in_edges(*vit, *graph_);
             for (; iei != iei_end; ++iei) {
-                Vertex v = boost::source((Edge)*iei, *graph_);
-                Task * t = getTask(v);
-                SetWritingTasks * lastWrites = t->getLastWrites();
-                task->getLastWrites()->insert(lastWrites->begin(), lastWrites->end());
+                Task * t = getTask(boost::source((Edge)*iei, *graph_));
+                // Copy last writing from incoming functions
+                task->getLastWrites()->insert(t->getLastWrites()->begin(),
+                        t->getLastWrites()->end());
+                // Copy last conditions from in edge tasks
+                task->getLastConditions()->insert(
+                        t->getLastConditions()->begin(),
+                        t->getLastConditions()->end());
+            }
+
+            // Add edge for each condition vertex found
+            for (it = task->getLastConditions()->begin();
+                    it != task->getLastConditions()->end(); it++)
+                addEdge(*it, (*vit),
+                        "Condition", Dependency::condition);
+            // If condition
+            if (task->getTaskType() == Task::xcondition) {
+                // Clear last conditions
+                task->getLastConditions()->clear();
+                // Add current condition
+                task->getLastConditions()->insert((*vit));
             }
 
             // For each read variable
+            std::set<Vertex> alreadyUsed;
             for (varit = task->getReadVariables()->begin();
                     varit != task->getReadVariables()->end(); varit++) {
-                std::set<Vertex> alreadyUsed;
                 SetWritingTasks::iterator wit;
                 for (wit = task->getLastWrites()->begin();
                         wit != task->getLastWrites()->end(); wit++) {
@@ -491,8 +488,13 @@ void XGraph::addVariableVerticesToGraph(
                         // If read variable equals last writes variable
                         if ((*wit).first == (*varit)) {
                             // Add edge
+#ifdef USE_VARIABLE_VERTICES
                             addEdge((Vertex)((*wit).second), (*vit),
-                                    "", Dependency::variable);
+                                    (*varit), Dependency::variable);
+#else
+                            addEdge((Vertex)((*wit).second), (*vit),
+                                    "Data", Dependency::variable);
+#endif
                             // Add vertex to ones already used
                             alreadyUsed.insert(((*wit).second));
                         }
@@ -502,15 +504,19 @@ void XGraph::addVariableVerticesToGraph(
             // For writing variables create new vertex and add edge
             std::set<std::string> * rwv = task->getWriteVariables();
             for (varit = rwv->begin(); varit != rwv->end(); varit++) {
-                // New vertex
-            //    Vertex v = addVertex((*varit), Task::xvariable);
-                // Edge to vertex
-            //    addEdge((*vit), v, (*varit), Dependency::variable);
                 // Remove writes from lastWrites
                 removeVarWriteSet((*varit), task->getLastWrites());
+#ifdef USE_VARIABLE_VERTICES
+                // New vertex
+                Vertex v = addVertex((*varit), Task::xvariable);
+                // Edge to vertex
+                addEdge((*vit), v, (*varit), Dependency::variable);
                 // Add new write
-            //    task->getLastWrites()->insert(std::make_pair((*varit), v));
+                task->getLastWrites()->insert(std::make_pair((*varit), v));
+#else
+                // Add new write
                 task->getLastWrites()->insert(std::make_pair((*varit), (*vit)));
+#endif
             }
 
             // Print out last writes
@@ -521,49 +527,10 @@ void XGraph::addVariableVerticesToGraph(
 */
         }
     }
+    while (vit != sorted_vertices.begin());
+
     // Remove init vertex
 //    removeTask(initVertex);
-}
-
-void XGraph::addConditionDependencies() {
-    std::set<size_t>::iterator it;
-    std::vector<Vertex> sorted_vertices;
-    std::vector<Vertex>::iterator vit;
-
-    // Create topological sorted list of vertices
-    boost::topological_sort(*graph_, std::back_inserter(sorted_vertices));
-    // The result is output in reverse topological order so reverse
-    std::reverse(sorted_vertices.begin(), sorted_vertices.end());
-
-    // For each function/condition vertex
-    for (vit = sorted_vertices.begin();
-             vit != sorted_vertices.end(); vit++) {
-        Task * task = getTask(*vit);
-        if (task->getTaskType() == Task::xfunction ||
-                task->getTaskType() == Task::xcondition) {
-            // Copy last conditions from in edge tasks
-            boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
-            boost::tie(iei, iei_end) = boost::in_edges(*vit, *graph_);
-            for (; iei != iei_end; ++iei) {
-                Vertex v = boost::source((Edge)*iei, *graph_);
-                Task * t = getTask(v);
-                task->getLastConditions()->insert(t->getLastConditions()->begin(),
-                        t->getLastConditions()->end());
-            }
-            // Add edge for each condition vertex found
-            for (it = task->getLastConditions()->begin();
-                    it != task->getLastConditions()->end(); it++)
-                addEdge(*it, (*vit),
-                        "Condition", Dependency::condition);
-        }
-        // If condition
-        if (task->getTaskType() == Task::xcondition) {
-            // Clear last conditions
-            task->getLastConditions()->clear();
-            // Add current condition
-            task->getLastConditions()->insert(*vit);
-        }
-    }
 }
 
 bool compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
@@ -583,33 +550,23 @@ bool compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
 void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
     // For each function that last writes a variable add dependency
     // to the data output of that variable
-    std::pair<VertexIterator, VertexIterator> vp;
-    std::vector<XVariable*>::iterator i;
-    std::set<std::string>::iterator varit;
-    std::vector<Vertex> vertexToDelete;
     std::vector<std::pair<std::string, std::set<size_t> > > varWrites;
     std::vector<std::pair<std::string, std::set<size_t> > >::iterator vwit;
     std::set<size_t>::iterator sit;
-
     SetWritingTasks * lws = endTask_->getLastWrites();
     SetWritingTasks::iterator wit;
+
     std::string varName = "";
     for (wit = lws->begin(); wit != lws->end(); wit++) {
         // If new var name
         if ((*wit).first != varName) {
             varName = (*wit).first;
-            varWrites.insert(varWrites.begin(), make_pair((*wit).first, std::set<size_t>()));
+            varWrites.insert(varWrites.begin(),
+                    make_pair((*wit).first, std::set<size_t>()));
         }
         (*varWrites.begin()).second.insert((*wit).second);
     }
 
-/*    for (vwit = ++varWrites.begin(); vwit != varWrites.end(); vwit++) {
-        std::cout << (*vwit).first << std::endl;
-        for (sit = (*vwit).second.begin();
-                sit != (*vwit).second.end(); sit++)
-            std::cout << "\t" << (*sit) << " " << getTask((*sit))->getName() << std::endl;
-    }
-*/
     while (!varWrites.empty()) {
         // Create new io write task
         Task * task = new Task("", Task::io_pop_write);
@@ -653,14 +610,15 @@ void XGraph::removeStateDependencies() {
         removeDependency(*etrit);
 }
 
-void XGraph::addConditionVertices() {
+void XGraph::transformConditionalStatesToConditions() {
     std::pair<VertexIterator, VertexIterator> vp;
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
-        // If out edges is larger than 1 and an xfunction task
+        // If out edges is larger than 1 and a state task
         if (boost::out_degree(*vp.first, *graph_) > 1 &&
                 getTask(*vp.first)->getTaskType() == Task::xstate) {
+            // Change task type to a condition
             getTask(*vp.first)->setTaskType(Task::xcondition);
             getTask(*vp.first)->setName("Condition");
         }
@@ -704,8 +662,11 @@ void XGraph::contractStateVertices() {
     // Change startVertex to the only and direct function under the current
     // state start vertex
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-    for (boost::tie(oei, oei_end) = boost::out_edges(getVertex(startTask_), *graph_);
-                            oei != oei_end; ++oei)
+    // If startTask a state (not a state converted to a condition
+    if (startTask_->getTaskType() == Task::xstate)
+        for (boost::tie(oei, oei_end) =
+                boost::out_edges(getVertex(startTask_), *graph_);
+                    oei != oei_end; ++oei)
         startTask_ = getTask(boost::target((Edge)*oei, *graph_));
 
 
@@ -864,13 +825,16 @@ struct vertex_label_writer {
                 out << " shape=ellipse, style=filled, fillcolor=red";
             if (t->getTaskType() == Task::xvariable)
                 out << " shape=ellipse";
-            if (t->getTaskType() == Task::xmessage)
-                out << " shape=parallelogram, style=filled, fillcolor=lightblue";
+            if (t->getTaskType() == Task::xmessage) {
+                out << " shape=parallelogram, style=filled, ";
+                out << "fillcolor=lightblue";
+            }
             if (t->getTaskType() == Task::io_pop_write)
                 out << " shape=folder, style=filled, fillcolor=orange";
             out << "]";
         }
     }
+
   protected:
     std::vector<Task *> * vertex2task;
 };
