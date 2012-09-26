@@ -18,6 +18,11 @@ namespace flame { namespace mb {
 MessageBoard::MessageBoard(const std::string message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
+ //! Returns the number of messages
+size_t MessageBoard::GetCount(void) {
+  return count_;
+}
+
 void MessageBoard::_sync(void) {}  // noop for base class
 
 void MessageBoard::Sync(void) {

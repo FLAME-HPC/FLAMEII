@@ -28,6 +28,7 @@ class BoardWriter : public TypeValidator {
     //! Callback function for storing posted messages
     void PostCallback(Message* msg);
 
+    //! Return the number of messages posted so far
     size_t GetCount(void);
 
   protected:

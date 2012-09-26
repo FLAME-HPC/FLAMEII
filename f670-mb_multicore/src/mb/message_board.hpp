@@ -33,7 +33,7 @@ class MessageBoard {
 
     //! Registers a message variable of a specific data type
     template <typename T>
-    void RegisterVar(const std::string var_name) {
+    void RegisterVar(std::string var_name) {
       if (finalised_) {
         throw flame::exceptions::logic_error(
           "variables can no longer be registered");
@@ -46,6 +46,9 @@ class MessageBoard {
       }
 
     }
+
+    //! Returns the number of messages
+    size_t GetCount(void);
 
     //! Creates and returns a new board writer
     BoardWriterHandle GetBoardWriter(void);

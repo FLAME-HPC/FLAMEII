@@ -43,7 +43,7 @@ void BoardWriter::PostCallback(Message* msg) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
   BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
     if (msg->data_.find(p.first) == msg->data_.end()) {
-      throw flame::exceptions::logic_error("not all values defined");
+      throw flame::exceptions::insufficient_data("not all values defined");
     }
     // type should already be checked on Message.Set(). It will also be
     // checked in mem_map_[].push_back(...);

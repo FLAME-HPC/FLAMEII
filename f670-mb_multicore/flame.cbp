@@ -88,6 +88,9 @@
 		<Unit filename="src/mb/message.hpp" />
 		<Unit filename="src/mb/message_board.cpp" />
 		<Unit filename="src/mb/message_board.hpp" />
+		<Unit filename="src/mb/tests/test_board_writer.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/mb/type_validator.hpp" />
 		<Unit filename="src/mem/agent_memory.cpp" />
 		<Unit filename="src/mem/agent_memory.hpp" />
