@@ -1,15 +1,17 @@
 /*!
- * \file FILENAME
+ * \file src/mb/message_board.cpp
  * \author Shawn Chin
- * \date 2012
+ * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief MessageBoard
  */
 #ifndef MB__MESSAGE_BOARD_HPP_
 #define MB__MESSAGE_BOARD_HPP_
 #include <string>
+#include <utility>
+#include <vector>
 #include "boost/ptr_container/ptr_map.hpp"
 #include "boost/shared_ptr.hpp"
 #include "exceptions/mem.hpp"
@@ -17,7 +19,7 @@
 
 namespace flame { namespace mb {
 
-class BoardWriter; // Forward declaration
+class BoardWriter;  // Forward declaration
 
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, flame::mem::VectorWrapperBase> MemoryMap;
@@ -29,7 +31,7 @@ class MessageBoard {
     typedef std::vector<BoardWriterHandle> WriterVector;
     explicit MessageBoard(const std::string message_name);
     void Sync(void);
-    virtual ~MessageBoard() {};
+    virtual ~MessageBoard() {}
 
     //! Registers a message variable of a specific data type
     template <typename T>
@@ -41,10 +43,9 @@ class MessageBoard {
 
       std::pair<MemoryMap::iterator, bool> ret;
       ret = mem_map_.insert(var_name, new flame::mem::VectorWrapper<T>());
-      if (!ret.second) { // if replacement instead of insertion
+      if (!ret.second) {  // if replacement instead of insertion
         throw flame::exceptions::logic_error("variable already registered");
       }
-
     }
 
     //! Returns the number of messages
@@ -68,4 +69,4 @@ class MessageBoard {
 };
 
 }}  // namespace flame::msg
-#endif // MB__MESSAGE_BOARD_HPP_
+#endif  // MB__MESSAGE_BOARD_HPP_

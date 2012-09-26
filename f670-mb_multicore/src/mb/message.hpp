@@ -1,13 +1,21 @@
+/*!
+ * \file src/mb/message.hpp
+ * \author Shawn Chin
+ * \date September 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief Message instance. Proxy to read/write messages to board
+ */
 #ifndef MB__MESSAGE_HPP
 #define MB__MESSAGE_HPP
+#include <map>
 #include <string>
 #include <typeinfo>
 #include "boost/any.hpp"
 #include "boost/shared_ptr.hpp"
 #include "board_writer.hpp"
 
-// TODO: In debug mode, check that all message values have been set before
-// posing. Flags should be reset upon Post() so Message can be reused.
 namespace flame { namespace mb {
 
 typedef boost::shared_ptr<Message> MessageHandle;
@@ -63,8 +71,8 @@ class Message {
     bool readonly_;
     MessagePostCallback callback_;
     TypeValidator* validator_;
-
 };
 
 }}  // namespace flame::mb
-#endif // MB__MESSAGE_HPP
+#endif  // MB__MESSAGE_HPP
+

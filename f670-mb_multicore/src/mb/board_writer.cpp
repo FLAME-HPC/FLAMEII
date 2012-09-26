@@ -1,3 +1,14 @@
+/*!
+ * \file src/mb/board_writer.cpp
+ * \author Shawn Chin
+ * \date September 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief BoardWriter instance. Used staging object for thread-specific posts
+ */
+#include <string>
+#include <utility>  // std::pair
 #include <cassert>
 #include "boost/bind.hpp"
 #include "boost/foreach.hpp"
@@ -37,7 +48,6 @@ MessageHandle BoardWriter::GetMessage(void) {
 }
 
 void BoardWriter::PostCallback(Message* msg) {
-
   // First, check that all values are value so we don't end up within
   // inconsistent data vectors on error
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
@@ -55,7 +65,7 @@ void BoardWriter::PostCallback(Message* msg) {
   MemoryMap::iterator m_iter = mem_map_.begin();
   Message::DataMap::iterator d_iter = msg->data_.begin();
 
-  for (;m_iter != mem_map_.end(); ++m_iter, ++d_iter) {
+  for (; m_iter != mem_map_.end(); ++m_iter, ++d_iter) {
     assert(m_iter->first == d_iter->first);  // ensure that keys are the same
     m_iter->second->push_back(d_iter->second);  // append message to board
   }

@@ -20,13 +20,12 @@ void AgentMemory::HintPopulationSize(unsigned int size_hint) {
     throw exc::invalid_agent("no agent memory variables registered");
   }
   registration_closed_ = true;  // no more new variables
-  
+
   // iterate through all vectors and reserve size based on hint
   MemoryMap::iterator it;
   for (it = mem_map_.begin(); it != mem_map_.end(); ++it) {
     it->second->reserve(size_hint);
   }
-  
 }
 
 VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {

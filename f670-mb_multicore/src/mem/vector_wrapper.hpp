@@ -104,7 +104,7 @@ class VectorWrapper: public VectorWrapperBase {
     void push_back(boost::any value) {
       try {
         v_.push_back(boost::any_cast<T>(value));
-      } catch (const boost::bad_any_cast& E) {
+      } catch(const boost::bad_any_cast& E) {
         throw flame::exceptions::invalid_type("mismatching type");
       }
     }

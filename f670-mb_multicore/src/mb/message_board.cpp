@@ -1,13 +1,14 @@
 /*!
- * \file FILENAME
+ * \file src/mb/message_board.cpp
  * \author Shawn Chin
- * \date 2012
+ * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief MessageBoard
  */
 #include <cassert>
+#include <string>
 #include "boost/foreach.hpp"
 #include "message_board.hpp"
 #include "mem/vector_wrapper.hpp"
@@ -18,7 +19,7 @@ namespace flame { namespace mb {
 MessageBoard::MessageBoard(const std::string message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
- //! Returns the number of messages
+//! Returns the number of messages
 size_t MessageBoard::GetCount(void) {
   return count_;
 }
@@ -66,7 +67,7 @@ void MessageBoard::_merge_boards(void) {
     assert(p.second->size() == count_);
     p.second->reserve(message_count);  // reserve memory in internal vectors
 
-    for(iter = writers_.begin(); iter != writers_.end(); ++iter) {
+    for (iter = writers_.begin(); iter != writers_.end(); ++iter) {
       // append contents of writers_.mem_map_[var] to mem_map[var]
       p.second->Extend(&(*iter)->mem_map_.at(p.first));
     }

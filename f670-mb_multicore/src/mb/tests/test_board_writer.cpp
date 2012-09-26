@@ -179,7 +179,6 @@ BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
 
   board.Sync();
   BOOST_CHECK_EQUAL(board.GetCount(), (size_t)7);
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,3 +1,12 @@
+/*!
+ * \file src/mb/board_writer.hpp
+ * \author Shawn Chin
+ * \date September 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief BoardWriter instance. Used staging object for thread-specific posts
+ */
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
 #include <string>
@@ -42,8 +51,7 @@ class BoardWriter : public TypeValidator {
   private:
     size_t count_;
     std::string msg_name_;  //! Message name
-    
 };
 
 }}  // namespace flame::mb
-#endif // MB__BOARD_WRITER_HPP
+#endif  // MB__BOARD_WRITER_HPP

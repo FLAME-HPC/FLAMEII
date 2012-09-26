@@ -1,3 +1,13 @@
+/*!
+ * \file src/mb/message.cpp
+ * \author Shawn Chin
+ * \date September 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief Message instance. Proxy to read/write messages to board
+ */
+#include <string>
 #include "exceptions/all.hpp"
 #include "message.hpp"
 

@@ -61,7 +61,7 @@ class AgentMemory {
     std::vector<T>* GetVector(const std::string& var_name) {
       VectorWrapperBase* ptr;
       registration_closed_ = true;  // no more new variables
-      
+
       try {
         ptr = &(mem_map_.at(var_name));
       }
