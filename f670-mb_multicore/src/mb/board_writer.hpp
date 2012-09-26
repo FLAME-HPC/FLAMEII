@@ -28,15 +28,20 @@ class BoardWriter : public TypeValidator {
     //! Callback function for storing posted messages
     void PostCallback(Message* msg);
 
+    size_t GetCount(void);
+
   protected:
     // Limit constructor to MessageBoard
     explicit BoardWriter(const std::string message_name);
     // Limit var registration to MessageBoard
     void RegisterVar(std::string var_name, GenericVector* vec);
+    // MessageBoard needs access to messages
+    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
 
   private:
+    size_t count_;
     std::string msg_name_;  //! Message name
-    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
+    
 };
 
 }}  // namespace flame::mb

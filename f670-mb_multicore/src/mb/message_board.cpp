@@ -7,18 +7,22 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
-#include <boost/foreach.hpp>
+#include <cassert>
+#include "boost/foreach.hpp"
 #include "message_board.hpp"
+#include "mem/vector_wrapper.hpp"
 #include "board_writer.hpp"
+
 namespace flame { namespace mb {
 
 MessageBoard::MessageBoard(const std::string message_name)
-  : msg_name_(message_name), finalised_(false) {}
+  : count_(0), msg_name_(message_name), finalised_(false) {}
 
 void MessageBoard::_sync(void) {}  // noop for base class
 
 void MessageBoard::Sync(void) {
   // merge contents from all write boards
+  _merge_boards();
 
   // run custom sync actions if called from derived class
   _sync();
@@ -26,12 +30,12 @@ void MessageBoard::Sync(void) {
   // Run actions for all filter plugins
 }
 
-BoardWriter* MessageBoard::GetBoardWriter(void) {
+BoardWriterHandle MessageBoard::GetBoardWriter(void) {
   // board definition should no longer be modified
   finalised_ = true;
 
   // create new board and give ownership of obj to writers_.
-  BoardWriter* b = new BoardWriter(msg_name_);
+  BoardWriterHandle b = BoardWriterHandle(new BoardWriter(msg_name_));
   writers_.push_back(b);
 
   // for each board variable, create an empty clone of data vectors
@@ -40,6 +44,34 @@ BoardWriter* MessageBoard::GetBoardWriter(void) {
   }
 
   return b;
+}
+
+void MessageBoard::_merge_boards(void) {
+  size_t message_count = 0;
+
+  // determine number of new messages
+  WriterVector::iterator iter = writers_.begin();
+  for (; iter != writers_.end(); ++iter) {
+    message_count += (*iter)->GetCount();
+  }
+
+  // update each data vector based on contents in boardwriters
+  message_count += count_;  // determine new size
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+    assert(p.second->size() == count_);
+    p.second->reserve(message_count);  // reserve memory in internal vectors
+
+    for(iter = writers_.begin(); iter != writers_.end(); ++iter) {
+      // append contents of writers_.mem_map_[var] to mem_map[var]
+      p.second->Extend(&(*iter)->mem_map_.at(p.first));
+    }
+  }
+
+  // update internal message counter
+  count_ = message_count;
+
+  // delete all writers
+  writers_.clear();
 }
 
 }}  // namespace flame::mb

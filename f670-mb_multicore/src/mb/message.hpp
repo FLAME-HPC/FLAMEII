@@ -6,7 +6,6 @@
 #include "boost/shared_ptr.hpp"
 #include "board_writer.hpp"
 
-
 // TODO: In debug mode, check that all message values have been set before
 // posing. Flags should be reset upon Post() so Message can be reused.
 namespace flame { namespace mb {
@@ -21,6 +20,8 @@ class Message {
 
   public:
     typedef std::map<std::string, boost::any> DataMap;
+
+    void Clear(void);
 
     void Post(void);
 

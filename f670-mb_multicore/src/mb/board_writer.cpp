@@ -7,8 +7,11 @@
 namespace flame { namespace mb {
 
 BoardWriter::BoardWriter(const std::string message_name)
-  : msg_name_(message_name) {}
+  : count_(0), msg_name_(message_name) {}
 
+size_t BoardWriter::GetCount(void) {
+  return count_;
+}
 
 /*! \brief Registers a message var and assign it to the given vector
  *
@@ -54,9 +57,11 @@ void BoardWriter::PostCallback(Message* msg) {
 
   for (;m_iter != mem_map_.end(); ++m_iter, ++d_iter) {
     assert(m_iter->first == d_iter->first);  // ensure that keys are the same
-    m_iter->second->push_back(d_iter->second);
+    m_iter->second->push_back(d_iter->second);  // append message to board
   }
 
+  // increment msg counter
+  ++count_;
 }
 
 }}  // namespace flame::mb

@@ -15,6 +15,13 @@ void Message::Post(void) {
   callback_(this);
 }
 
+void Message::Clear(void) {
+  if (readonly_) {
+    throw flame::exceptions::invalid_operation("This message is read-only");
+  }
+  data_.clear();
+}
+
 void Message::Set(std::string var_name, boost::any value) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
   if (validator_->ValidateType(var_name, &value.type())) {

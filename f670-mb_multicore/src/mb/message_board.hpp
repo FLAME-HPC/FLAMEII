@@ -11,7 +11,7 @@
 #define MB__MESSAGE_BOARD_HPP_
 #include <string>
 #include "boost/ptr_container/ptr_map.hpp"
-#include "boost/ptr_container/ptr_vector.hpp"
+#include "boost/shared_ptr.hpp"
 #include "exceptions/mem.hpp"
 #include "mem/vector_wrapper.hpp"
 
@@ -22,8 +22,11 @@ class BoardWriter; // Forward declaration
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, flame::mem::VectorWrapperBase> MemoryMap;
 
+typedef boost::shared_ptr<BoardWriter> BoardWriterHandle;
+
 class MessageBoard {
   public:
+    typedef std::vector<BoardWriterHandle> WriterVector;
     explicit MessageBoard(const std::string message_name);
     void Sync(void);
     virtual ~MessageBoard() {};
@@ -45,15 +48,17 @@ class MessageBoard {
     }
 
     //! Creates and returns a new board writer
-    BoardWriter* GetBoardWriter(void);
+    BoardWriterHandle GetBoardWriter(void);
 
   protected:
     virtual void _sync();  // overload this for custom sync routines
 
   private:
+    void _merge_boards(void);
+    size_t count_;
     std::string msg_name_;  //! Name of message
     MemoryMap mem_map_;  //! map to assing VectorWrapper to var names
-    boost::ptr_vector<BoardWriter> writers_;  //! Registered board writers
+    WriterVector writers_;  //! Registered board writers
 
     //! Flag to indicate that vars can no longer be registered
     bool finalised_;

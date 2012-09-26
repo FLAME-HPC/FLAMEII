@@ -27,6 +27,9 @@ class VectorWrapperBase {
 
     virtual void* GetVectorPtr() = 0;
 
+    //! Append contents of vec into the internal vector
+    virtual void Extend(VectorWrapperBase* vec) = 0;
+
     //! Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
     virtual void* GetRawPtr(size_t offset = 0) = 0;
@@ -61,7 +64,15 @@ class VectorWrapper: public VectorWrapperBase {
     typedef std::vector<T> vector_type;
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
-    virtual bool empty() const { return v_.empty(); }
+    bool empty() const { return v_.empty(); }
+
+    void Extend(VectorWrapperBase* vec) {
+      if (GetDataType() != vec->GetDataType()) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+      vector_type *content = static_cast<vector_type*>(vec->GetVectorPtr());
+      v_.insert(v_.end(), content->begin(), content->end());
+    }
 
     void* GetVectorPtr() {
       return &v_;
@@ -97,7 +108,7 @@ class VectorWrapper: public VectorWrapperBase {
         throw flame::exceptions::invalid_type("mismatching type");
       }
     }
-    
+
     VectorWrapper<T>* clone_empty() const { return new VectorWrapper<T>(); }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
