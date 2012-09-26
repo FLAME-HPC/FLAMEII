@@ -20,24 +20,11 @@ class flame_mem_exception : public flame_exception {
         : flame_exception(msg) {}
 };
 
-class invalid_type : public flame_mem_exception {
-  public:
-    explicit invalid_type(const std::string& msg)
-        : flame_mem_exception(msg) {}
-};
-
 class invalid_agent : public flame_mem_exception {
   public:
     explicit invalid_agent(const std::string& msg)
         : flame_mem_exception(msg) {}
 };
-
-class invalid_variable : public flame_mem_exception {
-  public:
-    explicit invalid_variable(const std::string& msg)
-        : flame_mem_exception(msg) {}
-};
-
 
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__MEM_HPP_
