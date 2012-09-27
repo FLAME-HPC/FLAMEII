@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief BoardWriter instance. Used staging object for thread-specific posts
+ * \brief Declaration of BoardWriter
  */
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
@@ -18,16 +18,34 @@
 
 namespace flame { namespace mb {
 
-class Message;  // forward declaration
+class Message; // forward declaration
 
+//! Handle returned in place of Message
 typedef boost::shared_ptr<Message> MessageHandle;
+//! Shorthand for VectorWrapper base class
 typedef flame::mem::VectorWrapperBase GenericVector;
+//! Function signature for callback function triggered by Message::Post()
 typedef boost::function<void (Message*)> MessagePostCallback;
-
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
 
+/*!
+ * \brief Proxy object used to post messages to a board
+ *
+ * Messages are not posted to the board directly as concurrent posts will
+ * incur too much locking overheads. Instead, each thread can be assigned
+ * a BoardWrite instance into which messages are posted. These messages
+ * are eventually incorporated into the board by MessageBoard::Sync().
+ *
+ * This class should not be manually instantiated as it is only useful when
+ * associated with a MessageBoard. The constructor is therefore protected
+ * and callable only by MessageBoard.
+ *
+ * Inherits the TypeValidator interface so it can be used to validate
+ * the datatype of message variables (used by Message::Set()).
+ */
 class BoardWriter : public TypeValidator {
+  //! Only MessageBoard can call the constructor
   friend class MessageBoard;
 
   public:
@@ -41,15 +59,17 @@ class BoardWriter : public TypeValidator {
     size_t GetCount(void);
 
   protected:
-    // Limit constructor to MessageBoard
+    //! Constructor. Limited to friend classes
     explicit BoardWriter(const std::string message_name);
-    // Limit var registration to MessageBoard
+
+    //! Var registration. Limited to friend classes
     void RegisterVar(std::string var_name, GenericVector* vec);
-    // MessageBoard needs access to messages
-    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
+
+    //! Internal data structure. Accessible by friend classes
+    MemoryMap mem_map_;
 
   private:
-    size_t count_;
+    size_t count_;  //! Number of messages posted
     std::string msg_name_;  //! Message name
 };
 

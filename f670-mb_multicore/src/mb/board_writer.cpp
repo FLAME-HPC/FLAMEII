@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief BoardWriter instance. Used staging object for thread-specific posts
+ * \brief Implementation of BoardWriter
  */
 #include <string>
 #include <utility>  // std::pair
@@ -17,18 +17,35 @@
 #include "board_writer.hpp"
 namespace flame { namespace mb {
 
+/*!
+ * \brief BoardWriter constructor
+ * \param[in] message_name Name of message associated with this writrer
+ *
+ * Initialises count_ and msg_name_
+ */
 BoardWriter::BoardWriter(const std::string message_name)
   : count_(0), msg_name_(message_name) {}
 
+/*!
+ * \brief Returns the number of messages posted so far
+ * \return Number of posted messages
+ */
 size_t BoardWriter::GetCount(void) {
   return count_;
 }
 
-/*! \brief Registers a message var and assign it to the given vector
+/*!
+ * \brief Registers a message var and assign it to the given vector
+ * \param[in] var_name Variable name
+ * \param[in] vec Pointer to an empty VectorWrapper.
  *
- * vec should be a pointer to an empty VectorWrapper. It should be assigned
- * from the output of .clone_empty() from the main message vector
- * so it is of the correct type.
+ * vec must be assigned from the output of VectorWrapperBase::clone_empty()
+ * from the main message vector so that it is of the correct type.
+ * BoardWriter will take over ownership of the vector object and will deallocate
+ * it when the object is destroyed. Calling routines should not access the
+ * \c vec pointer and should certainly not deallocate the object.
+ *
+ * The name and type is also registered with the TypeValidator interface.
  */
 void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
   std::pair<MemoryMap::iterator, bool> ret;
@@ -41,12 +58,40 @@ void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
   RegisterType(var_name, vec->GetDataType());
 }
 
+/*!
+ * \brief Creates a Message instance and returns its handle
+ * \return A handle (shared_ptr) to a Message instance
+ * A Message object is created and wrapped in a boost::shared_ptr so that its
+ * lifetime is automatically managed.
+ *
+ * The BoardWriter::PostCallback class method is assign as the callback function
+ * for Message::Post (which is how the Message is associated with a Board Writer
+ * and in turn the Message Board).
+ */
 MessageHandle BoardWriter::GetMessage(void) {
   MessageHandle msg = MessageHandle(new Message(this));
   msg->AssignPostCallback(boost::bind(&BoardWriter::PostCallback, this, _1));
   return msg;
 }
 
+/*!
+ * \brief Callback function for handling a Message::Post()
+ * \param[in] msg Pointer to message instance
+ *
+ * Unless run-time type checking is disabled, the Message is first inspected
+ * to ensure that all variables are set. (The type is not checked as we expect
+ * type-checking to be done by Message::Set()).
+ *
+ * Throws flame::exceptions::insufficient_data if not all variables in the
+ * Message has been set.
+ *
+ * If everything is in order, we iterate through the variables and append all
+ * values from the Message to the internal vectors.
+ *
+ * \note The internal maps in BoardWriter and Message MUST be ordered and of the
+ * same container type. For efficiency, we iterate through their entries
+ * concurrently and expect the keys to be returned in the same order.
+ */
 void BoardWriter::PostCallback(Message* msg) {
   // First, check that all values are value so we don't end up within
   // inconsistent data vectors on error
