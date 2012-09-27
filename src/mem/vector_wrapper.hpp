@@ -11,6 +11,7 @@
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
 #include <typeinfo>
+#include "boost/any.hpp"
 #include "exceptions/all.hpp"
 
 namespace flame { namespace mem {
@@ -26,6 +27,9 @@ class VectorWrapperBase {
 
     virtual void* GetVectorPtr() = 0;
 
+    //! Append contents of vec into the internal vector
+    virtual void Extend(VectorWrapperBase* vec) = 0;
+
     //! Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
     virtual void* GetRawPtr(size_t offset = 0) = 0;
@@ -35,7 +39,12 @@ class VectorWrapperBase {
     //! or NULL if the end of the array is reached
     virtual void* StepRawPtr(void* ptr) = 0;
 
+    //! Appends to vector using value wrapped in boost::any
+    virtual void push_back(boost::any value) = 0;
+
     virtual const std::type_info* GetDataType() const = 0;
+
+    virtual VectorWrapperBase* clone_empty() const = 0;
 
     //! Simulate a virtual copy constructor
     virtual VectorWrapperBase* clone() const = 0;
@@ -55,7 +64,15 @@ class VectorWrapper: public VectorWrapperBase {
     typedef std::vector<T> vector_type;
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
-    virtual bool empty() const { return v_.empty(); }
+    bool empty() const { return v_.empty(); }
+
+    void Extend(VectorWrapperBase* vec) {
+      if (GetDataType() != vec->GetDataType()) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+      vector_type *content = static_cast<vector_type*>(vec->GetVectorPtr());
+      v_.insert(v_.end(), content->begin(), content->end());
+    }
 
     void* GetVectorPtr() {
       return &v_;
@@ -82,6 +99,17 @@ class VectorWrapper: public VectorWrapperBase {
     const std::type_info* GetDataType() const {
       return data_type_;
     }
+
+    //! Appends to vector using value wrapped in boost::any
+    void push_back(boost::any value) {
+      try {
+        v_.push_back(boost::any_cast<T>(value));
+      } catch(const boost::bad_any_cast& E) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+    }
+
+    VectorWrapper<T>* clone_empty() const { return new VectorWrapper<T>(); }
 
     VectorWrapper<T>* clone() const { return new VectorWrapper<T>(*this); }
 

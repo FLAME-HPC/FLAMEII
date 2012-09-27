@@ -44,5 +44,23 @@ class out_of_range : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class insufficient_data : public flame_exception {
+  public:
+    explicit insufficient_data(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
+class invalid_type : public flame_exception {
+  public:
+    explicit invalid_type(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
+class invalid_variable : public flame_exception {
+  public:
+    explicit invalid_variable(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__BASE_HPP_
