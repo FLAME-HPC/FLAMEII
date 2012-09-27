@@ -18,7 +18,7 @@
 
 namespace flame { namespace mb {
 
-class Message; // forward declaration
+class Message;  // forward declaration
 
 //! Handle returned in place of Message
 typedef boost::shared_ptr<Message> MessageHandle;

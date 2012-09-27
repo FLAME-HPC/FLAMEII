@@ -31,7 +31,6 @@ namespace flame { namespace mb {
  */
 class TypeValidator {
   public:
-
     //! Virtual destructor
     virtual ~TypeValidator() {}
 

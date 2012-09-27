@@ -81,7 +81,7 @@ class MessageBoard {
     std::string msg_name_;  //! Name of message
     MemoryMap mem_map_;  //! map to assing VectorWrapper to var names
     WriterVector writers_;  //! Registered board writers
-    bool finalised_; //! Flag to indicate new vars can no longer be registered
+    bool finalised_;  //! Flag to indicate new vars can no longer be registered
 
     //! Collates all messages and clears writers_
     void _merge_boards(void);
