@@ -54,6 +54,7 @@ class XGraph {
 #ifdef TESTBUILD
     Graph * getGraph() { return graph_; }
     void testBoostGraphLibrary();
+    bool testCompareTaskSets();
 #endif
 
   private:
@@ -73,8 +74,6 @@ class XGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
-    void addEdgeToLastVariableWrites(std::set<std::string> rov,
-            Vertex v);
     void addDataAndConditionDependencies(std::vector<XVariable*> * variables);
     void setStartTask(Task * task);
     void transformConditionalStatesToConditions();
@@ -82,6 +81,7 @@ class XGraph {
     void contractVariableVertices();
     void removeRedundantDependencies();
     void removeStateDependencies();
+    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
     void AddVariableOutput(std::vector<XVariable*> * variables);
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
@@ -91,12 +91,6 @@ class XGraph {
     void removeTask(Vertex v);
     void removeTasks(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    bool containsVariableName(std::set<std::string> * variables,
-            std::string variable);
-    void discoverLastVariableWrites(std::string variable,
-            Vertex vertex,
-            std::set<Vertex> * finished,
-            std::set<Vertex> * writing);
     Graph * graph_;
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;

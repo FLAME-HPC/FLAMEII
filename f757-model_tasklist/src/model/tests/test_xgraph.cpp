@@ -22,6 +22,14 @@ namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(XGraph)
 
+BOOST_AUTO_TEST_CASE(TestCompareTaskSets) {
+    model::XGraph xgraph;
+
+    bool r = xgraph.testCompareTaskSets();
+    BOOST_CHECK(r == true);
+}
+
+/*
 BOOST_AUTO_TEST_CASE(test_xgraph) {
     model::XGraph xgraph;
 
@@ -29,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test_xgraph) {
 }
 
 BOOST_AUTO_TEST_CASE(generateDependencyGraph) {
-/*    int rc;
+    int rc;
     flame::io::IOManager ioManager;
     flame::model::XModel model;
 
@@ -45,12 +53,12 @@ BOOST_AUTO_TEST_CASE(generateDependencyGraph) {
              agent != model.getAgents()->end(); ++agent) {
             (*agent)->generateDependencyGraph();
         }
-*/
+
 }
 
 BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
     model::XGraph xgraph;
-/*
+
     // Create variable 'a'
     model::XVariable v("a");
     // Create variables list and add 'a'
@@ -81,11 +89,10 @@ BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
     // Init variable edges
     xgraph.add_variable_vertices_to_graph(&variables);
     //xgraph.write_graphviz("test2.dot");
-     */
 }
 
 BOOST_AUTO_TEST_CASE(test_graph_layers) {
-/*    model::XGraph xgraph;
+    model::XGraph xgraph;
 
     model::Graph * graph = xgraph.getGraph();
     model::Vertex v0 = add_vertex(*graph);
@@ -106,7 +113,7 @@ BOOST_AUTO_TEST_CASE(test_graph_layers) {
     // xgraph.write_graphviz();
 
     // xgraph.test_layers();
-*/
 }
+*/
 
 BOOST_AUTO_TEST_SUITE_END()

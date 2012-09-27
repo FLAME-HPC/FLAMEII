@@ -98,7 +98,7 @@ bool XMachine::validateVariableName(std::string name) {
 
 int XMachine::findStartEndStates() {
     // Map of state names and boolean for valid start state
-    std::set<std::string> startStates = "";
+    std::set<std::string> startStates;
     std::set<std::string>::iterator s;
     std::vector<XFunction*>::iterator f;
 

@@ -89,7 +89,7 @@ std::set<std::string>* Task::getWriteVariables() {
     return &writeVariables_;
 }
 
-SetWritingTasks * Task::getLastWrites() {
+VarWriteTasks * Task::getLastWrites() {
     return &lastWrites_;
 }
 

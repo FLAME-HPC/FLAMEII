@@ -13,13 +13,12 @@
 #include <set>
 #include <map>
 #include <utility>  // for pair<>
-#include "./dependency.hpp"
+#include <vector>
 
 namespace flame { namespace model {
 
-class Task;
-
-typedef std::set< std::pair<std::string, size_t> > SetWritingTasks;
+// Define type used to hold variable writing tasks
+typedef std::vector<std::pair<std::string, std::set<size_t> > > VarWriteTasks;
 
 class Task {
   public:
@@ -42,7 +41,7 @@ class Task {
     std::set<std::string>* getWriteVariables();
     void setHasCondition(bool hasCondition);
     bool hasCondition();
-    SetWritingTasks * getLastWrites();
+    VarWriteTasks * getLastWrites();
     std::set<size_t> * getLastConditions();
 
   private:
@@ -63,7 +62,7 @@ class Task {
     std::set<std::string> writeVariables_;
     /*! \brief Does this task have an associated condition */
     bool hasCondition_;
-    SetWritingTasks lastWrites_;
+    VarWriteTasks lastWrites_;
     std::set<size_t> lastConditions_;
 };
 }}  // namespace flame::model
