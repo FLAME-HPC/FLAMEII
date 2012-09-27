@@ -21,6 +21,15 @@ MessageBoard::MessageBoard(const std::string message_name)
 
 //! Returns the number of messages
 size_t MessageBoard::GetCount(void) {
+#ifdef TESTBUILD
+  // When built for testing, validate the size of all data vectors
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+    if (p.second->size() != count_) {
+      throw flame::exceptions::flame_exception("inconsistent vector sizes");
+    }
+  }
+#endif
+
   return count_;
 }
 
