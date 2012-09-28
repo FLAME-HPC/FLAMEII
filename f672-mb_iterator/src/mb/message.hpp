@@ -13,7 +13,6 @@
 #include <string>
 #include <typeinfo>
 #include "boost/any.hpp"
-#include "boost/shared_ptr.hpp"
 #include "board_writer.hpp"
 
 namespace flame { namespace mb {
@@ -30,7 +29,6 @@ namespace flame { namespace mb {
  */
 class Message {
   friend class BoardWriter;
-  // friend class MessageIterator;
 
   public:
     //! Clears all message variables that are set

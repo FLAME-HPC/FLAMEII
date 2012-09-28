@@ -13,6 +13,11 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-pedantic" />
+					<Add option="-std=c++98" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-ansi" />
 					<Add option="-g" />
 					<Add option="-DTESTBUILD" />
 					<Add option="-DDEBUG" />
@@ -84,10 +89,15 @@
 		<Unit filename="src/exe/worker_thread.hpp" />
 		<Unit filename="src/mb/board_writer.cpp" />
 		<Unit filename="src/mb/board_writer.hpp" />
+		<Unit filename="src/mb/mb_common.hpp" />
 		<Unit filename="src/mb/message.cpp" />
 		<Unit filename="src/mb/message.hpp" />
 		<Unit filename="src/mb/message_board.cpp" />
 		<Unit filename="src/mb/message_board.hpp" />
+		<Unit filename="src/mb/message_iterator.cpp" />
+		<Unit filename="src/mb/message_iterator.hpp" />
+		<Unit filename="src/mb/message_iterator_backend.cpp" />
+		<Unit filename="src/mb/message_iterator_backend.hpp" />
 		<Unit filename="src/mb/tests/test_board_writer.cpp">
 			<Option target="Test" />
 		</Unit>

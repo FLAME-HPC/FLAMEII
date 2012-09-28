@@ -12,21 +12,10 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "boost/ptr_container/ptr_map.hpp"
-#include "boost/shared_ptr.hpp"
 #include "exceptions/mem.hpp"
-#include "mem/vector_wrapper.hpp"
+#include "mb_common.hpp"
 
 namespace flame { namespace mb {
-
-//! Forward declaration of BoardWriter
-class BoardWriter;
-
-//! Map container used to store memory vectors
-typedef boost::ptr_map<std::string, flame::mem::VectorWrapperBase> MemoryMap;
-
-//! Handle that is returned in place of a BoardWriter instance
-typedef boost::shared_ptr<BoardWriter> BoardWriterHandle;
 
 
 /*!
@@ -65,11 +54,16 @@ class MessageBoard {
           "variables can no longer be registered");
       }
 
+      // Create and store type-specific data Vector
       std::pair<MemoryMap::iterator, bool> ret;
-      ret = mem_map_.insert(var_name, new flame::mem::VectorWrapper<T>());
+      GenericVector* vec_ptr = new flame::mem::VectorWrapper<T>();
+      ret = mem_map_.insert(var_name, vec_ptr);  // takes ownership of obj
       if (!ret.second) {  // if replacement instead of insertion
         throw flame::exceptions::logic_error("variable already registered");
       }
+
+      // Cache read-only ptrs to that vector (for iterator access)
+      ro_map_[var_name] = static_cast<const GenericVector*>(vec_ptr);
     }
 
   protected:
@@ -79,7 +73,8 @@ class MessageBoard {
   private:
     size_t count_;  //! Total number of messages that have been synched
     std::string msg_name_;  //! Name of message
-    MemoryMap mem_map_;  //! map to assing VectorWrapper to var names
+    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
+    VectorRefMap ro_map_; //! map to store read-only ptrs to vectors
     WriterVector writers_;  //! Registered board writers
     bool finalised_;  //! Flag to indicate new vars can no longer be registered
 

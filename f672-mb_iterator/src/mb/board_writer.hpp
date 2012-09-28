@@ -10,24 +10,12 @@
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
 #include <string>
-#include "boost/function.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
 #include "type_validator.hpp"
 #include "message_board.hpp"
 
 namespace flame { namespace mb {
-
-class Message;  // forward declaration
-
-//! Handle returned in place of Message
-typedef boost::shared_ptr<Message> MessageHandle;
-//! Shorthand for VectorWrapper base class
-typedef flame::mem::VectorWrapperBase GenericVector;
-//! Function signature for callback function triggered by Message::Post()
-typedef boost::function<void (Message*)> MessagePostCallback;
-//! Map container used to store memory vectors
-typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
 
 /*!
  * \brief Proxy object used to post messages to a board
