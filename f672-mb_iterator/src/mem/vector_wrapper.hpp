@@ -59,9 +59,16 @@ inline VectorWrapperBase* new_clone(const VectorWrapperBase& a) {
 template <typename T>
 class VectorWrapper: public VectorWrapperBase {
   public:
-    VectorWrapper() { data_type_ = &typeid(T); }
     typedef T data_type;
     typedef std::vector<T> vector_type;
+    
+    VectorWrapper() { data_type_ = &typeid(T); }
+
+    explicit VectorWrapper(const VectorWrapper& v) {
+      data_type_ = v.data_type_;
+      v_ = v.v_;
+    }
+    
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
     bool empty() const { return v_.empty(); }
