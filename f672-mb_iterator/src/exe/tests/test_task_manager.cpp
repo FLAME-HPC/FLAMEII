@@ -86,18 +86,18 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
 
   // check initial data structure
-  BOOST_CHECK_EQUAL(tm.get_num_roots(), 0);
-  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 0);
-  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 0);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), (size_t)0);
 
   // add task
   tm.CreateAgentTask("t1", "Circle", &func1);
   tm.CreateAgentTask("t2", "Circle", &func1);
   tm.CreateAgentTask("t3", "Circle", &func1);
   tm.CreateAgentTask("t4", "Circle", &func1);
-  BOOST_CHECK_EQUAL(tm.get_num_roots(), 4);
-  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 4);
-  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 4);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), (size_t)4);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), (size_t)4);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), (size_t)4);
 
   BOOST_CHECK_THROW(tm.AddDependency("t1", "x"),
                     flame::exceptions::invalid_argument);
@@ -105,27 +105,27 @@ BOOST_AUTO_TEST_CASE(test_dep_management) {
                     flame::exceptions::invalid_argument);
 
   tm.AddDependency("t3", "t1");
-  BOOST_CHECK_EQUAL(tm.get_num_roots(), 3);
-  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 3);
-  BOOST_CHECK_EQUAL(tm.GetTaskCount(), 4);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), 0);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), 1);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), (size_t)3);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), (size_t)3);
+  BOOST_CHECK_EQUAL(tm.GetTaskCount(), (size_t)4);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), (size_t)1);
 
   tm.AddDependency("t4", "t1");
   tm.AddDependency("t4", "t2");
   tm.AddDependency("t4", "t3");
-  BOOST_CHECK_EQUAL(tm.get_num_roots(), 2);
-  BOOST_CHECK_EQUAL(tm.get_num_leaves(), 1);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), 0);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t2").size(), 0);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), 1);
-  BOOST_CHECK_EQUAL(tm.GetDependencies("t4").size(), 3);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), 2);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t2").size(), 1);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), 1);
-  BOOST_CHECK_EQUAL(tm.GetDependents("t4").size(), 0);
+  BOOST_CHECK_EQUAL(tm.get_num_roots(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.get_num_leaves(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t1").size(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t2").size(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t3").size(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.GetDependencies("t4").size(), (size_t)3);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t1").size(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t2").size(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t3").size(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.GetDependents("t4").size(), (size_t)0);
 
   BOOST_CHECK_THROW(tm.GetDependencies("x"),
                     flame::exceptions::invalid_argument);
@@ -171,9 +171,9 @@ BOOST_AUTO_TEST_CASE(test_task_iteration) {
 
   BOOST_CHECK(tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)0);
 
   exe::TaskManager::TaskId t1 = tm.get_id("t1");  // test-only routine
   exe::TaskManager::TaskId t2 = tm.get_id("t2");  // test-only routine
@@ -187,71 +187,71 @@ BOOST_AUTO_TEST_CASE(test_task_iteration) {
   while (tm.IterTaskAvailable()) {
     tm.IterTaskPop();
     count++;
-    BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2 - count);
-    BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), count);
-    BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
+    BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)(2 - count));
+    BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)count);
+    BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)2);
   }
-  BOOST_CHECK_EQUAL(count, 2);
+  BOOST_CHECK_EQUAL(count, (size_t)2);
   BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
   BOOST_CHECK(!tm.IterCompleted());
 
   // t2 complete
   tm.IterTaskDone(t2);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)1);
   BOOST_CHECK(!tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
 
   // t1 complete
   tm.IterTaskDone(t1);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 1);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 1);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)0);
   BOOST_CHECK(tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
 
   // pop t3 which should now be ready
   exe::TaskManager::TaskId t = tm.IterTaskPop();
   BOOST_CHECK_EQUAL(t, t3);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 1);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)1);
   BOOST_CHECK(!tm.IterTaskAvailable());
   BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
   BOOST_CHECK(!tm.IterCompleted());
 
   // t3 complete
   tm.IterTaskDone(t3);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 1);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)1);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)0);
   BOOST_CHECK(tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
 
   // pop t4 which should now be ready
   t = tm.IterTaskPop();
   BOOST_CHECK_EQUAL(t, t4);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 1);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)1);
   BOOST_CHECK(!tm.IterTaskAvailable());
   BOOST_CHECK_THROW(tm.IterTaskPop(), flame::exceptions::none_available);
   BOOST_CHECK(!tm.IterCompleted());
 
   // t4 complete
   tm.IterTaskDone(t4);
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 0);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)0);
   BOOST_CHECK(!tm.IterTaskAvailable());
   BOOST_CHECK(tm.IterCompleted());
 
   // reset for next iteration
   tm.IterReset();
-  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), 2);
-  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), 2);
-  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), 0);
+  BOOST_CHECK_EQUAL(tm.IterGetReadyCount(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.IterGetPendingCount(), (size_t)2);
+  BOOST_CHECK_EQUAL(tm.IterGetAssignedCount(), (size_t)0);
   BOOST_CHECK(tm.IterTaskAvailable());
   BOOST_CHECK(!tm.IterCompleted());
 

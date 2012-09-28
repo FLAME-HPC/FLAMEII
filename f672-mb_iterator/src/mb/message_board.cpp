@@ -22,7 +22,7 @@ namespace flame { namespace mb {
  *
  * Initialiases internal parameters count_, msg_name_ and finalised_.
  */
-MessageBoard::MessageBoard(const std::string message_name)
+MessageBoard::MessageBoard(const std::string& message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
 /*!

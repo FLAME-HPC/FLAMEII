@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
 
   // Get a new iterator instead of rewinding
   iptr = shadow->GetMemoryIterator();
-  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
   for (int i = 0; i < 10; i++) {
     BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
     BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), i);
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
   int j;
 
   iptr = shadow->GetMemoryIterator(0, 10);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
   j = 0;
   while (!iptr->AtEnd()) {
     BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
@@ -168,10 +168,10 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
     j++;
   }
   BOOST_CHECK_EQUAL(j, 10);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)10);
 
   iptr = shadow->GetMemoryIterator(0, 5);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
   j = 0;
   while (!iptr->AtEnd()) {
     BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
@@ -179,10 +179,10 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
     j++;
   }
   BOOST_CHECK_EQUAL(j, 5);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)5);
 
   iptr = shadow->GetMemoryIterator(2, 5);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 0);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
   j = 2;
   while (!iptr->AtEnd()) {
     BOOST_CHECK_EQUAL(iptr->Get<int>("x_int"), j);
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
     j++;
   }
   BOOST_CHECK_EQUAL(j, 7);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)5);
 
   j = 2;
   iptr->Rewind();
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
     j++;
   }
   BOOST_CHECK_EQUAL(j, 7);
-  BOOST_CHECK_EQUAL(iptr->get_position(), 5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)5);
 }
 
 BOOST_AUTO_TEST_CASE(memiter_reset_memory_manager) {

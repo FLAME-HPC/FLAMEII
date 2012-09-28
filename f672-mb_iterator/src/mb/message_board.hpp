@@ -43,7 +43,7 @@ class MessageBoard {
     typedef std::vector<BoardWriterHandle> WriterVector;
 
     //! Constructor
-    explicit MessageBoard(const std::string message_name);
+    explicit MessageBoard(const std::string& message_name);
 
     //! Virtual destructor
     virtual ~MessageBoard() {}
