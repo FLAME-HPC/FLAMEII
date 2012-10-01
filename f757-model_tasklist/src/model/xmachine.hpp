@@ -40,6 +40,7 @@ class XMachine {
     int checkFunctionConditions();
     int generateDependencyGraph();
     int registerWithMemoryManager();
+    void addToModelGraph(XGraph * modelGraph);
 
   private:
     std::string name_;

@@ -23,6 +23,7 @@ XModel::~XModel() {
 }
 
 void XModel::setup() {
+    name_ = "";
     /* Initialise list of data types */
     addAllowedDataType("int");
     addAllowedDataType("float");
@@ -129,7 +130,9 @@ std::string XModel::getPath() {
 }
 
 void XModel::setName(std::string name) {
-    name_ = name;
+    // If name is not set then set name
+    // This stops sub models renaming the root model
+    if (name_ == "") name_ = name;
 }
 
 std::string XModel::getName() {

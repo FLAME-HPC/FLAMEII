@@ -199,4 +199,8 @@ int XMachine::registerWithMemoryManager() {
     return 0;
 }
 
+void XMachine::addToModelGraph(XGraph * modelGraph) {
+    modelGraph->import(&functionDependencyGraph_);
+}
+
 }}  // namespace flame::model

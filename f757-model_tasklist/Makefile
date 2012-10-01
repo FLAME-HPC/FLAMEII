@@ -106,8 +106,8 @@ cccc:
 	$(CCCCSUMMARY) cccc
 
 # dsymutil - only relevent on Mac OS X
-memtest: all
-	valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
+valgrind:
+	/Users/stc/workspace/valgrind/bin/valgrind --dsymutil=yes --leak-check=full ./$(EXECUTABLE) --log_level=all
 	$(RM) -r $(EXECUTABLE).dSYM
 
 .PHONY: cccc

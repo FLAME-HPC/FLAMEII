@@ -50,23 +50,23 @@ class XGraph {
     int generateDependencyGraph(std::vector<XVariable*> * variables);
     int checkCyclicDependencies();
     int checkFunctionConditions();
+    void generateTaskList(std::vector<Task*> * tasks);
     void setAgentName(std::string agentName);
-#ifdef TESTBUILD
+    void import(XGraph * graph);
+    void splitMessageTasks();
+    void setTasksImported(bool b);
+    std::vector<Task *> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
+    void writeGraphviz(std::string fileName);
+#ifdef TESTBUILD
     void testBoostGraphLibrary();
     bool testCompareTaskSets();
 #endif
 
   private:
     Vertex addVertex(Task * t);
-    Vertex addVertex(std::string name, Task::TaskType type);
-    void addEdge(Task * to, Task * from, Dependency * d);
-    void addEdge(Task * to, Task * from, std::string name,
-            Dependency::DependencyType type);
-    Edge addEdge(Vertex to, Vertex from, Dependency * d);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
-    void writeGraphviz(std::string fileName);
     Task * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
     void generateStateGraphStates(XFunction * function, Task * task,
@@ -74,6 +74,12 @@ class XGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
+    void addStartTask(std::vector<XVariable*> * variables);
+    void addEndTask();
+    void copyWritingAndConditionVerticesFromInEdges(Vertex v, Task * t);
+    void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
+    void addReadDependencies(Vertex v, Task * t);
+    void addWritingVerticesToList(Vertex v, Task * t);
     void addDataAndConditionDependencies(std::vector<XVariable*> * variables);
     void setStartTask(Task * task);
     void transformConditionalStatesToConditions();
@@ -88,9 +94,10 @@ class XGraph {
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v);
     Dependency * getDependency(Edge e);
-    void removeTask(Vertex v);
-    void removeTasks(std::vector<Vertex> * tasks);
+    void removeVertex(Vertex v);
+    void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
+    Vertex getMessageVertex(std::string name, Task::TaskType type);
     Graph * graph_;
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;
@@ -98,6 +105,7 @@ class XGraph {
     std::set<Task *> endTasks_;
     Task * endTask_;
     std::string agentName_;
+    bool taskImported_;
 };
 
 }}  // namespace flame::model

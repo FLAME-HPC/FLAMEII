@@ -17,12 +17,12 @@ namespace flame { namespace model {
 
 ModelManager::~ModelManager() {
     /* Free task list memory */
-    Task * task;
+/*    Task * task;
     while (!tasks_.empty()) {
         task = tasks_.back();
         delete task;
         tasks_.pop_back();
-    }
+    }*/
 }
 
 int ModelManager::loadModel(std::string const& file) {

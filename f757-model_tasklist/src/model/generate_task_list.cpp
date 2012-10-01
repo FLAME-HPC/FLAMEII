@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "./model_manager.hpp"
 #include "./task.hpp"
@@ -24,47 +25,71 @@ namespace flame { namespace model {
 int ModelManager::generate_task_list() {
 //    int rc;
     std::vector<XMachine*>::iterator agent;
+    XGraph modelGraph;
 
-    // Calculate dependencies
-//    rc = calculate_dependencies(&tasks_);
-    // Catalog data dependencies
-//    rc = catalog_data_dependencies(&model_, &functionStateGraph);
-    // Catalog data io dependencies
-//    rc = catalog_dataio_dependencies(&model_, &functionStateGraph);
-    // Calculate task list using dependencies
-//    rc = calculate_task_list(&tasks_);
+    modelGraph.setAgentName(model_.getName());
+
+    // Consolidate agent graphs into a model graph
+    for (agent = model_.getAgents()->begin();
+            agent != model_.getAgents()->end(); agent++) {
+        (*agent)->addToModelGraph(&modelGraph);
+    }
+    // Split messages into start and end syncs
+    modelGraph.splitMessageTasks();
 
 #ifdef TESTBUILD
-    // Output function dependency graph to view via graphviz dot
-    // functionStateGraph.write_dependency_graph("dgraph.dot");
-//    functionStateGraph.write_graphviz();
+    modelGraph.writeGraphviz(model_.getName() + ".dot");
 #endif
+
+    modelGraph.generateTaskList(&tasks_);
+
+    printTaskList(&tasks_);
 
     return 0;
 }
 
 std::string ModelManager::taskTypeToString(Task::TaskType t) {
+    std::string type;
     /* Convert Task task to printable string */
-    if (t == Task::io_pop_write) return "disk";
-    else if (t == Task::sync_finish) return "comm";
-    else if (t == Task::sync_start) return "comm";
-    else if (t == Task::xfunction) return "func";
+    if (t == Task::io_pop_write) type = "disk";
+    else if (t == Task::sync_finish) type = "syncf";
+    else if (t == Task::sync_start) type = "syncs";
+    else if (t == Task::xfunction) type = "func";
+    else if (t == Task::xcondition) type = "cond";
+    else if (t == Task::start_model) type = "startm";
+    else if (t == Task::start_agent) type = "starta";
     /* If task not recognised return empty string */
     else
-        return "";
+        type = "";
+    return type;
 }
 
 void ModelManager::printTaskList(std::vector<Task*> * tasks) {
     std::vector<Task*>::iterator task;
+    std::set<std::string>::iterator it;
 
+    // Print column headers
     fprintf(stdout, "Level\tPriority\tType\tName\n");
     fprintf(stdout, "-----\t--------\t----\t----\n");
+    // For eac task
     for (task = tasks->begin(); task != tasks->end(); ++task) {
+        std::string name;
+        // If disk output then print all variables
+        if ((*task)->getTaskType() == Task::io_pop_write) {
+            for (it = (*task)->getWriteVariables()->begin();
+                    it != (*task)->getWriteVariables()->end(); it++) {
+                name.append((*it) + " ");
+            }
+        // Else just print the task name
+        } else {
+            name = (*task)->getName().c_str();
+        }
+        // Print level, priority, type, and name
         fprintf(stdout, "%u\t%u\t\t%s\t%s\n",
                 static_cast<unsigned int>((*task)->getLevel()),
                 static_cast<unsigned int>((*task)->getPriorityLevel()),
                 taskTypeToString((*task)->getTaskType()).c_str(),
-                (*task)->getName().c_str());
+                name.c_str());
     }
 }
 

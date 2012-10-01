@@ -18,15 +18,18 @@
 namespace flame { namespace model {
 
 // Define type used to hold variable writing tasks
-typedef std::vector<std::pair<std::string, std::set<size_t> > > VarWriteTasks;
+typedef std::map<std::string, std::set<size_t> > VarMapToVertices;
 
 class Task {
   public:
     enum TaskType { xfunction = 0, sync_start, sync_finish, xstate,
-                    io_pop_write, init_agent, xcondition, xvariable, xmessage };
-    Task(std::string name, TaskType type);
+                    io_pop_write, start_agent, finish_agent, xcondition,
+                    xvariable, xmessage, start_model };
+    Task(std::string parentName, std::string name, TaskType type);
     void setTaskID(size_t id);
     size_t getTaskID();
+    void setParentName(std::string parentName);
+    std::string getParentName();
     void setName(std::string name);
     std::string getName();
     void setTaskType(TaskType type);
@@ -41,10 +44,11 @@ class Task {
     std::set<std::string>* getWriteVariables();
     void setHasCondition(bool hasCondition);
     bool hasCondition();
-    VarWriteTasks * getLastWrites();
+    VarMapToVertices * getLastWrites();
     std::set<size_t> * getLastConditions();
 
   private:
+    std::string parentName_;
     /* Function name/Message name/Memory variable name */
     std::string name_;
     /* Task identifier: a unique handle for each task */
@@ -62,7 +66,7 @@ class Task {
     std::set<std::string> writeVariables_;
     /*! \brief Does this task have an associated condition */
     bool hasCondition_;
-    VarWriteTasks lastWrites_;
+    VarMapToVertices lastWrites_;
     std::set<size_t> lastConditions_;
 };
 }}  // namespace flame::model

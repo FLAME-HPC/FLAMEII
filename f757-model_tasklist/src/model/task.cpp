@@ -19,10 +19,15 @@ namespace flame { namespace model {
  *
  * Initialises Task and sets level to be zero.
  */
-Task::Task(std::string name, TaskType type)
-    : name_(name), taskType_(type) {
+Task::Task(std::string parentName, std::string name, TaskType type)
+    : parentName_(parentName), name_(name), taskType_(type) {
     level_ = 0;
+    priorityLevel_ = 10;
     hasCondition_ = false;
+    if (type == Task::sync_start) priorityLevel_ = 10;
+    if (type == Task::sync_finish) priorityLevel_ = 1;
+    if (type == Task::xfunction) priorityLevel_ = 5;
+    if (type == Task::io_pop_write) priorityLevel_ = 0;
 }
 
 void Task::setTaskID(size_t id) {
@@ -31,6 +36,14 @@ void Task::setTaskID(size_t id) {
 
 size_t Task::getTaskID() {
     return taskID_;
+}
+
+void Task::setParentName(std::string parentName) {
+    parentName_ = parentName;
+}
+
+std::string Task::getParentName() {
+    return parentName_;
 }
 
 void Task::setName(std::string name) {
@@ -89,7 +102,7 @@ std::set<std::string>* Task::getWriteVariables() {
     return &writeVariables_;
 }
 
-VarWriteTasks * Task::getLastWrites() {
+VarMapToVertices * Task::getLastWrites() {
     return &lastWrites_;
 }
 
