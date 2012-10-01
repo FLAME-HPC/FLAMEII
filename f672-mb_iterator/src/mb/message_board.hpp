@@ -12,7 +12,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <typeinfo>
 #include "exceptions/mem.hpp"
+#include "type_validator.hpp"
 #include "mb_common.hpp"
 
 namespace flame { namespace mb {
@@ -25,8 +27,11 @@ namespace flame { namespace mb {
  * Access the messages are provided via BoardWriters and Iterators.
  *
  * This class can be inherited to allow custom sync operations.
+ *
+ * Inherits the TypeValidator interface so it can be used to validate
+ * the datatype of message variables (used by Message::Set()).
  */
-class MessageBoard {
+class MessageBoard : public TypeValidator {
   public:
     //! Vector storing shared pointers to BoardWriters
     typedef std::vector<BoardWriterHandle> WriterVector;
@@ -41,7 +46,7 @@ class MessageBoard {
     void Sync(void);
 
     //! Returns the number of messages that have been synched
-    size_t GetCount(void);
+    size_t GetCount(void) const;
 
     //! Creates and returns a new board writer
     BoardWriterHandle GetBoardWriter(void);
@@ -62,8 +67,8 @@ class MessageBoard {
         throw flame::exceptions::logic_error("variable already registered");
       }
 
-      // Cache read-only ptrs to that vector (for iterator access)
-      ro_map_[var_name] = static_cast<const GenericVector*>(vec_ptr);
+      // Cache datatype for so instance can be used as TypeValidator
+      RegisterType(var_name, &typeid(T));
     }
 
   protected:
@@ -74,7 +79,7 @@ class MessageBoard {
     size_t count_;  //! Total number of messages that have been synched
     std::string msg_name_;  //! Name of message
     MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
-    VectorRefMap ro_map_; //! map to store read-only ptrs to vectors
+    //VectorRefMap ro_map_; //! map to store read-only ptrs to vectors
     WriterVector writers_;  //! Registered board writers
     bool finalised_;  //! Flag to indicate new vars can no longer be registered
 

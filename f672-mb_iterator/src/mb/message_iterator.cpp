@@ -17,16 +17,30 @@ bool MessageIterator::AtEnd(void) const {
   return backend_->AtEnd();
 }
 
-void MessageIterator::Next(void) {
-  return backend_->Next();
+size_t MessageIterator::GetCount(void) const {
+  return backend_->GetCount();
+}
+
+bool MessageIterator::Next(void) {
+  bool status = backend_->Step();
+  current_ = backend_->GetMessage();
+  return status;
 }
 
 void MessageIterator::Rewind(void) {
   return backend_->Rewind();
 }
 
+/*!
+ * \brief Returns a handle to the current message
+ * \return Message handle to the current message
+ *
+ * Returns a shared_ptr to the same message pointed to by current_.
+ *
+ * The message will be read-only.
+ */
 MessageHandle MessageIterator::GetMessage(void) const {
-  return backend_->GetMessage();
+  return current_;
 }
 
 }}  // namespace flame:mb

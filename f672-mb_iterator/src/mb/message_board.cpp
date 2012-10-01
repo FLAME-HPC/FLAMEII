@@ -35,10 +35,10 @@ MessageBoard::MessageBoard(const std::string& message_name)
  * In the test build, all vectors are inspected to ensure that their sizes
  * match the counter.
  */
-size_t MessageBoard::GetCount(void) {
+size_t MessageBoard::GetCount(void) const {
 #ifdef TESTBUILD
   // When built for testing, validate the size of all data vectors
-  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+  BOOST_FOREACH(MemoryMap::const_reference p, mem_map_) {
     if (p.second->size() != count_) {
       throw flame::exceptions::flame_exception("inconsistent vector sizes");
     }
@@ -98,7 +98,7 @@ BoardWriterHandle MessageBoard::GetBoardWriter(void) {
   finalised_ = true;
 
   // create new board and give ownership of obj to writers_.
-  BoardWriterHandle b = BoardWriterHandle(new BoardWriter(msg_name_));
+  BoardWriterHandle b = BoardWriterHandle(new BoardWriter(msg_name_, this));
   writers_.push_back(b);
 
   // for each board variable, create an empty clone of data vectors

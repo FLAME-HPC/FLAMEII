@@ -12,10 +12,11 @@
 #include <string>
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
-#include "type_validator.hpp"
 #include "message_board.hpp"
 
 namespace flame { namespace mb {
+
+class TypeValidator;  // forward declaration
 
 /*!
  * \brief Proxy object used to post messages to a board
@@ -28,11 +29,8 @@ namespace flame { namespace mb {
  * This class should not be manually instantiated as it is only useful when
  * associated with a MessageBoard. The constructor is therefore protected
  * and callable only by MessageBoard.
- *
- * Inherits the TypeValidator interface so it can be used to validate
- * the datatype of message variables (used by Message::Set()).
  */
-class BoardWriter : public TypeValidator {
+class BoardWriter {
   //! Only MessageBoard can call the constructor
   friend class MessageBoard;
 
@@ -48,7 +46,7 @@ class BoardWriter : public TypeValidator {
 
   protected:
     //! Constructor. Limited to friend classes
-    explicit BoardWriter(const std::string message_name);
+    explicit BoardWriter(const std::string message_name, TypeValidator* tv);
 
     //! Var registration. Limited to friend classes
     void RegisterVar(std::string var_name, GenericVector* vec);
@@ -59,6 +57,7 @@ class BoardWriter : public TypeValidator {
   private:
     size_t count_;  //! Number of messages posted
     std::string msg_name_;  //! Message name
+    TypeValidator* validator_;
 };
 
 }}  // namespace flame::mb

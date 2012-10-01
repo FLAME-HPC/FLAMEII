@@ -10,11 +10,12 @@
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #include "boost/shared_ptr.hpp"
+#include "boost/any.hpp"
 #include "mb_common.hpp"
 
 namespace flame { namespace mb {
 
-//! Abstract base class for an iterator backend
+//! Abstract base class for a message iterator backend
 class MessageIteratorBackend
 {
   public:
@@ -22,9 +23,12 @@ class MessageIteratorBackend
 
     virtual ~MessageIteratorBackend() {}
     virtual bool AtEnd(void) const = 0;
-    virtual void Next(void) = 0;
+    virtual size_t GetCount(void) const = 0;
+    virtual bool Step(void) = 0;
     virtual void Rewind(void) = 0;
-    virtual MessageHandle GetMessage(void) = 0;
+
+    /* Return Null ptr if end of iteration */
+    MessageHandle GetMessage(void);
 
     /*!
      * \brief Determine if a this backend is mutable
@@ -37,7 +41,7 @@ class MessageIteratorBackend
      * the iterator is randomisable, sortable, and can be used to iterate a
      * through a non-contiguous subset of messages
      */
-    virtual bool IsMutable(void) = 0;
+    virtual bool IsMutable(void) const = 0;
 
     /*!
      * \brief Return a mutable backend with the same content
@@ -50,7 +54,18 @@ class MessageIteratorBackend
      */
     virtual Handle GetMutableVersion(void) = 0;
 
+
     //! \todo (lsc) Set-like operations to form new iterators for existing ones
+
+  protected:
+    MessageIteratorBackend(MemoryMap* vec_map_ptr, TypeValidator *tv);
+    virtual void* Get(std::string var_name) = 0;
+
+  private:
+    MemoryMap* vec_map_;
+    TypeValidator* validator_;
+    size_t position_;
+    size_t count_;
 };
 
 }}  // namespace flame::mb

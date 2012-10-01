@@ -29,6 +29,7 @@ namespace flame { namespace mb {
  */
 class Message {
   friend class BoardWriter;
+  friend class MessageIteratorBackend;
 
   public:
     //! Clears all message variables that are set

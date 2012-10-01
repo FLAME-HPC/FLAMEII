@@ -20,6 +20,7 @@ namespace flame { namespace mb {
 // forward declarations
 class Message;
 class BoardWriter;
+class TypeValidator;
 
 //! Handle to return in place of Message
 typedef boost::shared_ptr<Message> MessageHandle;
@@ -34,7 +35,7 @@ typedef flame::mem::VectorWrapperBase GenericVector;
 typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
 
 //! Map used to associate var name to a pointer to an immutable GenericVector
-typedef std::map<std::string, const GenericVector*> VectorRefMap;
+//typedef std::map<std::string, const GenericVector*> VectorRefMap;
 
 //! Function signature for callback function triggered by Message::Post()
 typedef boost::function<void (Message*)> MessagePostCallback;

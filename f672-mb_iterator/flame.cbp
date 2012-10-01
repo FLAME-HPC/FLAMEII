@@ -98,6 +98,8 @@
 		<Unit filename="src/mb/message_iterator.hpp" />
 		<Unit filename="src/mb/message_iterator_backend.cpp" />
 		<Unit filename="src/mb/message_iterator_backend.hpp" />
+		<Unit filename="src/mb/message_iterator_backend_raw.cpp" />
+		<Unit filename="src/mb/message_iterator_backend_raw.hpp" />
 		<Unit filename="src/mb/tests/test_board_writer.cpp">
 			<Option target="Test" />
 		</Unit>
