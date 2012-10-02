@@ -103,6 +103,12 @@ BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
   for (i = 1, iter->Rewind(); !iter->AtEnd(); iter->Next(), ++i) {
     BOOST_CHECK_EQUAL(iter->Get<int>("int"), i);
   }
+
+  /* Test rewind when halfway throught iteration */
+  iter->Rewind();
+  iter->Next(); iter->Next();
+  iter->Rewind();
+  BOOST_CHECK_EQUAL(iter->Get<int>("int"), 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

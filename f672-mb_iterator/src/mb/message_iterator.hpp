@@ -21,28 +21,25 @@ namespace flame { namespace mb {
 class MessageIterator {
   public:
     explicit MessageIterator(MessageIteratorBackend::Handle backend);
+
+    //! Indicates end of iteration
     bool AtEnd(void) const;
+
+    //! Returns total number of messages in the iterator
     size_t GetCount(void) const;
+
+    //! Restarts the iteration
     void Rewind(void);
+
+    // Randomisation can only be done with mutable backends. To be implemented.
+    // An immutable backend will be converted with a mutable one before
+    // randomisation is performed.
     //void Randomise(void);
 
-    /*!
-     * \brief Returns a handle to the current message
-     * \return Message handle to the current message
-     *
-     * Returns a shared_ptr to the same message pointed to by current_.
-     *
-     * The message will be read-only.
-     */
+    //! Returns a handle to the current message
     MessageHandle GetMessage(void);
 
-    /*!
-     * \brief Step through to the next message in the backend iterator
-     * \return false if end of iteration, true otherwise
-     *
-     * Also caches the current message data in current_. This allows us to
-     * quickly return the current message data.
-     */
+    //! \brief Step through to the next message in the iteration
     bool Next(void);
 
     /*!
@@ -74,6 +71,10 @@ class MessageIterator {
      * different derived classes for different iteration types. We also have
      * the opportunity to replace the backend at run-time without affecting
      * the exising object user.
+     *
+     * Backends will be swapped when we need a different class of iterators
+     * (from immutable to mutable) or if we need to change the contents
+     * (filter/union/intersection operations).
      */
     MessageIteratorBackend::Handle backend_;
 };
