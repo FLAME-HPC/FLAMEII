@@ -5,7 +5,16 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Implementation of an Iterator Backend that references the original
+ * message data and steps through using pointer arithmetic.
+ *
+ * This backend should be one or the more efficient ones, but becuase it
+ * references the actual data, iteration must be in order. This backend is
+ * therefore immutable.
+ *
+ * To access messages out of order (sorted/randomised) or to iterated through
+ * only a subset of messages, the parent iterator needs to first generate
+ * a new backend which is mutable using GetMutableVersion().
  */
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_
@@ -30,13 +39,12 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     // Handle GetMutableVersion(void);
 
   protected:
-
     void* Get(std::string var_name);
 
   private:
     typedef std::map<std::string, void*> RawPtrMap;
     TypeValidator* validator_;  //! Ptr to object used to validate datatypes
-    RawPtrMap raw_map_; //! Map of raw pointers of vars
+    RawPtrMap raw_map_; //! Map of raw pointers to message vars
 };
 
 }}  // namespace flame::mb

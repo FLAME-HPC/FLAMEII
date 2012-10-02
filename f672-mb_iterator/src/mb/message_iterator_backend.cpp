@@ -1,11 +1,11 @@
 /*!
- * \file FILENAME
+ * \file src/mb/message_iterator_backend.hpp
  * \author Shawn Chin
- * \date 2012
+ * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Implementation of the Abstract base class for MessageIteratorBackend
  */
 #include <iostream>
 #include "message.hpp"
@@ -13,6 +13,14 @@
 
 namespace flame { namespace mb {
 
+/*!
+ * \brief Constructor
+ *
+ * Initialises object members.
+ *
+ * \c count_ is initialised based on the first vector in the map referenced
+ * by \c vec_map_ptr. We expect all vectors in the map to be of equal sizes.
+ */
 MessageIteratorBackend::MessageIteratorBackend(MemoryMap* vec_map_ptr,
                                                TypeValidator *tv)
     : vec_map_(vec_map_ptr), validator_(tv), position_(0) {
@@ -22,6 +30,15 @@ MessageIteratorBackend::MessageIteratorBackend(MemoryMap* vec_map_ptr,
   count_ = (iter == vec_map_->end()) ? 0 : iter->second->size();
 }
 
+/*!
+  * \brief Returns next message in the iteration
+  * \return Message handle
+  *
+  * Creates a new Message instance and populates with the data from the
+  * current iterator position. A shared_ptr to the instance is returned.
+  *
+  * Returns a null handle if the iteration has ended.
+  */
 MessageHandle MessageIteratorBackend::GetMessage(void) {
   if (AtEnd()) {
     return MessageHandle();  // null handle
