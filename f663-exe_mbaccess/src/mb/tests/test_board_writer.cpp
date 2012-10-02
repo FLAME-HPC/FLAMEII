@@ -181,4 +181,28 @@ BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
   BOOST_CHECK_EQUAL(board.GetCount(), (size_t)7);
 }
 
+BOOST_AUTO_TEST_CASE(mb_writer_test_disconnect) {
+  // use new so we can force deallocation
+  mb::MessageBoard *board = new mb::MessageBoard("msg1");
+  board->RegisterVar<int>("int");
+  board->RegisterVar<double>("dbl");
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+
+  // a new writer should be connected
+  mb::BoardWriterHandle writer = board->GetBoardWriter();
+  BOOST_CHECK(writer->IsConnected());
+
+  // disconnected once parent board is synched
+  board->Sync();
+  BOOST_CHECK(!writer->IsConnected());
+
+  // new writer is connected
+  writer = board->GetBoardWriter();
+  BOOST_CHECK(writer->IsConnected());
+
+  // disconnected after board deleted
+  delete board;
+  BOOST_CHECK(!writer->IsConnected());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -27,6 +27,24 @@ MessageBoard::MessageBoard(const std::string& message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
 /*!
+ * \brief Destructor
+ *
+ * Disconnect all board writers so a Post() operation will not fail silently.
+ *
+ */
+MessageBoard::~MessageBoard() {
+  _disconnect_writers();
+}
+
+//! Disconnect all writers
+void  MessageBoard::_disconnect_writers(void) {
+  WriterVector::iterator iter = writers_.begin();
+  for(; iter != writers_.end(); ++iter) {
+    (*iter)->Disconnect();
+  }
+}
+
+/*!
  * \brief Returns the number of messages
  * \return Number of messages in the board
  *
@@ -143,6 +161,10 @@ void MessageBoard::_merge_boards(void) {
 
   // update internal message counter
   count_ = message_count;
+
+  // Disconnect all writers so existing writers held by users
+  // will not fail silently when a Post() is attempted
+  _disconnect_writers();
 
   // delete all writers
   writers_.clear();

@@ -45,6 +45,9 @@ class BoardWriter {
     //! Return the number of messages posted so far
     size_t GetCount(void);
 
+    //! Indicate if writer is still connected to the board
+    bool IsConnected(void);
+
   protected:
     //! Constructor. Limited to friend classes
     explicit BoardWriter(const std::string message_name, TypeValidator* tv);
@@ -55,10 +58,14 @@ class BoardWriter {
     //! Internal data structure. Accessible by friend classes
     MemoryMap mem_map_;
 
+    //! Sets flag to indicate that writer is not disconnected from the board
+    void Disconnect(void);
+
   private:
     size_t count_;  //! Number of messages posted
     std::string msg_name_;  //! Message name
     TypeValidator* validator_;
+    bool connected_;  //! Indicate if writer is still valid
 };
 
 }}  // namespace flame::mb

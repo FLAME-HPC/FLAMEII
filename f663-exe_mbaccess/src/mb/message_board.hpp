@@ -51,7 +51,7 @@ class MessageBoard : public TypeValidator {
     explicit MessageBoard(const std::string& message_name);
 
     //! Virtual destructor
-    virtual ~MessageBoard() {}
+    virtual ~MessageBoard();
 
     //! Performs Sync opeation
     void Sync(void);
@@ -98,6 +98,9 @@ class MessageBoard : public TypeValidator {
 
     //! Collates all messages and clears writers_
     void _merge_boards(void);
+
+    //! Disconnect all writers
+    void _disconnect_writers(void);
 };
 
 }}  // namespace flame::msg
