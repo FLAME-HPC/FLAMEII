@@ -61,6 +61,9 @@ BOOST_AUTO_TEST_CASE(test_create_task) {
   BOOST_CHECK_THROW(tm.CreateAgentTask("t1", "Circle", NULL),
                     flame::exceptions::invalid_argument);
 
+  tm.CreateAgentTask("outputdata", "Circle", &func1);
+  tm.CreateAgentTask("inputdata", "Circle", &func1);
+
   exe::Task& task = tm.CreateAgentTask("t1", "Circle", &func1);
   task.AllowAccess("x_int");
   task.AllowAccess("y_dbl", true);

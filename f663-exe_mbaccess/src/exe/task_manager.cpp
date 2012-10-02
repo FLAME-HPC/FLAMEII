@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include <iostream>
 #include <set>
 #include <stack>
 #include <string>
@@ -55,7 +56,7 @@ void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
 
   // Check for tasks with same name
   TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
-  if (lb != name_map_.end() && lb->first != task_name) {  // name exists
+  if (lb != name_map_.end() && !(name_map_.key_comp()(task_name, lb->first))) {
     throw flame::exceptions::logic_error("task with that name already exists");
   }
   // map task name to idx of new vector entry
