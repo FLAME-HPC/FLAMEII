@@ -34,7 +34,7 @@ class MessageIterator {
     // Randomisation can only be done with mutable backends. To be implemented.
     // An immutable backend will be converted with a mutable one before
     // randomisation is performed.
-    //void Randomise(void);
+    //   void Randomise(void);
 
     //! Returns a handle to the current message
     MessageHandle GetMessage(void);
@@ -54,7 +54,7 @@ class MessageIterator {
       if (AtEnd()) {
         throw flame::exceptions::out_of_range("End of iteration");
       }
-      if (!current_) { // if no cached message, initialise.
+      if (!current_) {  // if no cached message, initialise.
         current_ = backend_->GetMessage();
       }
       return current_->Get<T>(var_name);

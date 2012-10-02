@@ -44,8 +44,8 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
   private:
     typedef std::map<std::string, void*> RawPtrMap;
     TypeValidator* validator_;  //! Ptr to object used to validate datatypes
-    RawPtrMap raw_map_; //! Map of raw pointers to message vars
+    RawPtrMap raw_map_;  //! Map of raw pointers to message vars
 };
 
 }}  // namespace flame::mb
-#endif // MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_
+#endif  // MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_

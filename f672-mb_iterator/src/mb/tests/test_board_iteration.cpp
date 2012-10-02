@@ -51,7 +51,6 @@ BOOST_AUTO_TEST_CASE(mb_iterate_empty) {
   mb::MessageBoard board2 = mb::MessageBoard("msg2");
   mb::MessageBoard::Iterator iter2 = board2.GetMessageIterator();
   BOOST_CHECK_EQUAL(iter2->GetCount(), (size_t)0);
-
 }
 
 
@@ -62,11 +61,16 @@ BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
   /* Post messages and Sync */
   mb::MessageBoard::Writer writer = board.GetBoardWriter();
   mb::MessageHandle msg = writer->GetMessage();
-  msg->Set<int>("int", 1); msg->Post();
-  msg->Set<int>("int", 2); msg->Post();
-  msg->Set<int>("int", 3); msg->Post();
-  msg->Set<int>("int", 4); msg->Post();
-  msg->Set<int>("int", 5); msg->Post();
+  msg->Set<int>("int", 1);
+  msg->Post();
+  msg->Set<int>("int", 2);
+  msg->Post();
+  msg->Set<int>("int", 3);
+  msg->Post();
+  msg->Set<int>("int", 4);
+  msg->Post();
+  msg->Set<int>("int", 5);
+  msg->Post();
   board.Sync();
 
   mb::MessageBoard::Iterator iter = board.GetMessageIterator();
@@ -106,7 +110,8 @@ BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
 
   /* Test rewind when halfway throught iteration */
   iter->Rewind();
-  iter->Next(); iter->Next();
+  iter->Next();
+  iter->Next();
   iter->Rewind();
   BOOST_CHECK_EQUAL(iter->Get<int>("int"), 1);
 }

@@ -151,8 +151,8 @@ void MessageBoard::_merge_boards(void) {
 MessageIteratorHandle MessageBoard::GetMessageIterator(void) {
   finalised_ = true;
   return MessageIteratorHandle(new MessageIterator(
-    MessageIteratorBackend::Factory<MessageIteratorBackendRaw>(&mem_map_, this)
-  ));
+    MessageIteratorBackend::Factory<MessageIteratorBackendRaw>(&mem_map_,
+                                                               this)));
 }
 
 }}  // namespace flame::mb

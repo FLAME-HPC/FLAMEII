@@ -7,7 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of the Abstract base class for MessageIteratorBackend
  */
-#include <iostream>
 #include "message.hpp"
 #include "message_iterator_backend.hpp"
 

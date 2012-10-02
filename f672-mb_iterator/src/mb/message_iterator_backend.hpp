@@ -9,6 +9,7 @@
  */
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_HPP_
+#include <string>
 #include "boost/shared_ptr.hpp"
 #include "boost/any.hpp"
 #include "mb_common.hpp"
@@ -16,8 +17,7 @@
 namespace flame { namespace mb {
 
 //! Abstract base class for a message iterator backend
-class MessageIteratorBackend
-{
+class MessageIteratorBackend {
   public:
     //! Shared pointer handle to store MessageIteratorBackend
     typedef boost::shared_ptr<MessageIteratorBackend> Handle;
@@ -68,7 +68,7 @@ class MessageIteratorBackend
      *
      * If called on a mutable backend, a handle to the same
      */
-    //virtual Handle GetMutableVersion(void) = 0;
+    //  virtual Handle GetMutableVersion(void) = 0;
 
 
     //! \todo (lsc) Set-like operations to form new iterators for existing ones

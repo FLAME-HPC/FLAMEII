@@ -8,6 +8,7 @@
  * \brief Datatypes common to flame::mb
  */
 #include <map>
+#include <string>
 #include "boost/shared_ptr.hpp"
 #include "boost/function.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
@@ -37,9 +38,6 @@ typedef flame::mem::VectorWrapperBase GenericVector;
 
 //! Map container used to store memory vectors
 typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
-
-//! Map used to associate var name to a pointer to an immutable GenericVector
-//typedef std::map<std::string, const GenericVector*> VectorRefMap;
 
 //! Function signature for callback function triggered by Message::Post()
 typedef boost::function<void (Message*)> MessagePostCallback;

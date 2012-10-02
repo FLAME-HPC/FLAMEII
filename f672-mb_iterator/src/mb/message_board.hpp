@@ -93,7 +93,6 @@ class MessageBoard : public TypeValidator {
     size_t count_;  //! Total number of messages that have been synched
     std::string msg_name_;  //! Name of message
     MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
-    //VectorRefMap ro_map_; //! map to store read-only ptrs to vectors
     WriterVector writers_;  //! Registered board writers
     bool finalised_;  //! Flag to indicate new vars can no longer be registered
 

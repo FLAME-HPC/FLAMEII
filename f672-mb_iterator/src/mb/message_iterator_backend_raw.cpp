@@ -7,7 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
-#include <iostream>
+#include <string>
 #include "exceptions/all.hpp"
 #include "message.hpp"
 #include "message_iterator_backend_raw.hpp"
@@ -22,7 +22,7 @@ namespace flame { namespace mb {
 MessageIteratorBackendRaw::MessageIteratorBackendRaw(MemoryMap* vec_map_ptr,
                                                      TypeValidator *tv)
     : MessageIteratorBackend(vec_map_ptr, tv) {  // call parent constructor
-  Rewind(); // use Rewind to initialise raw_map_
+  Rewind();  // use Rewind to initialise raw_map_
 }
 
 /*!
@@ -98,7 +98,7 @@ bool MessageIteratorBackendRaw::Step(void) {
     ptr_iter->second = vec_iter->second->StepRawPtr(ptr_iter->second);
   }
 
-  ++position_; // increment position counter
+  ++position_;  // increment position counter
   return (AtEnd() ? false: true);  // success
 }
 

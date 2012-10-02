@@ -58,7 +58,7 @@ bool MessageIterator::Next(void) {
  */
 void MessageIterator::Rewind(void) {
   backend_->Rewind();
-  current_ = backend_->GetMessage(); // Update cache
+  current_ = backend_->GetMessage();  // Update cache
 }
 
 /*!
@@ -73,7 +73,7 @@ MessageHandle MessageIterator::GetMessage(void) {
   if (backend_->AtEnd()) {
     throw flame::exceptions::out_of_range("End of iteration");
   }
-  if (!current_) { // if no cached message, initialise.
+  if (!current_) {  // if no cached message, initialise.
     current_ = backend_->GetMessage();
   }
   return current_;
