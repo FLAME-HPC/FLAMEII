@@ -28,6 +28,7 @@ class XModel {
     void setup();
     void print();
     int validate();
+    int initialise();
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);
@@ -43,7 +44,7 @@ class XModel {
     std::vector<XTimeUnit*> * getTimeUnits();
     void addFunctionFile(std::string file);
     std::vector<std::string> * getFunctionFiles();
-    XMachine * addAgent();
+    XMachine * addAgent(std::string name);
     std::vector<XMachine*> * getAgents();
     XMachine * getAgent(std::string name);
     XMessage * addMessage();

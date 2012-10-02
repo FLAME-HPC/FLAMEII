@@ -11,6 +11,7 @@
 #define MODEL__XMODEL_VALIDATE_HPP_
 #include <string>
 #include <vector>
+#include <set>
 #include "./xmachine.hpp"
 #include "./xvariable.hpp"
 #include "./xadt.hpp"
@@ -33,6 +34,10 @@ class XModelValidate {
             XModel * model);
     int processVariables(std::vector<XVariable*> * variables_,
             XModel * model);
+    bool variableExists(std::string name, std::vector<XVariable*> * variables);
+    int processMemoryAccessVariable(std::string name,
+            std::vector<XVariable*> * variables,
+            std::set<std::string> * usedVariables);
     int processAgentFunction(XFunction * function,
             std::vector<XVariable*> * variables);
     void validateVariableName(XVariable * v, int * errors,
@@ -42,12 +47,13 @@ class XModelValidate {
     int validateVariables(std::vector<XVariable*> * variables_,
             XModel * model, bool allowDyamicArrays);
     int validateFunctionFile(std::string name);
-    int validateTimeUnitPeriod(XTimeUnit * timeUnit);
-    int validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model);
-    int validateTimeUnitName(XTimeUnit * timeUnit, XModel * model);
     int validateTimeUnit(XTimeUnit * timeUnit, XModel * model);
+    int processTimeUnitPeriod(XTimeUnit * timeUnit);
+    int processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model);
+    int processTimeUnit(XTimeUnit * timeUnit);
     int validateADT(XADT * adt, XModel * model);
     int validateAgent(XMachine * agent, XModel * model);
+    int validateAgentStateGraph(XMachine * agent);
     int validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent,
             XModel * model);
     int validateAgentFunction(XFunction * xfunction,
@@ -57,6 +63,7 @@ class XModelValidate {
     int validateAgentConditionOrFilter(XCondition * xcondition,
             XMachine * agent, XMessage * xmessage, XModel * model);
     int validateSort(XIOput * xioput, XMessage * xmessage);
+    int validateRandomString(XIOput * xioput);
     int validateMessage(XMessage * xmessage, XModel * model);
     bool name_is_allowed(std::string name);
     int validateFunctionFiles(std::vector<std::string> names);

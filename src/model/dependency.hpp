@@ -14,24 +14,20 @@
 
 namespace flame { namespace model {
 
-class Task;
-
 class Dependency {
   public:
-    enum DependencyType { state = 0, communication, data };
-    Dependency();
-    ~Dependency() {}
+    enum DependencyType { state = 0, communication, data, init,
+        condition, variable };
+    Dependency(std::string name, DependencyType type);
     void setName(std::string name);
     std::string getName();
     void setDependencyType(DependencyType type);
     DependencyType getDependencyType();
-    void setTask(Task * task);
-    Task * getTask();
+    std::string getGraphName();
 
   private:
     /* State name/Message name/Memory variable name */
     std::string name_;
-    Task * task_;
     DependencyType dependencyType_;
 };
 }}  // namespace flame::model

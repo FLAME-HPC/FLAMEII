@@ -72,7 +72,7 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     xmlNode *root_element = NULL;
 
     /* Find file directory to help open any submodels */
-    boost::filesystem3::path filePath(file_name);
+    boost::filesystem::path filePath(file_name);
     directory = filePath.parent_path().string();
     directory.append("/");
 
@@ -80,7 +80,7 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     fprintf(stdout, "Reading '%s'\n", file_name.c_str());
 
     /* Save absolute path to check the file is not read again */
-    model->setPath(boost::filesystem3::absolute(filePath).string());
+    model->setPath(boost::filesystem::absolute(filePath).string());
 
     /* Parse the file and get the DOM */
     doc = xmlReadFile(file_name.c_str(), NULL, 0);
@@ -139,7 +139,9 @@ int IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
 
 int IOXMLModel::readUnknownElement(xmlNode * node) {
     std::fprintf(stderr,
-            "Warning: Model file has unknown element '%s'\n", node->name);
+            "Warning: Model file has unknown element '%s' on line %d\n",
+            node->name,
+            node->line);
 
     /* Return zero to carry on as normal */
     return 0;
@@ -186,7 +188,7 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
 
         /* Check sub model is not a duplicate */
         if (!model->addIncludedModel(
-            boost::filesystem3::absolute(fileName).string())) {
+            boost::filesystem::absolute(fileName).string())) {
             std::fprintf(stderr,
                 "Error: Included model is a duplicate: '%s'\n",
                 fileName.c_str());
@@ -358,6 +360,7 @@ int IOXMLModel::readTimeUnit(xmlNode * node,
             if (rc != 0) return rc;
         }
     }
+
     return 0;
 }
 
@@ -472,7 +475,7 @@ int IOXMLModel::readAgent(xmlNode * node,
         model::XModel * model) {
     int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
-    model::XMachine * xm = model->addAgent();
+    model::XMachine * xm = 0;
 
     /* Loop through each child of xagent */
     for (cur_node = node->children;
@@ -482,7 +485,7 @@ int IOXMLModel::readAgent(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "name")
-                xm->setName(getElementValue(cur_node));
+                xm = model->addAgent(getElementValue(cur_node));
             else if (name == "description") {}
             else if (name == "memory")
                 rc = readVariables(cur_node, xm->getVariables());
@@ -611,6 +614,7 @@ int IOXMLModel::readTransition(xmlNode * node,
             /* Handle each child */
             if (name == "name")
                 xfunction->setName(getElementValue(cur_node));
+            else if (name == "description") {}
             else if (name == "currentState")
                 xfunction->setCurrentState(getElementValue(cur_node));
             else if (name == "nextState")
@@ -618,10 +622,10 @@ int IOXMLModel::readTransition(xmlNode * node,
             else if (name == "condition")
                 /* Create condition from function */
                 rc = readCondition(cur_node, xfunction->addCondition());
-            else if (name == "outputs")
-                rc = readOutputs(cur_node, xfunction);
-            else if (name == "inputs")
-                rc = readInputs(cur_node, xfunction);
+            else if (name == "outputs") rc = readOutputs(cur_node, xfunction);
+            else if (name == "inputs") rc = readInputs(cur_node, xfunction);
+            else if (name == "memoryAccess")
+                rc = readMemoryAccess(cur_node, xfunction);
             else
                 rc = readUnknownElement(cur_node);
             if (rc != 0) return rc;
@@ -807,6 +811,60 @@ int IOXMLModel::readCondition(xmlNode * node,
                         &xc->rhsIsCondition, cur_node);
             } else if (name == "value") {
                 xc->tempValue = getElementValue(cur_node);
+            } else {
+                rc = readUnknownElement(cur_node);
+            }
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
+        std::vector<std::string> * variables) {
+    int rc = 0; /* Return code */
+    xmlNode *cur_node = NULL;
+
+    /* Loop through each child of message */
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child and call appropriate
+             * processing function */
+            if (name == "variableName") {
+                variables->push_back(getElementValue(cur_node));
+            } else {
+                rc = readUnknownElement(cur_node);
+            }
+            if (rc != 0) return rc;
+        }
+    }
+    return 0;
+}
+
+int IOXMLModel::readMemoryAccess(xmlNode * node, model::XFunction * xfunction) {
+    int rc = 0; /* Return code */
+    xmlNode *cur_node = NULL;
+
+    // Set memory access information to be available
+    xfunction->setMemoryAccessInfoAvailable(true);
+
+    /* Loop through each child of message */
+    for (cur_node = node->children;
+        cur_node; cur_node = cur_node->next) {
+        /* If node is an XML element */
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            std::string name = getElementName(cur_node);
+            /* Handle each child and call appropriate
+             * processing function */
+            if (name == "readOnly") {
+                rc = readMemoryAccessVariables(cur_node,
+                        xfunction->getReadOnlyVariables());
+            } else if (name == "readWrite") {
+                rc = readMemoryAccessVariables(cur_node,
+                        xfunction->getReadWriteVariables());
             } else {
                 rc = readUnknownElement(cur_node);
             }

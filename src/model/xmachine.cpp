@@ -10,11 +10,17 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
 #include "./xmachine.hpp"
+#include "../mem/memory_manager.hpp"
+#include "../exe/task_manager.hpp"
+#include "include/flame.h"
 
 namespace flame { namespace model {
 
 XMachine::XMachine() {
+    name_ = "";
+    startState_ = "";
 }
 
 /*!
@@ -51,6 +57,7 @@ void XMachine::print() {
 
 void XMachine::setName(std::string name) {
     name_ = name;
+    functionDependencyGraph_.setAgentName(name);
 }
 
 const std::string XMachine::getName() {
@@ -89,6 +96,163 @@ bool XMachine::validateVariableName(std::string name) {
     for (ii = 0; ii < variables_.size(); ii++)
         if (name == variables_.at(ii)->getName()) return true;
     return false;
+}
+
+int XMachine::findStartEndStates() {
+    // Map of state names and boolean for valid start state
+    std::set<std::string> startStates;
+    std::set<std::string>::iterator s;
+    std::vector<XFunction*>::iterator f;
+
+    // Reset end states list
+    endStates_.clear();
+
+    // For each function
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        // Add current state to possible end states list
+        endStates_.insert((*f)->getNextState());
+        // Add current state to possible start states list
+        startStates.insert((*f)->getCurrentState());
+    }
+    // For each function
+    for (f = functions_.begin(); f != functions_.end(); ++f) {
+        // If start states contain a next state then remove
+        s = startStates.find((*f)->getNextState());
+        if (s != startStates.end()) startStates.erase(s);
+        // If end states contain a current state then remove
+        s = endStates_.find((*f)->getCurrentState());
+        if (s != endStates_.end()) endStates_.erase(s);
+    }
+    if (startStates.size() == 0) {
+        // No start states found
+        std::fprintf(stderr,
+            "Error: %s agent doesn't have a start state\n", name_.c_str());
+        return 1;
+    } else if (startStates.size() > 1) {
+        // Multiple start states found
+        std::fprintf(stderr,
+    "Error: %s agent has multiple possible start states:\n", name_.c_str());
+        for (s = startStates.begin(); s != startStates.end(); s++)
+            std::fprintf(stderr, "\t%s\n", s->c_str());
+        return 2;
+    }
+    // One start state
+    startState_ = (*startStates.begin());
+
+    return 0;
+}
+
+std::string XMachine::getStartState() {
+    return startState_;
+}
+
+std::set<std::string> XMachine::getEndStates() {
+    return endStates_;
+}
+
+int XMachine::generateDependencyGraph() {
+    return functionDependencyGraph_.generateDependencyGraph(getVariables());
+}
+
+/*
+ * This function is called from the model validator and
+ * is then used to check for cycles and function conditions.
+ */
+int XMachine::generateStateGraph() {
+    return functionDependencyGraph_.generateStateGraph(
+            functions_, startState_, endStates_);
+}
+
+XGraph * XMachine::getFunctionDependencyGraph() {
+    return &functionDependencyGraph_;
+}
+
+int XMachine::checkCyclicDependencies() {
+    return functionDependencyGraph_.checkCyclicDependencies();
+}
+
+int XMachine::checkFunctionConditions() {
+    return functionDependencyGraph_.checkFunctionConditions();
+}
+
+int XMachine::registerWithMemoryManager() {
+    std::vector<XVariable*>::iterator vit;
+    size_t pop_size_hint = 100;
+        flame::mem::MemoryManager& memoryManager =
+                    flame::mem::MemoryManager::GetInstance();
+
+    /* Register agent with memory manager */
+    try { memoryManager.RegisterAgent(name_); }
+    catch(const flame::exceptions::logic_error& E) {
+        std::fprintf(stderr, "Error: %s\n", E.what());
+    }
+    /* Register agent memory variables */
+    for (vit = variables_.begin(); vit != variables_.end(); vit++) {
+        if ((*vit)->getType() == "int") {
+            /* Register int variable */
+            try { memoryManager.RegisterAgentVar<int>
+                    (name_, (*vit)->getName()); }
+            catch(const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\n", E.what());
+            }
+        } else if ((*vit)->getType() == "double") {
+            /* Register double variable */
+            try { memoryManager.RegisterAgentVar<double>
+                    (name_, (*vit)->getName()); }
+            catch(const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\n", E.what());
+            }
+        }
+    }
+    /* Population Size hint */
+    memoryManager.HintPopulationSize(name_, pop_size_hint);
+
+    return 0;
+}
+
+// dummy function
+FLAME_AGENT_FUNC(func1) { return 0; }
+
+void XMachine::registerAllowAccess(flame::exe::Task& task,
+        std::vector<std::string> * vars, bool writing) {
+    std::vector<std::string>::iterator sit;
+
+    for (sit = vars->begin();
+            sit != vars->end(); sit++) {
+        // std::cout << "AllowAccess " << (*sit) << std::endl;
+        try {
+            if (writing) task.AllowAccess((*sit), true);
+            else task.AllowAccess((*sit));
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+        }
+    }
+}
+
+int XMachine::registerWithTaskManager() {
+    std::vector<XFunction*>::iterator fit;
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+
+    for (fit = functions_.begin(); fit != functions_.end(); fit++) {
+        try {
+            flame::exe::Task& task =
+                taskManager.CreateAgentTask((*fit)->getName(), name_, &func1);
+            // Read Only Variables
+            registerAllowAccess(task, (*fit)->getReadOnlyVariables(), false);
+            // Read Write Variables
+            registerAllowAccess(task, (*fit)->getReadWriteVariables(), true);
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+        }
+    }
+
+    return 0;
+}
+
+void XMachine::addToModelGraph(XGraph * modelGraph) {
+    modelGraph->import(&functionDependencyGraph_);
 }
 
 }}  // namespace flame::model
