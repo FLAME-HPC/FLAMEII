@@ -99,7 +99,7 @@ class MemoryManager {
     //! Map used to associate an agent name with an AgentMap object
     AgentMap agent_map_;
 
-    //! Returns an AgentMap object given an agent name
+    //! Returns a reference to a AgentMap object given an agent name
     AgentMemory& GetAgentMemory(std::string agent_name);
 };
 }}  // namespace flame::mem

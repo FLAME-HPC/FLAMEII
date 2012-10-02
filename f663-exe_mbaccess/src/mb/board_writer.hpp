@@ -13,6 +13,7 @@
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
 #include "message_board.hpp"
+#include "message.hpp"
 
 namespace flame { namespace mb {
 

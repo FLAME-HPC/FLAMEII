@@ -95,6 +95,8 @@
 		<Unit filename="src/mb/message.hpp" />
 		<Unit filename="src/mb/message_board.cpp" />
 		<Unit filename="src/mb/message_board.hpp" />
+		<Unit filename="src/mb/message_board_manager.cpp" />
+		<Unit filename="src/mb/message_board_manager.hpp" />
 		<Unit filename="src/mb/message_iterator.cpp" />
 		<Unit filename="src/mb/message_iterator.hpp" />
 		<Unit filename="src/mb/message_iterator_backend.cpp" />
