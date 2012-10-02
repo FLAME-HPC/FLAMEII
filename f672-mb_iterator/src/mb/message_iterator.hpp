@@ -24,7 +24,7 @@ class MessageIterator {
     bool AtEnd(void) const;
     size_t GetCount(void) const;
     void Rewind(void);
-    void Randomise(void);
+    //void Randomise(void);
 
     /*!
      * \brief Returns a handle to the current message
@@ -34,7 +34,7 @@ class MessageIterator {
      *
      * The message will be read-only.
      */
-    MessageHandle GetMessage(void) const;
+    MessageHandle GetMessage(void);
 
     /*!
      * \brief Step through to the next message in the backend iterator
@@ -56,6 +56,9 @@ class MessageIterator {
     T Get(const std::string& var_name) {
       if (AtEnd()) {
         throw flame::exceptions::out_of_range("End of iteration");
+      }
+      if (!current_) { // if no cached message, initialise.
+        current_ = backend_->GetMessage();
       }
       return current_->Get<T>(var_name);
     }

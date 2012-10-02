@@ -21,13 +21,27 @@ class MessageIteratorBackend
   public:
     typedef boost::shared_ptr<MessageIteratorBackend> Handle;
 
+    template <typename T>
+    static Handle Factory(MemoryMap* vec_map_ptr, TypeValidator *tv) {
+      return Handle(new T(vec_map_ptr, tv));
+    }
+
     virtual ~MessageIteratorBackend() {}
     virtual bool AtEnd(void) const = 0;
     virtual size_t GetCount(void) const = 0;
     virtual bool Step(void) = 0;
     virtual void Rewind(void) = 0;
 
-    /* Return Null ptr if end of iteration */
+    /*!
+     * \brief Returns next message in the iteration
+     * \return Message handle
+     *
+     * Creates a new Message instance and populates with the data from the
+     * current iterator position. A shared_ptr to the instance is returned.
+     *
+     * Throws flame::exceptions::out_of_range if the iteration has ended
+     * or is empty.
+     */
     MessageHandle GetMessage(void);
 
     /*!
@@ -52,20 +66,19 @@ class MessageIteratorBackend
      *
      * If called on a mutable backend, a handle to the same
      */
-    virtual Handle GetMutableVersion(void) = 0;
+    //virtual Handle GetMutableVersion(void) = 0;
 
 
     //! \todo (lsc) Set-like operations to form new iterators for existing ones
 
   protected:
-    MessageIteratorBackend(MemoryMap* vec_map_ptr, TypeValidator *tv);
-    virtual void* Get(std::string var_name) = 0;
-
-  private:
     MemoryMap* vec_map_;
     TypeValidator* validator_;
     size_t position_;
     size_t count_;
+
+    MessageIteratorBackend(MemoryMap* vec_map_ptr, TypeValidator *tv);
+    virtual void* Get(std::string var_name) = 0;
 };
 
 }}  // namespace flame::mb

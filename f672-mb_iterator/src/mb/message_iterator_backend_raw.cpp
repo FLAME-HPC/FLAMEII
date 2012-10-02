@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include <iostream>
 #include "exceptions/all.hpp"
 #include "message.hpp"
 #include "message_iterator_backend_raw.hpp"
@@ -17,6 +18,7 @@ MessageIteratorBackendRaw::MessageIteratorBackendRaw(MemoryMap* vec_map_ptr,
                                                      TypeValidator *tv)
     : MessageIteratorBackend(vec_map_ptr, tv) {  // call parent constructor
   Rewind(); // use Rewind to initialise raw_map_
+
 }
 
 void MessageIteratorBackendRaw::Rewind(void) {
@@ -31,6 +33,8 @@ void MessageIteratorBackendRaw::Rewind(void) {
 #endif
     raw_map_[iter->first] = iter->second->GetRawPtr();
   }
+
+  position_ = 0;
 }
 
 bool MessageIteratorBackendRaw::AtEnd(void) const {
@@ -57,7 +61,7 @@ bool MessageIteratorBackendRaw::Step(void) {
   }
 
   ++position_; // increment position counter
-  return true;  // success
+  return (AtEnd() ? false: true);  // success
 }
 
 void* MessageIteratorBackendRaw::Get(std::string var_name) {

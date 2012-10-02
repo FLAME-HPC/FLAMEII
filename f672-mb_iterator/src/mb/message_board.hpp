@@ -16,6 +16,8 @@
 #include "exceptions/mem.hpp"
 #include "type_validator.hpp"
 #include "mb_common.hpp"
+#include "message_iterator_backend.hpp"
+#include "message_iterator_backend_raw.hpp"
 
 namespace flame { namespace mb {
 
@@ -36,6 +38,15 @@ class MessageBoard : public TypeValidator {
     //! Vector storing shared pointers to BoardWriters
     typedef std::vector<BoardWriterHandle> WriterVector;
 
+    //! Shorthand for message iterator handle
+    typedef MessageIteratorHandle Iterator;
+
+    //! Shorthand for message writer handle
+    typedef BoardWriterHandle Writer;
+
+    //! Shorthand for message handle
+    typedef MessageHandle Message;
+
     //! Constructor
     explicit MessageBoard(const std::string& message_name);
 
@@ -50,6 +61,9 @@ class MessageBoard : public TypeValidator {
 
     //! Creates and returns a new board writer
     BoardWriterHandle GetBoardWriter(void);
+
+    //! Creates and returns a message iterator
+    MessageIteratorHandle GetMessageIterator(void);
 
     //! Registers a message variable of a specific data type
     template <typename T>

@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include <iostream>
 #include "message.hpp"
 #include "message_iterator_backend.hpp"
 
@@ -23,7 +24,7 @@ MessageIteratorBackend::MessageIteratorBackend(MemoryMap* vec_map_ptr,
 
 MessageHandle MessageIteratorBackend::GetMessage(void) {
   if (AtEnd()) {
-    return MessageHandle();  // return null handle
+    return MessageHandle();  // null handle
   }
 
   // instantiate and populate Message

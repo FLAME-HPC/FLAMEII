@@ -17,8 +17,7 @@ namespace flame { namespace mb {
 
 class MessageIteratorBackendRaw : public MessageIteratorBackend {
   public:
-    friend class MessageBoard;
-
+    MessageIteratorBackendRaw(MemoryMap* vec_map_ptr, TypeValidator *tv);
     bool AtEnd(void) const;
     size_t GetCount(void) const;
     bool Step(void);
@@ -31,16 +30,13 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     // Handle GetMutableVersion(void);
 
   protected:
-    MessageIteratorBackendRaw(MemoryMap* vec_map_ptr, TypeValidator *tv);
+
     void* Get(std::string var_name);
 
   private:
     typedef std::map<std::string, void*> RawPtrMap;
     TypeValidator* validator_;  //! Ptr to object used to validate datatypes
-    MemoryMap *vec_map_; //! map of pointers to const GenericVectors
     RawPtrMap raw_map_; //! Map of raw pointers of vars
-    size_t position_;  //! Current iterator position
-    size_t count_; //! Number of messages in iterator
 };
 
 }}  // namespace flame::mb

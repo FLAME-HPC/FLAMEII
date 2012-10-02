@@ -19,6 +19,7 @@ namespace flame { namespace mb {
 
 // forward declarations
 class Message;
+class MessageIterator;
 class BoardWriter;
 class TypeValidator;
 
@@ -27,6 +28,9 @@ typedef boost::shared_ptr<Message> MessageHandle;
 
 //! Handle to return in place of BoardWriter
 typedef boost::shared_ptr<BoardWriter> BoardWriterHandle;
+
+//! Handle to return in place of a MessageIterator
+typedef boost::shared_ptr<MessageIterator> MessageIteratorHandle;
 
 //! Shorthand for VectorWrapper base class
 typedef flame::mem::VectorWrapperBase GenericVector;

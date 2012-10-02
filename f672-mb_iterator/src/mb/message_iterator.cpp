@@ -7,7 +7,10 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of MessageIterator
  */
+#include "message_iterator_backend.hpp"
+#include "message_iterator_backend_raw.hpp"
 #include "message_iterator.hpp"
+
 namespace flame { namespace mb {
 
 MessageIterator::MessageIterator(MessageIteratorBackend::Handle backend)
@@ -28,7 +31,7 @@ bool MessageIterator::Next(void) {
 }
 
 void MessageIterator::Rewind(void) {
-  return backend_->Rewind();
+  backend_->Rewind();
 }
 
 /*!
@@ -39,7 +42,13 @@ void MessageIterator::Rewind(void) {
  *
  * The message will be read-only.
  */
-MessageHandle MessageIterator::GetMessage(void) const {
+MessageHandle MessageIterator::GetMessage(void) {
+  if (backend_->AtEnd()) {
+    throw flame::exceptions::out_of_range("End of iteration");
+  }
+  if (!current_) { // if no cached message, initialise.
+    current_ = backend_->GetMessage();
+  }
   return current_;
 }
 

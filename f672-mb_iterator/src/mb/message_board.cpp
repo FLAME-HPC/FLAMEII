@@ -12,6 +12,7 @@
 #include "boost/foreach.hpp"
 #include "message_board.hpp"
 #include "mem/vector_wrapper.hpp"
+#include "message_iterator.hpp"
 #include "board_writer.hpp"
 
 namespace flame { namespace mb {
@@ -145,6 +146,13 @@ void MessageBoard::_merge_boards(void) {
 
   // delete all writers
   writers_.clear();
+}
+
+MessageIteratorHandle MessageBoard::GetMessageIterator(void) {
+  finalised_ = true;
+  return MessageIteratorHandle(new MessageIterator(
+    MessageIteratorBackend::Factory<MessageIteratorBackendRaw>(&mem_map_, this)
+  ));
 }
 
 }}  // namespace flame::mb

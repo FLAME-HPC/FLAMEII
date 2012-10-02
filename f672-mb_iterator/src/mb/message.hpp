@@ -71,7 +71,7 @@ class Message {
      * - flame::exceptions::invalid_variable Variable unknown or not set
      */
     template <typename T>
-    void Get(std::string var_name) {
+    T Get(std::string var_name) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
       if (!validator_->ValidateType(var_name, &typeid(T))) {
         throw flame::exceptions::invalid_type("Mismatching type");
