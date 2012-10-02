@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#define FLAME_AGENT_ALIVE 0
+#define FLAME_AGENT_DEAD  1
+
 #define FLAME_AGENT_FUNC_ARG FLAME_unique_symbol_000_001
 #define FLAME_AGENT_FUNC(funcName) int funcName(void* FLAME_AGENT_FUNC_ARG)
 
