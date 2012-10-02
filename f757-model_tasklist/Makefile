@@ -1,5 +1,6 @@
 CC         = g++
-CFLAGS     = -g -Wall -pedantic -DTESTBUILD #-DUSE_VARIABLE_VERTICES
+# -Wno-long-long is used to suppress long long integer warnings from Boost
+CFLAGS     = -g -Wall -Wno-long-long -pedantic -DTESTBUILD#-DUSE_VARIABLE_VERTICES 
 BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
 LDFLAGS    = -L$(BOOSTDIR)/stage/lib
 # Boost library naming support, -mt for multithreading, -d for debug
@@ -7,8 +8,9 @@ BOOSTLIB   =
 LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_system$(BOOSTLIB) \
              -lboost_filesystem$(BOOSTLIB) \
+             -lboost_thread$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers $(shell xml2-config --cflags) -I$(BOOSTDIR)
+INCLUDE    = -I./headers -I./src $(shell xml2-config --cflags) -I$(BOOSTDIR)
 IO_SRC     = src/io/io_manager.cpp \
              src/io/io_xml_model.cpp \
              src/io/io_xml_pop.cpp
@@ -40,7 +42,12 @@ MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
              src/mem/tests/test_memory_iterator.cpp \
              src/mem/tests/test_memory_manager.cpp \
              src/mem/tests/test_vector_wrapper.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) run_tests.cpp \
+EXE_SRC    = src/exe/agent_task.cpp \
+             src/exe/fifo_task_queue.cpp \
+             src/exe/scheduler.cpp \
+             src/exe/task_manager.cpp \
+             src/exe/worker_thread.cpp
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) run_tests.cpp \
 			 $(MODEL_TEST)
 #             $(MEM_TEST) \
              $(IO_TEST_MAN) \
@@ -69,6 +76,13 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/mem/agent_shadow.hpp \
              src/mem/memory_iterator.hpp \
              src/mem/vector_wrapper.hpp \
+             src/exe/agent_task.hpp \
+             src/exe/fifo_task_queue.hpp \
+             src/exe/scheduler.hpp \
+             src/exe/task_interface.hpp \
+             src/exe/task_manager.hpp \
+             src/exe/task_queue_interface.hpp \
+             src/exe/worker_thread.hpp \
              headers/exceptions/io.hpp \
              headers/exceptions/base.hpp \
              headers/exceptions/mem.hpp \

@@ -13,6 +13,8 @@
 #include <set>
 #include "./xmachine.hpp"
 #include "../mem/memory_manager.hpp"
+#include "../exe/task_manager.hpp"
+#include "include/flame.h"
 
 namespace flame { namespace model {
 
@@ -180,21 +182,71 @@ int XMachine::registerWithMemoryManager() {
                     flame::mem::MemoryManager::GetInstance();
 
     /* Register agent with memory manager */
-    memoryManager.RegisterAgent(name_);
+    try { memoryManager.RegisterAgent(name_); }
+    catch(const flame::exceptions::logic_error& E) {
+        std::fprintf(stderr, "Error: %s\n", E.what());
+    }
     /* Register agent memory variables */
     for (vit = variables_.begin(); vit != variables_.end(); vit++) {
         if ((*vit)->getType() == "int") {
             /* Register int variable */
-            memoryManager.RegisterAgentVar<int>
-                (name_, (*vit)->getName());
+            try { memoryManager.RegisterAgentVar<int>
+                    (name_, (*vit)->getName()); }
+            catch(const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\n", E.what());
+            }
         } else if ((*vit)->getType() == "double") {
             /* Register double variable */
-            memoryManager.RegisterAgentVar<double>
-                (name_, (*vit)->getName());
+            try { memoryManager.RegisterAgentVar<double>
+                    (name_, (*vit)->getName()); }
+            catch(const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\n", E.what());
+            }
         }
     }
     /* Population Size hint */
     memoryManager.HintPopulationSize(name_, pop_size_hint);
+
+    return 0;
+}
+
+// dummy function
+FLAME_AGENT_FUNC(func1) { return 0; }
+
+void XMachine::registerAllowAccess(flame::exe::Task& task,
+        std::vector<std::string> * vars, bool writing) {
+    std::vector<std::string>::iterator sit;
+
+    for (sit = vars->begin();
+            sit != vars->end(); sit++) {
+        // std::cout << "AllowAccess " << (*sit) << std::endl;
+        try {
+            if (writing) task.AllowAccess((*sit), true);
+            else task.AllowAccess((*sit));
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+        }
+    }
+}
+
+int XMachine::registerWithTaskManager() {
+    std::vector<XFunction*>::iterator fit;
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+
+    for (fit = functions_.begin(); fit != functions_.end(); fit++) {
+        try {
+            flame::exe::Task& task =
+                taskManager.CreateAgentTask((*fit)->getName(), name_, &func1);
+            // Read Only Variables
+            registerAllowAccess(task, (*fit)->getReadOnlyVariables(), false);
+            // Read Write Variables
+            registerAllowAccess(task, (*fit)->getReadWriteVariables(), true);
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+        }
+    }
 
     return 0;
 }

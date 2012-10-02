@@ -43,7 +43,7 @@ int ModelManager::generate_task_list() {
 
     modelGraph.generateTaskList(&tasks_);
 
-    printTaskList(&tasks_);
+    // printTaskList(&tasks_);
 
     return 0;
 }

@@ -15,6 +15,7 @@
 #include "./xvariable.hpp"
 #include "./xfunction.hpp"
 #include "./xgraph.hpp"
+#include "exe/task_interface.hpp"
 
 namespace flame { namespace model {
 
@@ -40,9 +41,12 @@ class XMachine {
     int checkFunctionConditions();
     int generateDependencyGraph();
     int registerWithMemoryManager();
+    int registerWithTaskManager();
     void addToModelGraph(XGraph * modelGraph);
 
   private:
+    void registerAllowAccess(flame::exe::Task& task,
+            std::vector<std::string> * vars, bool writing);
     std::string name_;
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;
