@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "./xmodel_validate.hpp"
 #include "./model_manager.hpp"
@@ -95,15 +96,28 @@ int XModelValidate::validateTimeUnits(
     int errors = 0;
     unsigned int ii;
     int rc;
+
+    // Process time unit (unit and period)
+    for (ii = 0; ii < timeUnits.size(); ii++) {
+        rc = processTimeUnit(timeUnits.at(ii));
+        if (rc != 0) {
+            std::fprintf(stderr,
+                "       from time unit: '%s'.\n",
+                timeUnits.at(ii)->getName().c_str());
+            errors++;
+        }
+    }
+
     for (ii = 0; ii < timeUnits.size(); ii++) {
         rc = validateTimeUnit(timeUnits.at(ii), model);
         if (rc != 0) {
             std::fprintf(stderr,
                 "       from time unit: '%s'.\n",
                 timeUnits.at(ii)->getName().c_str());
-            errors += rc;
+            errors++;
         }
     }
+
     return errors;
 }
 
@@ -141,6 +155,24 @@ int XModelValidate::validateMessages(std::vector<XMessage*> messages,
     return errors;
 }
 
+int XModelValidate::validateAgentStateGraph(XMachine * agent) {
+    int rc, errors = 0;
+    // Validate single start state
+    rc = agent->findStartEndStates();
+    if (rc != 0) {
+        errors += rc;
+    } else {
+        // Generate state graph
+        errors += agent->generateStateGraph();
+        // Check graph for no cyclic dependencies
+        errors += agent->checkCyclicDependencies();
+        // Check functions from state with more than one
+        // out going function all have conditions
+        errors += agent->checkFunctionConditions();
+    }
+    return errors;
+}
+
 int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     int rc, errors = 0;
     unsigned int ii;
@@ -173,6 +205,9 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
             errors += rc;
         }
     }
+
+    // Validate agent state graph
+    errors += validateAgentStateGraph(agent);
 
     return errors;
 }
@@ -304,20 +339,77 @@ int XModelValidate::processVariables(std::vector<XVariable*> * variables,
     return errors;
 }
 
-int XModelValidate::processAgentFunction(XFunction * function,
+bool XModelValidate::variableExists(std::string name,
         std::vector<XVariable*> * variables) {
-    std::vector<XVariable*>::iterator variable;
+    std::vector<XVariable*>::iterator vit;
 
-    /* If memory access information was not given set all memory
-     * variable access as being read write */
-    if (!function->getMemoryAccessInfoAvailable()) {
-        for (variable = variables->begin();
-                variable != variables->end(); ++variable) {
-            function->addReadWriteVariable((*variable));
+    for (vit = variables->begin(); vit != variables->end(); vit++)
+            if (name == (*vit)->getName()) return true;
+    return false;
+}
+
+int XModelValidate::processMemoryAccessVariable(std::string name,
+        std::vector<XVariable*> * variables,
+        std::set<std::string> * usedVariables) {
+    int errors = 0;
+
+    // If variable exists
+    if (variableExists(name, variables)) {
+        // Check if variable already used
+        std::set<std::string>::iterator it = usedVariables->find(name);
+        // If not already used
+        if (it == usedVariables->end()) {
+            // Add variable name to used list
+            usedVariables->insert(name);
+        } else {
+            // If variable already used
+            std::fprintf(stderr,
+                "Error: Memory access variable name is a duplicate: '%s',\n",
+                name.c_str());
+            errors++;
         }
+
+    } else {
+        // If variable does not exist
+        std::fprintf(stderr,
+            "Error: Memory access variable name is not valid: '%s',\n",
+            name.c_str());
+        errors++;
     }
 
-    return 0;
+    return errors;
+}
+
+int XModelValidate::processAgentFunction(XFunction * function,
+        std::vector<XVariable*> * variables) {
+    std::vector<std::string>::iterator variable;
+    std::vector<XVariable*>::iterator variable2;
+    std::set<std::string> usedVariables;
+    int errors = 0;
+
+    // If memory access information was not given set all memory
+    // variable access as being read write.
+    if (!function->getMemoryAccessInfoAvailable()) {
+        for (variable2 = variables->begin();
+                variable2 != variables->end(); ++variable2) {
+            function->addReadWriteVariable((*variable2)->getName());
+        }
+    // Else check memory access variables are valid
+    } else {
+        // Check variable names are valid variables in memory
+        for (variable = function->getReadOnlyVariables()->begin();
+                variable != function->getReadOnlyVariables()->end();
+                variable++)
+            errors += processMemoryAccessVariable(
+                    (*variable), variables, &usedVariables);
+        for (variable = function->getReadWriteVariables()->begin();
+                variable != function->getReadWriteVariables()->end();
+                variable++)
+            errors += processMemoryAccessVariable(
+                    (*variable), variables, &usedVariables);
+    }
+
+    return errors;
 }
 
 void XModelValidate::validateVariableName(XVariable * v, int * errors,
@@ -409,7 +501,7 @@ int XModelValidate::validateFunctionFile(std::string name) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
+int XModelValidate::processTimeUnitPeriod(XTimeUnit * timeUnit) {
     int errors = 0;
     bool castSuccessful = true;
     int period;
@@ -436,7 +528,7 @@ int XModelValidate::validateTimeUnitPeriod(XTimeUnit * timeUnit) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     int errors = 0;
     unsigned int ii;
     bool unitIsValid = false;
@@ -456,43 +548,55 @@ int XModelValidate::validateTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnitName(XTimeUnit * timeUnit, XModel * model) {
-    int errors = 0;
-    unsigned int ii;
+int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+    std::vector<XTimeUnit*>::iterator it;
 
     /* Check name is valid */
     if (!name_is_allowed(timeUnit->getName())) {
         std::fprintf(stderr,
             "Error: Time unit name is not valid: '%s',\n",
             timeUnit->getName().c_str());
-        errors++;
+        return 1;
     }
-
-    /* Check for
-     * duplicate names */
-    for (ii = 0; ii < model->getTimeUnits()->size(); ii++)
-        if (timeUnit != model->getTimeUnits()->at(ii) &&
-            timeUnit->getName() == model->getTimeUnits()->at(ii)->getName()) {
-            std::fprintf(stderr, "Error: Duplicate time unit name: '%s',\n",
-                timeUnit->getName().c_str());
-            errors++;
-        }
 
     /* Check that name is not iteration */
     if (timeUnit->getName() == "iteration") {
         std::fprintf(stderr, "Error: Time unit name cannot be 'iteration',\n");
-        errors++;
+        return 1;
     }
 
-    return errors;
+    /* Check for
+     * duplicate names */
+    for (it = model->getTimeUnits()->begin();
+            it != model->getTimeUnits()->end(); it++) {
+        // If time units are not the same check names
+        if (timeUnit != (*it) &&
+            timeUnit->getName() == (*it)->getName()) {
+            // If the time unit is an exact duplicate then delete
+            if (timeUnit->getPeriod() ==
+                    (*it)->getPeriod() &&
+                    timeUnit->getUnit() == (*it)->getUnit()) {
+                // Remove exact duplicate
+                model->getTimeUnits()->erase(
+                        std::find(model->getTimeUnits()->begin(),
+                                model->getTimeUnits()->end(), timeUnit));
+                return 0;
+            } else {
+                std::fprintf(stderr, "Error: Duplicate time unit name: '%s'\n",
+                    timeUnit->getName().c_str());
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }
 
-int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::processTimeUnit(XTimeUnit * timeUnit) {
     int errors = 0;
 
-    errors += validateTimeUnitName(timeUnit, model);
-    errors += validateTimeUnitUnit(timeUnit, model);
-    errors += validateTimeUnitPeriod(timeUnit);
+    errors += processTimeUnitUnit(timeUnit, model);
+    errors += processTimeUnitPeriod(timeUnit);
 
     return errors;
 }
@@ -602,9 +706,28 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
         errors += validateAgentConditionOrFilter(xfunction->getCondition(),
                 agent, 0, model);
 
+    // Validate agent communication
     errors += validateAgentFunctionIOput(xfunction, agent, model);
 
+    // Validate agent memory access
+    // Todo Make sure variables are valid and only mentioned once
+
     return errors;
+}
+
+int XModelValidate::validateRandomString(XIOput * xioput) {
+    if (xioput->getRandomString() == "true") {
+        xioput->setRandom(true);
+    } else if (xioput->getRandomString() == "false") {
+        xioput->setRandom(false);
+    } else {
+        std::fprintf(stderr,
+        "Error: input random is not 'true' or 'false': '%s',\n",
+            xioput->getRandomString().c_str());
+        return 1;
+    }
+
+    return 0;
 }
 
 int XModelValidate::validateAgentCommunication(XIOput * xioput,
@@ -627,15 +750,7 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
     if (xioput->isSort()) errors += validateSort(xioput, xmessage);
 
     /* If random then validate */
-    if (xioput->isRandomSet())
-        if (xioput->getRandomString() == "true") { xioput->setRandom(true);
-        } else if (xioput->getRandomString() == "false") {
-            xioput->setRandom(false);
-        } else { std::fprintf(stderr,
-            "Error: input random is not 'true' or 'false': '%s',\n",
-                xioput->getRandomString().c_str());
-            errors++;
-        }
+    if (xioput->isRandomSet()) errors += validateRandomString(xioput);
 
     /* Cannot be sorted and random at the same time */
     if (xioput->isSort() && xioput->isRandom()) { std::fprintf(stderr,
@@ -653,7 +768,7 @@ int XModelValidate::validateAgentConditionOrFilter(XCondition * xcondition,
 
     rc = xcondition->processSymbols();
     errors += rc;
-    rc = xcondition->validate(agent, xmessage, model);
+    rc = xcondition->validate(agent, xmessage, model, xcondition);
     errors += rc;
 
     return errors;

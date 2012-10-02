@@ -12,6 +12,7 @@
 #include <vector>
 #include <stdexcept>
 #include "./xfunction.hpp"
+#include "./task.hpp"
 
 namespace flame { namespace model {
 
@@ -20,12 +21,14 @@ namespace flame { namespace model {
  *
  * Initialises XFunction with no condition and no memory access info.
  */
-XFunction::XFunction() {
-    /* Initialise pointers */
-    condition_ = 0;
-    /* Default is that there is no memory access information */
-    memoryAccessInfoAvailable_ = false;
-}
+XFunction::XFunction()
+    : condition_(0),
+    memoryAccessInfoAvailable_(false) {}
+
+XFunction::XFunction(std::string name)
+    : name_(name),
+    condition_(0),
+    memoryAccessInfoAvailable_(false) {}
 
 /*!
  * \brief Cleans up XFunction
@@ -44,7 +47,7 @@ XFunction::~XFunction() {
         outputs_.pop_back();
     }
     /* Delete any condition */
-    if (condition_ != 0) delete condition_;
+    delete condition_;
 }
 
 /*!
@@ -139,19 +142,19 @@ bool XFunction::getMemoryAccessInfoAvailable() {
     return memoryAccessInfoAvailable_;
 }
 
-void XFunction::addReadOnlyVariable(XVariable * v) {
-    readOnlyVariables_.push_back(v);
+void XFunction::addReadOnlyVariable(std::string name) {
+    readOnlyVariables_.push_back(name);
 }
 
-std::vector<XVariable*> * XFunction::getReadOnlyVariables() {
+std::vector<std::string> * XFunction::getReadOnlyVariables() {
     return &readOnlyVariables_;
 }
 
-void XFunction::addReadWriteVariable(XVariable * v) {
-    readWriteVariables_.push_back(v);
+void XFunction::addReadWriteVariable(std::string name) {
+    readWriteVariables_.push_back(name);
 }
 
-std::vector<XVariable*> * XFunction::getReadWriteVariables() {
+std::vector<std::string> * XFunction::getReadWriteVariables() {
     return &readWriteVariables_;
 }
 

@@ -13,14 +13,16 @@
 #include <vector>
 #include "./xioput.hpp"
 #include "./xcondition.hpp"
-#include "./task.hpp"
 #include "./xvariable.hpp"
 
 namespace flame { namespace model {
 
+class Task;
+
 class XFunction {
   public:
     XFunction();
+    explicit XFunction(std::string name);
     ~XFunction();
     void print();
     void setName(std::string name);
@@ -39,10 +41,10 @@ class XFunction {
     Task * getTask();
     void setMemoryAccessInfoAvailable(bool b);
     bool getMemoryAccessInfoAvailable();
-    void addReadOnlyVariable(XVariable * v);
-    std::vector<XVariable*> * getReadOnlyVariables();
-    void addReadWriteVariable(XVariable * v);
-    std::vector<XVariable*> * getReadWriteVariables();
+    void addReadOnlyVariable(std::string name);
+    std::vector<std::string> * getReadOnlyVariables();
+    void addReadWriteVariable(std::string name);
+    std::vector<std::string> * getReadWriteVariables();
 
   private:
     std::string name_;
@@ -54,8 +56,8 @@ class XFunction {
     Task * task_;
     /* Information on memory access */
     bool memoryAccessInfoAvailable_;
-    std::vector<XVariable*> readOnlyVariables_;
-    std::vector<XVariable*> readWriteVariables_;
+    std::vector<std::string> readOnlyVariables_;
+    std::vector<std::string> readWriteVariables_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XFUNCTION_HPP_

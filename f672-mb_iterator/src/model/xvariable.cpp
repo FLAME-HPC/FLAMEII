@@ -21,15 +21,25 @@ namespace flame { namespace model {
  * variable (not constant)
  * scaler (not an array).
  */
-XVariable::XVariable() {
-    isDynamicArray_ = false;
-    isStaticArray_ = false;
-    staticArraySize_ = 0;
-    hasADTType_ = false;
-    holdsDynamicArray_ = false;
-    constantSet_ = false;
-    constant_ = false;
-}
+XVariable::XVariable()
+    : isDynamicArray_(false),
+    isStaticArray_(false),
+    staticArraySize_(0),
+    hasADTType_(false),
+    holdsDynamicArray_(false),
+    constantSet_(false),
+    constant_(false) {}
+
+
+XVariable::XVariable(std::string name)
+    : name_(name),
+    isDynamicArray_(false),
+    isStaticArray_(false),
+    staticArraySize_(0),
+    hasADTType_(false),
+    holdsDynamicArray_(false),
+    constantSet_(false),
+    constant_(false) {}
 
 /*!
  * \brief Prints XVariable

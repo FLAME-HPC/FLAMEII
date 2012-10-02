@@ -23,6 +23,7 @@ XModel::~XModel() {
 }
 
 void XModel::setup() {
+    name_ = "";
     /* Initialise list of data types */
     addAllowedDataType("int");
     addAllowedDataType("float");
@@ -105,6 +106,21 @@ int XModel::validate() {
     return validator.validate();
 }
 
+int XModel::initialise() {
+    std::vector<XMachine*>::iterator agent;
+
+    // For each agent
+    for (agent = getAgents()->begin();
+         agent != getAgents()->end(); ++agent) {
+        // Generate graphs
+        (*agent)->generateDependencyGraph();
+        // Register with memory manager
+        (*agent)->registerWithMemoryManager();
+    }
+
+    return 0;
+}
+
 void XModel::setPath(std::string path) {
     path_ = path;
 }
@@ -114,7 +130,9 @@ std::string XModel::getPath() {
 }
 
 void XModel::setName(std::string name) {
-    name_ = name;
+    // If name is not set then set name
+    // This stops sub models renaming the root model
+    if (name_ == "") name_ = name;
 }
 
 std::string XModel::getName() {
@@ -195,8 +213,15 @@ std::vector<std::string> * XModel::getFunctionFiles() {
     return &functionFiles_;
 }
 
-XMachine * XModel::addAgent() {
-    XMachine * xmachine = new XMachine;
+XMachine * XModel::addAgent(std::string name) {
+    // Try and get agent
+    XMachine * xmachine = getAgent(name);
+    // If agent already exists then return it
+    if (xmachine) return xmachine;
+    // If agent does not exist then create new agent
+    xmachine = new XMachine;
+    // Assign name to new agent
+    xmachine->setName(name);
     agents_.push_back(xmachine);
     return xmachine;
 }

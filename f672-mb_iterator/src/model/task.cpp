@@ -9,7 +9,7 @@
  */
 #include <cstdio>
 #include <string>
-#include <vector>
+#include <set>
 #include "./task.hpp"
 
 namespace flame { namespace model {
@@ -19,18 +19,15 @@ namespace flame { namespace model {
  *
  * Initialises Task and sets level to be zero.
  */
-Task::Task() {
+Task::Task(std::string parentName, std::string name, TaskType type)
+    : parentName_(parentName), name_(name), taskType_(type) {
     level_ = 0;
-}
-
-Task::~Task() {
-    /* Delete dependencies */
-    Dependency * dependency;
-    while (!parents_.empty()) {
-        dependency = parents_.back();
-        delete dependency;
-        parents_.pop_back();
-    }
+    priorityLevel_ = 10;
+    hasCondition_ = false;
+    if (type == Task::sync_start) priorityLevel_ = 10;
+    if (type == Task::sync_finish) priorityLevel_ = 1;
+    if (type == Task::xfunction) priorityLevel_ = 5;
+    if (type == Task::io_pop_write) priorityLevel_ = 0;
 }
 
 void Task::setTaskID(size_t id) {
@@ -41,8 +38,8 @@ size_t Task::getTaskID() {
     return taskID_;
 }
 
-void Task::setParentName(std::string name) {
-    parentName_ = name;
+void Task::setParentName(std::string parentName) {
+    parentName_ = parentName;
 }
 
 std::string Task::getParentName() {
@@ -55,12 +52,6 @@ void Task::setName(std::string name) {
 
 std::string Task::getName() {
     return name_;
-}
-
-std::string Task::getFullName() {
-    /* Return full name made from name and parent name */
-    std::string fullName = name_ + "_" + parentName_;
-    return fullName;
 }
 
 void Task::setTaskType(TaskType type) {
@@ -79,30 +70,44 @@ size_t Task::getLevel() {
     return level_;
 }
 
-void Task::addParent(std::string name,
-            Dependency::DependencyType type, Task * task) {
-    /* Create a new dependency and add to parents list */
-    Dependency * d = new Dependency;
-    d->setName(name);
-    d->setDependencyType(type);
-    d->setTask(task);
-    parents_.push_back(d);
-}
-
-void Task::addDependency(Dependency * d) {
-    parents_.push_back(d);
-}
-
-std::vector<Dependency*> Task::getParents() {
-    return parents_;
-}
-
 void Task::setPriorityLevel(size_t l) {
     priorityLevel_ = l;
 }
 
 size_t Task::getPriorityLevel() {
     return priorityLevel_;
+}
+
+void Task::setHasCondition(bool hasCondition) {
+    hasCondition_ = hasCondition;
+}
+
+bool Task::hasCondition() {
+    return hasCondition_;
+}
+
+void Task::addReadVariable(std::string name) {
+    readVariables_.insert(name);
+}
+
+std::set<std::string>* Task::getReadVariables() {
+    return &readVariables_;
+}
+
+void Task::addWriteVariable(std::string name) {
+    writeVariables_.insert(name);
+}
+
+std::set<std::string>* Task::getWriteVariables() {
+    return &writeVariables_;
+}
+
+VarMapToVertices * Task::getLastWrites() {
+    return &lastWrites_;
+}
+
+std::set<size_t> * Task::getLastConditions() {
+    return &lastConditions_;
 }
 
 }}  // namespace flame::model

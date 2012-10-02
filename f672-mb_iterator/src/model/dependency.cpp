@@ -19,10 +19,9 @@ namespace flame { namespace model {
  *
  * Initialises Dependency.
  */
-Dependency::Dependency() {
-    name_ = "";
-    task_ = 0;
-}
+Dependency::Dependency(std::string name, DependencyType type)
+    : name_(name), dependencyType_(type)
+{}
 
 void Dependency::setName(std::string name) {
     name_ = name;
@@ -40,12 +39,18 @@ Dependency::DependencyType Dependency::getDependencyType() {
     return dependencyType_;
 }
 
-void Dependency::setTask(Task * task) {
-    task_ = task;
-}
-
-Task * Dependency::getTask() {
-    return task_;
+std::string Dependency::getGraphName() {
+    std::string graphName;
+    if (dependencyType_ == Dependency::communication)
+        graphName.append("Message: ");
+    else if (dependencyType_ == Dependency::data)
+        graphName.append("Memory: ");
+    else if (dependencyType_ == Dependency::state)
+        graphName.append("State: ");
+    else if (dependencyType_ == Dependency::init)
+        graphName.append("Initialise: ");
+    graphName.append(name_);
+    return graphName;
 }
 
 }}  // namespace flame::model
