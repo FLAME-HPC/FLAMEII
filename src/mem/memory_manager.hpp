@@ -12,14 +12,15 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "boost/ptr_container/ptr_map.hpp"
+#include "boost/shared_ptr.hpp"
 #include "agent_memory.hpp"
 #include "agent_shadow.hpp"
-#include "boost/shared_ptr.hpp"
 
 namespace flame { namespace mem {
 
 //! Map to store collection of AgentMemory
-typedef std::map<std::string, AgentMemory> AgentMap;
+typedef boost::ptr_map<std::string, AgentMemory> AgentMap;
 
 typedef boost::shared_ptr<AgentShadow> AgentShadowPtr;
 
@@ -39,7 +40,7 @@ class MemoryManager {
     }
 
     //! Registers an agent type
-    void RegisterAgent(const std::string& agent_name);
+    void RegisterAgent(std::string agent_name);
 
     //! Registers a memory variable of a certain type for a given agent
     template <typename T>
@@ -99,7 +100,7 @@ class MemoryManager {
     AgentMap agent_map_;
 
     //! Returns an AgentMap object given an agent name
-    AgentMemory& GetAgentMemory(const std::string& agent_name);
+    AgentMemory& GetAgentMemory(std::string agent_name);
 };
 }}  // namespace flame::mem
 #endif  // MEM__MEMORY_MANAGER_HPP_

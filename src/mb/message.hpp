@@ -13,7 +13,6 @@
 #include <string>
 #include <typeinfo>
 #include "boost/any.hpp"
-#include "boost/shared_ptr.hpp"
 #include "board_writer.hpp"
 
 namespace flame { namespace mb {
@@ -30,7 +29,7 @@ namespace flame { namespace mb {
  */
 class Message {
   friend class BoardWriter;
-  // friend class MessageIterator;
+  friend class MessageIteratorBackend;
 
   public:
     //! Clears all message variables that are set
@@ -72,7 +71,7 @@ class Message {
      * - flame::exceptions::invalid_variable Variable unknown or not set
      */
     template <typename T>
-    void Get(std::string var_name) {
+    T Get(std::string var_name) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
       if (!validator_->ValidateType(var_name, &typeid(T))) {
         throw flame::exceptions::invalid_type("Mismatching type");

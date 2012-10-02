@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(initialise_memory_manager_exemod) {
 
   mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
   shadow->AllowAccess("x_int");
-  BOOST_CHECK_EQUAL(shadow->get_size(), AGENT_COUNT);
+  BOOST_CHECK_EQUAL(shadow->get_size(), (size_t)AGENT_COUNT);
 }
 
 BOOST_AUTO_TEST_CASE(test_task_queue) {
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(test_task_queue) {
   shadow->AllowAccess("x_int");
   shadow->AllowAccess("y_dbl");
   shadow->AllowAccess("z_dbl");
-  BOOST_CHECK_EQUAL(shadow->get_size(), AGENT_COUNT);
+  BOOST_CHECK_EQUAL(shadow->get_size(), (size_t)AGENT_COUNT);
   mem::MemoryIteratorPtr mptr = shadow->GetMemoryIterator();
   BOOST_CHECK(!mptr->AtEnd());
   for (int i = 0; i < AGENT_COUNT; i++) {

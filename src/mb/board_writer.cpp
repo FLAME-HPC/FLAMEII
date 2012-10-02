@@ -23,8 +23,8 @@ namespace flame { namespace mb {
  *
  * Initialises count_ and msg_name_
  */
-BoardWriter::BoardWriter(const std::string message_name)
-  : count_(0), msg_name_(message_name) {}
+BoardWriter::BoardWriter(const std::string message_name, TypeValidator* tv)
+  : count_(0), msg_name_(message_name), validator_(tv) {}
 
 /*!
  * \brief Returns the number of messages posted so far
@@ -53,9 +53,6 @@ void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
   if (!ret.second) {  // if replacement instead of insertion
     throw flame::exceptions::logic_error("variable already registered");
   }
-
-  // Cache the datatype for use as TypeValidator
-  RegisterType(var_name, vec->GetDataType());
 }
 
 /*!
@@ -69,7 +66,7 @@ void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
  * and in turn the Message Board).
  */
 MessageHandle BoardWriter::GetMessage(void) {
-  MessageHandle msg = MessageHandle(new Message(this));
+  MessageHandle msg = MessageHandle(new Message(validator_));
   msg->AssignPostCallback(boost::bind(&BoardWriter::PostCallback, this, _1));
   return msg;
 }

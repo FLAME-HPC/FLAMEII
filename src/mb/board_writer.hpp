@@ -10,24 +10,13 @@
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
 #include <string>
-#include "boost/function.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
-#include "type_validator.hpp"
 #include "message_board.hpp"
 
 namespace flame { namespace mb {
 
-class Message;  // forward declaration
-
-//! Handle returned in place of Message
-typedef boost::shared_ptr<Message> MessageHandle;
-//! Shorthand for VectorWrapper base class
-typedef flame::mem::VectorWrapperBase GenericVector;
-//! Function signature for callback function triggered by Message::Post()
-typedef boost::function<void (Message*)> MessagePostCallback;
-//! Map container used to store memory vectors
-typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
+class TypeValidator;  // forward declaration
 
 /*!
  * \brief Proxy object used to post messages to a board
@@ -40,11 +29,8 @@ typedef boost::ptr_map<std::string, GenericVector> MemoryMap;
  * This class should not be manually instantiated as it is only useful when
  * associated with a MessageBoard. The constructor is therefore protected
  * and callable only by MessageBoard.
- *
- * Inherits the TypeValidator interface so it can be used to validate
- * the datatype of message variables (used by Message::Set()).
  */
-class BoardWriter : public TypeValidator {
+class BoardWriter {
   //! Only MessageBoard can call the constructor
   friend class MessageBoard;
 
@@ -60,7 +46,7 @@ class BoardWriter : public TypeValidator {
 
   protected:
     //! Constructor. Limited to friend classes
-    explicit BoardWriter(const std::string message_name);
+    explicit BoardWriter(const std::string message_name, TypeValidator* tv);
 
     //! Var registration. Limited to friend classes
     void RegisterVar(std::string var_name, GenericVector* vec);
@@ -71,6 +57,7 @@ class BoardWriter : public TypeValidator {
   private:
     size_t count_;  //! Number of messages posted
     std::string msg_name_;  //! Message name
+    TypeValidator* validator_;
 };
 
 }}  // namespace flame::mb

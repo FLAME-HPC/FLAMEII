@@ -30,6 +30,10 @@ class VectorWrapperBase {
     //! Append contents of vec into the internal vector
     virtual void Extend(VectorWrapperBase* vec) = 0;
 
+    //! Return a boost::any object of current type initialsed with value
+    //! pointed to by raw pointer.
+    virtual boost::any ConvertToBoostAny(void* ptr) = 0;
+
     //! Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
     virtual void* GetRawPtr(size_t offset = 0) = 0;
@@ -59,9 +63,16 @@ inline VectorWrapperBase* new_clone(const VectorWrapperBase& a) {
 template <typename T>
 class VectorWrapper: public VectorWrapperBase {
   public:
-    VectorWrapper() { data_type_ = &typeid(T); }
     typedef T data_type;
     typedef std::vector<T> vector_type;
+
+    VectorWrapper() { data_type_ = &typeid(T); }
+
+    explicit VectorWrapper(const VectorWrapper& v) {
+      data_type_ = v.data_type_;
+      v_ = v.v_;
+    }
+
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
     bool empty() const { return v_.empty(); }
@@ -87,6 +98,10 @@ class VectorWrapper: public VectorWrapperBase {
         }
         return &v_[offset];
       }
+    }
+
+    boost::any ConvertToBoostAny(void* ptr) {
+      return boost::any(*(static_cast<T*>(ptr)));
     }
 
     void* StepRawPtr(void* ptr) {

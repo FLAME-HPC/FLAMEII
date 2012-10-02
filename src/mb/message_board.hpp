@@ -12,21 +12,14 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "boost/ptr_container/ptr_map.hpp"
-#include "boost/shared_ptr.hpp"
+#include <typeinfo>
 #include "exceptions/mem.hpp"
-#include "mem/vector_wrapper.hpp"
+#include "type_validator.hpp"
+#include "mb_common.hpp"
+#include "message_iterator_backend.hpp"
+#include "message_iterator_backend_raw.hpp"
 
 namespace flame { namespace mb {
-
-//! Forward declaration of BoardWriter
-class BoardWriter;
-
-//! Map container used to store memory vectors
-typedef boost::ptr_map<std::string, flame::mem::VectorWrapperBase> MemoryMap;
-
-//! Handle that is returned in place of a BoardWriter instance
-typedef boost::shared_ptr<BoardWriter> BoardWriterHandle;
 
 
 /*!
@@ -36,14 +29,26 @@ typedef boost::shared_ptr<BoardWriter> BoardWriterHandle;
  * Access the messages are provided via BoardWriters and Iterators.
  *
  * This class can be inherited to allow custom sync operations.
+ *
+ * Inherits the TypeValidator interface so it can be used to validate
+ * the datatype of message variables (used by Message::Set()).
  */
-class MessageBoard {
+class MessageBoard : public TypeValidator {
   public:
     //! Vector storing shared pointers to BoardWriters
     typedef std::vector<BoardWriterHandle> WriterVector;
 
+    //! Shorthand for message iterator handle
+    typedef MessageIteratorHandle Iterator;
+
+    //! Shorthand for message writer handle
+    typedef BoardWriterHandle Writer;
+
+    //! Shorthand for message handle
+    typedef MessageHandle Message;
+
     //! Constructor
-    explicit MessageBoard(const std::string message_name);
+    explicit MessageBoard(const std::string& message_name);
 
     //! Virtual destructor
     virtual ~MessageBoard() {}
@@ -52,10 +57,13 @@ class MessageBoard {
     void Sync(void);
 
     //! Returns the number of messages that have been synched
-    size_t GetCount(void);
+    size_t GetCount(void) const;
 
     //! Creates and returns a new board writer
     BoardWriterHandle GetBoardWriter(void);
+
+    //! Creates and returns a message iterator
+    MessageIteratorHandle GetMessageIterator(void);
 
     //! Registers a message variable of a specific data type
     template <typename T>
@@ -65,11 +73,16 @@ class MessageBoard {
           "variables can no longer be registered");
       }
 
+      // Create and store type-specific data Vector
       std::pair<MemoryMap::iterator, bool> ret;
-      ret = mem_map_.insert(var_name, new flame::mem::VectorWrapper<T>());
+      GenericVector* vec_ptr = new flame::mem::VectorWrapper<T>();
+      ret = mem_map_.insert(var_name, vec_ptr);  // takes ownership of obj
       if (!ret.second) {  // if replacement instead of insertion
         throw flame::exceptions::logic_error("variable already registered");
       }
+
+      // Cache datatype for so instance can be used as TypeValidator
+      RegisterType(var_name, &typeid(T));
     }
 
   protected:
@@ -79,7 +92,7 @@ class MessageBoard {
   private:
     size_t count_;  //! Total number of messages that have been synched
     std::string msg_name_;  //! Name of message
-    MemoryMap mem_map_;  //! map to assing VectorWrapper to var names
+    MemoryMap mem_map_;  //! map to assign VectorWrapper to var names
     WriterVector writers_;  //! Registered board writers
     bool finalised_;  //! Flag to indicate new vars can no longer be registered
 
