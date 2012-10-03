@@ -76,21 +76,24 @@ BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
   // Test proxy with readwrite
   p = mb::Proxy();
   p.AllowRead("msg1");
-  p.AllowPost("msg1");
+  p.AllowPost("msg2");
   BOOST_CHECK_NO_THROW(p.GetMessages("msg1"));
-  BOOST_CHECK_NO_THROW(p.GetWriter("msg1"));
-  BOOST_CHECK_NO_THROW(p.NewMessage("msg1"));
+  BOOST_CHECK_NO_THROW(p.GetWriter("msg2"));
+  BOOST_CHECK_NO_THROW(p.NewMessage("msg2"));
   BOOST_CHECK_THROW(p.NewMessage("msg0"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetMessages("msg0"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetMessages("msg2"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetWriter("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg2"), e::invalid_operation);
+  BOOST_CHECK_THROW(p.GetWriter("msg1"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
 
-  // Test writer cache reuse
-
-  // Test writer cache refresh when board is synched
+  // Test conflict checks
+  p = mb::Proxy();
+  p.AllowRead("msg1");
+  p.AllowPost("msg2");
+  BOOST_CHECK_THROW(p.AllowPost("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(p.AllowRead("msg2"), e::invalid_operation);
 
   // TESTBUILD only routine to reset list of registered boards
   mgr.Reset();

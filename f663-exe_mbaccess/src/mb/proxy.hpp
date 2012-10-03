@@ -50,6 +50,9 @@ class Proxy
 
     //! Checks if read access is set for a message
     bool _can_read(const std::string& msg_name);
+
+    //! Checks if post access is set for a message
+    bool _can_post(const std::string& msg_name);
 };
 }}  // namespace flame::mb
 #endif  // MB__PROXY_HPP_

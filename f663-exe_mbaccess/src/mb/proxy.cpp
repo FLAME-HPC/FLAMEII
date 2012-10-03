@@ -20,6 +20,12 @@ void Proxy::AllowRead(const std::string& msg_name) {
     return;  // already exist in set. nothing to do
   }
 
+  // Check that this does not conflict with post access
+  if (_can_post(msg_name)) {
+    throw flame::exceptions::invalid_operation("Cannot read AND post to the "
+                                               "same message");
+  }
+
   // Check that the board exists
   if (!MessageBoardManager::GetInstance().BoardExists(msg_name)) {
     throw flame::exceptions::invalid_argument("Unknown message board name");
@@ -29,16 +35,18 @@ void Proxy::AllowRead(const std::string& msg_name) {
   acl_read_.insert(lb, msg_name);
 }
 
-bool Proxy::_can_read(const std::string& msg_name) {
-  return (acl_read_.find(msg_name) != acl_read_.end());
-}
-
 void Proxy::AllowPost(const std::string& msg_name) {
   // Check if msg_name_ already added
   WriterMap::iterator lb = writer_cache_.lower_bound(msg_name);
   if (lb != writer_cache_.end() &&
       !(writer_cache_.key_comp()(msg_name, lb->first))) {
     return; // already exist. nothing to do
+  }
+
+  // Check that this does not conflict with post access
+  if (_can_read(msg_name)) {
+    throw flame::exceptions::invalid_operation("Cannot read AND post to the "
+                                               "same message");
   }
 
   // Check that the board exists
@@ -50,6 +58,15 @@ void Proxy::AllowPost(const std::string& msg_name) {
   writer_cache_.insert(lb, WriterMap::value_type(msg_name,
                                                  WriterMap::mapped_type()));
 }
+
+bool Proxy::_can_read(const std::string& msg_name) {
+  return (acl_read_.find(msg_name) != acl_read_.end());
+}
+
+bool Proxy::_can_post(const std::string& msg_name) {
+  return (writer_cache_.find(msg_name) != writer_cache_.end());
+}
+
 
 //! Returns an iterator to read all messages in the board
 MessageIteratorHandle Proxy::GetMessages(const std::string& msg_name) {
