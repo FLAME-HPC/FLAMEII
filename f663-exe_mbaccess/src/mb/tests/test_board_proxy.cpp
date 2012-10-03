@@ -15,6 +15,7 @@
 #include "../message_iterator.hpp"
 #include "../message.hpp"
 #include "../proxy.hpp"
+#include "../client.hpp"
 
 BOOST_AUTO_TEST_SUITE(MBModule)
 
@@ -31,8 +32,9 @@ BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
 
   // Test proxy with no read/write access
   mb::Proxy p;
-  BOOST_CHECK_THROW(p.GetMessages("msg1"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg1"), e::invalid_operation);
+  mb::ClientHandle c = p.GetClient();
+  BOOST_CHECK_THROW(c->GetMessages("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg1"), e::invalid_operation);
 
   // Test invalid msgs
   BOOST_CHECK_THROW(p.AllowRead("msg0"), e::invalid_argument);
@@ -42,51 +44,56 @@ BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
 
   // Test Proxy with read but no write
   p.AllowRead("msg1");
-  BOOST_CHECK_NO_THROW(p.GetMessages("msg1"));
-  BOOST_CHECK_THROW(p.GetMessages("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg2"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
+  c = p.GetClient();
+  BOOST_CHECK_NO_THROW(c->GetMessages("msg1"));
+  BOOST_CHECK_THROW(c->GetMessages("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg2"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg3"), e::invalid_operation);
 
   p = mb::Proxy();
   p.AllowRead("msg2");
-  BOOST_CHECK_NO_THROW(p.GetMessages("msg2"));
-  BOOST_CHECK_THROW(p.GetMessages("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg1"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
+  c = p.GetClient();
+  BOOST_CHECK_NO_THROW(c->GetMessages("msg2"));
+  BOOST_CHECK_THROW(c->GetMessages("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg3"), e::invalid_operation);
 
   // Test proxy with post but not read
   p = mb::Proxy();
   p.AllowPost("msg1");
-  BOOST_CHECK_NO_THROW(p.GetWriter("msg1"));
-  BOOST_CHECK_NO_THROW(p.NewMessage("msg1"));
-  BOOST_CHECK_THROW(p.NewMessage("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg2"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
+  c = p.GetClient();
+  BOOST_CHECK_NO_THROW(c->GetWriter("msg1"));
+  BOOST_CHECK_NO_THROW(c->NewMessage("msg1"));
+  BOOST_CHECK_THROW(c->NewMessage("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg2"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg3"), e::invalid_operation);
 
   p = mb::Proxy();
   p.AllowPost("msg2");
-  BOOST_CHECK_NO_THROW(p.GetWriter("msg2"));
-  BOOST_CHECK_NO_THROW(p.NewMessage("msg2"));
-  BOOST_CHECK_THROW(p.NewMessage("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg1"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
+  c = p.GetClient();
+  BOOST_CHECK_NO_THROW(c->GetWriter("msg2"));
+  BOOST_CHECK_NO_THROW(c->NewMessage("msg2"));
+  BOOST_CHECK_THROW(c->NewMessage("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg3"), e::invalid_operation);
 
   // Test proxy with readwrite
   p = mb::Proxy();
   p.AllowRead("msg1");
   p.AllowPost("msg2");
-  BOOST_CHECK_NO_THROW(p.GetMessages("msg1"));
-  BOOST_CHECK_NO_THROW(p.GetWriter("msg2"));
-  BOOST_CHECK_NO_THROW(p.NewMessage("msg2"));
-  BOOST_CHECK_THROW(p.NewMessage("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg2"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg0"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg1"), e::invalid_operation);
-  BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
+  c = p.GetClient();
+  BOOST_CHECK_NO_THROW(c->GetMessages("msg1"));
+  BOOST_CHECK_NO_THROW(c->GetWriter("msg2"));
+  BOOST_CHECK_NO_THROW(c->NewMessage("msg2"));
+  BOOST_CHECK_THROW(c->NewMessage("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg2"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("msg3"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg0"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetWriter("msg3"), e::invalid_operation);
 
   // Test conflict checks
   p = mb::Proxy();
@@ -113,23 +120,26 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   mb::Proxy p1, p2;
   p1.AllowPost("msg1");
   p2.AllowRead("msg1");
+  mb::ClientHandle c1, c2;
   // Post by retrieving a single message
-  message = p1.NewMessage("msg1");
+  c1 = p1.GetClient();
+  message = c1->NewMessage("msg1");
   message->Set<double>("x", 1.0);
   message->Post();
   // Post by retrieving a message writer
-  writer = p1.GetWriter("msg1");
+  writer = c1->GetWriter("msg1");
   message = writer->NewMessage();
   message->Set<double>("x", 2.0);
   message->Post();
 
   // Test read (before sync)
-  iter = p2.GetMessages("msg1");
+  c2 = p2.GetClient();
+  iter = c2->GetMessages("msg1");
   BOOST_CHECK_EQUAL(iter->GetCount(), (size_t)0);
 
   // Test read (after sync)
   mgr.Sync("msg1");
-  iter = p2.GetMessages("msg1");
+  iter = c2->GetMessages("msg1");
   BOOST_CHECK_EQUAL(iter->GetCount(), (size_t)2);
   BOOST_CHECK_EQUAL(iter->GetMessage()->Get<double>("x"), 1.0);
   BOOST_CHECK_EQUAL(iter->Next(), true);
@@ -143,11 +153,11 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   BOOST_CHECK_THROW(message->Post(), e::invalid_operation);
 
   // Test writer cache refresh when board is synched
-  writer = p1.GetWriter("msg1");  // new writer
+  writer = c1->GetWriter("msg1");  // new writer
   BOOST_CHECK(writer->IsConnected());
 
   // Test writer cache reuse
-  writer2 = p1.GetWriter("msg1");
+  writer2 = c1->GetWriter("msg1");
   BOOST_CHECK_EQUAL(writer.get(), writer2.get());  // compare raw ptrs
 
   // Write from using both writers
@@ -159,7 +169,7 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   message->Post();
 
   mgr.Sync("msg1");
-  BOOST_CHECK_EQUAL(p2.GetMessages("msg1")->GetCount(), (size_t)4);
+  BOOST_CHECK_EQUAL(c2->GetMessages("msg1")->GetCount(), (size_t)4);
 
   // TESTBUILD only routine to reset list of registered boards
   mgr.Reset();
