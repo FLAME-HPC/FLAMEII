@@ -45,10 +45,12 @@ class Task {
                              bool writeable = false) = 0;
 
     //! Define read access to message board
-    //virtual void ReadsMessage(const std::string& msg_name) = 0;
+    //virtual void AllowMessageRead(const std::string& msg_name) = 0;
 
     //! Define post access to message board
-    //virtual void PostsMessage(const std::string& msg_name) = 0;
+    //virtual void AllowMessagePost(const std::string& msg_name) = 0;
+
+    //! Returns a reference to the message board proxy object
 
     //! Returns the task id
     id_type get_task_id() const { return task_id_; }
