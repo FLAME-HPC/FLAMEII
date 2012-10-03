@@ -43,10 +43,11 @@ FLAME_AGENT_FUNC(func_read_message) {
   location_message msg;
 
   iter = flame_msg_get_iterator("location");
-  for(; flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
+  for(; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
     flame_msg_iterator_get_message(iter, &msg);
     checksum += msg.id;
   }
+  flame_msg_iterator_free(iter);
 
   flame_mem_set_int("checksum", checksum);
   return FLAME_AGENT_ALIVE;
@@ -92,6 +93,13 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   t1.AllowAccess("z");
   t1.AllowAccess("id");
   t1.AllowMessagePost("location");
+
+  exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
+  t2.AllowAccess("checksum", true);
+  t2.AllowMessageRead("location");
+
+  // define task dependencies
+  tm.AddDependency("read", "post");
 
   // Run
   exe::Scheduler s;

@@ -26,12 +26,6 @@ class AgentTask : public Task {
     //! Enable access to a specific agent var
     void AllowAccess(const std::string& var_name, bool writeable = false);
 
-    //! Define read access to message board
-    void ReadsMessage(const std::string& msg_name);
-
-    //! Define post access to message board
-    void PostsMessage(const std::string& msg_name);
-
     //! Returns a new instance of a MemoryIterator
     flame::mem::MemoryIteratorPtr GetMemoryIterator() const;
 

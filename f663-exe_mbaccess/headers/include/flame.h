@@ -52,15 +52,19 @@ void flame_msg_post_actual(void* FLAME_MESSAGE_BOARD_CLIENT, const char* k, void
 /* assume all messages have one var */
 #define FLAME_MESSAGE_VARNAME "__DATA__"
 
+
 typedef void* flame_msg_iterator;
 
-flame_msg_iterator flame_msg_get_iterator(const char* msg);
+#define flame_msg_get_iterator(m) flame_msg_get_iterator_actual(FLAME_MESSAGE_BOARD_CLIENT, m)
+flame_msg_iterator flame_msg_get_iterator_actual(void* mb, const char* msg);
 
 int flame_msg_iterator_end(flame_msg_iterator iter);
 
 int flame_msg_iterator_next(flame_msg_iterator iter);
 
 void flame_msg_iterator_get_message(flame_msg_iterator iter, void* msg);
+
+void flame_msg_iterator_free(flame_msg_iterator iter);
 
 /* Must call this once for message types to be registerd.
  * see src/contrib/C/mb_api.cpp
