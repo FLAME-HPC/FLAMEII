@@ -37,6 +37,21 @@ FLAME_AGENT_FUNC(func_post_message) {
   return FLAME_AGENT_ALIVE;
 }
 
+FLAME_AGENT_FUNC(func_read_message) {
+  int checksum = 0;
+  flame_msg_iterator iter;
+  location_message msg;
+
+  iter = flame_msg_get_iterator("location");
+  for(; flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
+    flame_msg_iterator_get_message(iter, &msg);
+    checksum += msg.id;
+  }
+
+  flame_mem_set_int("checksum", checksum);
+  return FLAME_AGENT_ALIVE;
+}
+
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   // Define agents and population
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
@@ -45,18 +60,21 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mem_mgr.RegisterAgentVar<double>("Circle", "y");
   mem_mgr.RegisterAgentVar<double>("Circle", "z");
   mem_mgr.RegisterAgentVar<int>("Circle", "id");
+  mem_mgr.RegisterAgentVar<int>("Circle", "checksum");
   mem_mgr.HintPopulationSize("Circle", (size_t)AGENT_COUNT);
 
   std::vector<double> *x = mem_mgr.GetVector<double>("Circle", "x");
   std::vector<double> *y = mem_mgr.GetVector<double>("Circle", "y");
   std::vector<double> *z = mem_mgr.GetVector<double>("Circle", "z");
   std::vector<int> *id = mem_mgr.GetVector<int>("Circle", "id");
+  std::vector<int> *cs = mem_mgr.GetVector<int>("Circle", "checksum");
 
   for (int i = 0; i < AGENT_COUNT; ++i) {
     x->push_back(i * 1.0);
     y->push_back(i * 10.0);
     z->push_back(i * 100.0);
     id->push_back(i);
+    cs->push_back(0);
   }
 
   // Register Message Board

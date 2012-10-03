@@ -44,12 +44,23 @@ void flame_mem_set_int_actual_(void* FLAME_AGENT_FUNC_ARG,
 #define flame_mem_set_int(k, v) flame_mem_set_int_actual_(FLAME_AGENT_FUNC_ARG, k, v)
 
 
-
+/* ------------------ message board stuff ----------------------------- */
 #define flame_msg_post(k, v) flame_msg_post_actual(FLAME_MESSAGE_BOARD_CLIENT, k, v)
 void flame_msg_post_actual(void* FLAME_MESSAGE_BOARD_CLIENT, const char* k, void* v);
 
+
 /* assume all messages have one var */
 #define FLAME_MESSAGE_VARNAME "__DATA__"
+
+typedef void* flame_msg_iterator;
+
+flame_msg_iterator flame_msg_get_iterator(const char* msg);
+
+int flame_msg_iterator_end(flame_msg_iterator iter);
+
+int flame_msg_iterator_next(flame_msg_iterator iter);
+
+void flame_msg_iterator_get_message(flame_msg_iterator iter, void* msg);
 
 /* Must call this once for message types to be registerd.
  * see src/contrib/C/mb_api.cpp

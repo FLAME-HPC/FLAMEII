@@ -71,6 +71,11 @@ void flame_msg_post_actual(void* mb, const char* k, void* v) {
   iter->second->Post(mb, v);
 }
 
+int flame_msg_iterator_end(flame_msg_iterator iter) {
+  mb::MessageIterator* iptr = static_cast<mb::MessageIterator*>(iter);
+  return iptr->Next();
+}
+
 #ifdef __cplusplus
 }
 #endif
