@@ -44,6 +44,12 @@ class Task {
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
 
+    //! Define read access to message board
+    //virtual void ReadsMessage(const std::string& msg_name) = 0;
+
+    //! Define post access to message board
+    //virtual void PostsMessage(const std::string& msg_name) = 0;
+
     //! Returns the task id
     id_type get_task_id() const { return task_id_; }
 

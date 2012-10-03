@@ -57,6 +57,9 @@ class MessageBoardManager {
     //! Returns the number of messages that have been synched
     size_t GetCount(const std::string& msg_name);
 
+    //! Determines if a specific board has been registered
+    bool BoardExists(const std::string& msg_name);
+
 #ifdef TESTBUILD
     //! Delete all registered agents and vars
     void Reset();

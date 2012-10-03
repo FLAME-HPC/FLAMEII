@@ -66,6 +66,10 @@ size_t MessageBoardManager::GetCount(const std::string& msg_name) {
   return GetMessageBoard(msg_name).GetCount();
 }
 
+//! Determines if a specific board has been registered
+bool MessageBoardManager::BoardExists(const std::string& msg_name) {
+  return (board_map_.find(msg_name) != board_map_.end());
+}
 
 #ifdef TESTBUILD
 void MessageBoardManager::Reset() {

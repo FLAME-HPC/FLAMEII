@@ -103,7 +103,12 @@
 		<Unit filename="src/mb/message_iterator_backend.hpp" />
 		<Unit filename="src/mb/message_iterator_backend_raw.cpp" />
 		<Unit filename="src/mb/message_iterator_backend_raw.hpp" />
+		<Unit filename="src/mb/proxy.cpp" />
+		<Unit filename="src/mb/proxy.hpp" />
 		<Unit filename="src/mb/tests/test_board_iteration.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mb/tests/test_board_manager.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/mb/tests/test_board_writer.cpp">
