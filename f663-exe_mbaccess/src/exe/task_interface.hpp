@@ -13,14 +13,16 @@
 #include <string>
 #include "boost/function.hpp"
 #include "mem/memory_iterator.hpp"
+#include "mb/proxy.hpp"
 
 namespace flame { namespace exe {
 
-typedef boost::function<int (void*)> TaskFunction;
+typedef boost::function<int (void*, void*)> TaskFunction;
 
 class Task {
   public:
     typedef size_t id_type;
+    typedef flame::mb::ClientHandle MessageBoardClient;
 
     //! Identifier for different task types
     enum TaskType {
@@ -44,11 +46,20 @@ class Task {
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
 
-    //! Define read access to message board
-    //virtual void ReadsMessage(const std::string& msg_name) = 0;
+    //! Adds read access to message board
+    void AllowMessageRead(const std::string& msg_name) {
+      mb_proxy_.AllowRead(msg_name);
+    }
 
-    //! Define post access to message board
-    //virtual void PostsMessage(const std::string& msg_name) = 0;
+    //! Adds post access to message board
+    void AllowMessagePost(const std::string& msg_name) {
+      mb_proxy_.AllowPost(msg_name);
+    }
+
+    //! Returns message board access client
+    MessageBoardClient GetMessageBoardClient(void) {
+      return mb_proxy_.GetClient();
+    }
 
     //! Returns the task id
     id_type get_task_id() const { return task_id_; }
@@ -72,6 +83,9 @@ class Task {
   protected:
     id_type task_id_;
     std::string task_name_;
+
+  private:
+    flame::mb::Proxy mb_proxy_;  //! Proxy to access Message Board
 };
 
 

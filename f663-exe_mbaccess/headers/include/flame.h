@@ -17,8 +17,14 @@ extern "C" {
 #define FLAME_AGENT_ALIVE 0
 #define FLAME_AGENT_DEAD  1
 
+/* Signature of FLAME_AGENT_FUNC should match definition of TaskFunction
+ * in src/exe/task_interface.hpp
+ */
 #define FLAME_AGENT_FUNC_ARG FLAME_unique_symbol_000_001
-#define FLAME_AGENT_FUNC(funcName) int funcName(void* FLAME_AGENT_FUNC_ARG)
+#define FLAME_MESSAGE_BOARD_CLIENT FLAME_unique_symbol_000_002
+#define FLAME_AGENT_FUNC(funcName) \
+      int funcName(void* FLAME_AGENT_FUNC_ARG, void* FLAME_MESSAGE_BOARD_CLIENT)
+
 
 /*! Function pointer type for agent transition functions */
 typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
@@ -36,6 +42,25 @@ void flame_mem_set_int_actual_(void* FLAME_AGENT_FUNC_ARG,
                                const char* k,
                                int v);
 #define flame_mem_set_int(k, v) flame_mem_set_int_actual_(FLAME_AGENT_FUNC_ARG, k, v)
+
+
+
+#define flame_msg_post(k, v) flame_msg_post_actual(FLAME_MESSAGE_BOARD_CLIENT, k, v)
+void flame_msg_post_actual(void* FLAME_MESSAGE_BOARD_CLIENT, const char* k, void* v);
+
+/* assume all messages have one var */
+#define FLAME_MESSAGE_VARNAME "__DATA__"
+
+/* Must call this once for message types to be registerd.
+ * see src/contrib/C/mb_api.cpp
+ */
+void flame_mb_api_hack_initialise(void);
+
+/* Dummy message type (for testing). In practice, it should be generated per-model */
+typedef struct {
+  double x, y, z;
+  int id;
+} location_message;
 
 #ifdef __cplusplus
 }

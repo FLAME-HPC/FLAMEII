@@ -69,6 +69,7 @@
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/compat/C/mb_api.cpp" />
 		<Unit filename="src/compat/C/mem_api.cpp" />
 		<Unit filename="src/exe/agent_task.cpp" />
 		<Unit filename="src/exe/agent_task.hpp" />
@@ -83,6 +84,9 @@
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/exe/tests/test_task_access_to_mb.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/exe/tests/test_task_manager.cpp">
 			<Option target="Test" />
 		</Unit>
@@ -90,6 +94,8 @@
 		<Unit filename="src/exe/worker_thread.hpp" />
 		<Unit filename="src/mb/board_writer.cpp" />
 		<Unit filename="src/mb/board_writer.hpp" />
+		<Unit filename="src/mb/client.cpp" />
+		<Unit filename="src/mb/client.hpp" />
 		<Unit filename="src/mb/mb_common.hpp" />
 		<Unit filename="src/mb/message.cpp" />
 		<Unit filename="src/mb/message.hpp" />
