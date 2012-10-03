@@ -1,19 +1,19 @@
 /*!
- * \file src/mb/client.cpp
+ * \file src/mb/proxy.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Implementation of Client
+ * \brief Implementation of Proxy
  */
 #include "exceptions/all.hpp"
 #include "message_board_manager.hpp"
 #include "board_writer.hpp"
-#include "client.hpp"
+#include "proxy.hpp"
 namespace flame { namespace mb {
 
-void Client::AllowRead(const std::string& msg_name) {
+void Proxy::AllowRead(const std::string& msg_name) {
   // Check if msg_name_ already in acl_read_
   StringSet::iterator lb = acl_read_.lower_bound(msg_name);
   if (lb != acl_read_.end() && *lb == msg_name) {
@@ -35,7 +35,7 @@ void Client::AllowRead(const std::string& msg_name) {
   acl_read_.insert(lb, msg_name);
 }
 
-void Client::AllowPost(const std::string& msg_name) {
+void Proxy::AllowPost(const std::string& msg_name) {
   // Check if msg_name_ already added
   WriterMap::iterator lb = writer_cache_.lower_bound(msg_name);
   if (lb != writer_cache_.end() &&
@@ -59,17 +59,17 @@ void Client::AllowPost(const std::string& msg_name) {
                                                  WriterMap::mapped_type()));
 }
 
-bool Client::_can_read(const std::string& msg_name) {
+bool Proxy::_can_read(const std::string& msg_name) {
   return (acl_read_.find(msg_name) != acl_read_.end());
 }
 
-bool Client::_can_post(const std::string& msg_name) {
+bool Proxy::_can_post(const std::string& msg_name) {
   return (writer_cache_.find(msg_name) != writer_cache_.end());
 }
 
 
 //! Returns an iterator to read all messages in the board
-MessageIteratorHandle Client::GetMessages(const std::string& msg_name) {
+MessageIteratorHandle Proxy::GetMessages(const std::string& msg_name) {
   if (!_can_read(msg_name)) {
     throw flame::exceptions::invalid_operation("No read access for this msg");
   }
@@ -78,7 +78,7 @@ MessageIteratorHandle Client::GetMessages(const std::string& msg_name) {
 
 //! Returns a handle to a board writer
 //! More efficient than NewWriter() if retrieving multiple message instances
-BoardWriterHandle Client::GetWriter(const std::string& msg_name) {
+BoardWriterHandle Proxy::GetWriter(const std::string& msg_name) {
   // retrieve cached handle with that key
   WriterMap::iterator iter = writer_cache_.find(msg_name);
   if (iter == writer_cache_.end()) {  // unknown key
@@ -97,7 +97,7 @@ BoardWriterHandle Client::GetWriter(const std::string& msg_name) {
 }
 
 //! Returns a handle to a new message which which can post to a board
-MessageHandle Client::NewMessage(const std::string& msg_name) {
+MessageHandle Proxy::NewMessage(const std::string& msg_name) {
   return GetWriter(msg_name)->NewMessage();
 }
 

@@ -111,6 +111,9 @@
 		<Unit filename="src/mb/tests/test_board_manager.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/mb/tests/test_board_proxy.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/mb/tests/test_board_writer.cpp">
 			<Option target="Test" />
 		</Unit>

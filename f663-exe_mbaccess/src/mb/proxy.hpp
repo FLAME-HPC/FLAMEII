@@ -1,11 +1,11 @@
 /*!
- * \file src/mb/client.cpp
+ * \file src/mb/proxy.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Declaration of Client
+ * \brief Declaration of Proxy
  */
 #ifndef MB__PROXY_HPP_
 #define MB__PROXY_HPP_
@@ -18,9 +18,10 @@ namespace flame { namespace mb {
  *
  * Handles access control as well as caches message writers.
  */
-class Client
+class Proxy
 {
   public:
+    Proxy() {}
     //! Allows read access from a specific message board
     void AllowRead(const std::string& msg_name);
     //! Allows post access to a specific message board

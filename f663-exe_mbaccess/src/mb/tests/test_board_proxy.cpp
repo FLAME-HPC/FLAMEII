@@ -14,14 +14,14 @@
 #include "../board_writer.hpp"
 #include "../message_iterator.hpp"
 #include "../message.hpp"
-#include "../client.hpp"
+#include "../proxy.hpp"
 
 BOOST_AUTO_TEST_SUITE(MBModule)
 
 namespace e = flame::exceptions;
 namespace mb = flame::mb;
 
-BOOST_AUTO_TEST_CASE(mb_client_acl) {
+BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
   // Set up board manager
   mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
   mgr.RegisterMessage("msg1");
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   mgr.RegisterMessageVar<double>("msg2", "x");
 
   // Test proxy with no read/write access
-  mb::Client p;
+  mb::Proxy p;
   BOOST_CHECK_THROW(p.GetMessages("msg1"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetWriter("msg1"), e::invalid_operation);
 
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   BOOST_CHECK_THROW(p.GetMessages("msg2"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
 
-  p = mb::Client();
+  p = mb::Proxy();
   p.AllowRead("msg2");
   BOOST_CHECK_NO_THROW(p.GetMessages("msg2"));
   BOOST_CHECK_THROW(p.GetMessages("msg0"), e::invalid_operation);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   BOOST_CHECK_THROW(p.GetMessages("msg3"), e::invalid_operation);
 
   // Test proxy with post but not read
-  p = mb::Client();
+  p = mb::Proxy();
   p.AllowPost("msg1");
   BOOST_CHECK_NO_THROW(p.GetWriter("msg1"));
   BOOST_CHECK_NO_THROW(p.NewMessage("msg1"));
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   BOOST_CHECK_THROW(p.GetWriter("msg2"), e::invalid_operation);
   BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
 
-  p = mb::Client();
+  p = mb::Proxy();
   p.AllowPost("msg2");
   BOOST_CHECK_NO_THROW(p.GetWriter("msg2"));
   BOOST_CHECK_NO_THROW(p.NewMessage("msg2"));
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
 
   // Test proxy with readwrite
-  p = mb::Client();
+  p = mb::Proxy();
   p.AllowRead("msg1");
   p.AllowPost("msg2");
   BOOST_CHECK_NO_THROW(p.GetMessages("msg1"));
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   BOOST_CHECK_THROW(p.GetWriter("msg3"), e::invalid_operation);
 
   // Test conflict checks
-  p = mb::Client();
+  p = mb::Proxy();
   p.AllowRead("msg1");
   p.AllowPost("msg2");
   BOOST_CHECK_THROW(p.AllowPost("msg1"), e::invalid_operation);
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(mb_client_acl) {
   mgr.Reset();
 }
 
-BOOST_AUTO_TEST_CASE(mb_client_access) {
+BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   // Set up board manager
   mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
   mgr.RegisterMessage("msg1");
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(mb_client_access) {
   mb::MessageBoard::Message message;
 
   // Test post
-  mb::Client p1, p2;
+  mb::Proxy p1, p2;
   p1.AllowPost("msg1");
   p2.AllowRead("msg1");
   // Post by retrieving a single message
