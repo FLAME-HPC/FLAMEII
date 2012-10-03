@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(mb_manager_lifecycle) {
   BOOST_CHECK_THROW(mgr.RegisterMessageVar<int>("location", "age"),
                     e::logic_error);
 
-  mb::MessageBoard::Message msg = writer->GetMessage();
+  mb::MessageBoard::Message msg = writer->NewMessage();
   msg->Set<double>("x", 1.0);
   msg->Set<double>("y", 10.0);
   msg->Set<int>("age", 100);

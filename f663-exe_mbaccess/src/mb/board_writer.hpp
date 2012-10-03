@@ -37,7 +37,7 @@ class BoardWriter {
 
   public:
     //! Returns a Message instance that can .Post() to this writer
-    MessageHandle GetMessage(void);
+    MessageHandle NewMessage(void);
 
     //! Callback function for storing posted messages
     void PostCallback(Message* msg);

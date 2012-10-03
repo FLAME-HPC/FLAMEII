@@ -65,7 +65,7 @@ void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
  * for Message::Post (which is how the Message is associated with a Board Writer
  * and in turn the Message Board).
  */
-MessageHandle BoardWriter::GetMessage(void) {
+MessageHandle BoardWriter::NewMessage(void) {
   MessageHandle msg = MessageHandle(new Message(validator_));
   msg->AssignPostCallback(boost::bind(&BoardWriter::PostCallback, this, _1));
   return msg;

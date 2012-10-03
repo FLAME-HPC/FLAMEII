@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   message->Post();
   // Post by retrieving a message writer
   writer = p1.GetWriter("msg1");
-  message = writer->GetMessage();
+  message = writer->NewMessage();
   message->Set<double>("x", 2.0);
   message->Post();
 
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
 
   // test writer expiry after sync
   BOOST_CHECK(!writer->IsConnected());
-  message = writer->GetMessage();
+  message = writer->NewMessage();
   message->Set<double>("x", 2.0);
   BOOST_CHECK_THROW(message->Post(), e::invalid_operation);
 
@@ -148,10 +148,10 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   BOOST_CHECK_EQUAL(writer.get(), writer2.get());  // compare raw ptrs
 
   // Write from using both writers
-  message = writer->GetMessage();
+  message = writer->NewMessage();
   message->Set<double>("x", 3.0);
   message->Post();
-  message = writer2->GetMessage(); // another writer
+  message = writer2->NewMessage(); // another writer
   message->Set<double>("x", 4.0);
   message->Post();
 

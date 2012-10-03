@@ -81,7 +81,7 @@ BoardWriterHandle Proxy::GetWriter(const std::string& msg_name) {
 
 //! Returns a handle to a new message which which can post to a board
 MessageHandle Proxy::NewMessage(const std::string& msg_name) {
-  return GetWriter(msg_name)->GetMessage();
+  return GetWriter(msg_name)->NewMessage();
 }
 
 }}  // namespace flame::mb
