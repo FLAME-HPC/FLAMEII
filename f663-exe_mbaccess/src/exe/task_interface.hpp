@@ -40,23 +40,28 @@ class Task {
     virtual TaskType get_task_type() const = 0;
 
     //! Returns a memory iterator for this task
+    //! TODO(lsc) Move this into AgentTask?
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
 
     //! Defines access control to agent memory variables
+    //! TODO(lsc) Move this into AgentTask?
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
 
     //! Adds read access to message board
+    //! TODO(lsc) Move this into AgentTask?
     void AllowMessageRead(const std::string& msg_name) {
       mb_proxy_.AllowRead(msg_name);
     }
 
     //! Adds post access to message board
+    //! TODO(lsc) Move this into AgentTask?
     void AllowMessagePost(const std::string& msg_name) {
       mb_proxy_.AllowPost(msg_name);
     }
 
     //! Returns message board access client
+    //! TODO(lsc) Move this into AgentTask?
     MessageBoardClient GetMessageBoardClient(void) {
       return mb_proxy_.GetClient();
     }

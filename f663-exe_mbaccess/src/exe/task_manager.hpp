@@ -19,6 +19,7 @@
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "boost/thread/mutex.hpp"
+#include "message_board_task.hpp"
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {
@@ -47,6 +48,11 @@ class TaskManager {
     Task& CreateAgentTask(std::string task_name,
                           std::string agent_name,
                           TaskFunction func_ptr);
+
+    //! \brief Registers and returns a new MessageBoard Task
+    Task& CreateMessageBoardTask(std::string task_name,
+                                 std::string msg_name,
+                                 MessageBoardTask::Operation op);
 
     //! \brief Returns a registered Task given a task id
     Task& GetTask(TaskId task_id);

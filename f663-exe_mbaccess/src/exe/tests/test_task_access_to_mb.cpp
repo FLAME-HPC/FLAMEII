@@ -94,12 +94,16 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   t1.AllowAccess("id");
   t1.AllowMessagePost("location");
 
+  exe::Task &ts = tm.CreateMessageBoardTask("sync", "location",
+                                            exe::MessageBoardTask::OP_SYNC);
+
   exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
   t2.AllowAccess("checksum", true);
   t2.AllowMessageRead("location");
 
   // define task dependencies
-  tm.AddDependency("read", "post");
+  tm.AddDependency("sync", "post");
+  tm.AddDependency("read", "sync");
 
   // Run
   exe::Scheduler s;
