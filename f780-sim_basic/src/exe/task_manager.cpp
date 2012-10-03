@@ -54,12 +54,12 @@ void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   boost::lock_guard<boost::mutex> lock(mutex_task_);
 
   // Check for tasks with same name
-    TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
-    if (lb != name_map_.end() && !(name_map_.key_comp()(task_name, lb->first))) {
-      throw flame::exceptions::logic_error("task with that name already exists");
-    }
-    // map task name to idx of new vector entry
-    Task::id_type id = tasks_.size();  // use next index as id
+  TaskNameMap::iterator lb = name_map_.lower_bound(task_name);
+  if (lb != name_map_.end() && !(name_map_.key_comp()(task_name, lb->first))) {
+    throw flame::exceptions::logic_error("task with that name already exists");
+  }
+  // map task name to idx of new vector entry
+  Task::id_type id = tasks_.size();  // use next index as id
 
 #ifdef DEBUG
   if (Task::IsTermTask(id)) {
