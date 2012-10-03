@@ -1,0 +1,93 @@
+<states>
+<itno>0</itno>
+<xagent>
+<name>Circle</name>
+  <id>1</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>2</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>3</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>4</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>5</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>6</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>7</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>8</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>9</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+<xagent>
+<name>Circle</name>
+  <id>10</id>
+  <x>0.0</x>
+  <y>0.0</y>
+  <fx>0.0</fx>
+  <fy>0.0</fy>
+  <radius>0.0</radius>
+</xagent>
+</states>

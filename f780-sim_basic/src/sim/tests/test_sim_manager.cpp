@@ -15,16 +15,26 @@
 #include <vector>
 #include <string>
 #include "../sim_manager.hpp"
+#include "io/io_manager.hpp"
+#include "model/model_manager.hpp"
 
 namespace sim = flame::sim;
+namespace io = flame::io;
+namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(SimManager)
 
-BOOST_AUTO_TEST_CASE(test_graph_layers) {
+BOOST_AUTO_TEST_CASE(test_simManager) {
     // int rc;
-    sim::SimManager simManager;
+    model::XModel model;
+    sim::Simulation sim1;
 
-
+    // Add <xml> to both of these
+    sim1.loadModel("src/sim/tests/models/circles/circles.xml");
+    // Can only do this after loading a model
+    sim1.loadPop("src/sim/tests/models/circles/0.xml");
+    // Run for one iteration
+    sim1.start(1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

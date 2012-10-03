@@ -31,7 +31,7 @@ class ModelManager {
   public:
     ModelManager() {}
     ~ModelManager();
-    int loadModel(std::string const& file);
+    int loadModel(std::string const& file, XModel * model);
     int generate_task_list();
     std::vector<Task*> * get_task_list();
 

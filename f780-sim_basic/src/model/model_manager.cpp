@@ -25,31 +25,33 @@ ModelManager::~ModelManager() {
     }*/
 }
 
-int ModelManager::loadModel(std::string const& file) {
+int ModelManager::loadModel(std::string const& file, XModel * model) {
     flame::io::IOManager ioManager;
 
     // Read model
-    if (ioManager.loadModel(file, &model_) != 0) {
+    if (ioManager.loadModel(file, model) != 0) {
         std::fprintf(stderr, "Error: Model XML file could not be read.\n");
-        model_.clear();
+        model->clear();
         return 1;
     }
 
     // Validate model
-    if (model_.validate() != 0) {
+    if (model->validate() != 0) {
 std::fprintf(stderr, "Error: Model from XML file could not be validated.\n");
-        model_.clear();
+        model->clear();
         return 2;
     }
 
     // Initialise model
     // Generate graphs and task list
     // Register with memory manager
-    if (model_.initialise() != 0) {
+    // HAS TO BE DONE AFTER LOADING POP
+    // NOW HANDLED BY SIMULATION CLASS
+/*    if (model_.initialise() != 0) {
 std::fprintf(stderr, "Error: Model from XML file could not be initialised.\n");
         model_.clear();
         return 3;
-    }
+    }*/
 
     return 0;
 }

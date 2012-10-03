@@ -106,7 +106,27 @@ int XModel::validate() {
     return validator.validate();
 }
 
-int XModel::initialise() {
+int XModel::registerWithMemoryManager() {
+    int rc;
+    std::vector<XMachine*>::iterator agent;
+
+    // For each agent
+    for (agent = getAgents()->begin();
+         agent != getAgents()->end(); ++agent) {
+        // Register with memory manager
+        rc = (*agent)->registerWithMemoryManager();
+        if (rc != 0) {
+std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
+                    (*agent)->getName().c_str());
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int XModel::registerWithTaskManager() {
+    int rc;
     std::vector<XMachine*>::iterator agent;
 
     // For each agent
@@ -114,8 +134,13 @@ int XModel::initialise() {
          agent != getAgents()->end(); ++agent) {
         // Generate graphs
         (*agent)->generateDependencyGraph();
-        // Register with memory manager
-        (*agent)->registerWithMemoryManager();
+        // Register with task manager
+        rc = (*agent)->registerWithTaskManager();
+        if (rc != 0) {
+        std::fprintf(stderr, "When registering '%s' agent with task manager\n",
+                    (*agent)->getName().c_str());
+            return 1;
+        }
     }
 
     return 0;

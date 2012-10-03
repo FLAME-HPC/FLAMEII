@@ -47,7 +47,8 @@ EXE_SRC    = src/exe/agent_task.cpp \
              src/exe/scheduler.cpp \
              src/exe/task_manager.cpp \
              src/exe/worker_thread.cpp
-SIM_SRC    = src/sim/sim_manager.cpp
+SIM_SRC    = src/sim/sim_manager.cpp \
+             src/sim/simulation.cpp
 SIM_TEST   = src/sim/tests/test_sim_manager.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) $(SIM_SRC) run_tests.cpp \
              $(SIM_TEST)
@@ -87,6 +88,7 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/exe/task_queue_interface.hpp \
              src/exe/worker_thread.hpp \
              src/sim/sim_manager.hpp \
+             src/sim/simulation.hpp \
              headers/exceptions/io.hpp \
              headers/exceptions/base.hpp \
              headers/exceptions/mem.hpp \

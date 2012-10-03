@@ -10,6 +10,7 @@
 #ifndef SIM__SIM_MANAGER_HPP_
 #define SIM__SIM_MANAGER_HPP_
 
+#include "./simulation.hpp"
 
 namespace flame { namespace sim {
 
