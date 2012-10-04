@@ -58,8 +58,14 @@ MessageBoard::Iterator MessageBoardManager::GetMessageIterator(
 
 //! Performs sync operation on board
 void MessageBoardManager::Sync(const std::string& msg_name) {
-  return GetMessageBoard(msg_name).Sync();
+  GetMessageBoard(msg_name).Sync();
 }
+
+//! Performs clear operation on board
+void MessageBoardManager::Clear(const std::string& msg_name) {
+  GetMessageBoard(msg_name).Clear();
+}
+
 
 //! Returns the number of messages that have been synched
 size_t MessageBoardManager::GetCount(const std::string& msg_name) {

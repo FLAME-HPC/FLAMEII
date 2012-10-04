@@ -54,6 +54,9 @@ class MessageBoardManager {
     //! Performs sync operation on board
     void Sync(const std::string& msg_name);
 
+    //! Performs clear operation on board
+    void Clear(const std::string& msg_name);
+
     //! Returns the number of messages that have been synched
     size_t GetCount(const std::string& msg_name);
 

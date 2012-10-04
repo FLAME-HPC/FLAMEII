@@ -19,6 +19,9 @@ void MessageBoardTask::Run(void) {
     case OP_SYNC:
       flame::mb::MessageBoardManager::GetInstance().Sync(msg_name_);
       break;
+    case OP_CLEAR:
+      flame::mb::MessageBoardManager::GetInstance().Clear(msg_name_);
+      break;
     default:
       throw flame::exceptions::not_implemented("Operation not implemented");
   }

@@ -129,6 +129,20 @@ BoardWriterHandle MessageBoard::GetBoardWriter(void) {
 }
 
 /*!
+ * \brief Additional operations to run during a Sync()
+ *
+ * Derived classes should overload this to define custom operations triggered
+ * during a Clear().
+ *
+ * This function is called after all writers are deleted and the internal
+ * vectors are cleared, but after the callback functions are triggered for
+ * filter plugins.
+ *
+ * In this base class, this function does nothing.
+ */
+void MessageBoard::_clear(void) {}  // noop for base class
+
+/*!
  * \brief Populate vectors with contents from board writers
  *
  * Once completed, writers_ is cleared and all instances of BoardWriters
@@ -140,6 +154,12 @@ BoardWriterHandle MessageBoard::GetBoardWriter(void) {
  */
 void MessageBoard::_merge_boards(void) {
   size_t message_count = 0;
+
+  // Run pre_clear operation for filter plugins
+  // _filter_pre_clear_callbacks();
+
+  // Run _clear() operation from derived classes
+  _clear();
 
   // determine number of new messages
   WriterVector::iterator iter = writers_.begin();
@@ -161,6 +181,22 @@ void MessageBoard::_merge_boards(void) {
 
   // update internal message counter
   count_ = message_count;
+
+  // Disconnect all writers so existing writers held by users
+  // will not fail silently when a Post() is attempted
+  _disconnect_writers();
+
+  // delete all writers
+  writers_.clear();
+}
+
+//! Clears all messages
+void MessageBoard::Clear(void) {
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+    p.second->clear();
+  }
+
+  count_ = 0;
 
   // Disconnect all writers so existing writers held by users
   // will not fail silently when a Post() is attempted

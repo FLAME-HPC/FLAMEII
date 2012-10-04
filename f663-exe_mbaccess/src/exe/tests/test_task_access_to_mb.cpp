@@ -95,6 +95,8 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
 
   exe::Task &ts = tm.CreateMessageBoardTask("sync", "location",
                                             exe::MessageBoardTask::OP_SYNC);
+  exe::Task &tc = tm.CreateMessageBoardTask("clear", "location",
+                                            exe::MessageBoardTask::OP_CLEAR);
 
   exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
   t2.AllowAccess("checksum", true);
@@ -103,6 +105,7 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   // define task dependencies
   tm.AddDependency("sync", "post");
   tm.AddDependency("read", "sync");
+  tm.AddDependency("clear", "read");
 
   // Run
   exe::Scheduler s;
@@ -121,7 +124,9 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
     BOOST_CHECK_EQUAL(cs->at(i), sum);
   }
 
-  BOOST_CHECK_EQUAL(mb_mgr.GetCount("location"), (size_t)AGENT_COUNT);
+  // Board should have been cleared in the end
+  BOOST_CHECK_EQUAL(mb_mgr.GetCount("location"), (size_t)0);
+
   mem_mgr.Reset();
   mb_mgr.Reset();
   tm.Reset();
