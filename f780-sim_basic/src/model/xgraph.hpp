@@ -19,6 +19,7 @@
 #include "./task.hpp"
 #include "./xfunction.hpp"
 #include "./xvariable.hpp"
+#include "exe/task_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -51,19 +52,23 @@ class XGraph {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
+    int registerTasksAndDependenciesWithTaskManager();
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
-    void splitMessageTasks();
     void setTasksImported(bool b);
     std::vector<Task *> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
+    void importGraphs(std::set<XGraph*> graphs);
 #ifdef TESTBUILD
     void testBoostGraphLibrary();
     bool testCompareTaskSets();
 #endif
 
   private:
+    void splitMessageTasks();
+    int registerAllowAccess(flame::exe::Task& task,
+            std::set<std::string> * vars, bool writeable);
     Vertex addVertex(Task * t);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);

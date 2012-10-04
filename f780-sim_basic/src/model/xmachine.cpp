@@ -12,9 +12,7 @@
 #include <vector>
 #include <set>
 #include "./xmachine.hpp"
-#include "../mem/memory_manager.hpp"
-#include "../exe/task_manager.hpp"
-#include "include/flame.h"
+#include "mem/memory_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -208,62 +206,6 @@ int XMachine::registerWithMemoryManager() {
     }
     /* Population Size hint */
     memoryManager.HintPopulationSize(name_, 100);
-
-    return 0;
-}
-
-// dummy function
-FLAME_AGENT_FUNC(func1) { return 0; }
-
-int XMachine::registerAllowAccess(flame::exe::Task& task,
-        std::vector<std::string> * vars, bool writeable) {
-    std::vector<std::string>::iterator sit;
-
-    // For each variable name
-    for (sit = vars->begin();
-            sit != vars->end(); sit++) {
-        try {
-            // Allow access for variable name
-            task.AllowAccess((*sit), writeable);
-        }
-        catch(const flame::exceptions::logic_error& E) {
-            std::fprintf(stderr, "Error: %s\n", E.what());
-            std::fprintf(stderr, "When allowing access for '%s' variable\n",
-                    (*sit).c_str());
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-int XMachine::registerWithTaskManager() {
-    int rc;
-    std::vector<XFunction*>::iterator fit;
-    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-
-    // For each function
-    for (fit = functions_.begin(); fit != functions_.end(); fit++) {
-        try {
-            // Create agent task
-            flame::exe::Task& task =
-                taskManager.CreateAgentTask((*fit)->getName(), name_, &func1);
-            // Allow access to read only variables
-            rc = registerAllowAccess(task,
-                    (*fit)->getReadOnlyVariables(), false);
-            if (rc != 0) return 1;
-            // Allow access to read write variables
-            rc = registerAllowAccess(task,
-                    (*fit)->getReadWriteVariables(), true);
-            if (rc != 0) return 1;
-        }
-        catch(const flame::exceptions::logic_error& E) {
-            std::fprintf(stderr, "Error: %s\n", E.what());
-            std::fprintf(stderr, "When creating a task for '%s' function\n",
-                    (*fit)->getName().c_str());
-            return 2;
-        }
-    }
 
     return 0;
 }

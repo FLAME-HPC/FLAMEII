@@ -30,9 +30,11 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     sim::Simulation sim1;
 
     // Add <xml> to both of these
-    sim1.loadModel("src/sim/tests/models/circles/circles.xml");
+    // sim1.loadModel("src/sim/tests/models/circles/circles.xml");
+    sim1.loadModel("src/sim/tests/models/test01/test01.xml");
     // Can only do this after loading a model
-    sim1.loadPop("src/sim/tests/models/circles/0.xml");
+    // sim1.loadPop("src/sim/tests/models/circles/0.xml");
+    sim1.loadPop("src/sim/tests/models/test01/0.xml");
     // Run for one iteration
     sim1.start(1);
 }

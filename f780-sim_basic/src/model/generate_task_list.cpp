@@ -17,31 +17,46 @@
 
 namespace flame { namespace model {
 
+int ModelManager::generateModelGraph(XModel * model, XGraph * modelGraph) {
+    std::vector<XMachine*>::iterator agent;
+    std::set<XGraph *> graphs;
+
+    modelGraph->setAgentName(model->getName());
+
+    // Consolidate agent graphs into a model graph
+    for (agent = model->getAgents()->begin();
+            agent != model->getAgents()->end(); agent++) {
+        // Generate agent graph
+        (*agent)->generateDependencyGraph();
+        // Add to model graph
+        //(*agent)->addToModelGraph(&modelGraph);
+        graphs.insert((*agent)->getFunctionDependencyGraph());
+    }
+
+    modelGraph->importGraphs(graphs);
+
+#ifdef TESTBUILD
+    modelGraph->writeGraphviz(model->getName() + ".dot");
+#endif
+
+    return 0;
+}
+
 /*!
  * \brief Generates task list
  * \return The return code
  * Produces task list with state/data/communication dependencies.
  */
-int ModelManager::generate_task_list() {
+int ModelManager::registerModelWithTaskManager(XModel * model) {
 //    int rc;
-    std::vector<XMachine*>::iterator agent;
+
     XGraph modelGraph;
 
-    modelGraph.setAgentName(model_.getName());
+    generateModelGraph(model, &modelGraph);
 
-    // Consolidate agent graphs into a model graph
-    for (agent = model_.getAgents()->begin();
-            agent != model_.getAgents()->end(); agent++) {
-        (*agent)->addToModelGraph(&modelGraph);
-    }
-    // Split messages into start and end syncs
-    modelGraph.splitMessageTasks();
+    //modelGraph.generateTaskList(&tasks_);
 
-#ifdef TESTBUILD
-    modelGraph.writeGraphviz(model_.getName() + ".dot");
-#endif
-
-    modelGraph.generateTaskList(&tasks_);
+    modelGraph.registerTasksAndDependenciesWithTaskManager();
 
     // printTaskList(&tasks_);
 

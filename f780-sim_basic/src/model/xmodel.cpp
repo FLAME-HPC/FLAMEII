@@ -125,27 +125,6 @@ std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
     return 0;
 }
 
-int XModel::registerWithTaskManager() {
-    int rc;
-    std::vector<XMachine*>::iterator agent;
-
-    // For each agent
-    for (agent = getAgents()->begin();
-         agent != getAgents()->end(); ++agent) {
-        // Generate graphs
-        (*agent)->generateDependencyGraph();
-        // Register with task manager
-        rc = (*agent)->registerWithTaskManager();
-        if (rc != 0) {
-        std::fprintf(stderr, "When registering '%s' agent with task manager\n",
-                    (*agent)->getName().c_str());
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
 void XModel::setPath(std::string path) {
     path_ = path;
 }

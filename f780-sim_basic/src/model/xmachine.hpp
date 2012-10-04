@@ -41,12 +41,9 @@ class XMachine {
     int checkFunctionConditions();
     int generateDependencyGraph();
     int registerWithMemoryManager();
-    int registerWithTaskManager();
     void addToModelGraph(XGraph * modelGraph);
 
   private:
-    int registerAllowAccess(flame::exe::Task& task,
-            std::vector<std::string> * vars, bool writeable);
     std::string name_;
     std::vector<XVariable*> variables_;
     std::vector<XFunction*> functions_;

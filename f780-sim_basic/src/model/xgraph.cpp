@@ -12,6 +12,7 @@
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -24,6 +25,8 @@
 #include "./xcondition.hpp"
 #include "./xfunction.hpp"
 #include "./task.hpp"
+#include "exe/task_manager.hpp"
+#include "include/flame.h"
 
 namespace flame { namespace model {
 
@@ -33,6 +36,8 @@ XGraph::XGraph() {
     vertex2task_ = new std::vector<Task *>;
     edge2dependency_ = new EdgeMap;
     taskImported_ = false;
+    endTask_ = 0;
+    startTask_ = 0;
 }
 
 XGraph::~XGraph() {
@@ -226,8 +231,10 @@ void XGraph::generateStateGraphStates(XFunction * function, Task * task,
                 function->getCondition()->getReadOnlyVariables();
         // For each condition read variable add to current state
         // read variables
-        for (sit = rov->begin(); sit != rov->end(); sit++)
+        for (sit = rov->begin(); sit != rov->end(); sit++) {
             currentState->addReadVariable(*sit);
+            currentState->addReadOnlyVariable(*sit);
+        }
     }
 }
 
@@ -235,9 +242,12 @@ void XGraph::generateStateGraphVariables(XFunction * function, Task * task) {
     std::vector<std::string>::iterator sitv;
     // For each read only variable
     for (sitv = function->getReadOnlyVariables()->begin();
-            sitv != function->getReadOnlyVariables()->end(); sitv++)
+            sitv != function->getReadOnlyVariables()->end(); sitv++) {
+        // Add to task read only variables
+        task->addReadOnlyVariable(*sitv);
         // Add to task read variables
         task->addReadVariable(*sitv);
+    }
     // For each read write variable
     for (sitv = function->getReadWriteVariables()->begin();
             sitv != function->getReadWriteVariables()->end(); sitv++) {
@@ -317,6 +327,95 @@ void XGraph::generateTaskList(std::vector<Task*> * tasks) {
     for (vit = sorted_vertices.rbegin();
             vit != sorted_vertices.rend(); vit++)
         tasks->push_back(getTask((*vit)));
+}
+
+int XGraph::registerAllowAccess(flame::exe::Task& task,
+        std::set<std::string> * vars, bool writeable) {
+    std::set<std::string>::iterator sit;
+
+    // For each variable name
+    for (sit = vars->begin();
+            sit != vars->end(); sit++) {
+        try {
+            // Allow access for variable name
+            task.AllowAccess((*sit), writeable);
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+            std::fprintf(stderr, "When allowing access for '%s' variable\n",
+                    (*sit).c_str());
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// dummy function
+FLAME_AGENT_FUNC(func1) { return 0; }
+
+int XGraph::registerTasksAndDependenciesWithTaskManager() {
+    int rc;
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    boost::graph_traits<Graph>::edge_iterator iei, iei_end;
+    std::pair<VertexIterator, VertexIterator> vp;
+
+    // For each vertex
+    for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+        Task * t = getTask(*vp.first);
+        std::string taskName = t->getTaskName();
+        std::cout << "task " << taskName << std::endl;
+
+        if (t->getTaskType() == Task::xfunction ||
+                t->getTaskType() == Task::xcondition) {
+            try {
+                // Create agent task
+                flame::exe::Task& task =
+                    taskManager.CreateAgentTask(
+                            taskName, getTask(*vp.first)->getParentName(), &func1);
+                // Allow access to read only variables
+                rc = registerAllowAccess(task,
+                        t->getReadOnlyVariables(), false);
+                if (rc != 0) return 1;
+                // Allow access to read write variables
+                rc = registerAllowAccess(task,
+                        t->getWriteVariables(), true);
+                if (rc != 0) return 1;
+            }
+            catch(const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\nWhen creating a task for '%s' function\n",
+                        E.what(),
+                        t->getName().c_str());
+                return 2;
+            }
+        }
+        if (t->getTaskType() == Task::start_model ||
+                t->getTaskType() == Task::finish_model ||
+                t->getTaskType() == Task::io_pop_write) {
+            // Data output tasks
+        }
+        if (t->getTaskType() == Task::sync_start ||
+            t->getTaskType() == Task::sync_finish) {
+            // Message tasks
+            //flame::exe::Task &ts = taskManager.createMessageBoardTask(
+            //        );
+    }
+    }
+
+    // Add all in and out vertex edges to set of edges to be removed
+    for (boost::tie(iei, iei_end) = boost::edges(*graph_);
+            iei != iei_end; ++iei) {
+        std::string source = getTask(boost::source((Edge)*iei, *graph_))->getTaskName();
+        std::string target = getTask(boost::target((Edge)*iei, *graph_))->getTaskName();
+        try { taskManager.AddDependency(source,target); }
+        catch(const flame::exceptions::flame_exception& E) {
+            std::fprintf(stderr,
+                "Error: %s\nWhen adding a dependency between %s and %s\n",
+                E.what(), source.c_str(), target.c_str());
+        }
+    }
+
+    return 0;
 }
 
 void clearVarWriteSet(std::string name,
@@ -433,9 +532,9 @@ void XGraph::addReadDependencies(Vertex v, Task * t) {
                         addEdge(*it, v, *varit, Dependency::variable);
 #else
                         addEdge(*it, v, "Data", Dependency::variable);
-#endif
                         // Add vertex to ones already used
                         alreadyUsed.insert(*it);
+#endif
                     }
                 }
             }
@@ -452,12 +551,12 @@ void XGraph::addWritingVerticesToList(Vertex v, Task * t) {
         clearVarWriteSet((*varit), t->getLastWrites());
 #ifdef USE_VARIABLE_VERTICES
         // New vertex
-        Task * task = new Task((*varit), Task::xvariable);
+        Task * task = new Task(agentName_, (*varit), Task::xvariable);
         Vertex varVertex = addVertex(task);
         // Edge to vertex
-        addEdge((*vit), v, (*varit), Dependency::variable);
+        addEdge(v, varVertex, (*varit), Dependency::variable);
         // Add new write
-        addVectorToVarWriteSet((*varit), varVertex, task->getLastWrites());
+        addVectorToVarWriteSet((*varit), varVertex, t->getLastWrites());
 #else
         // Add new write
         addVectorToVarWriteSet((*varit), v, t->getLastWrites());
@@ -520,10 +619,12 @@ void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
     VarMapToVertices::iterator vwit;
     std::set<size_t>::iterator sit;
     VarMapToVertices * lws = endTask_->getLastWrites();
+    size_t count;
 
     while (!lws->empty()) {
         // Create new io write task
-        Task * task = new Task(agentName_, "", Task::io_pop_write);
+        Task * task = new Task(agentName_,
+            boost::lexical_cast<std::string>(count++), Task::io_pop_write);
         Vertex vertex = addVertex(task);
         task->getWriteVariables()->insert((*lws->begin()).first);
         // Check first var against other var task sets, if same then add to
@@ -735,20 +836,18 @@ void XGraph::import(XGraph * graph) {
     std::map<Vertex, Vertex> import2new;
     EdgeIterator eit, end;
 
-    // Add start task
-    /*Task * task = new Task("", agentName_, Task::start_model);
-    Vertex startVertex = addVertex(task);
-    startTask_ = task;*/
-
     // For each task vertex map
     for (ii = 0; ii < v2t->size(); ii++) {
         // Add vertex to current graph
         Vertex v = addVertex(v2t->at(ii));
         // Add to vertex to vertex map
         import2new.insert(std::make_pair(ii, v));
-        // If task is an init agent then add egde
-        /*if (v2t->at(ii)->getTaskType() == Task::start_agent)
-            add_edge(startVertex, v, *graph_);*/
+        // If task is an init agent then add edge
+        if (v2t->at(ii)->getTaskType() == Task::start_agent)
+        add_edge(getVertex(startTask_), v, *graph_);
+        // If task is a data output task then add edge
+        if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
+        add_edge(v, getVertex(endTask_), *graph_);
     }
     // For each edge
     for (boost::tie(eit, end) = boost::edges(*(graph->getGraph()));
@@ -762,6 +861,31 @@ void XGraph::import(XGraph * graph) {
     }
 
     graph->setTasksImported(true);
+}
+
+void XGraph::importGraphs(std::set<XGraph*> graphs) {
+    std::set<XGraph*>::iterator it;
+
+    // Add start task
+    Task * t = new Task(agentName_, "Start", Task::start_model);
+    addVertex(t);
+    startTask_ = t;
+    // Add finish task
+    t = new Task(agentName_, "Finish", Task::finish_model);
+    addVertex(t);
+    endTask_ = t;
+
+    for (it = graphs.begin(); it != graphs.end(); it++)
+        import((*it));
+
+    // Contract start agents
+    contractVertices(Task::start_agent, Dependency::blank);
+
+    // Remove redundant dependencies
+    //removeRedundantDependencies();
+
+    // Split message tasks into start and finish syncs
+    splitMessageTasks();
 }
 
 /*!
@@ -863,25 +987,28 @@ struct vertex_label_writer {
         } else {
             out << " [label=\"";
             if (t->getTaskType() == Task::sync_start)
-                out << "SS: ";
+                out << "SS: " << t->getName() << "\"";
             else if (t->getTaskType() == Task::sync_finish)
-                out << "SF: ";
+                out << "SF: " << t->getName() << "\"";
             else if (t->getTaskType() == Task::start_agent ||
                     t->getTaskType() == Task::start_model)
-                out << "Start\\n";
-            else if (t->getTaskType() == Task::finish_agent)
-                out << "Finish\\n";
-            out << t->getName() << "\"";
+                out << "Start\\n" << t->getParentName() << "\"";
+            else if (t->getTaskType() == Task::finish_agent ||
+                    t->getTaskType() == Task::finish_model)
+                out << "Finish\\n" << t->getParentName() << "\"";
+            else out << t->getName() << "\"";
             if (t->getTaskType() == Task::xfunction)
                 out << " shape=rect, style=filled, fillcolor=yellow";
             if (t->getTaskType() == Task::xcondition)
                 out << " shape=invhouse, style=filled, fillcolor=yellow";
             if (t->getTaskType() == Task::start_agent ||
                     t->getTaskType() == Task::finish_agent ||
-                    t->getTaskType() == Task::start_model)
+                    t->getTaskType() == Task::start_model ||
+                    t->getTaskType() == Task::finish_model)
                 out << " shape=ellipse, style=filled, fillcolor=red";
-            if (t->getTaskType() == Task::xvariable)
-                out << " shape=ellipse";
+            if (t->getTaskType() == Task::xvariable ||
+                    t->getTaskType() == Task::xstate)
+                out << " shape=ellipse, style=filled, fillcolor=white";
             if (t->getTaskType() == Task::xmessage ||
                     t->getTaskType() == Task::sync_start ||
                     t->getTaskType() == Task::sync_finish) {
@@ -909,7 +1036,8 @@ struct edge_label_writer {
         EdgeMap::iterator it = edge2dependency->find(e);
         if (it != edge2dependency->end()) d = (*it).second;
         out << " [";
-        if (d) out << "label=\"" << d->getGraphName() << "\" ";
+        if (d) if (d->getDependencyType() != Dependency::blank)
+            out << "label=\"" << d->getGraphName() << "\" ";
         if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
         out << "]";
     }

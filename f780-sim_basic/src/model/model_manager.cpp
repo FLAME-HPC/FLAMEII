@@ -42,18 +42,11 @@ std::fprintf(stderr, "Error: Model from XML file could not be validated.\n");
         return 2;
     }
 
-    // Initialise model
-    // Generate graphs and task list
-    // Register with memory manager
-    // HAS TO BE DONE AFTER LOADING POP
-    // NOW HANDLED BY SIMULATION CLASS
-/*    if (model_.initialise() != 0) {
-std::fprintf(stderr, "Error: Model from XML file could not be initialised.\n");
-        model_.clear();
-        return 3;
-    }*/
-
     return 0;
+}
+
+int ModelManager::registerModelWithMemoryManager(XModel * model) {
+    return model->registerWithMemoryManager();
 }
 
 std::vector<Task*> * ModelManager::get_task_list() {

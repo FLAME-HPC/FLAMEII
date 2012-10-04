@@ -32,8 +32,10 @@ class ModelManager {
     ModelManager() {}
     ~ModelManager();
     int loadModel(std::string const& file, XModel * model);
-    int generate_task_list();
+    int registerModelWithMemoryManager(XModel * model);
+    int registerModelWithTaskManager(XModel * model);
     std::vector<Task*> * get_task_list();
+    int generateModelGraph(XModel * model, XGraph * modelGraph);
 
   private:
     int calculate_dependencies(std::vector<Task*> * tasks);

@@ -21,11 +21,10 @@ Simulation::Simulation() {
 
 void Simulation::loadModel(std::string model_file) {
     flame::model::ModelManager modelManager;
-    int rc;
+    int rc = 0;
 
-    rc = modelManager.loadModel(model_file, &model_);
-
-    model_.registerWithMemoryManager();
+    rc += modelManager.loadModel(model_file, &model_);
+    rc += modelManager.registerModelWithMemoryManager(&model_);
 
     if (rc == 0) modelLoaded_ = true;
 }
@@ -37,13 +36,19 @@ void Simulation::loadPop(std::string pop_file) {
     if (modelLoaded_) {
         rc = iomanager.readPop(pop_file, &model_, io::IOManager::xml);
         if (rc == 0) popLoaded_ = true;
+    } else {
+        std::fprintf(stderr, "Error: Cannot load pop because model not loaded\n");
     }
 }
 
 void Simulation::start(size_t iterations) {
+    flame::model::ModelManager modelManager;
+
     if (popLoaded_) {
         // Register agents with memory and task manager
-        model_.registerWithTaskManager();
+        modelManager.registerModelWithTaskManager(&model_);
+    } else {
+        std::fprintf(stderr, "Error: Cannot start simulation because pop not loaded\n");
     }
 }
 

@@ -17,7 +17,7 @@ namespace flame { namespace model {
 class Dependency {
   public:
     enum DependencyType { state = 0, communication, data, init,
-        condition, variable };
+        condition, variable, blank };
     Dependency(std::string name, DependencyType type);
     void setName(std::string name);
     std::string getName();

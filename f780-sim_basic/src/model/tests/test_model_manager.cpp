@@ -96,16 +96,18 @@ BOOST_AUTO_TEST_CASE(test_find_start_state) {
 BOOST_AUTO_TEST_CASE(test_graph_layers) {
     int rc;
     model::ModelManager modelManager;
+    model::XModel model;
 
     // Load test model
     // rc = modelManager.loadModel(
     //    "src/model/tests/models/dependency_test.xml");
-    rc = modelManager.loadModel("src/model/tests/models/infection.xml");
+    rc = modelManager.loadModel("src/model/tests/models/infection.xml", &model);
     // rc = modelManager.loadModel("src/model/tests/models/test.xml");
     // rc = modelManager.loadModel("../Integrated_Model_1.0/eurace_model.xml");
     BOOST_CHECK(rc == 0);
-    // Generate task list
-    rc = modelManager.generate_task_list();
+
+    model::XGraph modelGraph;
+    modelManager.generateModelGraph(&model, &modelGraph);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

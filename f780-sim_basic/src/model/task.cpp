@@ -30,12 +30,39 @@ Task::Task(std::string parentName, std::string name, TaskType type)
     if (type == Task::io_pop_write) priorityLevel_ = 0;
 }
 
-void Task::setTaskID(size_t id) {
-    taskID_ = id;
-}
+std::string Task::getTaskName() {
+    std::string name;
 
-size_t Task::getTaskID() {
-    return taskID_;
+    if (taskType_ == Task::xfunction) {
+        name.append("AF_");
+        name.append(parentName_);
+        name.append("_");
+        name.append(name_);
+    }
+    if (taskType_ == Task::xcondition) {
+        name.append("AC_");
+        name.append(parentName_);
+        name.append("_");
+        name.append(name_);
+    }
+    if (taskType_ == Task::start_model ||
+            taskType_ == Task::finish_model ||
+            taskType_ == Task::io_pop_write) {
+        name.append("DA_");
+        name.append(parentName_);
+        name.append("_");
+        name.append(name_);
+    }
+    if (taskType_ == Task::sync_start) {
+        name.append("MS_");
+        name.append(name_);
+    }
+    if (taskType_ == Task::sync_finish) {
+        name.append("MF_");
+        name.append(name_);
+    }
+
+    return name;
 }
 
 void Task::setParentName(std::string parentName) {
@@ -84,6 +111,14 @@ void Task::setHasCondition(bool hasCondition) {
 
 bool Task::hasCondition() {
     return hasCondition_;
+}
+
+void Task::addReadOnlyVariable(std::string name) {
+    readOnlyVariables_.insert(name);
+}
+
+std::set<std::string>* Task::getReadOnlyVariables() {
+    return &readOnlyVariables_;
 }
 
 void Task::addReadVariable(std::string name) {
