@@ -12,6 +12,7 @@
 #include "boost/foreach.hpp"
 #include "message_board.hpp"
 #include "mem/vector_wrapper.hpp"
+#include "message_iterator.hpp"
 #include "board_writer.hpp"
 
 namespace flame { namespace mb {
@@ -22,7 +23,7 @@ namespace flame { namespace mb {
  *
  * Initialiases internal parameters count_, msg_name_ and finalised_.
  */
-MessageBoard::MessageBoard(const std::string message_name)
+MessageBoard::MessageBoard(const std::string& message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
 /*!
@@ -35,10 +36,10 @@ MessageBoard::MessageBoard(const std::string message_name)
  * In the test build, all vectors are inspected to ensure that their sizes
  * match the counter.
  */
-size_t MessageBoard::GetCount(void) {
+size_t MessageBoard::GetCount(void) const {
 #ifdef TESTBUILD
   // When built for testing, validate the size of all data vectors
-  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+  BOOST_FOREACH(MemoryMap::const_reference p, mem_map_) {
     if (p.second->size() != count_) {
       throw flame::exceptions::flame_exception("inconsistent vector sizes");
     }
@@ -98,7 +99,7 @@ BoardWriterHandle MessageBoard::GetBoardWriter(void) {
   finalised_ = true;
 
   // create new board and give ownership of obj to writers_.
-  BoardWriterHandle b = BoardWriterHandle(new BoardWriter(msg_name_));
+  BoardWriterHandle b = BoardWriterHandle(new BoardWriter(msg_name_, this));
   writers_.push_back(b);
 
   // for each board variable, create an empty clone of data vectors
@@ -145,6 +146,13 @@ void MessageBoard::_merge_boards(void) {
 
   // delete all writers
   writers_.clear();
+}
+
+MessageIteratorHandle MessageBoard::GetMessageIterator(void) {
+  finalised_ = true;
+  return MessageIteratorHandle(new MessageIterator(
+    MessageIteratorBackend::Factory<MessageIteratorBackendRaw>(&mem_map_,
+                                                               this)));
 }
 
 }}  // namespace flame::mb

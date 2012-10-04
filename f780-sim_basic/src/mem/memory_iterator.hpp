@@ -19,7 +19,7 @@
 namespace flame { namespace mem {
 
 typedef std::map<std::string, void*> VoidPtrMap;
-typedef std::pair<std::string, void*> VoidPtrMapValue;
+typedef VoidPtrMap::value_type VoidPtrMapValue;
 
 class MemoryIterator {
   friend class AgentShadow;

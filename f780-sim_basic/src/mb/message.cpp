@@ -70,6 +70,8 @@ void Message::Clear(void) {
  * It allows variables to be assigned using a type-independent function
  * signature. Values are passed in using boost::any.
  *
+ * This method can be used to set and update read-only messages.
+ *
  * When DISABLE_RUNTIME_TYPE_CHECKING is defined, the boost::any
  * container is inspected to ensure that the underlying data is of the
  * correct type. Otherwise, the value is store as-is and it is the caller's
@@ -77,7 +79,7 @@ void Message::Clear(void) {
  */
 void Message::Set(std::string var_name, boost::any value) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
-  if (validator_->ValidateType(var_name, &value.type())) {
+  if (!validator_->ValidateType(var_name, &value.type())) {
     throw flame::exceptions::invalid_type("Mismatching type");
   }
 #endif
