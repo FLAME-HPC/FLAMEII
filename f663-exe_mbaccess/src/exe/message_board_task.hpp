@@ -1,3 +1,12 @@
+/*!
+ * \file src/exe/message_board_task.hpp
+ * \author Shawn Chin
+ * \date October 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief Task that runs message board functions
+ */
 #ifndef EXE__MESSAGE_BOARD_TASK_HPP_
 #define EXE__MESSAGE_BOARD_TASK_HPP_
 #include <string>
@@ -10,6 +19,7 @@ namespace flame { namespace exe {
 class MessageBoardTask : public Task {
   friend class TaskManager;
   public:
+    //! Allowed operation types
     enum Operation {
       OP_SYNC,
       OP_CLEAR
@@ -32,13 +42,14 @@ class MessageBoardTask : public Task {
     void Run(void);
 
   protected:
+    //! Constructor (Limited to TaskManager)
     MessageBoardTask(std::string task_name,
                      std::string msg_name,
                      Operation op);
 
   private:
-    std::string msg_name_;
-    Operation op_;
+    std::string msg_name_;  //! Message name
+    Operation op_;  //! Opearation to perform
 };
 
 }}  // namespace flame::exe

@@ -1,11 +1,18 @@
 /*!
- * \file FILENAME
+ * \file src/mb/client.hpp
  * \author Shawn Chin
- * \date 2012
+ * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Definition of the Client class
+ *
+ * For efficiency, Client intances cache BoardWriters when possible. This means
+ * that it is not thread-safe; multiple execution threads sharing a client may
+ * result in a race condition when messages are created and posted.
+ *
+ * Each execution thread should have its own Client instance (which can be
+ * generated from the same Proxy instance).
  */
 #ifndef MB__CLIENT_HPP_
 #define MB__CLIENT_HPP_

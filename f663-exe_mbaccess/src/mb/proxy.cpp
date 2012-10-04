@@ -15,6 +15,19 @@
 
 namespace flame { namespace mb {
 
+/*!
+ * \brief Grant read access to named message board
+ *
+ * If read permission his already granted to msg_name, this method
+ * returns successfully and nothing changes.
+ *
+ * If an unknown message name is provided, flame::exceptions::invalid_argument
+ * is thrown.
+ *
+ * If msg_name already has post permission (FLAME disallows reads and posts to
+ * the same board from the same task), flame::exceptions::invalid_operation
+ * is thrown.
+ */
 void Proxy::AllowRead(const std::string& msg_name) {
   // Check if msg_name_ already in acl_read_
   StringSet::iterator lb = acl_read_.lower_bound(msg_name);
@@ -31,6 +44,19 @@ void Proxy::AllowRead(const std::string& msg_name) {
   acl_read_.insert(lb, msg_name);
 }
 
+/*!
+ * \brief Grant post access to named message board
+ *
+ * If post permission his already granted to msg_name, this method
+ * returns successfully and nothing changes.
+ *
+ * If an unknown message name is provided, flame::exceptions::invalid_argument
+ * is thrown.
+ *
+ * If msg_name already has read permission (FLAME disallows reads and posts to
+ * the same board from the same task), flame::exceptions::invalid_operation
+ * is thrown.
+ */
 void Proxy::AllowPost(const std::string& msg_name) {
   // Check if msg_name_ already in acl_post_
   StringSet::iterator lb = acl_post_.lower_bound(msg_name);
@@ -47,15 +73,17 @@ void Proxy::AllowPost(const std::string& msg_name) {
   acl_post_.insert(lb, msg_name);
 }
 
+//! Determines if read permission has been granted
 bool Proxy::_can_read(const std::string& msg_name) {
   return (acl_read_.find(msg_name) != acl_read_.end());
 }
 
+//! Determines if post permission has been granted
 bool Proxy::_can_post(const std::string& msg_name) {
   return (acl_post_.find(msg_name) != acl_post_.end());
 }
 
-//! Returns a Client than can be used to access boards
+//! Returns a handle to a new client instance
 ClientHandle Proxy::GetClient(void) {
   return ClientHandle(new Client(acl_read_, acl_post_));
 }

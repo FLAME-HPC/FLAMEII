@@ -129,20 +129,6 @@ BoardWriterHandle MessageBoard::GetBoardWriter(void) {
 }
 
 /*!
- * \brief Additional operations to run during a Sync()
- *
- * Derived classes should overload this to define custom operations triggered
- * during a Clear().
- *
- * This function is called after all writers are deleted and the internal
- * vectors are cleared, but after the callback functions are triggered for
- * filter plugins.
- *
- * In this base class, this function does nothing.
- */
-void MessageBoard::_clear(void) {}  // noop for base class
-
-/*!
  * \brief Populate vectors with contents from board writers
  *
  * Once completed, writers_ is cleared and all instances of BoardWriters
@@ -154,12 +140,6 @@ void MessageBoard::_clear(void) {}  // noop for base class
  */
 void MessageBoard::_merge_boards(void) {
   size_t message_count = 0;
-
-  // Run pre_clear operation for filter plugins
-  // _filter_pre_clear_callbacks();
-
-  // Run _clear() operation from derived classes
-  _clear();
 
   // determine number of new messages
   WriterVector::iterator iter = writers_.begin();
@@ -190,13 +170,40 @@ void MessageBoard::_merge_boards(void) {
   writers_.clear();
 }
 
-//! Clears all messages
-void MessageBoard::Clear(void) {
-  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
-    p.second->clear();
-  }
+/*!
+ * \brief Additional operations to run during a Sync()
+ *
+ * Derived classes should overload this to define custom operations triggered
+ * during a Clear().
+ *
+ * This function is called after all writers are deleted and the internal
+ * vectors are cleared, but after the callback functions are triggered for
+ * filter plugins.
+ *
+ * In this base class, this function does nothing.
+ */
+void MessageBoard::_clear(void) {}  // noop for base class
 
-  count_ = 0;
+/*!
+ * \brief Clears all messages within the board
+ *
+ * The following operations are called in order:
+ * - Runs the pre-clear routines for all filter plugins so they can reset
+ *   their internal data
+ * - Calls _clear() to perform custom operations from derived classes
+ * - Sets count_ to 0
+ * - disconnects all writers
+ * - deletes all writers
+ * - Clears all internal vectors
+ */
+void MessageBoard::Clear(void) {
+  // Run pre_clear operation for filter plugins
+  // _filter_pre_clear_callbacks();
+
+  // Run _clear() operation from derived classes
+  _clear();
+
+  count_ = 0; // reset
 
   // Disconnect all writers so existing writers held by users
   // will not fail silently when a Post() is attempted
@@ -204,8 +211,19 @@ void MessageBoard::Clear(void) {
 
   // delete all writers
   writers_.clear();
+
+  // Empty internal vectors
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+    p.second->clear();
+  }
 }
 
+/*!
+ * \brief Creates and returns a message iterator
+ * \return Handle to message iterator
+ *
+ * A raw backend (MessageIteratorBackendRaw) by default.
+ */
 MessageIteratorHandle MessageBoard::GetMessageIterator(void) {
   finalised_ = true;
   return MessageIteratorHandle(new MessageIterator(

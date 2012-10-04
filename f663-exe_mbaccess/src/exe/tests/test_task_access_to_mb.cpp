@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mb_mgr.RegisterMessage("location");
   mb_mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
   // --------------- DEPLOY HACK -------------
-  flame_mb_api_hack_initialise();
+  flame_mb_api_hack_initialise(); // assigns "location" to type location_message
 
   // Register Task
   exe::TaskManager& tm = exe::TaskManager::GetInstance();

@@ -15,10 +15,18 @@
 namespace flame { namespace mb {
 /*!
  * \brief Proxy object to produce Clients that can access message board
+ *
+ * Clients generated from a Proxy instance can only access boards that have
+ * been permission explicitly granted using AllowRead() and AllowPost().
+ *
+ * A Proxy class should be assigned to a Task to determine its permissions.
+ * At execution time. a Client should be generated for each execution thread
+ * to avoid race conditions.
  */
 class Proxy
 {
   public:
+    //! Set of strings, use to store message names for acl_*
     typedef std::set<std::string> StringSet;
 
     //! Allows read access from a specific message board
