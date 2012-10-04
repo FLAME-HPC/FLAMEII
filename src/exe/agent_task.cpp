@@ -16,6 +16,7 @@
 namespace flame { namespace exe {
 
 namespace mem = flame::mem;
+namespace mb = flame::mb;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
 AgentTask::AgentTask(std::string task_name, std::string agent_name,
@@ -43,9 +44,11 @@ void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
 
 void AgentTask::Run() {
   mem::MemoryIteratorPtr m_ptr = GetMemoryIterator();
+  MessageBoardClient mb_client = GetMessageBoardClient();
+
   m_ptr->Rewind();
   while (!m_ptr->AtEnd()) {  // run function for each agent
-    func_(static_cast<void*>(m_ptr.get()));
+    func_(static_cast<void*>(m_ptr.get()), static_cast<void*>(mb_client.get()));
     // TODO(lsc): check rc == 0 to handle agent death
     m_ptr->Step();
   }

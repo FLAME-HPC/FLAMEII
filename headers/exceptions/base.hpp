@@ -62,5 +62,11 @@ class invalid_variable : public flame_exception {
         : flame_exception(msg) {}
 };
 
+class not_implemented : public flame_exception {
+  public:
+    explicit not_implemented(const std::string& msg)
+        : flame_exception(msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__BASE_HPP_

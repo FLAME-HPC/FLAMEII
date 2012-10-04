@@ -24,7 +24,7 @@ namespace flame { namespace mb {
  * Initialises count_ and msg_name_
  */
 BoardWriter::BoardWriter(const std::string message_name, TypeValidator* tv)
-  : count_(0), msg_name_(message_name), validator_(tv) {}
+  : count_(0), msg_name_(message_name), validator_(tv), connected_(true) {}
 
 /*!
  * \brief Returns the number of messages posted so far
@@ -65,7 +65,7 @@ void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
  * for Message::Post (which is how the Message is associated with a Board Writer
  * and in turn the Message Board).
  */
-MessageHandle BoardWriter::GetMessage(void) {
+MessageHandle BoardWriter::NewMessage(void) {
   MessageHandle msg = MessageHandle(new Message(validator_));
   msg->AssignPostCallback(boost::bind(&BoardWriter::PostCallback, this, _1));
   return msg;
@@ -85,11 +85,19 @@ MessageHandle BoardWriter::GetMessage(void) {
  * If everything is in order, we iterate through the variables and append all
  * values from the Message to the internal vectors.
  *
+ * Throws flame::exceptions::invalid_operation if the writer is no longer
+ * connected to the parent board. This will occur if Sync() is called on the
+ * parent board or if the board is deleted.
+ *
  * \note The internal maps in BoardWriter and Message MUST be ordered and of the
  * same container type. For efficiency, we iterate through their entries
  * concurrently and expect the keys to be returned in the same order.
  */
 void BoardWriter::PostCallback(Message* msg) {
+  if (!connected_) {
+    throw flame::exceptions::invalid_operation("Writer no longer connected");
+  }
+
   // First, check that all values are value so we don't end up within
   // inconsistent data vectors on error
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
@@ -114,6 +122,16 @@ void BoardWriter::PostCallback(Message* msg) {
 
   // increment msg counter
   ++count_;
+}
+
+//! Indicate if writer is still connected to the board
+bool BoardWriter::IsConnected(void) {
+  return connected_;
+}
+
+//! Sets flag to indicate that writer is not disconnected from the board
+void BoardWriter::Disconnect(void) {
+  connected_ = false;
 }
 
 }}  // namespace flame::mb

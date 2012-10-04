@@ -27,6 +27,24 @@ MessageBoard::MessageBoard(const std::string& message_name)
   : count_(0), msg_name_(message_name), finalised_(false) {}
 
 /*!
+ * \brief Destructor
+ *
+ * Disconnect all board writers so a Post() operation will not fail silently.
+ *
+ */
+MessageBoard::~MessageBoard() {
+  _disconnect_writers();
+}
+
+//! Disconnect all writers
+void  MessageBoard::_disconnect_writers(void) {
+  WriterVector::iterator iter = writers_.begin();
+  for (; iter != writers_.end(); ++iter) {
+    (*iter)->Disconnect();
+  }
+}
+
+/*!
  * \brief Returns the number of messages
  * \return Number of messages in the board
  *
@@ -144,10 +162,68 @@ void MessageBoard::_merge_boards(void) {
   // update internal message counter
   count_ = message_count;
 
+  // Disconnect all writers so existing writers held by users
+  // will not fail silently when a Post() is attempted
+  _disconnect_writers();
+
   // delete all writers
   writers_.clear();
 }
 
+/*!
+ * \brief Additional operations to run during a Sync()
+ *
+ * Derived classes should overload this to define custom operations triggered
+ * during a Clear().
+ *
+ * This function is called after all writers are deleted and the internal
+ * vectors are cleared, but after the callback functions are triggered for
+ * filter plugins.
+ *
+ * In this base class, this function does nothing.
+ */
+void MessageBoard::_clear(void) {}  // noop for base class
+
+/*!
+ * \brief Clears all messages within the board
+ *
+ * The following operations are called in order:
+ * - Runs the pre-clear routines for all filter plugins so they can reset
+ *   their internal data
+ * - Calls _clear() to perform custom operations from derived classes
+ * - Sets count_ to 0
+ * - disconnects all writers
+ * - deletes all writers
+ * - Clears all internal vectors
+ */
+void MessageBoard::Clear(void) {
+  // Run pre_clear operation for filter plugins
+  // _filter_pre_clear_callbacks();
+
+  // Run _clear() operation from derived classes
+  _clear();
+
+  count_ = 0;  // reset
+
+  // Disconnect all writers so existing writers held by users
+  // will not fail silently when a Post() is attempted
+  _disconnect_writers();
+
+  // delete all writers
+  writers_.clear();
+
+  // Empty internal vectors
+  BOOST_FOREACH(const MemoryMap::value_type &p, mem_map_) {
+    p.second->clear();
+  }
+}
+
+/*!
+ * \brief Creates and returns a message iterator
+ * \return Handle to message iterator
+ *
+ * A raw backend (MessageIteratorBackendRaw) by default.
+ */
 MessageIteratorHandle MessageBoard::GetMessageIterator(void) {
   finalised_ = true;
   return MessageIteratorHandle(new MessageIterator(

@@ -27,20 +27,20 @@ const int AGENT_COUNT = 5000;
 FLAME_AGENT_FUNC(func_Y_10X) {
   int x = flame_mem_get_int("x_int");
   flame_mem_set_double("y_dbl", (x * 10.0));
-  return 0;
+  return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNC(func_Z_Xp1) {
   int x = flame_mem_get_int("x_int");
   flame_mem_set_double("z_dbl", (x + 1.0));
-  return 0;
+  return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNC(func_Y_XpY) {
   int x = flame_mem_get_int("x_int");
   double y = flame_mem_get_double("y_dbl");
   flame_mem_set_double("y_dbl", (x + y));
-  return 0;
+  return FLAME_AGENT_ALIVE;
 }
 
 
@@ -48,7 +48,7 @@ FLAME_AGENT_FUNC(func_X_YpZ) {
   double y = flame_mem_get_double("y_dbl");
   double z = flame_mem_get_double("z_dbl");
   flame_mem_set_int("x_int", static_cast<int>(y+z));
-  return 0;
+  return FLAME_AGENT_ALIVE;
 }
 
 BOOST_AUTO_TEST_CASE(initialise_memory_manager_exemod) {

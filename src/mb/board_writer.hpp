@@ -13,6 +13,7 @@
 #include "boost/ptr_container/ptr_map.hpp"
 #include "mem/vector_wrapper.hpp"
 #include "message_board.hpp"
+#include "message.hpp"
 
 namespace flame { namespace mb {
 
@@ -36,13 +37,16 @@ class BoardWriter {
 
   public:
     //! Returns a Message instance that can .Post() to this writer
-    MessageHandle GetMessage(void);
+    MessageHandle NewMessage(void);
 
     //! Callback function for storing posted messages
     void PostCallback(Message* msg);
 
     //! Return the number of messages posted so far
     size_t GetCount(void);
+
+    //! Indicate if writer is still connected to the board
+    bool IsConnected(void);
 
   protected:
     //! Constructor. Limited to friend classes
@@ -54,10 +58,14 @@ class BoardWriter {
     //! Internal data structure. Accessible by friend classes
     MemoryMap mem_map_;
 
+    //! Sets flag to indicate that writer is not disconnected from the board
+    void Disconnect(void);
+
   private:
     size_t count_;  //! Number of messages posted
     std::string msg_name_;  //! Message name
     TypeValidator* validator_;
+    bool connected_;  //! Indicate if writer is still valid
 };
 
 }}  // namespace flame::mb

@@ -24,6 +24,7 @@ class VectorWrapperBase {
     virtual void reserve(unsigned int n) = 0;
     virtual size_t size() const = 0;
     virtual bool empty() const = 0;
+    virtual void clear() = 0;
 
     virtual void* GetVectorPtr() = 0;
 
@@ -76,6 +77,7 @@ class VectorWrapper: public VectorWrapperBase {
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
     bool empty() const { return v_.empty(); }
+    void clear() { v_.clear(); }
 
     void Extend(VectorWrapperBase* vec) {
       if (GetDataType() != vec->GetDataType()) {
