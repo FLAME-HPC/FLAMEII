@@ -12,6 +12,7 @@
 #include "agent_task.hpp"
 #include "exceptions/all.hpp"
 #include "mem/memory_manager.hpp"
+#include "task_splitter.hpp"
 
 namespace flame { namespace exe {
 
@@ -20,8 +21,26 @@ namespace mb = flame::mb;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
 AgentTask::AgentTask(std::string task_name, std::string agent_name,
-                     TaskFunction func)
-    : agent_name_(agent_name), func_(func) {
+                     TaskFunction func) : is_split_(false) {
+  _init(task_name, agent_name, func);
+}
+
+//! Constructor used internally to produce split task
+AgentTask::AgentTask(std::string task_name,
+                     std::string agent_name,
+                     TaskFunction func,
+                     size_t offset, size_t count) : is_split_(true) {
+  _init(task_name, agent_name, func);
+  offset_ = offset;
+  count_ = count;
+}
+
+void AgentTask::_init(std::string task_name, std::string agent_name,
+                      TaskFunction func) {
+  offset_ = 0;
+  count_ = 0;
+  func_ = func;
+  agent_name_ = agent_name;
   task_name_ = task_name;
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
@@ -52,6 +71,42 @@ void AgentTask::Run() {
     // TODO(lsc): check rc == 0 to handle agent death
     m_ptr->Step();
   }
+}
+
+//! Returns a task splitter which allows task to be exected in segments
+TaskSplitterHandle AgentTask::SplitTask(size_t max_splits,
+                                          size_t min_task_size) {
+  // calculate how many splits and split size
+  size_t offset = (is_split_) ? offset_ : 0;
+  size_t population = (is_split_) ? count_ : shadow_ptr_->get_size();
+  if (population <= (min_task_size * 2)) {  // too small to split
+    return TaskSplitterHandle();  // return null handle
+  }
+
+  size_t num_splits, size_per_task, remainder;
+  if (population >= (min_task_size * max_splits)) {
+    num_splits = max_splits;
+  } else {
+    num_splits = population / min_task_size;
+  }
+  size_per_task = population / num_splits;
+  remainder = population % num_splits;
+
+  // Create TaskSplitter::TaskVector and populate using internal constructor
+  Task::Handle t;
+  TaskSplitter::TaskVector vec;
+  vec.reserve(num_splits);
+  size_t s;
+  for (size_t i = 0; i < num_splits; ++i) {
+    s = ((i < remainder) ? 1 : 0) + size_per_task;
+    t = Task::Handle(new AgentTask(task_name_, agent_name_, func_, offset, s));
+    t->set_task_id(task_id_);
+    vec.push_back(t);
+    offset += s;
+  }
+
+  // Construct and return TaskSplitter
+  return TaskSplitterHandle(new TaskSplitter(task_id_, vec));
 }
 
 }}  // namespace flame::exe

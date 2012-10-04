@@ -38,6 +38,9 @@ class AgentTask : public Task {
     //! Runs the task
     void Run();
 
+    //! Returns a task splitter which allows task to be exected in segments
+    TaskSplitterHandle SplitTask(size_t max_splits, size_t min_task_size);
+
   protected:
     // Tasks should only be created via Task Manager
     AgentTask(std::string task_name, std::string agent_name,
@@ -47,6 +50,18 @@ class AgentTask : public Task {
     std::string agent_name_;  //! Name of associated agent
     TaskFunction func_;  //! Function associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
+
+    bool is_split_;  //! Flag indicating task is a subtask (split task)
+    size_t offset_;  //! Memory iterator offset (only used if is_split_)
+    size_t count_;  //! Number of agetns to iterate (only used if is_split_)
+
+    //! Constructor used internally to produce split task
+    AgentTask(std::string task_name, std::string agent_name,
+              TaskFunction func_ptr, size_t offset, size_t count);
+
+    //! Setup method used by all constructors
+    void _init(std::string task_name, std::string agent_name,
+               TaskFunction func);
 };
 
 }}  // namespace flame::exe

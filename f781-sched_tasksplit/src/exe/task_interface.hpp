@@ -12,6 +12,7 @@
 #include <limits>
 #include <string>
 #include "boost/function.hpp"
+#include "boost/shared_ptr.hpp"
 #include "mem/memory_iterator.hpp"
 #include "mb/proxy.hpp"
 
@@ -19,10 +20,14 @@ namespace flame { namespace exe {
 
 typedef boost::function<int (void*, void*)> TaskFunction;
 
+class TaskSplitter;  // forward declaration
+typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;
+
 class Task {
   public:
     typedef size_t id_type;
     typedef flame::mb::ClientHandle MessageBoardClient;
+    typedef boost::shared_ptr<Task> Handle;
 
     //! Identifier for different task types
     enum TaskType {
@@ -47,6 +52,11 @@ class Task {
     //! TODO(lsc) Move this into AgentTask?
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
+
+    //! Returns a task splitter which allows task to be exected in segments
+    //! Should return null handle if cannot be split.
+    virtual TaskSplitterHandle SplitTask(size_t num_tasks,
+                                           size_t min_task_size) = 0;
 
     //! Adds read access to message board
     //! TODO(lsc) Move this into AgentTask?
