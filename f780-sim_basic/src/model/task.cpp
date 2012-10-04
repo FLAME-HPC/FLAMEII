@@ -36,31 +36,23 @@ std::string Task::getTaskName() {
     if (taskType_ == Task::xfunction) {
         name.append("AF_");
         name.append(parentName_);
-        name.append("_");
-        name.append(name_);
-    }
-    if (taskType_ == Task::xcondition) {
+    } else if (taskType_ == Task::xcondition) {
         name.append("AC_");
         name.append(parentName_);
-        name.append("_");
-        name.append(name_);
-    }
-    if (taskType_ == Task::start_model ||
-            taskType_ == Task::finish_model ||
-            taskType_ == Task::io_pop_write) {
-        name.append("DA_");
+    } else if (taskType_ == Task::io_pop_write) {
+        name.append("AD_");
         name.append(parentName_);
-        name.append("_");
-        name.append(name_);
+    } else if (taskType_ == Task::start_model ||
+            taskType_ == Task::finish_model) {
+        name.append("MD_");
+        name.append(parentName_);
+    } else if (taskType_ == Task::sync_start) {
+        name.append("MS");
+    } else if (taskType_ == Task::sync_finish) {
+        name.append("MF");
     }
-    if (taskType_ == Task::sync_start) {
-        name.append("MS_");
-        name.append(name_);
-    }
-    if (taskType_ == Task::sync_finish) {
-        name.append("MF_");
-        name.append(name_);
-    }
+    name.append("_");
+    name.append(name_);
 
     return name;
 }

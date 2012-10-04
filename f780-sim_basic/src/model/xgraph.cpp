@@ -352,7 +352,10 @@ int XGraph::registerAllowAccess(flame::exe::Task& task,
 }
 
 // dummy function
-FLAME_AGENT_FUNC(func1) { return 0; }
+FLAME_AGENT_FUNC(func1) {
+
+    return 0;
+}
 
 int XGraph::registerTasksAndDependenciesWithTaskManager() {
     int rc;
@@ -393,12 +396,17 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                 t->getTaskType() == Task::finish_model ||
                 t->getTaskType() == Task::io_pop_write) {
             // Data output tasks
+            taskManager.CreateAgentTask(taskName, "Test", &func1);
         }
         if (t->getTaskType() == Task::sync_start ||
             t->getTaskType() == Task::sync_finish) {
             // Message tasks
-            //flame::exe::Task &ts = taskManager.createMessageBoardTask(
-            //        );
+            taskManager.CreateAgentTask(taskName, "Test", &func1);
+            /*exe::Task &ts = taskManager.CreateMessageBoardTask("sync", "location",
+                exe::MessageBoardTask::OP_SYNC);
+              exe::Task &tc = taskManager.CreateMessageBoardTask("clear", "location",
+                exe::MessageBoardTask::OP_CLEAR);
+        */
     }
     }
 
@@ -668,6 +676,8 @@ void XGraph::removeStateDependencies() {
 void XGraph::transformConditionalStatesToConditions() {
     std::pair<VertexIterator, VertexIterator> vp;
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+    size_t count;
+
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
         // If out edges is larger than 1 and a state task
@@ -675,7 +685,7 @@ void XGraph::transformConditionalStatesToConditions() {
                 getTask(*vp.first)->getTaskType() == Task::xstate) {
             // Change task type to a condition
             getTask(*vp.first)->setTaskType(Task::xcondition);
-            getTask(*vp.first)->setName("Condition");
+            getTask(*vp.first)->setName(boost::lexical_cast<std::string>(count++));
             getTask(*vp.first)->setPriorityLevel(5);
         }
     }
