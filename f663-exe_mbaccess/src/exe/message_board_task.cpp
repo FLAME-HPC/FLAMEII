@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Task that runs message board functions
  */
+#include <string>
 #include "mb/message_board_manager.hpp"
 #include "exceptions/all.hpp"
 #include "message_board_task.hpp"
@@ -33,7 +34,7 @@ MessageBoardTask::MessageBoardTask(std::string task_name,
  * Runs board operations defined by op_ on named message board.
  */
 void MessageBoardTask::Run(void) {
-  switch(op_) {
+  switch (op_) {
     case OP_SYNC:
       flame::mb::MessageBoardManager::GetInstance().Sync(msg_name_);
       break;

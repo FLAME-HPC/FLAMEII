@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of Proxy
  */
+#include <string>
 #include "exceptions/all.hpp"
 #include "message_board_manager.hpp"
 #include "board_writer.hpp"
@@ -33,7 +34,7 @@ void Proxy::AllowRead(const std::string& msg_name) {
   StringSet::iterator lb = acl_read_.lower_bound(msg_name);
   if (lb != acl_read_.end() && !(acl_read_.key_comp()(msg_name, *lb))) {
     return;  // already exist in set. nothing to do
-  } else if (_can_post(msg_name)) { // Check for read/post conflicts
+  } else if (_can_post(msg_name)) {  // Check for read/post conflicts
     throw flame::exceptions::invalid_operation("Cannot read AND post to the "
                                                "same message");
   } else if (!MessageBoardManager::GetInstance().BoardExists(msg_name)) {
@@ -62,7 +63,7 @@ void Proxy::AllowPost(const std::string& msg_name) {
   StringSet::iterator lb = acl_post_.lower_bound(msg_name);
   if (lb != acl_post_.end() && !(acl_post_.key_comp()(msg_name, *lb))) {
     return;  // already exist in set. nothing to do
-  } else if (_can_read(msg_name)) { // Check for read/post conflicts
+  } else if (_can_read(msg_name)) {  // Check for read/post conflicts
     throw flame::exceptions::invalid_operation("Cannot read AND post to the "
                                                "same message");
   } else if (!MessageBoardManager::GetInstance().BoardExists(msg_name)) {

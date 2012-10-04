@@ -9,7 +9,9 @@
  */
 #ifndef MB__MESSAGE_BOARD_MANAGER_HPP_
 #define MB__MESSAGE_BOARD_MANAGER_HPP_
+#include <map>
 #include <string>
+#include <vector>
 #include "boost/ptr_container/ptr_map.hpp"
 #include "message_board.hpp"
 

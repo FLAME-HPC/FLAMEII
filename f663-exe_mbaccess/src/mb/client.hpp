@@ -16,12 +16,14 @@
  */
 #ifndef MB__CLIENT_HPP_
 #define MB__CLIENT_HPP_
+#include <map>
+#include <string>
 #include "mb_common.hpp"
 #include "proxy.hpp"
 
 namespace flame { namespace mb {
-class Client
-{
+
+class Client {
   public:
     friend class Proxy;
 
@@ -46,17 +48,16 @@ class Client
   private:
     typedef std::map<std::string, BoardWriterHandle> WriterMap;
 
-    Proxy::StringSet acl_read_; //! msg with read access
-    Proxy::StringSet acl_post_; //! msg with post acess
-    WriterMap writer_cache_; //! Cache of writer handles
+    Proxy::StringSet acl_read_;  //! msg with read access
+    Proxy::StringSet acl_post_;  //! msg with post acess
+    WriterMap writer_cache_;  //! Cache of writer handles
 
     //! Checks if read access is set for a message
     bool _can_read(const std::string& msg_name);
 
     //! Checks if post access is set for a message
     bool _can_post(const std::string& msg_name);
-
 };
 
 }}  // namespace flame::mb
-#endif // MB__CLIENT_HPP_
+#endif  // MB__CLIENT_HPP_

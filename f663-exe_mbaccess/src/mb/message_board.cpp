@@ -39,7 +39,7 @@ MessageBoard::~MessageBoard() {
 //! Disconnect all writers
 void  MessageBoard::_disconnect_writers(void) {
   WriterVector::iterator iter = writers_.begin();
-  for(; iter != writers_.end(); ++iter) {
+  for (; iter != writers_.end(); ++iter) {
     (*iter)->Disconnect();
   }
 }
@@ -203,7 +203,7 @@ void MessageBoard::Clear(void) {
   // Run _clear() operation from derived classes
   _clear();
 
-  count_ = 0; // reset
+  count_ = 0;  // reset
 
   // Disconnect all writers so existing writers held by users
   // will not fail silently when a Post() is attempted

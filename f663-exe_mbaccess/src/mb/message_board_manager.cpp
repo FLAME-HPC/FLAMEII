@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief MessageBoardManager: management and storage class for message boards
  */
+#include <string>
 #include <utility>
 #include "exceptions/all.hpp"
 #include "message_board_manager.hpp"

@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(mb_proxy_access) {
   message = writer->NewMessage();
   message->Set<double>("x", 3.0);
   message->Post();
-  message = writer2->NewMessage(); // another writer
+  message = writer2->NewMessage();  // another writer
   message->Set<double>("x", 4.0);
   message->Post();
 

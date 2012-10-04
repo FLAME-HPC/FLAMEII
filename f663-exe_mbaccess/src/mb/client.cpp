@@ -8,6 +8,7 @@
  * \brief Implementation of the Client class
  */
 #include <utility>
+#include <string>
 #include "message_board_manager.hpp"
 #include "board_writer.hpp"
 #include "client.hpp"
@@ -55,7 +56,7 @@ BoardWriterHandle Client::GetWriter(const std::string& msg_name) {
   // First, check the cache
   WriterMap::iterator lb = writer_cache_.lower_bound(msg_name);
   if (lb != writer_cache_.end() &&
-        !(writer_cache_.key_comp()(msg_name, lb->first))) { // found
+        !(writer_cache_.key_comp()(msg_name, lb->first))) {  // found
     if (!lb->second->IsConnected()) {  // writer disconnected. Recreate
       lb->second = MessageBoardManager::GetInstance().GetBoardWriter(msg_name);
     }

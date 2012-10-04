@@ -10,6 +10,7 @@
 #ifndef MB__PROXY_HPP_
 #define MB__PROXY_HPP_
 #include <set>
+#include <string>
 #include "mb_common.hpp"
 
 namespace flame { namespace mb {
@@ -23,8 +24,7 @@ namespace flame { namespace mb {
  * At execution time. a Client should be generated for each execution thread
  * to avoid race conditions.
  */
-class Proxy
-{
+class Proxy {
   public:
     //! Set of strings, use to store message names for acl_*
     typedef std::set<std::string> StringSet;

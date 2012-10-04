@@ -53,4 +53,4 @@ class MessageBoardTask : public Task {
 };
 
 }}  // namespace flame::exe
-#endif // EXE__MESSAGE_BOARD_TASK_HPP_
+#endif  // EXE__MESSAGE_BOARD_TASK_HPP_

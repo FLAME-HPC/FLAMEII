@@ -42,7 +42,7 @@ FLAME_AGENT_FUNC(func_read_message) {
   location_message msg;
 
   iter = flame_msg_get_iterator("location");
-  for(; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
+  for (; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
     flame_msg_iterator_get_message(iter, &msg);
     checksum += msg.id;
   }
@@ -80,9 +80,10 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   // Register Message Board
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
   mb_mgr.RegisterMessage("location");
-  mb_mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
+  mb_mgr.RegisterMessageVar<location_message>("location",
+                                              FLAME_MESSAGE_VARNAME);
   // --------------- DEPLOY HACK -------------
-  flame_mb_api_hack_initialise(); // assigns "location" to type location_message
+  flame_mb_api_hack_initialise();  // assign "location" to type location_message
 
   // Register Task
   exe::TaskManager& tm = exe::TaskManager::GetInstance();

@@ -23,7 +23,8 @@ namespace m = flame::mb;
 
 class IteratorWrapper {
   public:
-    IteratorWrapper(m::MessageIteratorHandle handle) : handle_(handle) {}
+    explicit IteratorWrapper(m::MessageIteratorHandle handle)
+        : handle_(handle) {}
     virtual ~IteratorWrapper() {}
     bool AtEnd(void) { return handle_->AtEnd(); }
     bool Next(void) { return handle_->Next(); }
@@ -35,7 +36,7 @@ class IteratorWrapper {
 template <typename T>
 class IteratorWrapperImpl : public IteratorWrapper {
   public:
-    IteratorWrapperImpl(m::MessageIteratorHandle handle)
+    explicit IteratorWrapperImpl(m::MessageIteratorHandle handle)
         : IteratorWrapper(handle) {}
 
     void GetMessage(void* out_ptr) {
@@ -47,7 +48,7 @@ class IteratorWrapperImpl : public IteratorWrapper {
 
 class TypeResolver {
   public:
-    TypeResolver(std::string name) : name_(name) {}
+    explicit TypeResolver(std::string name) : name_(name) {}
     virtual ~TypeResolver() {}
     virtual void Post(void* mb, void* msg_ptr) = 0;
     virtual IteratorWrapper* GetMessages(void* mb, const char* msg) = 0;
@@ -59,7 +60,7 @@ class TypeResolver {
 template <typename T>
 class TypeResolverImpl : public TypeResolver {
   public:
-    TypeResolverImpl(std::string name) : TypeResolver(name) {}
+    explicit TypeResolverImpl(std::string name) : TypeResolver(name) {}
 
     void Post(void* mb, void* msg_ptr) {
       T* actual_ptr = static_cast<T*>(msg_ptr);

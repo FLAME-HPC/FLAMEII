@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(mb_manager_lifecycle) {
   mb::MessageBoard::Iterator iter = mgr2.GetMessageIterator("location");
   BOOST_CHECK_EQUAL(iter->GetCount(), (size_t)3);
 
-  for(int i = 1; !iter->AtEnd(); iter->Next(), ++i) {
+  for (int i = 1; !iter->AtEnd(); iter->Next(), ++i) {
     msg = iter->GetMessage();
     BOOST_CHECK_EQUAL(msg->Get<double>("x"), 1.0*i);
     BOOST_CHECK_EQUAL(msg->Get<double>("y"), 10.0*i);
@@ -76,7 +76,6 @@ BOOST_AUTO_TEST_CASE(mb_manager_lifecycle) {
   BOOST_CHECK_NO_THROW(mgr.RegisterMessage("location"));
   BOOST_CHECK_THROW(mgr.RegisterMessage("location"), e::logic_error);
   mgr.Reset();
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

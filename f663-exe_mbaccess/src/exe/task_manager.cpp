@@ -7,7 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
-#include <iostream>
 #include <set>
 #include <stack>
 #include <string>
