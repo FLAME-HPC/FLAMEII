@@ -23,7 +23,7 @@ namespace exe = flame::exe;
 namespace mem = flame::mem;
 namespace mb = flame::mb;
 
-const int AGENT_COUNT = 5000;
+const int AGENT_COUNT = 100;
 
 FLAME_AGENT_FUNC(func_post_message) {
   location_message msg;
@@ -33,7 +33,6 @@ FLAME_AGENT_FUNC(func_post_message) {
   msg.id = flame_mem_get_int("id");
 
   flame_msg_post("location", &msg);
-
   return FLAME_AGENT_ALIVE;
 }
 
@@ -109,10 +108,19 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   exe::Scheduler s;
   exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
+  s.AssignType(q, exe::Task::MB_FUNCTION);
   s.RunIteration();
 
-  BOOST_CHECK_EQUAL(mb_mgr.GetCount("location"), (size_t)0);
-  mb_mgr.Sync("location");
+  // Check checksum for each agent. This tells use that all agents
+  // did post their id as a message and later read in all the messages
+  int sum = 0;
+  for (int i = 0; i < AGENT_COUNT; ++i) {
+    sum += i;
+  }
+  for (int i = 0; i < AGENT_COUNT; ++i) {
+    BOOST_CHECK_EQUAL(cs->at(i), sum);
+  }
+
   BOOST_CHECK_EQUAL(mb_mgr.GetCount("location"), (size_t)AGENT_COUNT);
   mem_mgr.Reset();
   mb_mgr.Reset();
