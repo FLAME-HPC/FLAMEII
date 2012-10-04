@@ -51,10 +51,13 @@ class MessageBoard : public TypeValidator {
     explicit MessageBoard(const std::string& message_name);
 
     //! Virtual destructor
-    virtual ~MessageBoard() {}
+    virtual ~MessageBoard();
 
     //! Performs Sync opeation
     void Sync(void);
+
+    //! Clears all messages
+    void Clear(void);
 
     //! Returns the number of messages that have been synched
     size_t GetCount(void) const;
@@ -89,6 +92,9 @@ class MessageBoard : public TypeValidator {
     //! Custom sync operations. To be overloaded by derived classes.
     virtual void _sync();
 
+    //! Custom clear operations. To be overloaded by derived classes.
+    virtual void _clear();
+
   private:
     size_t count_;  //! Total number of messages that have been synched
     std::string msg_name_;  //! Name of message
@@ -98,6 +104,9 @@ class MessageBoard : public TypeValidator {
 
     //! Collates all messages and clears writers_
     void _merge_boards(void);
+
+    //! Disconnect all writers
+    void _disconnect_writers(void);
 };
 
 }}  // namespace flame::msg

@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(mb_single_writer) {
   BOOST_CHECK_THROW(board.RegisterVar<int>("i2"), e::logic_error);
 
   /* get a message handle so we can post new messages */
-  mb::MessageHandle msg = writer->GetMessage();
+  mb::MessageHandle msg = writer->NewMessage();
 
   /* we should not be able to post yet. Not all vars set */
   BOOST_CHECK_THROW(msg->Post(), e::insufficient_data);
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writers) {
 
   /* Get another writer, post one message */
   writer = board.GetBoardWriter();
-  msg = writer->GetMessage();
+  msg = writer->NewMessage();
   msg->Set<int>("int", 10);
   msg->Set<double>("dbl", 0.1);
   msg->Post();
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writers) {
 
   /* Get another writer, post 4 messages */
   writer = board.GetBoardWriter();
-  msg = writer->GetMessage();
+  msg = writer->NewMessage();
   msg->Set<int>("int", 20);
   msg->Set<double>("dbl", 0.2);
   msg->Post();
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writers) {
 
   /* get another writer and post 5 more messages */
   writer = board.GetBoardWriter();
-  msg = writer->GetMessage();
+  msg = writer->NewMessage();
   msg->Set<int>("int", 10);
   msg->Set<double>("dbl", 0.1);
   msg->Post();
@@ -153,9 +153,9 @@ BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
   writer1 = board.GetBoardWriter();
   writer2 = board.GetBoardWriter();
 
-  msg1 = writer1->GetMessage();
-  msg2 = writer2->GetMessage();
-  msg2b = writer2->GetMessage();
+  msg1 = writer1->NewMessage();
+  msg2 = writer2->NewMessage();
+  msg2b = writer2->NewMessage();
 
   msg1->Set<int>("int", 10);
   msg1->Set<double>("dbl", 0.1);
@@ -179,6 +179,30 @@ BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
 
   board.Sync();
   BOOST_CHECK_EQUAL(board.GetCount(), (size_t)7);
+}
+
+BOOST_AUTO_TEST_CASE(mb_writer_test_disconnect) {
+  // use new so we can force deallocation
+  mb::MessageBoard *board = new mb::MessageBoard("msg1");
+  board->RegisterVar<int>("int");
+  board->RegisterVar<double>("dbl");
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+
+  // a new writer should be connected
+  mb::BoardWriterHandle writer = board->GetBoardWriter();
+  BOOST_CHECK(writer->IsConnected());
+
+  // disconnected once parent board is synched
+  board->Sync();
+  BOOST_CHECK(!writer->IsConnected());
+
+  // new writer is connected
+  writer = board->GetBoardWriter();
+  BOOST_CHECK(writer->IsConnected());
+
+  // disconnected after board deleted
+  delete board;
+  BOOST_CHECK(!writer->IsConnected());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

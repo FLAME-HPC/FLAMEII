@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
 
   /* Post messages and Sync */
   mb::MessageBoard::Writer writer = board.GetBoardWriter();
-  mb::MessageHandle msg = writer->GetMessage();
+  mb::MessageHandle msg = writer->NewMessage();
   msg->Set<int>("int", 1);
   msg->Post();
   msg->Set<int>("int", 2);

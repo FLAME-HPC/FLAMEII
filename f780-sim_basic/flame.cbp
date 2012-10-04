@@ -69,11 +69,14 @@
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/compat/C/mb_api.cpp" />
 		<Unit filename="src/compat/C/mem_api.cpp" />
 		<Unit filename="src/exe/agent_task.cpp" />
 		<Unit filename="src/exe/agent_task.hpp" />
 		<Unit filename="src/exe/fifo_task_queue.cpp" />
 		<Unit filename="src/exe/fifo_task_queue.hpp" />
+		<Unit filename="src/exe/message_board_task.cpp" />
+		<Unit filename="src/exe/message_board_task.hpp" />
 		<Unit filename="src/exe/scheduler.cpp" />
 		<Unit filename="src/exe/scheduler.hpp" />
 		<Unit filename="src/exe/task_interface.hpp" />
@@ -83,6 +86,9 @@
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/exe/tests/test_task_access_to_mb.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/exe/tests/test_task_manager.cpp">
 			<Option target="Test" />
 		</Unit>
@@ -90,18 +96,30 @@
 		<Unit filename="src/exe/worker_thread.hpp" />
 		<Unit filename="src/mb/board_writer.cpp" />
 		<Unit filename="src/mb/board_writer.hpp" />
+		<Unit filename="src/mb/client.cpp" />
+		<Unit filename="src/mb/client.hpp" />
 		<Unit filename="src/mb/mb_common.hpp" />
 		<Unit filename="src/mb/message.cpp" />
 		<Unit filename="src/mb/message.hpp" />
 		<Unit filename="src/mb/message_board.cpp" />
 		<Unit filename="src/mb/message_board.hpp" />
+		<Unit filename="src/mb/message_board_manager.cpp" />
+		<Unit filename="src/mb/message_board_manager.hpp" />
 		<Unit filename="src/mb/message_iterator.cpp" />
 		<Unit filename="src/mb/message_iterator.hpp" />
 		<Unit filename="src/mb/message_iterator_backend.cpp" />
 		<Unit filename="src/mb/message_iterator_backend.hpp" />
 		<Unit filename="src/mb/message_iterator_backend_raw.cpp" />
 		<Unit filename="src/mb/message_iterator_backend_raw.hpp" />
+		<Unit filename="src/mb/proxy.cpp" />
+		<Unit filename="src/mb/proxy.hpp" />
 		<Unit filename="src/mb/tests/test_board_iteration.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mb/tests/test_board_manager.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/mb/tests/test_board_proxy.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/mb/tests/test_board_writer.cpp">

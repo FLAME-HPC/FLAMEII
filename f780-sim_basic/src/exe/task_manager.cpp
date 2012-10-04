@@ -46,6 +46,21 @@ Task& TaskManager::CreateAgentTask(std::string task_name,
   return *task_ptr;
 }
 
+//! \brief Registers and returns a new MessageBoard Task
+Task& TaskManager::CreateMessageBoardTask(std::string task_name,
+                                         std::string msg_name,
+                                         MessageBoardTask::Operation op) {
+  MessageBoardTask* task_ptr = new MessageBoardTask(task_name, msg_name, op);
+  try {  // register new task with manager
+    RegisterTask(task_name, task_ptr);
+  } catch(const flame::exceptions::logic_error& E) {
+    delete task_ptr;  // free memory if registration failed.
+    throw E;  // rethrow exception
+  }
+
+  return *task_ptr;
+}
+
 // Separate out this bit so we can handle internal Tasks differently
 void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   if (finalised_) {
