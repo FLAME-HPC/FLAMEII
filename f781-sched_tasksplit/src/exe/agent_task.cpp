@@ -54,7 +54,11 @@ void AgentTask::_init(std::string task_name, std::string agent_name,
 }
 
 flame::mem::MemoryIteratorPtr AgentTask::GetMemoryIterator() const {
-  return shadow_ptr_->GetMemoryIterator();
+  if (is_split_) {
+    return shadow_ptr_->GetMemoryIterator(offset_, count_);
+  } else {
+    return shadow_ptr_->GetMemoryIterator();
+  }
 }
 
 void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
@@ -74,18 +78,22 @@ void AgentTask::Run() {
 }
 
 //! Returns a task splitter which allows task to be exected in segments
-TaskSplitterHandle AgentTask::SplitTask(size_t max_splits,
+TaskSplitterHandle AgentTask::SplitTask(size_t max_tasks,
                                           size_t min_task_size) {
+  if (max_tasks < 2) {  // no splitting required
+    return TaskSplitterHandle();  // return null handle
+  }
+
   // calculate how many splits and split size
   size_t offset = (is_split_) ? offset_ : 0;
   size_t population = (is_split_) ? count_ : shadow_ptr_->get_size();
-  if (population <= (min_task_size * 2)) {  // too small to split
+  if (population < (min_task_size * 2)) {  // too small to split
     return TaskSplitterHandle();  // return null handle
   }
 
   size_t num_splits, size_per_task, remainder;
-  if (population >= (min_task_size * max_splits)) {
-    num_splits = max_splits;
+  if (population >= (min_task_size * max_tasks)) {
+    num_splits = max_tasks;
   } else {
     num_splits = population / min_task_size;
   }

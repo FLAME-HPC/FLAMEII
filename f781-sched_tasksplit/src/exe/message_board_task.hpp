@@ -39,7 +39,7 @@ class MessageBoardTask : public Task {
     }
 
     //! Returns a task splitter (not supported by MB task)
-    TaskSplitterHandle SplitTask(size_t max_splits, size_t min_task_size) {
+    TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size) {
       throw flame::exceptions::not_implemented("method not applicable");
     }
 

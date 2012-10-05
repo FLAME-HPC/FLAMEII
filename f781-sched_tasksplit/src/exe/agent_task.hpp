@@ -39,7 +39,7 @@ class AgentTask : public Task {
     void Run();
 
     //! Returns a task splitter which allows task to be exected in segments
-    TaskSplitterHandle SplitTask(size_t max_splits, size_t min_task_size);
+    TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size);
 
   protected:
     // Tasks should only be created via Task Manager
@@ -53,7 +53,7 @@ class AgentTask : public Task {
 
     bool is_split_;  //! Flag indicating task is a subtask (split task)
     size_t offset_;  //! Memory iterator offset (only used if is_split_)
-    size_t count_;  //! Number of agetns to iterate (only used if is_split_)
+    size_t count_;  //! Number of agents to iterate (only used if is_split_)
 
     //! Constructor used internally to produce split task
     AgentTask(std::string task_name, std::string agent_name,

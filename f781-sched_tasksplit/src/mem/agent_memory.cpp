@@ -48,6 +48,12 @@ VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
  * In debug more, we double check the size against all other memory vectors.
  * To speed up subsequent calls, we cache the return value and skip the
  * checks if the size remains the same.
+ *
+ * Throws flame::exceptions::flame_mem_exception when the sizes are inconsistent
+ *
+ * Not that these checks will not detect problems when other vectors apart from
+ * the first reduces in size.
+ *
  */
 size_t AgentMemory::GetPopulationSize(void) {
   MemoryMap::iterator iter = mem_map_.begin();

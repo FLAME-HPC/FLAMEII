@@ -96,6 +96,9 @@
 		<Unit filename="src/exe/tests/test_task_manager.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/exe/tests/test_task_splitter.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/exe/worker_thread.cpp" />
 		<Unit filename="src/exe/worker_thread.hpp" />
 		<Unit filename="src/mb/board_writer.cpp" />
