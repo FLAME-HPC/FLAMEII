@@ -14,6 +14,7 @@
 #include "../task_manager.hpp"
 #include "../task_interface.hpp"
 #include "../fifo_task_queue.hpp"
+#include "../splitting_fifo_task_queue.hpp"
 #include "../scheduler.hpp"
 #include "include/flame.h"
 

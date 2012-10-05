@@ -84,30 +84,30 @@ BOOST_AUTO_TEST_CASE(exe_test_task_split) {
   // test IsComplete, NonePending, OneTaskAssigned, OneTaskDone, GetTask
   ts = t1.SplitTask(4, 20);
   BOOST_CHECK_THROW(ts->OneTaskDone(), e::flame_exception);  // nothing pending
-  ts->OneTaskAssigned();
+  BOOST_CHECK(!ts->OneTaskAssigned());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(!ts->NonePending());
-  ts->OneTaskAssigned();
+  BOOST_CHECK(!ts->OneTaskAssigned());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(!ts->NonePending());
-  ts->OneTaskAssigned();
+  BOOST_CHECK(!ts->OneTaskAssigned());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(!ts->NonePending());
-  ts->OneTaskAssigned();
+  BOOST_CHECK(ts->OneTaskAssigned());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(ts->NonePending());
 
   BOOST_CHECK_THROW(ts->OneTaskAssigned(), e::flame_exception);
-  ts->OneTaskDone();
+  BOOST_CHECK(!ts->OneTaskDone());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(ts->NonePending());
-  ts->OneTaskDone();
+  BOOST_CHECK(!ts->OneTaskDone());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(ts->NonePending());
-  ts->OneTaskDone();
+  BOOST_CHECK(!ts->OneTaskDone());
   BOOST_CHECK(!ts->IsComplete());
   BOOST_CHECK(ts->NonePending());
-  ts->OneTaskDone();
+  BOOST_CHECK(ts->OneTaskDone());
   BOOST_CHECK(ts->IsComplete());
   BOOST_CHECK(ts->NonePending());
   BOOST_CHECK_THROW(ts->OneTaskDone(), e::flame_exception);  // nothing assigned

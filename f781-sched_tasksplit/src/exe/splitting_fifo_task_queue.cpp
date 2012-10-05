@@ -10,7 +10,7 @@
 #include "boost/thread/mutex.hpp"
 #include "boost/foreach.hpp"
 #include "task_manager.hpp"
-#include "splitting_fifo_task_queue.h"
+#include "splitting_fifo_task_queue.hpp"
 
 namespace flame { namespace exe {
 
