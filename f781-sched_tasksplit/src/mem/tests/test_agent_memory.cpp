@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
   // hint population size and ensure that vars can no longer be registered
   am.HintPopulationSize(size_hint);
   BOOST_CHECK_THROW(am.RegisterVar<double>("z_dbl"), e::logic_error);
-
+  BOOST_CHECK_EQUAL(am.GetPopulationSize(), (size_t)0);
 
   // retrieve vector that does not exist
   BOOST_CHECK_THROW(am.GetVector<int>("z"), e::invalid_variable);
@@ -53,6 +53,15 @@ BOOST_AUTO_TEST_CASE(test_register_var) {
   v.push_back(40);
   BOOST_CHECK_EQUAL(v.size(), (unsigned int)4);
   BOOST_CHECK_EQUAL(am.GetVector<int>("x_int")->size(), (size_t)4);
+
+  BOOST_CHECK_THROW(am.GetPopulationSize(), e::flame_mem_exception);
+  std::vector<double> &y = *(am.GetVector<double>("y_dbl"));
+  y.push_back(0);
+  y.push_back(0);
+  BOOST_CHECK_THROW(am.GetPopulationSize(), e::flame_mem_exception);
+  y.push_back(0);
+  y.push_back(0);
+  BOOST_CHECK_EQUAL(am.GetPopulationSize(), (size_t)4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -38,4 +38,38 @@ VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
   }
 }
 
+/*!
+ * \brief Returns the current population size
+ *
+ * For now, we query the size from the first memory vector. In the future,
+ * once we have a more structured approach to populating the vectors, we
+ * should then simply return the counter value
+ *
+ * In debug more, we double check the size against all other memory vectors.
+ * To speed up subsequent calls, we cache the return value and skip the
+ * checks if the size remains the same.
+ */
+size_t AgentMemory::GetPopulationSize(void) {
+  MemoryMap::iterator iter = mem_map_.begin();
+  if (iter == mem_map_.end()) {  // no memory vars
+#ifdef DEBUG
+    cached_size_ = 0;
+#endif
+    return 0;
+  } else {
+    size_t size = iter->second->size();
+#ifdef DEBUG
+    if (size != cached_size_) {
+      for (++iter; iter != mem_map_.end(); ++iter) {
+        if (iter->second->size() != size) {
+          throw exc::flame_mem_exception("inconsistent vector sizes");
+        }
+      }
+      cached_size_ = size;
+    }
+#endif
+    return size;
+  }
+}
+
 }}  // namespace flame::mem
