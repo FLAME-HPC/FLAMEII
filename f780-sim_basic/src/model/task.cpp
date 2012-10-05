@@ -24,8 +24,8 @@ Task::Task(std::string parentName, std::string name, TaskType type)
     level_ = 0;
     priorityLevel_ = 10;
     hasCondition_ = false;
-    if (type == Task::sync_start) priorityLevel_ = 10;
-    if (type == Task::sync_finish) priorityLevel_ = 1;
+    if (type == Task::xmessage_sync) priorityLevel_ = 10;
+    if (type == Task::xmessage_clear) priorityLevel_ = 1;
     if (type == Task::xfunction) priorityLevel_ = 5;
     if (type == Task::io_pop_write) priorityLevel_ = 0;
 }
@@ -46,10 +46,10 @@ std::string Task::getTaskName() {
             taskType_ == Task::finish_model) {
         name.append("MD_");
         name.append(parentName_);
-    } else if (taskType_ == Task::xmessage) {
+    } else if (taskType_ == Task::xmessage_sync) {
         name.append("MS");
-    } else if (taskType_ == Task::sync_finish) {
-        name.append("MF");
+    } else if (taskType_ == Task::xmessage_clear) {
+        name.append("MC");
     }
     name.append("_");
     name.append(name_);

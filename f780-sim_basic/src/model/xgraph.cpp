@@ -266,7 +266,7 @@ Task * XGraph::generateStateGraphMessagesAddMessageToGraph(std::string name) {
                 (*vit)->getName() == name) return (*vit);
 
     // Add state as a task to the task list
-    Task * task = new Task("Message", name, Task::xmessage);
+    Task * task = new Task(name, name, Task::xmessage);
     addVertex(task);
     return task;
 }
@@ -353,6 +353,7 @@ int XGraph::registerAllowAccess(flame::exe::Task& task,
 
 // dummy function
 FLAME_AGENT_FUNC(func1) {
+    printf("Task run\n");
 
     return 0;
 }
@@ -367,8 +368,6 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
         Task * t = getTask(*vp.first);
         std::string taskName = t->getTaskName();
-        std::cout << "task " << taskName << std::endl;
-
         if (t->getTaskType() == Task::xfunction ||
                 t->getTaskType() == Task::xcondition) {
             try {
@@ -398,8 +397,7 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
             // Data output tasks
             taskManager.CreateAgentTask(taskName, "Test", &func1);
         }
-        if (t->getTaskType() == Task::xmessage) {
-            // Message tasks
+        if (t->getTaskType() == Task::xmessage_sync) {
             try {
                 taskManager.CreateMessageBoardTask(taskName, getTask(*vp.first)->getName(),
                     exe::MessageBoardTask::OP_SYNC); }
@@ -409,11 +407,17 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                         t->getName().c_str());
                 return 2;
             }
-            /*exe::Task &ts = taskManager.CreateMessageBoardTask("sync", "location",
-                exe::MessageBoardTask::OP_SYNC);
-              exe::Task &tc = taskManager.CreateMessageBoardTask("clear", "location",
-                exe::MessageBoardTask::OP_CLEAR);
-        */
+        }
+        if (t->getTaskType() == Task::xmessage_clear) {
+            try {
+                taskManager.CreateMessageBoardTask(taskName, getTask(*vp.first)->getName(),
+                    exe::MessageBoardTask::OP_CLEAR); }
+            catch (const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\nWhen creating a sync task for '%s' message\n",
+                        E.what(),
+                        t->getName().c_str());
+                return 2;
+            }
         }
     }
 
@@ -429,6 +433,9 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                 E.what(), source.c_str(), target.c_str());
         }
     }
+
+    // Once finalised, tasks and deps can no longer be added
+    taskManager.Finalise();
 
     return 0;
 }
@@ -792,6 +799,57 @@ void XGraph::removeRedundantDependencies() {
     edge2dependency_->clear();
 }
 
+Vertex XGraph::getMessageVertex(std::string name, Task::TaskType type) {
+    size_t ii;
+    // For each task
+    for (ii = 0; ii < vertex2task_->size(); ii++)
+        // If find message and type then return
+        if (vertex2task_->at(ii)->getName() == name &&
+                vertex2task_->at(ii)->getTaskType() == type)
+            return ii;
+    // Otherwise create new vertex and return
+    Task * t = new Task(name, name, type);
+    Vertex v = addVertex(t);
+    return v;
+}
+
+void XGraph::changeMessageTasksToSync() {
+    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+    boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
+    std::vector<Vertex> vertexToDelete;
+    std::set<Edge> edgesToRemove;
+    std::set<Edge>::iterator etrit;
+    size_t ii;
+    // For each task
+    for (ii = 0; ii < vertex2task_->size(); ii++) {
+        Task * t = vertex2task_->at(ii);
+        // If message task
+        if (t->getTaskType() == Task::xmessage) {
+            // Create start and finish syncs
+            Vertex s = getMessageVertex(t->getName(), Task::xmessage_sync);
+            // For each incoming edge to message add to start
+            for (boost::tie(iei, iei_end) = boost::in_edges(ii, *graph_);
+                            iei != iei_end; ++iei) {
+                add_edge(boost::source(*iei, *graph_), s, *graph_);
+                edgesToRemove.insert(*iei);
+            }
+            // For each out going edge to message add to finish
+            for (boost::tie(oei, oei_end) = boost::out_edges(ii, *graph_);
+                            oei != oei_end; ++oei) {
+                add_edge(s, boost::target(*oei, *graph_), *graph_);
+                edgesToRemove.insert(*oei);
+            }
+            // delete message task
+            vertexToDelete.push_back(ii);
+        }
+    }
+    // Delete edges
+    for (etrit = edgesToRemove.begin(); etrit != edgesToRemove.end(); etrit++)
+        removeDependency(*etrit);
+    // Delete vertices in delete list
+    removeVertices(&vertexToDelete);
+}
+
 void XGraph::import(XGraph * graph) {
     std::vector<Task *> * v2t = graph->getVertexTaskMap();
     size_t ii;
@@ -842,6 +900,34 @@ void XGraph::importGraphs(std::set<XGraph*> graphs) {
 
     // Contract start agents
     contractVertices(Task::start_agent, Dependency::blank);
+    // Add message sync tasks
+    changeMessageTasksToSync();
+    // Add message clear tasks
+    addMessageClearTasks();
+}
+
+void XGraph::addMessageClearTasks() {
+    VertexIterator vi, vi_end;
+    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+
+    // For each variable vertex
+    for (boost::tie(vi, vi_end) = boost::vertices(*graph_);
+            vi != vi_end; ++vi) {
+        Task * t = getTask((*vi));
+        // For each message sync task
+        if (t->getTaskType() == Task::xmessage_sync) {
+            // Create message clear task
+            Task * task = new Task(t->getParentName(),
+                    t->getName(), Task::xmessage_clear);
+            Vertex clearV = addVertex(task);
+            // Get target tasks
+            for (boost::tie(oei, oei_end) =
+                boost::out_edges((*vi), *graph_); oei != oei_end; ++oei) {
+                // Add edge from target tasks to clear task
+                add_edge(boost::target((Edge)*oei, *graph_), clearV, *graph_);
+            }
+        }
+    }
 }
 
 /*!
@@ -942,10 +1028,10 @@ struct vertex_label_writer {
             out << "\" shape=folder, style=filled, fillcolor=orange]";
         } else {
             out << " [label=\"";
-            if (t->getTaskType() == Task::sync_start)
-                out << "SS: " << t->getName() << "\"";
-            else if (t->getTaskType() == Task::sync_finish)
-                out << "SF: " << t->getName() << "\"";
+            if (t->getTaskType() == Task::xmessage_sync)
+                out << "SYNC: " << t->getName() << "\"";
+            else if (t->getTaskType() == Task::xmessage_clear)
+                out << "CLEAR: " << t->getName() << "\"";
             else if (t->getTaskType() == Task::start_agent ||
                     t->getTaskType() == Task::start_model)
                 out << "Start\\n" << t->getParentName() << "\"";
@@ -965,9 +1051,8 @@ struct vertex_label_writer {
             if (t->getTaskType() == Task::xvariable ||
                     t->getTaskType() == Task::xstate)
                 out << " shape=ellipse, style=filled, fillcolor=white";
-            if (t->getTaskType() == Task::xmessage ||
-                    t->getTaskType() == Task::sync_start ||
-                    t->getTaskType() == Task::sync_finish) {
+            if (t->getTaskType() == Task::xmessage_clear ||
+                    t->getTaskType() == Task::xmessage_sync) {
                 out << " shape=parallelogram, style=filled, ";
                 out << "fillcolor=lightblue";
             }

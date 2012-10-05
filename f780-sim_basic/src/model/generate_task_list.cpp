@@ -67,8 +67,8 @@ std::string ModelManager::taskTypeToString(Task::TaskType t) {
     std::string type;
     /* Convert Task task to printable string */
     if (t == Task::io_pop_write) type = "disk";
-    else if (t == Task::sync_finish) type = "syncf";
-    else if (t == Task::sync_start) type = "syncs";
+    else if (t == Task::xmessage_sync) type = "msync";
+    else if (t == Task::xmessage_clear) type = "mclear";
     else if (t == Task::xfunction) type = "func";
     else if (t == Task::xcondition) type = "cond";
     else if (t == Task::start_model) type = "startm";

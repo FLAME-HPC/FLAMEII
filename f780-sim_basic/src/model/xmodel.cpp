@@ -129,7 +129,6 @@ std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
 int XModel::registerWithMessageBoardManager() {
     mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
     std::vector<XMachine*>::iterator agent;
-    int rc;
     std::vector<XMessage*>::iterator m;
     std::vector<XVariable*>::iterator v;
 

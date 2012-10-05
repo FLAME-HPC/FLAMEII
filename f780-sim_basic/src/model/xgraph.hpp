@@ -66,6 +66,9 @@ class XGraph {
 #endif
 
   private:
+    Vertex getMessageVertex(std::string name, Task::TaskType type);
+    void changeMessageTasksToSync();
+    void addMessageClearTasks();
     int registerAllowAccess(flame::exe::Task& task,
             std::set<std::string> * vars, bool writeable);
     Vertex addVertex(Task * t);

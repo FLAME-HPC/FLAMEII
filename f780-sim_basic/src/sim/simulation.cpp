@@ -44,12 +44,17 @@ void Simulation::loadPop(std::string pop_file) {
 
 void Simulation::start(size_t iterations) {
     flame::model::ModelManager modelManager;
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
     if (popLoaded_) {
         // Register agents with memory and task manager
         modelManager.registerModelWithTaskManager(&model_);
     } else {
         std::fprintf(stderr, "Error: Cannot start simulation because pop not loaded\n");
+    }
+
+    while (taskManager.IterTaskAvailable()) {
+        taskManager.IterTaskPop();
     }
 }
 
