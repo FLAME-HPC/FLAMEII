@@ -11,6 +11,7 @@
 #define EXE__TASK_QUEUE_INTERFACE_HPP_
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/condition_variable.hpp"
+#include "task_manager.hpp"
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {
@@ -33,6 +34,13 @@ class TaskQueue {
 
     //! Returns true if the queue is empty
     virtual bool empty() const = 0;
+
+    //! Returns a task reference given a task id
+    //! This usually forward the call to the TaskManager but it gives the queue
+    //! an opportunity to intercept the call
+    virtual Task& GetTaskById(Task::id_type task_id) {
+      return TaskManager::GetInstance().GetTask(task_id);
+    }
 
     //! Sets the callback function to be called when a task is completed
     void SetCallback(TaskQueueCallback func) {

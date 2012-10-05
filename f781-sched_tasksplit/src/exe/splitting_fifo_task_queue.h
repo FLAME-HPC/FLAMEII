@@ -23,6 +23,7 @@ class SplittingFIFOTaskQueue : public TaskQueue {
 
     // max_split defaults to slots
     SplittingFIFOTaskQueue(size_t slots);
+    ~SplittingFIFOTaskQueue();
 
     void SetSplittable(Task::TaskType task_type);
     void SetMaxSplits(size_t max_splits);
@@ -47,7 +48,11 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     Task::id_type GetNextTask();
 
     //! \brief Returns true if the queue is empty
-    bool empty() const;
+    bool empty();
+
+    //! Returns a task reference given a task id
+    //! Overload so we can intercept calls
+    Task& GetTaskById(Task::id_type task_id);
 
   protected:
   private:
@@ -60,7 +65,7 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     SplitMap split_map_;  //! Collection of tasks that have been split
     size_t slots_;  //! Number of processing slots (worker threads)
     size_t max_splits_;  //! Maximum number of splits per task
-    size_t min_vec_size_;  //! Minimum vector size after split
+    size_t min_vector_size_;  //! Minimum vector size after split
 };
 
 }}  // namespace flame::exe

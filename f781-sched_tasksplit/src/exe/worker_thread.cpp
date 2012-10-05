@@ -10,7 +10,6 @@
 #include "boost/thread/mutex.hpp"
 #include "task_queue_interface.hpp"
 #include "worker_thread.hpp"
-#include "task_manager.hpp"
 namespace flame { namespace exe {
 
 WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr) : tq_(taskqueue_ptr) {}
@@ -45,7 +44,7 @@ void WorkerThread::RunTask(Task::id_type task_id) {
   std::cout << " - " << boost::this_thread::get_id() \
             << " running task " << task_id << std::endl;
 #endif
-  TaskManager::GetInstance().GetTask(task_id).Run();
+  tq_->GetTaskById(task_id).Run();
 }
 
 }}  // namespace flame::exe

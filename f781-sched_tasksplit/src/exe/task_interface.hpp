@@ -55,8 +55,8 @@ class Task {
 
     //! Returns a task splitter which allows task to be exected in segments
     //! Should return null handle if cannot be split.
-    virtual TaskSplitterHandle SplitTask(size_t num_tasks,
-                                           size_t min_task_size) = 0;
+    virtual TaskSplitterHandle SplitTask(size_t max_splits,
+                                         size_t min_task_size) = 0;
 
     //! Adds read access to message board
     //! TODO(lsc) Move this into AgentTask?
