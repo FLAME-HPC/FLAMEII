@@ -66,7 +66,6 @@ class XGraph {
 #endif
 
   private:
-    void splitMessageTasks();
     int registerAllowAccess(flame::exe::Task& task,
             std::set<std::string> * vars, bool writeable);
     Vertex addVertex(Task * t);
@@ -102,7 +101,6 @@ class XGraph {
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    Vertex getMessageVertex(std::string name, Task::TaskType type);
     Graph * graph_;
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;

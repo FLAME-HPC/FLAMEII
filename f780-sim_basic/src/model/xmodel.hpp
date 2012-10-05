@@ -29,6 +29,7 @@ class XModel {
     void print();
     int validate();
     int registerWithMemoryManager();
+    int registerWithMessageBoardManager();
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);

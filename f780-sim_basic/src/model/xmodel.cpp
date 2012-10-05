@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include "./xmodel.hpp"
+#include "mb/message_board_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -119,6 +120,45 @@ int XModel::registerWithMemoryManager() {
 std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
                     (*agent)->getName().c_str());
             return 1;
+        }
+    }
+
+    return 0;
+}
+
+int XModel::registerWithMessageBoardManager() {
+    mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
+    std::vector<XMachine*>::iterator agent;
+    int rc;
+    std::vector<XMessage*>::iterator m;
+    std::vector<XVariable*>::iterator v;
+
+    // For each message
+    for (m = messages_.begin(); m != messages_.end(); m++) {
+        try { mgr.RegisterMessage((*m)->getName()); }
+        catch (const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr,
+                "Error: %s\nWhen registering '%s' message with the message manager\n",
+                E.what(), (*m)->getName().c_str());
+            return 1;
+        }
+        for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {
+            if ((*v)->getType() == "int")
+                try { mgr.RegisterMessageVar<int>((*m)->getName(), (*v)->getName()); }
+                catch  (const flame::exceptions::logic_error& E) {
+                    std::fprintf(stderr,
+                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
+                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
+                    return 1;
+                }
+            if ((*v)->getType() == "double")
+                try { mgr.RegisterMessageVar<double>((*m)->getName(), (*v)->getName()); }
+                catch  (const flame::exceptions::logic_error& E) {
+                    std::fprintf(stderr,
+                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
+                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
+                    return 1;
+                }
         }
     }
 

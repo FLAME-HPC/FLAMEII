@@ -385,7 +385,7 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                         t->getWriteVariables(), true);
                 if (rc != 0) return 1;
             }
-            catch(const flame::exceptions::logic_error& E) {
+            catch (const flame::exceptions::logic_error& E) {
                 std::fprintf(stderr, "Error: %s\nWhen creating a task for '%s' function\n",
                         E.what(),
                         t->getName().c_str());
@@ -398,16 +398,23 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
             // Data output tasks
             taskManager.CreateAgentTask(taskName, "Test", &func1);
         }
-        if (t->getTaskType() == Task::sync_start ||
-            t->getTaskType() == Task::sync_finish) {
+        if (t->getTaskType() == Task::xmessage) {
             // Message tasks
-            taskManager.CreateAgentTask(taskName, "Test", &func1);
+            try {
+                taskManager.CreateMessageBoardTask(taskName, getTask(*vp.first)->getName(),
+                    exe::MessageBoardTask::OP_SYNC); }
+            catch (const flame::exceptions::logic_error& E) {
+                std::fprintf(stderr, "Error: %s\nWhen creating a sync task for '%s' message\n",
+                        E.what(),
+                        t->getName().c_str());
+                return 2;
+            }
             /*exe::Task &ts = taskManager.CreateMessageBoardTask("sync", "location",
                 exe::MessageBoardTask::OP_SYNC);
               exe::Task &tc = taskManager.CreateMessageBoardTask("clear", "location",
                 exe::MessageBoardTask::OP_CLEAR);
         */
-    }
+        }
     }
 
     // Add all in and out vertex edges to set of edges to be removed
@@ -785,61 +792,6 @@ void XGraph::removeRedundantDependencies() {
     edge2dependency_->clear();
 }
 
-Vertex XGraph::getMessageVertex(std::string name, Task::TaskType type) {
-    size_t ii;
-    // For each task
-    for (ii = 0; ii < vertex2task_->size(); ii++)
-        // If find message and type then return
-        if (vertex2task_->at(ii)->getName() == name &&
-                vertex2task_->at(ii)->getTaskType() == type)
-            return ii;
-    // Otherwise create new vertex and return
-    Task * t = new Task("Message", name, type);
-    Vertex v = addVertex(t);
-    // If finish type then add edge to start task
-    if (type == Task::sync_finish)
-        add_edge(getMessageVertex(name, Task::sync_start), v, *graph_);
-    return v;
-}
-
-void XGraph::splitMessageTasks() {
-    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-    boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
-    std::vector<Vertex> vertexToDelete;
-    std::set<Edge> edgesToRemove;
-    std::set<Edge>::iterator etrit;
-    size_t ii;
-    // For each task
-    for (ii = 0; ii < vertex2task_->size(); ii++) {
-        Task * t = vertex2task_->at(ii);
-        // If message task
-        if (t->getTaskType() == Task::xmessage) {
-            // Create start and finish syncs
-            Vertex s = getMessageVertex(t->getName(), Task::sync_start);
-            Vertex f = getMessageVertex(t->getName(), Task::sync_finish);
-            // For each incoming edge to message add to start
-            for (boost::tie(iei, iei_end) = boost::in_edges(ii, *graph_);
-                            iei != iei_end; ++iei) {
-                add_edge(boost::source(*iei, *graph_), s, *graph_);
-                edgesToRemove.insert(*iei);
-            }
-            // For each out going edge to message add to finish
-            for (boost::tie(oei, oei_end) = boost::out_edges(ii, *graph_);
-                            oei != oei_end; ++oei) {
-                add_edge(f, boost::target(*oei, *graph_), *graph_);
-                edgesToRemove.insert(*oei);
-            }
-            // delete message task
-            vertexToDelete.push_back(ii);
-        }
-    }
-    // Delete edges
-    for (etrit = edgesToRemove.begin(); etrit != edgesToRemove.end(); etrit++)
-        removeDependency(*etrit);
-    // Delete vertices in delete list
-    removeVertices(&vertexToDelete);
-}
-
 void XGraph::import(XGraph * graph) {
     std::vector<Task *> * v2t = graph->getVertexTaskMap();
     size_t ii;
@@ -890,12 +842,6 @@ void XGraph::importGraphs(std::set<XGraph*> graphs) {
 
     // Contract start agents
     contractVertices(Task::start_agent, Dependency::blank);
-
-    // Remove redundant dependencies
-    //removeRedundantDependencies();
-
-    // Split message tasks into start and finish syncs
-    splitMessageTasks();
 }
 
 /*!

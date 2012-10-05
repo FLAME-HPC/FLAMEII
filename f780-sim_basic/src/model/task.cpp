@@ -46,7 +46,7 @@ std::string Task::getTaskName() {
             taskType_ == Task::finish_model) {
         name.append("MD_");
         name.append(parentName_);
-    } else if (taskType_ == Task::sync_start) {
+    } else if (taskType_ == Task::xmessage) {
         name.append("MS");
     } else if (taskType_ == Task::sync_finish) {
         name.append("MF");

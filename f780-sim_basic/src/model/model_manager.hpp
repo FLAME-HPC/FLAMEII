@@ -33,6 +33,7 @@ class ModelManager {
     ~ModelManager();
     int loadModel(std::string const& file, XModel * model);
     int registerModelWithMemoryManager(XModel * model);
+    int registerModelWithMessageBoardManager(XModel * model);
     int registerModelWithTaskManager(XModel * model);
     std::vector<Task*> * get_task_list();
     int generateModelGraph(XModel * model, XGraph * modelGraph);

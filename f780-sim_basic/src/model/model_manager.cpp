@@ -49,6 +49,10 @@ int ModelManager::registerModelWithMemoryManager(XModel * model) {
     return model->registerWithMemoryManager();
 }
 
+int ModelManager::registerModelWithMessageBoardManager(XModel * model) {
+    return model->registerWithMessageBoardManager();
+}
+
 std::vector<Task*> * ModelManager::get_task_list() {
     return &tasks_;
 }

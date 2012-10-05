@@ -44,13 +44,23 @@ MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
              src/mem/tests/test_vector_wrapper.cpp
 EXE_SRC    = src/exe/agent_task.cpp \
              src/exe/fifo_task_queue.cpp \
+             src/exe/message_board_task.cpp \
              src/exe/scheduler.cpp \
              src/exe/task_manager.cpp \
              src/exe/worker_thread.cpp
 SIM_SRC    = src/sim/sim_manager.cpp \
              src/sim/simulation.cpp
 SIM_TEST   = src/sim/tests/test_sim_manager.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) $(SIM_SRC) run_tests.cpp \
+MB_SRC     = src/mb/board_writer.cpp \
+             src/mb/client.cpp \
+             src/mb/message_board_manager.cpp \
+             src/mb/message_board.cpp \
+             src/mb/message_iterator_backend_raw.cpp \
+             src/mb/message_iterator_backend.cpp \
+             src/mb/message_iterator.cpp \
+             src/mb/message.cpp \
+             src/mb/proxy.cpp
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
              $(SIM_TEST)
 #			 $(MODEL_TEST) \
              $(MEM_TEST) \
@@ -82,6 +92,7 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/mem/vector_wrapper.hpp \
              src/exe/agent_task.hpp \
              src/exe/fifo_task_queue.hpp \
+             src/exe/message_board_task.hpp \
              src/exe/scheduler.hpp \
              src/exe/task_interface.hpp \
              src/exe/task_manager.hpp \
@@ -89,6 +100,17 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/exe/worker_thread.hpp \
              src/sim/sim_manager.hpp \
              src/sim/simulation.hpp \
+             src/mb/board_writer.hpp \
+             src/mb/client.hpp \
+             src/mb/mb_common.hpp \
+             src/mb/message_board_manager.hpp \
+             src/mb/message_board.hpp \
+             src/mb/message_iterator_backend_raw.hpp \
+             src/mb/message_iterator_backend.hpp \
+             src/mb/message_iterator.hpp \
+             src/mb/message.hpp \
+             src/mb/proxy.hpp \
+             src/mb/type_validator.hpp \
              headers/exceptions/io.hpp \
              headers/exceptions/base.hpp \
              headers/exceptions/mem.hpp \

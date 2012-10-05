@@ -25,6 +25,7 @@ void Simulation::loadModel(std::string model_file) {
 
     rc += modelManager.loadModel(model_file, &model_);
     rc += modelManager.registerModelWithMemoryManager(&model_);
+    rc += modelManager.registerModelWithMessageBoardManager(&model_);
 
     if (rc == 0) modelLoaded_ = true;
 }
