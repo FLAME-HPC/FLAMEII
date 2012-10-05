@@ -42,12 +42,36 @@ BOOST_AUTO_TEST_CASE(memiter_initialise_memory_manager) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
+BOOST_AUTO_TEST_CASE(memiter_test_noaccess) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
 
   BOOST_CHECK_THROW(mgr.GetAgentShadow("Square"), e::invalid_agent);
   mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
 
+  // We shouldn't need access to memory to detect population size
+  BOOST_CHECK_EQUAL(shadow->get_size(), (size_t)10);
+
+  // Get memory iterator
+  mem::MemoryIteratorPtr iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
+
+  // Iterate and check content
+  for (int i = 0; i < 10; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+  // Should now be at end of iteration
+  BOOST_CHECK_EQUAL(iptr->Step(), false);
+  BOOST_CHECK_EQUAL(iptr->AtEnd(), true);
+}
+
+BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+
+  BOOST_CHECK_THROW(mgr.GetAgentShadow("Square"), e::invalid_agent);
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
 
   // Adding access to invalid var
   BOOST_CHECK_THROW(shadow->AllowAccess("NotVar"), e::invalid_variable);
