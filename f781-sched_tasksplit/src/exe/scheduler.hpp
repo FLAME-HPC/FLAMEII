@@ -38,6 +38,9 @@ class Scheduler {
     //! \brief assigns a task type to a given queue
     void AssignType(QueueId qid, Task::TaskType type);
 
+    //! \brief Specity tasks that can be split
+    void SetSplittable(Task::TaskType type);
+
     //! \brief Callback function used to indicate that a task is completed
     //!
     //! Assigned to each associated task queue for reverse communication

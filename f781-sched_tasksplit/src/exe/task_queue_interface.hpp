@@ -33,11 +33,11 @@ class TaskQueue {
     virtual Task::id_type GetNextTask() = 0;
 
     //! Returns true if the queue is empty
-    virtual bool empty() = 0;
+    virtual bool empty() const = 0;
 
     //! Assign task type that can be split
     virtual void SetSplittable(Task::TaskType task_type) = 0;
-    
+
     //! Returns a task reference given a task id
     //! This usually forward the call to the TaskManager but it gives the queue
     //! an opportunity to intercept the call

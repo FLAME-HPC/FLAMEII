@@ -36,7 +36,7 @@ class FIFOTaskQueue : public TaskQueue {
     void SetSplittable(Task::TaskType task_type) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
-    
+
     //! \brief Returns the next available task.
     //! If there are none available, the calling thread will be blocked
     //!
@@ -44,7 +44,7 @@ class FIFOTaskQueue : public TaskQueue {
     Task::id_type GetNextTask();
 
     //! \brief Returns true if the queue is empty
-    bool empty();
+    bool empty() const;
 
   protected:
     size_t slots_;  //! Number of processing slots (worker threads)

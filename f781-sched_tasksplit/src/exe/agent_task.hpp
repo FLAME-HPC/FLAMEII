@@ -46,7 +46,6 @@ class AgentTask : public Task {
     AgentTask(std::string task_name, std::string agent_name,
               TaskFunction func_ptr);
 
-  private:
     std::string agent_name_;  //! Name of associated agent
     TaskFunction func_;  //! Function associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
@@ -56,12 +55,7 @@ class AgentTask : public Task {
     size_t count_;  //! Number of agents to iterate (only used if is_split_)
 
     //! Constructor used internally to produce split task
-    AgentTask(std::string task_name, std::string agent_name,
-              TaskFunction func_ptr, size_t offset, size_t count);
-
-    //! Setup method used by all constructors
-    void _init(std::string task_name, std::string agent_name,
-               TaskFunction func);
+    AgentTask(AgentTask& parent, size_t offset, size_t count);
 };
 
 }}  // namespace flame::exe

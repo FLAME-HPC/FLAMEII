@@ -61,19 +61,28 @@ class Task {
     //! Adds read access to message board
     //! TODO(lsc) Move this into AgentTask?
     void AllowMessageRead(const std::string& msg_name) {
-      mb_proxy_.AllowRead(msg_name);
+      if (!mb_proxy_) {
+        mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
+      }
+      mb_proxy_->AllowRead(msg_name);
     }
 
     //! Adds post access to message board
     //! TODO(lsc) Move this into AgentTask?
     void AllowMessagePost(const std::string& msg_name) {
-      mb_proxy_.AllowPost(msg_name);
+      if (!mb_proxy_) {
+        mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
+      }
+      mb_proxy_->AllowPost(msg_name);
     }
 
     //! Returns message board access client
     //! TODO(lsc) Move this into AgentTask?
     MessageBoardClient GetMessageBoardClient(void) {
-      return mb_proxy_.GetClient();
+      if (!mb_proxy_) {
+        mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
+      }
+      return mb_proxy_->GetClient();
     }
 
     //! Returns the task id
@@ -96,11 +105,11 @@ class Task {
     }
 
   protected:
+    typedef boost::shared_ptr<flame::mb::Proxy> ProxyHandle;
+
     id_type task_id_;
     std::string task_name_;
-
-  private:
-    flame::mb::Proxy mb_proxy_;  //! Proxy to access Message Board
+    ProxyHandle mb_proxy_;
 };
 
 

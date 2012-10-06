@@ -67,9 +67,8 @@ size_t SplittingFIFOTaskQueue::GetMinVectorSize(void) {
 }
 
 //! \brief Returns true if the queue is empty
-bool SplittingFIFOTaskQueue::empty() {
-  boost::lock_guard<boost::mutex> lock(mutex_);
-  return queue_.empty() && split_map_.empty();
+bool SplittingFIFOTaskQueue::empty() const {
+  return queue_.empty();
 }
 
 //! \brief Adds a task to the queue
@@ -78,6 +77,12 @@ bool SplittingFIFOTaskQueue::empty() {
 void SplittingFIFOTaskQueue::Enqueue(Task::id_type task_id) {
   boost::lock_guard<boost::mutex> lock(mutex_);
   queue_.push(task_id);
+
+  // Special case
+  if (Task::IsTermTask(task_id)) {
+    ready_.notify_one();
+    return;
+  }
 
   // If task is splittable, try to split it.
   Task& t = TaskManager::GetInstance().GetTask(task_id);
@@ -124,7 +129,7 @@ void SplittingFIFOTaskQueue::TaskDone(Task::id_type task_id) {
 //! This method is meant to be called by a Worker Thread
 Task::id_type SplittingFIFOTaskQueue::GetNextTask(void) {
   boost::unique_lock<boost::mutex> lock(mutex_);
-  while (queue_.empty()) {
+  while (empty()) {
     ready_.wait(lock);
   }
 
@@ -134,8 +139,8 @@ Task::id_type SplittingFIFOTaskQueue::GetNextTask(void) {
   // determine if this is a split task
   SplitMap::iterator it = split_map_.find(task_id);
   if (it != split_map_.end()) {  // it is
-    bool none_pending = it->second->OneTaskAssigned();
-    if (none_pending) {
+    bool none_remaining = it->second->OneTaskAssigned();
+    if (none_remaining) {
       queue_.pop();  // all tasks assigned. dequeue.
     }
   } else {  // not a split task. dequeue as usual
@@ -146,9 +151,9 @@ Task::id_type SplittingFIFOTaskQueue::GetNextTask(void) {
 }
 
 Task& SplittingFIFOTaskQueue::GetTaskById(Task::id_type task_id) {
+  boost::unique_lock<boost::mutex> lock(mutex_);
   SplitMap::iterator it = split_map_.find(task_id);
   if (it != split_map_.end()) {  // it is
-    boost::unique_lock<boost::mutex> lock(mutex_);
     return it->second->GetTask();
   } else {  // normal task
     return TaskManager::GetInstance().GetTask(task_id);

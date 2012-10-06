@@ -21,26 +21,9 @@ namespace mb = flame::mb;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
 AgentTask::AgentTask(std::string task_name, std::string agent_name,
-                     TaskFunction func) : is_split_(false) {
-  _init(task_name, agent_name, func);
-}
-
-//! Constructor used internally to produce split task
-AgentTask::AgentTask(std::string task_name,
-                     std::string agent_name,
-                     TaskFunction func,
-                     size_t offset, size_t count) : is_split_(true) {
-  _init(task_name, agent_name, func);
-  offset_ = offset;
-  count_ = count;
-}
-
-void AgentTask::_init(std::string task_name, std::string agent_name,
-                      TaskFunction func) {
-  offset_ = 0;
-  count_ = 0;
-  func_ = func;
-  agent_name_ = agent_name;
+                     TaskFunction func)
+    : agent_name_(agent_name), func_(func),
+      count_(0), offset_(0), is_split_(false) {
   task_name_ = task_name;
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
@@ -49,8 +32,18 @@ void AgentTask::_init(std::string task_name, std::string agent_name,
   if (!func) {
     throw flame::exceptions::invalid_argument("NULL function provided");
   }
-
   shadow_ptr_ = mm.GetAgentShadow(agent_name);
+}
+
+//! Constructor used internally to produce split task
+AgentTask::AgentTask(AgentTask& parent, size_t offset, size_t count)
+    : offset_(offset), count_(count), is_split_(true) {
+  func_ = parent.func_;
+  task_id_ = parent.task_id_;
+  mb_proxy_ = parent.mb_proxy_;
+  task_name_ = parent.task_name_;
+  agent_name_ = parent.agent_name_;
+  shadow_ptr_ = parent.shadow_ptr_;
 }
 
 flame::mem::MemoryIteratorPtr AgentTask::GetMemoryIterator() const {
@@ -107,8 +100,7 @@ TaskSplitterHandle AgentTask::SplitTask(size_t max_tasks,
   size_t s;
   for (size_t i = 0; i < num_splits; ++i) {
     s = ((i < remainder) ? 1 : 0) + size_per_task;
-    t = Task::Handle(new AgentTask(task_name_, agent_name_, func_, offset, s));
-    t->set_task_id(task_id_);
+    t = Task::Handle(new AgentTask(*this, offset, s));
     vec.push_back(t);
     offset += s;
   }

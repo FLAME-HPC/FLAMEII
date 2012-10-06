@@ -39,7 +39,7 @@ FIFOTaskQueue::~FIFOTaskQueue() {
   }
 }
 
-bool FIFOTaskQueue::empty() {
+bool FIFOTaskQueue::empty() const {
   return queue_.empty();
 }
 

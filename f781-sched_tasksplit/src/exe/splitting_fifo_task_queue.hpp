@@ -48,7 +48,7 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     Task::id_type GetNextTask();
 
     //! \brief Returns true if the queue is empty
-    bool empty();
+    bool empty() const;
 
     //! Returns a task reference given a task id
     //! Overload so we can intercept calls
