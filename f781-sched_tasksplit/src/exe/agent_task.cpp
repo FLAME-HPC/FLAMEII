@@ -37,7 +37,7 @@ typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 AgentTask::AgentTask(std::string task_name, std::string agent_name,
                      TaskFunction func)
     : agent_name_(agent_name), func_(func),
-      count_(0), offset_(0), is_split_(false) {
+      is_split_(false), offset_(0), count_(0) {
   task_name_ = task_name;
   mem::MemoryManager& mm = mem::MemoryManager::GetInstance();
   if (!mm.IsRegisteredAgent(agent_name)) {
@@ -56,8 +56,8 @@ AgentTask::AgentTask(std::string task_name, std::string agent_name,
  *
  * is_split_ is set to true to indicate that this is split from a parent task.
  */
-AgentTask::AgentTask(AgentTask& parent, size_t offset, size_t count)
-    : offset_(offset), count_(count), is_split_(true) {
+AgentTask::AgentTask(const AgentTask& parent, size_t offset, size_t count)
+    : is_split_(true), offset_(offset), count_(count) {
   func_ = parent.func_;
   task_id_ = parent.task_id_;
   mb_proxy_ = parent.mb_proxy_;

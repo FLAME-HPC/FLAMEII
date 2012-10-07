@@ -1,14 +1,16 @@
 /*!
- * \file FILENAME
+ * \file src/exe/splitting_fifo_task_queue.cpp
  * \author Shawn Chin
- * \date 2012
+ * \date Oct 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Declaration of SplittingFIFOTaskQueue
  */
 #ifndef EXE__SPLITTING_FIFO_TASK_QUEUE_HPP_
 #define EXE__SPLITTING_FIFO_TASK_QUEUE_HPP_
+#include <map>
+#include <set>
 #include <queue>
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "task_queue_interface.hpp"
@@ -22,7 +24,7 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     //! Default value for minimum vector size for each split task
     static size_t const DEFAULT_MIN_VECTOR_SIZE = 50;
 
-    SplittingFIFOTaskQueue(size_t slots);
+    explicit SplittingFIFOTaskQueue(size_t slots);
     ~SplittingFIFOTaskQueue();
 
     //! Specify tasks than can be split
@@ -63,7 +65,6 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     //! Overload so we can intercept calls
     Task& GetTaskById(Task::id_type task_id);
 
-  protected:
   private:
     typedef boost::ptr_vector<WorkerThread> WorkerVector;
     typedef std::map<Task::id_type, TaskSplitterHandle> SplitMap;
@@ -78,4 +79,4 @@ class SplittingFIFOTaskQueue : public TaskQueue {
 };
 
 }}  // namespace flame::exe
-#endif // EXE__SPLITTING_FIFO_TASK_QUEUE_HPP_
+#endif  // EXE__SPLITTING_FIFO_TASK_QUEUE_HPP_

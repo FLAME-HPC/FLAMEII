@@ -1,11 +1,11 @@
 /*!
- * \file FILENAME
+ * \file src/exe/splitting_fifo_task_queue.cpp
  * \author Shawn Chin
- * \date 2012
+ * \date Oct 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Implementation of SplittingFIFOTaskQueue
  */
 #include "boost/thread/mutex.hpp"
 #include "boost/foreach.hpp"
@@ -114,7 +114,7 @@ void SplittingFIFOTaskQueue::Enqueue(Task::id_type task_id) {
 
   // Attempt to split atoms^H^H^H^H^H task
   TaskSplitterHandle ts = t.SplitTask(max_splits_, min_vector_size_);
-  if (ts) { // successfully split. Add to split_map_
+  if (ts) {  // successfully split. Add to split_map_
     SplitMap::iterator lb = split_map_.lower_bound(task_id);
     if (lb != split_map_.end() &&
         !(split_map_.key_comp()(task_id, lb->first))) {  // key exists
@@ -123,7 +123,7 @@ void SplittingFIFOTaskQueue::Enqueue(Task::id_type task_id) {
       // register subtasks. Wake ALL workers and return
       split_map_.insert(SplitMap::value_type(task_id, ts));
       // wake up more workers
-      for (int i = 0; i < ts->GetNumTasks() -1; --i) {
+      for (size_t i = 0; i < ts->GetNumTasks() -1; --i) {
         ready_.notify_one();
       }
     }

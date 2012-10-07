@@ -55,7 +55,7 @@ class AgentTask : public Task {
     size_t count_;  //! Number of agents to iterate (only used if is_split_)
 
     //! Constructor used internally to produce split task
-    AgentTask(AgentTask& parent, size_t offset, size_t count);
+    AgentTask(const AgentTask& parent, size_t offset, size_t count);
 };
 
 }}  // namespace flame::exe

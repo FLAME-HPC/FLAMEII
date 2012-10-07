@@ -27,7 +27,6 @@ FLAME_AGENT_FUNC(dummy_func) {
 }
 
 BOOST_AUTO_TEST_CASE(exe_test_task_split) {
-
   // Setup Agent Memory
   mem::MemoryManager& mgr_mem = mem::MemoryManager::GetInstance();
   mgr_mem.RegisterAgent("Circle");
@@ -169,7 +168,7 @@ BOOST_AUTO_TEST_CASE(exe_test_task_split) {
   BOOST_CHECK_EQUAL(miter->get_count(), (size_t)33);
   BOOST_CHECK_EQUAL(miter->get_offset(), (size_t)67);
 
-  BOOST_CHECK_THROW(ts->GetTask(), e::flame_exception); // no more
+  BOOST_CHECK_THROW(ts->GetTask(), e::flame_exception);  // no more
 
 
   // Splitting a split task.
@@ -186,7 +185,7 @@ BOOST_AUTO_TEST_CASE(exe_test_task_split) {
   BOOST_CHECK_EQUAL(miter->get_count(), (size_t)16);
   BOOST_CHECK_EQUAL(miter->get_offset(), (size_t)51);
 
-  BOOST_CHECK_THROW(ts->GetTask(), e::flame_exception); // no more
+  BOOST_CHECK_THROW(ts->GetTask(), e::flame_exception);  // no more
 
   mgr_mem.Reset();
   mgr_task.Reset();

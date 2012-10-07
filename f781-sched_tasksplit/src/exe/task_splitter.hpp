@@ -25,7 +25,7 @@ class TaskSplitter {
     //! Returns true of no more pending or running tasks
     bool IsComplete(void) const;
 
-    //! Returns true if all tasks have been assigned (may be still running tasks)
+    //! Returns true if all tasks have been assigned
     bool NonePending(void) const;
 
     //! Decrements pending_ and returns true if NonePending()
