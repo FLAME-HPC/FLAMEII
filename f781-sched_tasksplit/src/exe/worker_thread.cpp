@@ -14,14 +14,22 @@ namespace flame { namespace exe {
 
 WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr) : tq_(taskqueue_ptr) {}
 
+//! Starts the thread
 void WorkerThread::Init() {
   thread_ = boost::thread(&WorkerThread::ProcessQueue, this);
 }
 
+//! Waits for thread to complete
 void WorkerThread::join() {
   thread_.join();
 }
 
+/*!
+ * \brief Business logic for the thread
+ *
+ * Retrieves tasks from the parent queue and runs them. Continue until a
+ * Termination task is issued.
+ */
 void WorkerThread::ProcessQueue() {
 #ifdef TESTBUILD
   boost::thread::id tid = boost::this_thread::get_id();
@@ -39,6 +47,7 @@ void WorkerThread::ProcessQueue() {
 #endif
 }
 
+//! Runs a given task
 void WorkerThread::RunTask(Task::id_type task_id) {
 #ifdef TESTBUILD
   std::cout << " - " << boost::this_thread::get_id() \

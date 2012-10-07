@@ -36,23 +36,28 @@ class FIFOTaskQueue : public TaskQueue {
     void SetSplittable(Task::TaskType task_type) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
+
+    //! \brief Specify maximum splits per task (not applicable)
     void SetMaxTasksPerSplit(size_t max_tasks_per_split) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
+
+    //! \brief Returns maximum splits per task (not applicable)
     size_t GetMaxTasksPerSplit(void) const {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
+
+    //! \brief Specify minimum vector size after split (not applicable)
     void SetMinVectorSize(size_t min_vector_size) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
+
+    //! \brief Returns minimum vector size after split (not applicable)
     size_t GetMinVectorSize(void) const {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
 
     //! \brief Returns the next available task.
-    //! If there are none available, the calling thread will be blocked
-    //!
-    //! This method is meant to be called by a Worker Thread
     Task::id_type GetNextTask();
 
     //! \brief Returns true if the queue is empty

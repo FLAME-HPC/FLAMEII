@@ -38,7 +38,7 @@ class AgentTask : public Task {
     //! Runs the task
     void Run();
 
-    //! Returns a task splitter which allows task to be exected in segments
+    //! \brief Split this task based on population size arguments provided
     TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size);
 
   protected:

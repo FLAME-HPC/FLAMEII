@@ -26,12 +26,14 @@ namespace flame { namespace exe {
 
 typedef std::map<std::string, size_t> TaskNameMap;
 
-//! \brief Task Manager object.
-//!
-//! This is a singleton class - only one instance should exist throughtout
-//! the simulation. Instances are accessed using TaskManager::GetInstance().
-//! Apart from the GetTask methods, all others should be called during the
-//! initialisation stage before threads are spawned, or guarded by mutexes
+/*!
+ * \brief Task Manager object.
+ *
+ * This is a singleton class - only one instance should exist throughtout
+ * the simulation. Instances are accessed using TaskManager::GetInstance().
+ * Apart from the GetTask methods, all others should be called during the
+ * initialisation stage before threads are spawned, or guarded by mutexes
+ */
 class TaskManager {
   public:
     typedef Task::id_type TaskId;
@@ -112,8 +114,6 @@ class TaskManager {
     void IterTaskDone(TaskId task_id);
 
     //! \brief Pops and returns a task that is ready for execution
-    //!
-    //! Throws flame::exceptions::none_available if the queue is empty
     TaskId IterTaskPop();
 
 

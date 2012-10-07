@@ -19,16 +19,25 @@ namespace flame { namespace exe {
 
 class SplittingFIFOTaskQueue : public TaskQueue {
   public:
+    //! Default value for minimum vector size for each split task
     static size_t const DEFAULT_MIN_VECTOR_SIZE = 50;
 
-    // max_split defaults to slots
     SplittingFIFOTaskQueue(size_t slots);
     ~SplittingFIFOTaskQueue();
 
+    //! Specify tasks than can be split
     void SetSplittable(Task::TaskType task_type);
+
+    //! Specify maximum splits per task
     void SetMaxTasksPerSplit(size_t max_tasks_per_split);
+
+    //! Returns maximum splits per task
     size_t GetMaxTasksPerSplit(void) const;
+
+    //! Specify minimum vector size after split
     void SetMinVectorSize(size_t min_vector_size);
+
+    //! Returns minimum vector size after split
     size_t GetMinVectorSize(void) const;
 
     //! \brief Adds a task to the queue

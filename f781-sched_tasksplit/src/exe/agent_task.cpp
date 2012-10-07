@@ -20,6 +20,20 @@ namespace mem = flame::mem;
 namespace mb = flame::mb;
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
+/*!
+ * \brief Constructor
+ *
+ * Initialises all parameters.
+ *
+ * An agent shadow instance is created and stored in shadow_ptr_. This stores
+ * memory access permissions and can be used to retrieve a memory iterator
+ * when running the task.
+ *
+ * Throws throw flame::exceptions::invalid_agent if the agent name is invalid.
+ *
+ * Throws flame::exceptions::invalid_argument if the function pointer is
+ * invalid.
+ */
 AgentTask::AgentTask(std::string task_name, std::string agent_name,
                      TaskFunction func)
     : agent_name_(agent_name), func_(func),
@@ -35,7 +49,13 @@ AgentTask::AgentTask(std::string task_name, std::string agent_name,
   shadow_ptr_ = mm.GetAgentShadow(agent_name);
 }
 
-//! Constructor used internally to produce split task
+/*!
+ * \brief Alternative constructor used internally to produce split task
+ *
+ * Copies all internal variables but changes the values for offset_ and count_.
+ *
+ * is_split_ is set to true to indicate that this is split from a parent task.
+ */
 AgentTask::AgentTask(AgentTask& parent, size_t offset, size_t count)
     : offset_(offset), count_(count), is_split_(true) {
   func_ = parent.func_;
@@ -46,6 +66,14 @@ AgentTask::AgentTask(AgentTask& parent, size_t offset, size_t count)
   shadow_ptr_ = parent.shadow_ptr_;
 }
 
+/*!
+ * \brief Returns a new instance of a MemoryIterator
+ *
+ * Creates and returns a memory iterator using the assigned agent shadow.
+ *
+ * If is_split_ is true, offset values are provided such that only the
+ * apropriate subset of the memory is iterated.
+ */
 flame::mem::MemoryIteratorPtr AgentTask::GetMemoryIterator() const {
   if (is_split_) {
     return shadow_ptr_->GetMemoryIterator(offset_, count_);
@@ -54,10 +82,22 @@ flame::mem::MemoryIteratorPtr AgentTask::GetMemoryIterator() const {
   }
 }
 
+//! Grant memory access to a specific agent variable
 void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
   shadow_ptr_->AllowAccess(var_name, writeable);
 }
 
+/*!
+ * \brief Runs the task
+ *
+ * A memory iterator is retrived and a message board client is created.
+ *
+ * The agent memory is then iterated, and each attached function is run for
+ * each agent. The memory iterator and message board client is passed to the
+ * function to all them controlled access to memory and messages.
+ *
+ * \todo (lsc) Mark agent for deletion if the function returns FLAME_AGENT_DEAD.
+ */
 void AgentTask::Run() {
   mem::MemoryIteratorPtr m_ptr = GetMemoryIterator();
   MessageBoardClient mb_client = GetMessageBoardClient();
@@ -70,7 +110,18 @@ void AgentTask::Run() {
   }
 }
 
-//! Returns a task splitter which allows task to be exected in segments
+/*!
+ * \brief Split this task based on population size arguments provided
+ * \param[in] max_tasks Maximum subtasks that should be created
+ * \param[in] min_task_size Minimum population size per task after split
+ * \return A handle to a TaskSplitter object (or null handle if no split)
+ *
+ * Task splitting which allows task to be executed in segments. If the vectors
+ * are too small (depends on min_task_size) to split, a null handle is returned.
+ *
+ * If a split is possible, subtasks are created using the alternative
+ * constructor and wrapped up in a TaskSplitter instance.
+ */
 TaskSplitterHandle AgentTask::SplitTask(size_t max_tasks,
                                           size_t min_task_size) {
   if (max_tasks < 2) {  // no splitting required

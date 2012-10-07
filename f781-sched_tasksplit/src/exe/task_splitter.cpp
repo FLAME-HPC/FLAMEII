@@ -10,23 +10,44 @@
 #include "task_splitter.hpp"
 
 namespace flame { namespace exe {
+
+//! Constructor
 TaskSplitter::TaskSplitter(Task::id_type id, const TaskVector& tasks)
     : id_(id), running_(0), next_(0), tasks_(tasks) {
   pending_ = tasks_.size();
 }
 
+/*!
+ * \brief Returns true if all tasks have completed
+ *
+ * Returns true if running_ (number of tasks that have been assigned to workers
+ * but not yer completed) is 0 and pending_ (number of tasks yet to be assigned)
+ * is 0.
+ */
 bool TaskSplitter::IsComplete(void) const {
   return (running_ == 0 && pending_ == 0);
 }
 
-//! Returns true if all tasks have been assigned (may be still running tasks)
+/*!
+ * \brief Returns true if all tasks have been assigned
+ *
+ * When this returns true, there may be still tasks that have been assigned
+ * but not yet completed.
+ *
+ * We don't rely on tasks_.size() since tasks_ are not popped on assignment.
+ * Tasks are always held in the vector to keeps the object alive (held by
+ * shared pointer).
+ */
 bool TaskSplitter::NonePending(void) const {
-  // cannot rely on tasks_.size() since tasks_ are not popped on assignment
-  // to keep the object alive (held by shared pointer)
   return pending_ == 0;
 }
 
-//! Decrements running_ and returns true if IsComplete()
+/*!
+ * \brief Indicate that a task instance has been completed
+ * \return true if IsComplete()
+ *
+ * Decrements running_ and returns true if IsComplete()
+ */
 bool TaskSplitter::OneTaskDone(void) {
 #ifdef DEBUG
   if (running_ < 1) {
@@ -37,7 +58,12 @@ bool TaskSplitter::OneTaskDone(void) {
   return IsComplete();
 }
 
-//! Decrements pending_ and returns true if NonePending()
+/*!
+ * \brief Indicate that a task instance has been completed
+ * \return true if NonePending()
+ *
+ * Increments running_, decrements pending_ and returns true if NonePending()
+ */
 bool TaskSplitter::OneTaskAssigned(void) {
 #ifdef DEBUG
   if (pending_ < 1) {
@@ -49,7 +75,15 @@ bool TaskSplitter::OneTaskAssigned(void) {
   return NonePending();
 }
 
-//! Returns reference to the next task and decrements next_
+/*!
+ * \brief Returns reference to the next task
+ *
+ * Return a reference to a task within tasks_ indexed by next_. Then,
+ * increments next_.
+ *
+ * Throws flame::exceptions::flame_exception if called after all tasks
+ * have been returned.
+ */
 Task& TaskSplitter::GetTask() {
 #ifdef DEBUG
   if (next_ >= tasks_.size()) {
