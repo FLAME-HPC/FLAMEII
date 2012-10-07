@@ -77,32 +77,31 @@ bool SplittingFIFOTaskQueue::empty() const {
 void SplittingFIFOTaskQueue::Enqueue(Task::id_type task_id) {
   boost::lock_guard<boost::mutex> lock(mutex_);
   queue_.push(task_id);
+  ready_.notify_one();  // wake up one worker thread
 
-  // Special case
-  if (Task::IsTermTask(task_id)) {
-    ready_.notify_one();
-    return;
-  }
+  // TERM task id is virtual and has no corresponding task obj.
+  if (Task::IsTermTask(task_id)) return;   // Nothing left to do.
 
-  // If task is splittable, try to split it.
+  // Check if task is splittable
   Task& t = TaskManager::GetInstance().GetTask(task_id);
-  if (splittable_.find(t.get_task_type()) != splittable_.end()) {
-    TaskSplitterHandle ts = t.SplitTask(max_splits_, min_vector_size_);
-    if (ts) { // successfully split. Add to split_map_
-      SplitMap::iterator lb = split_map_.lower_bound(task_id);
-      if (lb != split_map_.end() &&
-          !(split_map_.key_comp()(task_id, lb->first))) {  // key exists
-        throw flame::exceptions::logic_error("task id conflict");
-      } else {
-        // register subtasks. Wake ALL workers and return
-        split_map_.insert(SplitMap::value_type(task_id, ts));
-        ready_.notify_all();
-        return;
+  if (splittable_.find(t.get_task_type()) == splittable_.end()) return;  // no
+
+  // Attempt to split atoms^H^H^H^H^H task
+  TaskSplitterHandle ts = t.SplitTask(max_splits_, min_vector_size_);
+  if (ts) { // successfully split. Add to split_map_
+    SplitMap::iterator lb = split_map_.lower_bound(task_id);
+    if (lb != split_map_.end() &&
+        !(split_map_.key_comp()(task_id, lb->first))) {  // key exists
+      throw flame::exceptions::logic_error("task id conflict");
+    } else {
+      // register subtasks. Wake ALL workers and return
+      split_map_.insert(SplitMap::value_type(task_id, ts));
+      // wake up more workers
+      for (int i = 0; i < ts->GetNumTasks() -1; --i) {
+        ready_.notify_one();
       }
     }
   }
-
-  ready_.notify_one();  // only one task queued. Wake one worker.
 }
 
 //! \brief Indicate that a task has been completed
@@ -120,6 +119,9 @@ void SplittingFIFOTaskQueue::TaskDone(Task::id_type task_id) {
       return;  // still more to go.  callback should not go upsteam
     }
   }
+
+  // all subtasks completed. Remove from map and trigger callback
+  split_map_.erase(task_id);
   callback_(task_id);
 }
 
