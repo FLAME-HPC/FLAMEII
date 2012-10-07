@@ -44,6 +44,43 @@ void Scheduler::SetSplittable(Task::TaskType type) {
   }
 }
 
+void Scheduler::SetMaxTasksPerSplit(Task::TaskType type,
+                                    size_t max_tasks_per_split) {
+  RouteMap::iterator iter = route_.find(type);
+  if (iter == route_.end()) {
+    throw flame::exceptions::invalid_argument("unassigned type");
+  } else {
+    queues_[iter->second].SetMaxTasksPerSplit(max_tasks_per_split);
+  }
+}
+
+size_t Scheduler::GetMaxTasksPerSplit(Task::TaskType type) const {
+  RouteMap::const_iterator iter = route_.find(type);
+  if (iter == route_.end()) {
+    throw flame::exceptions::invalid_argument("unassigned type");
+  } else {
+    return queues_[iter->second].GetMaxTasksPerSplit();
+  }
+}
+
+void Scheduler::SetMinVectorSize(Task::TaskType type, size_t min_vector_size) {
+  RouteMap::iterator iter = route_.find(type);
+  if (iter == route_.end()) {
+    throw flame::exceptions::invalid_argument("unassigned type");
+  } else {
+    queues_[iter->second].SetMinVectorSize(min_vector_size);
+  }
+}
+
+size_t Scheduler::GetMinVectorSize(Task::TaskType type) const {
+  RouteMap::const_iterator iter = route_.find(type);
+  if (iter == route_.end()) {
+    throw flame::exceptions::invalid_argument("unassigned type");
+  } else {
+    return queues_[iter->second].GetMinVectorSize();
+  }
+}
+
 bool Scheduler::IsValidQueueId(QueueId id) {
   return (id < queues_.size());
 }

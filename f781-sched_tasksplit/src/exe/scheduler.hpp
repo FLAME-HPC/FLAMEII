@@ -41,6 +41,11 @@ class Scheduler {
     //! \brief Specity tasks that can be split
     void SetSplittable(Task::TaskType type);
 
+    void SetMaxTasksPerSplit(Task::TaskType type, size_t max_tasks_per_split);
+    size_t GetMaxTasksPerSplit(Task::TaskType type) const;
+    void SetMinVectorSize(Task::TaskType type, size_t min_vector_size);
+    size_t GetMinVectorSize(Task::TaskType type) const;
+
     //! \brief Callback function used to indicate that a task is completed
     //!
     //! Assigned to each associated task queue for reverse communication

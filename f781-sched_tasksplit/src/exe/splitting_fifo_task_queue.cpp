@@ -44,14 +44,14 @@ void SplittingFIFOTaskQueue::SetSplittable(Task::TaskType task_type) {
   splittable_.insert(task_type);
 }
 
-void SplittingFIFOTaskQueue::SetMaxSplits(size_t max_splits) {
+void SplittingFIFOTaskQueue::SetMaxTasksPerSplit(size_t max_splits) {
   if (max_splits < 1) {
     throw flame::exceptions::invalid_argument("max_splits must be > 0");
   }
   max_splits_ = max_splits;
 }
 
-size_t SplittingFIFOTaskQueue::GetMaxSplits(void) {
+size_t SplittingFIFOTaskQueue::GetMaxTasksPerSplit(void) const {
   return max_splits_;
 }
 
@@ -62,7 +62,7 @@ void SplittingFIFOTaskQueue::SetMinVectorSize(size_t min_vector_size) {
   min_vector_size_ = min_vector_size;
 }
 
-size_t SplittingFIFOTaskQueue::GetMinVectorSize(void) {
+size_t SplittingFIFOTaskQueue::GetMinVectorSize(void) const {
   return min_vector_size_;
 }
 

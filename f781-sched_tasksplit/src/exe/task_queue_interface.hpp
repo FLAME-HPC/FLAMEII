@@ -37,6 +37,10 @@ class TaskQueue {
 
     //! Assign task type that can be split
     virtual void SetSplittable(Task::TaskType task_type) = 0;
+    virtual void SetMaxTasksPerSplit(size_t max_tasks_per_split) = 0;
+    virtual size_t GetMaxTasksPerSplit(void) const = 0;
+    virtual void SetMinVectorSize(size_t min_vector_size) = 0;
+    virtual size_t GetMinVectorSize(void) const = 0;
 
     //! Returns a task reference given a task id
     //! This usually forward the call to the TaskManager but it gives the queue

@@ -26,10 +26,10 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     ~SplittingFIFOTaskQueue();
 
     void SetSplittable(Task::TaskType task_type);
-    void SetMaxSplits(size_t max_splits);
-    size_t GetMaxSplits(void);
+    void SetMaxTasksPerSplit(size_t max_tasks_per_split);
+    size_t GetMaxTasksPerSplit(void) const;
     void SetMinVectorSize(size_t min_vector_size);
-    size_t GetMinVectorSize(void);
+    size_t GetMinVectorSize(void) const;
 
     //! \brief Adds a task to the queue
     //!
@@ -64,7 +64,7 @@ class SplittingFIFOTaskQueue : public TaskQueue {
     WorkerVector workers_;  //! Collection of worker threads
     SplitMap split_map_;  //! Collection of tasks that have been split
     size_t slots_;  //! Number of processing slots (worker threads)
-    size_t max_splits_;  //! Maximum number of splits per task
+    size_t max_splits_;  //! Maximum number of tasks per split
     size_t min_vector_size_;  //! Minimum vector size after split
 };
 
