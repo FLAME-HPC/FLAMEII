@@ -30,12 +30,17 @@ class MessageBoardTask : public Task {
 
     //! Returns a memory iterator for this task
     flame::mem::MemoryIteratorPtr GetMemoryIterator(void) const {
-      throw flame::exceptions::logic_error("method not applicable");
+      throw flame::exceptions::not_implemented("method not applicable");
     }
 
     //! Enable access to a specific agent var (not applicable)
     void AllowAccess(const std::string& var_name, bool writeable = false) {
-      throw flame::exceptions::logic_error("method not applicable");
+      throw flame::exceptions::not_implemented("method not applicable");
+    }
+
+    //! Returns a task splitter (not supported by MB task)
+    TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size) {
+      throw flame::exceptions::not_implemented("method not applicable");
     }
 
     //! Runs the task

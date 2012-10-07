@@ -33,6 +33,9 @@ class AgentMemory {
   public:
     explicit AgentMemory(const std::string& agent_name)
         : agent_name_(agent_name),
+#ifdef DEBUG
+          cached_size_(0),
+#endif
           registration_closed_(false) {}
 
     //! Registers a memory variable of a specific type
@@ -52,6 +55,9 @@ class AgentMemory {
     //! in advance. This saves having to constantly reallocate memory
     //! as agents are added to AgentMemory.
     void HintPopulationSize(unsigned int size_hint);
+
+    //! Returns the current population size
+    size_t GetPopulationSize(void);
 
     //! Returns typeless pointer to associated vector wrapper
     VectorWrapperBase* GetVectorWrapper(const std::string& var_name);
@@ -80,6 +86,9 @@ class AgentMemory {
   private:
     std::string agent_name_;  //! Name of agent
     MemoryMap mem_map_;  //! Map of var names to VectorWrapper
+#ifdef DEBUG
+    size_t cached_size_;
+#endif
 
     //! Indicates that vectors have been resized/populated so new variables
     //!  should no longer be registered.

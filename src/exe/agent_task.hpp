@@ -38,15 +38,24 @@ class AgentTask : public Task {
     //! Runs the task
     void Run();
 
+    //! \brief Split this task based on population size arguments provided
+    TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size);
+
   protected:
     // Tasks should only be created via Task Manager
     AgentTask(std::string task_name, std::string agent_name,
               TaskFunction func_ptr);
 
-  private:
     std::string agent_name_;  //! Name of associated agent
     TaskFunction func_;  //! Function associated with task
     flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
+
+    bool is_split_;  //! Flag indicating task is a subtask (split task)
+    size_t offset_;  //! Memory iterator offset (only used if is_split_)
+    size_t count_;  //! Number of agents to iterate (only used if is_split_)
+
+    //! Constructor used internally to produce split task
+    AgentTask(const AgentTask& parent, size_t offset, size_t count);
 };
 
 }}  // namespace flame::exe

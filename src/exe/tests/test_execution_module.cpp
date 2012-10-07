@@ -14,6 +14,7 @@
 #include "../task_manager.hpp"
 #include "../task_interface.hpp"
 #include "../fifo_task_queue.hpp"
+#include "../splitting_fifo_task_queue.hpp"
 #include "../scheduler.hpp"
 #include "include/flame.h"
 
@@ -105,9 +106,11 @@ BOOST_AUTO_TEST_CASE(test_task_queue) {
   tm.AddDependency("t4", "t3");
 
   exe::Scheduler s;
-  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
+  exe::Scheduler::QueueId q = s.CreateQueue<exe::SplittingFIFOTaskQueue>(4);
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
+  s.SetSplittable(exe::Task::AGENT_FUNCTION);
   s.RunIteration();
+
 
   // check content
   // assuming the functions are run the the correct order, the results
@@ -130,6 +133,7 @@ BOOST_AUTO_TEST_CASE(test_task_queue) {
     mptr->Step();
   }
   BOOST_CHECK(mptr->AtEnd());
+
 
   // run another iteration. Results should now be
   // x = 144i + 13

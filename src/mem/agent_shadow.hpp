@@ -52,7 +52,7 @@ class AgentShadow {
     void AllowAccess(const std::string& var_name, bool writeable = false);
 
     //! Returns the population size
-    size_t get_size() const;
+    size_t get_size();
 
     //! Returns a new instance of a MemoryIterator
     MemoryIteratorPtr GetMemoryIterator();
@@ -70,7 +70,7 @@ class AgentShadow {
     ConstVectorMap vec_map_;  //! map accessible vars
 
   private:
-    size_t size_;  //! Size if memory vectors
+    // size_t size_;  //! Size if memory vectors
     AgentMemory* am_;  //! Pointer to parent AgentMemory object
 
     AgentShadow(const AgentShadow&);  //! Disable copy ctor

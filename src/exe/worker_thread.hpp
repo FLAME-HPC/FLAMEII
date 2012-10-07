@@ -20,7 +20,7 @@ class WorkerThread {
   public:
     explicit WorkerThread(TaskQueue* taskqueue_ptr);
 
-    //! Waits for all threads to complete
+    //! Waits for thread to complete
     void join();
 
     //! Starts the thread
@@ -33,8 +33,8 @@ class WorkerThread {
     void RunTask(Task::id_type task_id);
 
   private:
-    boost::thread thread_;
-    TaskQueue* tq_;
+    boost::thread thread_;  //! Thread instance
+    TaskQueue* tq_;  //! Pointer to parent task queue
 };
 
 }}  // namespace flame::exe
