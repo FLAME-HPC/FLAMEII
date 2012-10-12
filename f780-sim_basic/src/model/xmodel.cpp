@@ -149,7 +149,7 @@ int XModel::registerWithMessageBoardManager() {
             return 1;
         }
 
-        mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
+        //mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
         //flame_mb_api_hack_initialise();
 /*
         for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {

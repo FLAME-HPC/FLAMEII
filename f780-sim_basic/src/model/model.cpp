@@ -51,14 +51,4 @@ int Model::registerAgentFunction(std::string name, flame::exe::TaskFunction f_pt
     return model_.registerAgentFunction(name, f_ptr);
 }
 
-template <typename T>
-int Model::registerMessageType(std::string name) {
-    mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
-
-    mgr.RegisterMessageVar<T>(name, FLAME_MESSAGE_VARNAME);
-    //RegisterMessageType<T>(name);
-
-    return 0;
-}
-
 }}  // namespace flame::model

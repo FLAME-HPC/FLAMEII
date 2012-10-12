@@ -74,17 +74,18 @@ FLAME_AGENT_FUNC(move) {
 }
 
 BOOST_AUTO_TEST_CASE(test_simManager) {
-
-
+    // Create model
     flame::model::Model m("src/sim/tests/models/circles/circles.xml");
+    // Register agent functions
     m.registerAgentFunction("outputdata", &outputdata);
     m.registerAgentFunction("inputdata", &inputdata);
     m.registerAgentFunction("move", &move);
-    //m.registerMessageType<location_message>("location");
-    //flame::mb::MessageBoardManager& mgr = flame::mb::MessageBoardManager::GetInstance();
-    //mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
 
     sim::Simulation s(&m, "src/sim/tests/models/circles/0.xml");
+
+    // Register message types
+    m.registerMessageType<location_message>("location");
+
     s.start(1);
 }
 
