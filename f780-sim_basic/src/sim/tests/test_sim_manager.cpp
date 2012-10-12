@@ -14,9 +14,16 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include "include/flame.h"
 #include "../sim_manager.hpp"
 #include "io/io_manager.hpp"
 #include "model/model_manager.hpp"
+#include "model/model.hpp"
+
+#include "mb/client.hpp"
+#include "mb/message.hpp"
+#include "mb/message_iterator.hpp"
+#include "mb/message_board_manager.hpp"
 
 namespace sim = flame::sim;
 namespace io = flame::io;
@@ -24,19 +31,61 @@ namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(SimManager)
 
-BOOST_AUTO_TEST_CASE(test_simManager) {
-    // int rc;
-    model::XModel model;
-    sim::Simulation sim1;
+typedef struct {
+  double x, y, z;
+  int id;
+} my_location_message;
 
-    // Add <xml> to both of these
-    // sim1.loadModel("src/sim/tests/models/circles/circles.xml");
-    sim1.loadModel("src/sim/tests/models/test01/test01.xml");
-    // Can only do this after loading a model
-    // sim1.loadPop("src/sim/tests/models/circles/0.xml");
-    sim1.loadPop("src/sim/tests/models/test01/0.xml");
-    // Run for one iteration
-    sim1.start(1);
+FLAME_AGENT_FUNC(outputdata) {
+    printf("outputdata\n");
+
+    location_message msg;
+    msg.x = flame_mem_get_double("x");
+    msg.y = flame_mem_get_double("y");
+    msg.z = 0.0;
+    msg.id = flame_mem_get_int("id");
+
+    flame_msg_post("location", &msg);
+
+    return FLAME_AGENT_ALIVE;
+}
+
+FLAME_AGENT_FUNC(inputdata) {
+    int checksum = 0;
+    flame_msg_iterator iter;
+    location_message msg;
+
+    iter = flame_msg_get_iterator("location");
+    for (; !flame_msg_iterator_end(iter);
+            flame_msg_iterator_next(iter)) {
+        flame_msg_iterator_get_message(iter, &msg);
+        checksum += msg.id;
+    }
+    flame_msg_iterator_free(iter);
+
+    printf("inputdata checksum=%d\n", checksum);
+
+    return FLAME_AGENT_ALIVE;
+}
+
+FLAME_AGENT_FUNC(move) {
+    printf("move\n");
+    return FLAME_AGENT_ALIVE;
+}
+
+BOOST_AUTO_TEST_CASE(test_simManager) {
+
+
+    flame::model::Model m("src/sim/tests/models/circles/circles.xml");
+    m.registerAgentFunction("outputdata", &outputdata);
+    m.registerAgentFunction("inputdata", &inputdata);
+    m.registerAgentFunction("move", &move);
+    //m.registerMessageType<location_message>("location");
+    //flame::mb::MessageBoardManager& mgr = flame::mb::MessageBoardManager::GetInstance();
+    //mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
+
+    sim::Simulation s(&m, "src/sim/tests/models/circles/0.xml");
+    s.start(1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

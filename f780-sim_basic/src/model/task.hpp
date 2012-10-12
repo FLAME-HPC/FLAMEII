@@ -47,6 +47,10 @@ class Task {
     bool hasCondition();
     VarMapToVertices * getLastWrites();
     std::set<size_t> * getLastConditions();
+    void addOutputMessage(std::string name);
+    std::set<std::string>* getOutputMessages();
+    void addInputMessage(std::string name);
+    std::set<std::string>* getInputMessages();
 
   private:
     // Agent name if function or output
@@ -70,6 +74,10 @@ class Task {
     bool hasCondition_;
     VarMapToVertices lastWrites_;
     std::set<size_t> lastConditions_;
+    /*! \brief Names of messages that are output */
+    std::set<std::string> outputMessages_;
+    /*! \brief Names of messages that are input */
+    std::set<std::string> inputMessages_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

@@ -52,7 +52,8 @@ class XGraph {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
-    int registerTasksAndDependenciesWithTaskManager();
+    int registerTasksAndDependenciesWithTaskManager(
+            std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
     void setTasksImported(bool b);
@@ -71,6 +72,8 @@ class XGraph {
     void addMessageClearTasks();
     int registerAllowAccess(flame::exe::Task& task,
             std::set<std::string> * vars, bool writeable);
+    int registerAllowMessage(flame::exe::Task& task,
+            std::set<std::string> * messages, bool post);
     Vertex addVertex(Task * t);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);

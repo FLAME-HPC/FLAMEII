@@ -137,4 +137,20 @@ std::set<size_t> * Task::getLastConditions() {
     return &lastConditions_;
 }
 
+void Task::addOutputMessage(std::string name) {
+    outputMessages_.insert(name);
+}
+
+std::set<std::string>* Task::getOutputMessages() {
+    return &outputMessages_;
+}
+
+void Task::addInputMessage(std::string name) {
+    inputMessages_.insert(name);
+}
+
+std::set<std::string>* Task::getInputMessages() {
+    return &inputMessages_;
+}
+
 }}  // namespace flame::model

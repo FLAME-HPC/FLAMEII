@@ -11,8 +11,9 @@ double distance (double x, double y)
  * \brief Output message containing location and radius
  */
 
-int outputdata()
+FLAME_AGENT_FUNC(outputdata)
 {
+    printf("outputdata\n");
 /*    double x, y;
 	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
 	x = get_x();
@@ -26,8 +27,9 @@ int outputdata()
 /** \fn inputdata()
  * \brief Read all messages from other agents
  */
-int inputdata()
+FLAME_AGENT_FUNC(inputdata)
 {
+    printf("inputdata\n");
 /*	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
 	double x1, y1, x2, y2;
     	double deep_distance_check, separation_distance;
@@ -66,8 +68,9 @@ int inputdata()
 /** \fn move()
  * \brief Update location
  */
-int move()
+FLAME_AGENT_FUNC(move)
 {
+    printf("move\n");
 /*	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
 	
 	xmemory->x += xmemory->fx;

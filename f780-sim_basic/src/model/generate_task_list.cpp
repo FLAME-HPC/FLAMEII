@@ -56,7 +56,7 @@ int ModelManager::registerModelWithTaskManager(XModel * model) {
 
     //modelGraph.generateTaskList(&tasks_);
 
-    modelGraph.registerTasksAndDependenciesWithTaskManager();
+    modelGraph.registerTasksAndDependenciesWithTaskManager(model->getFuncMap());
 
     // printTaskList(&tasks_);
 

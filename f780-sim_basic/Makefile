@@ -17,6 +17,8 @@ IO_SRC     = src/io/io_manager.cpp \
 IO_TEST_MAN   = src/io/tests/test_io_manager.cpp
 IO_TEST_POP   = src/io/tests/test_io_xml_pop.cpp
 IO_TEST_MODEL = src/io/tests/test_io_xml_model.cpp
+COMPAT_SRC = src/compat/C/mb_api.cpp \
+             src/compat/C/mem_api.cpp
 MODEL_SRC  = src/model/xvariable.cpp \
              src/model/xadt.cpp \
              src/model/xtimeunit.cpp \
@@ -31,7 +33,8 @@ MODEL_SRC  = src/model/xvariable.cpp \
              src/model/generate_task_list.cpp \
              src/model/task.cpp \
              src/model/dependency.cpp \
-             src/model/xgraph.cpp
+             src/model/xgraph.cpp \
+             src/model/model.cpp
 MODEL_TEST = src/model/tests/test_model_manager.cpp \
 			 src/model/tests/test_xgraph.cpp
 MEM_SRC    = src/mem/memory_manager.cpp \
@@ -48,6 +51,7 @@ EXE_SRC    = src/exe/agent_task.cpp \
              src/exe/scheduler.cpp \
              src/exe/task_manager.cpp \
              src/exe/worker_thread.cpp
+EXE_TEST   = src/exe/tests/test_task_access_to_mb.cpp
 SIM_SRC    = src/sim/sim_manager.cpp \
              src/sim/simulation.cpp
 SIM_TEST   = src/sim/tests/test_sim_manager.cpp
@@ -60,9 +64,16 @@ MB_SRC     = src/mb/board_writer.cpp \
              src/mb/message_iterator.cpp \
              src/mb/message.cpp \
              src/mb/proxy.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
+MB_TEST    = src/mb/tests/test_board_iteration.cpp \
+             src/mb/tests/test_board_manager.cpp \
+             src/mb/tests/test_board_proxy.cpp \
+             src/mb/tests/test_board_writer.cpp
+SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
+             $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
+             $(EXE_TEST) \
              $(SIM_TEST)
-#			 $(MODEL_TEST) \
+#             $(MB_TEST) \
+			 $(MODEL_TEST) \
              $(MEM_TEST) \
              $(IO_TEST_MAN) \
              $(IO_TEST_POP) \
@@ -85,6 +96,7 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/model/task.hpp \
              src/model/dependency.hpp \
              src/model/xgraph.hpp \
+             src/model/model.hpp \
              src/mem/memory_manager.hpp \
              src/mem/agent_memory.hpp \
              src/mem/agent_shadow.hpp \

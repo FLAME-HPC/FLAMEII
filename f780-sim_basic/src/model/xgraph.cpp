@@ -275,20 +275,26 @@ void XGraph::generateStateGraphMessages(XFunction * function, Task * task) {
     std::vector<XIOput*>::iterator ioput;
     // Find outputting functions
     for (ioput = function->getOutputs()->begin();
-         ioput != function->getOutputs()->end(); ++ioput)
+         ioput != function->getOutputs()->end(); ++ioput) {
+        // Add output message to function task
+        task->addOutputMessage((*ioput)->getMessageName());
         // Add edge from function vertex to message vertex
         addEdge(getVertex(task),
                 getVertex(generateStateGraphMessagesAddMessageToGraph(
                     (*ioput)->getMessageName())),
                 (*ioput)->getMessageName(), Dependency::communication);
+    }
     // Find inputting functions
     for (ioput = function->getInputs()->begin();
-         ioput != function->getInputs()->end(); ++ioput)
+         ioput != function->getInputs()->end(); ++ioput) {
+        // Add input message to function task
+        task->addInputMessage((*ioput)->getMessageName());
         // Add egde from message vertex to function vertex
         addEdge(getVertex(generateStateGraphMessagesAddMessageToGraph(
                     (*ioput)->getMessageName())),
                     getVertex(task),
                 (*ioput)->getMessageName(), Dependency::communication);
+    }
 }
 
 int XGraph::generateStateGraph(std::vector<XFunction*> functions,
@@ -351,30 +357,56 @@ int XGraph::registerAllowAccess(flame::exe::Task& task,
     return 0;
 }
 
-// dummy function
-FLAME_AGENT_FUNC(func1) {
-    printf("Task run\n");
+int XGraph::registerAllowMessage(flame::exe::Task& task,
+        std::set<std::string> * messages, bool post) {
+    std::set<std::string>::iterator sit;
+
+    for (sit = messages->begin();
+            sit != messages->end(); sit++) {
+        try {
+            if (post) task.AllowMessagePost((*sit));
+            else task.AllowMessageRead((*sit));
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+            std::fprintf(stderr, "When allowing access for '%s' message\n",
+                    (*sit).c_str());
+            return 1;
+        }
+    }
 
     return 0;
 }
 
-int XGraph::registerTasksAndDependenciesWithTaskManager() {
+int XGraph::registerTasksAndDependenciesWithTaskManager(
+        std::map<std::string, flame::exe::TaskFunction> funcMap) {
     int rc;
     flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
     boost::graph_traits<Graph>::edge_iterator iei, iei_end;
     std::pair<VertexIterator, VertexIterator> vp;
+    std::map<std::string, flame::exe::TaskFunction>::iterator it;
 
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
         Task * t = getTask(*vp.first);
         std::string taskName = t->getTaskName();
+        std::string agentName = t->getParentName();
         if (t->getTaskType() == Task::xfunction ||
                 t->getTaskType() == Task::xcondition) {
+            // Try and find function pointer from map
+            it = funcMap.find(t->getName());
+            if (it == funcMap.end()) {
+                std::fprintf(stderr, "Error: function '%s' has not be registered %s\n",
+                        taskName.c_str(),
+                        "and therefore a task cannot be created");
+                return 3;
+            }
+
             try {
                 // Create agent task
                 flame::exe::Task& task =
                     taskManager.CreateAgentTask(
-                            taskName, getTask(*vp.first)->getParentName(), &func1);
+                            taskName, agentName, ((*it).second));
                 // Allow access to read only variables
                 rc = registerAllowAccess(task,
                         t->getReadOnlyVariables(), false);
@@ -383,11 +415,16 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                 rc = registerAllowAccess(task,
                         t->getWriteVariables(), true);
                 if (rc != 0) return 1;
+                // Add access to messages
+                rc = registerAllowMessage(task, t->getOutputMessages(), true);
+                if (rc != 0) return 1;
+                rc = registerAllowMessage(task, t->getInputMessages(), false);
+                if (rc != 0) return 1;
             }
-            catch (const flame::exceptions::logic_error& E) {
+            catch (const flame::exceptions::flame_exception& E) {
                 std::fprintf(stderr, "Error: %s\nWhen creating a task for '%s' function\n",
                         E.what(),
-                        t->getName().c_str());
+                        taskName.c_str());
                 return 2;
             }
         }
@@ -395,7 +432,17 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
                 t->getTaskType() == Task::finish_model ||
                 t->getTaskType() == Task::io_pop_write) {
             // Data output tasks
-            taskManager.CreateAgentTask(taskName, "Test", &func1);
+            try {
+                //printf("Adding task %s io task\n", taskName.c_str());
+                // Hard coded agent name as model tasks don't have an agent!
+                //taskManager.CreateAgentTask(taskName, "Circle", ((*it).second));
+            }
+            catch (const flame::exceptions::flame_exception& E) {
+std::fprintf(stderr, "Error: %s\nWhen creating an io task for '%s' agent\n",
+                        E.what(),
+                        agentName.c_str());
+                return 2;
+            }
         }
         if (t->getTaskType() == Task::xmessage_sync) {
             try {
@@ -426,7 +473,8 @@ int XGraph::registerTasksAndDependenciesWithTaskManager() {
             iei != iei_end; ++iei) {
         std::string source = getTask(boost::source((Edge)*iei, *graph_))->getTaskName();
         std::string target = getTask(boost::target((Edge)*iei, *graph_))->getTaskName();
-        try { taskManager.AddDependency(source,target); }
+        // printf("Dep %s -> %s\n", source.c_str(), target.c_str());
+        try { taskManager.AddDependency(target, source); }
         catch(const flame::exceptions::flame_exception& E) {
             std::fprintf(stderr,
                 "Error: %s\nWhen adding a dependency between %s and %s\n",

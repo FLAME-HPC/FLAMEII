@@ -12,6 +12,7 @@
 #include <vector>
 #include "./xmodel.hpp"
 #include "mb/message_board_manager.hpp"
+#include "include/flame.h"
 
 namespace flame { namespace model {
 
@@ -107,6 +108,12 @@ int XModel::validate() {
     return validator.validate();
 }
 
+int XModel::registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr) {
+    funcMap_.insert(std::make_pair(name, f_ptr));
+
+    return 0;
+}
+
 int XModel::registerWithMemoryManager() {
     int rc;
     std::vector<XMachine*>::iterator agent;
@@ -141,6 +148,10 @@ int XModel::registerWithMessageBoardManager() {
                 E.what(), (*m)->getName().c_str());
             return 1;
         }
+
+        mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
+        //flame_mb_api_hack_initialise();
+/*
         for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {
             if ((*v)->getType() == "int")
                 try { mgr.RegisterMessageVar<int>((*m)->getName(), (*v)->getName()); }
@@ -159,6 +170,7 @@ int XModel::registerWithMessageBoardManager() {
                     return 1;
                 }
         }
+        */
     }
 
     return 0;
@@ -310,6 +322,10 @@ void XModel::addAllowedDataType(std::string name) {
 
 std::vector<std::string> * XModel::getAllowedDataTypes() {
     return &allowedDataTypes_;
+}
+
+std::map<std::string, flame::exe::TaskFunction> XModel::getFuncMap() {
+    return funcMap_;
 }
 
 }}  // namespace flame::model

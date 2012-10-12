@@ -11,18 +11,17 @@
 #define SIM__SIMULATION_HPP_
 #include <string>
 #include "model/model_manager.hpp"
+#include "model/model.hpp"
 
 namespace flame { namespace sim {
 
 class Simulation {
   public:
-    Simulation();
-    void loadModel(std::string model_file);
-    void loadPop(std::string pop_file);
+    Simulation(flame::model::Model * model, std::string pop_file);
     void start(size_t iterations);
 
   private:
-    flame::model::XModel model_;
+    flame::model::XModel * model_;
     bool modelLoaded_;
     bool popLoaded_;
 };
