@@ -13,7 +13,7 @@
 #include <vector>
 #include "./io_xml_model.hpp"
 #include "./io_xml_pop.hpp"
-#include "../model/model_manager.hpp"
+#include "model/xmodel.hpp"
 
 namespace flame { namespace io {
 

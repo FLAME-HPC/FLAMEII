@@ -15,7 +15,7 @@
 #include <set>
 #include <algorithm>
 #include "./xmodel_validate.hpp"
-#include "./model_manager.hpp"
+#include "model/xmodel.hpp"
 
 namespace flame { namespace model {
 

@@ -33,21 +33,27 @@ Task::Task(std::string parentName, std::string name, TaskType type)
 std::string Task::getTaskName() {
     std::string name;
 
+    // If agent function
     if (taskType_ == Task::xfunction) {
         name.append("AF_");
         name.append(parentName_);
+    // If agent condition
     } else if (taskType_ == Task::xcondition) {
         name.append("AC_");
         name.append(parentName_);
+    // If agent data output
     } else if (taskType_ == Task::io_pop_write) {
         name.append("AD_");
         name.append(parentName_);
+    // If model data output
     } else if (taskType_ == Task::start_model ||
             taskType_ == Task::finish_model) {
         name.append("MD_");
         name.append(parentName_);
+    // If message sync
     } else if (taskType_ == Task::xmessage_sync) {
         name.append("MS");
+    // If message clear
     } else if (taskType_ == Task::xmessage_clear) {
         name.append("MC");
     }

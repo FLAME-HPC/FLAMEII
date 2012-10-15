@@ -14,8 +14,8 @@
 #include <libxml/xmlwriter.h>
 #include <string>
 #include <vector>
-#include "../model/model_manager.hpp"
-#include "../mem/memory_manager.hpp"
+#include "mem/memory_manager.hpp"
+#include "model/xmodel.hpp"
 
 namespace model = flame::model;
 

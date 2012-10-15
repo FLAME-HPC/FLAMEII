@@ -11,6 +11,7 @@
 #define MODEL__XMODEL_HPP_
 #include <string>
 #include <vector>
+#include <map>
 #include "./xmachine.hpp"
 #include "./xvariable.hpp"
 #include "./xadt.hpp"
@@ -30,6 +31,7 @@ class XModel {
     int validate();
     int registerWithMemoryManager();
     int registerWithMessageBoardManager();
+    int registerWithTaskManager();
     int registerAgentFunction(std::string, flame::exe::TaskFunction);
     void setPath(std::string path);
     std::string getPath();

@@ -19,7 +19,7 @@
 #include "./task.hpp"
 #include "./xfunction.hpp"
 #include "./xvariable.hpp"
-#include "exe/task_manager.hpp"
+#include "../exe/task_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -52,6 +52,11 @@ class XGraph {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
+    int registerAgentTask(Task * t,
+            std::map<std::string, flame::exe::TaskFunction> funcMap);
+    int registerDataTask(Task * t);
+    int registerMessageTask(Task * t);
+    int registerDependencies();
     int registerTasksAndDependenciesWithTaskManager(
             std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
@@ -70,9 +75,9 @@ class XGraph {
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();
     void addMessageClearTasks();
-    int registerAllowAccess(flame::exe::Task& task,
+    int registerAllowAccess(flame::exe::Task * task,
             std::set<std::string> * vars, bool writeable);
-    int registerAllowMessage(flame::exe::Task& task,
+    int registerAllowMessage(flame::exe::Task * task,
             std::set<std::string> * messages, bool post);
     Vertex addVertex(Task * t);
     Edge addEdge(Vertex to, Vertex from, std::string name,

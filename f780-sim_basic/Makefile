@@ -17,6 +17,7 @@ IO_SRC     = src/io/io_manager.cpp \
 IO_TEST_MAN   = src/io/tests/test_io_manager.cpp
 IO_TEST_POP   = src/io/tests/test_io_xml_pop.cpp
 IO_TEST_MODEL = src/io/tests/test_io_xml_model.cpp
+IO_TEST    = $(IO_TEST_MAN) $(IO_TEST_POP) $(IO_TEST_MODEL)
 COMPAT_SRC = src/compat/C/mb_api.cpp \
              src/compat/C/mem_api.cpp
 MODEL_SRC  = src/model/xvariable.cpp \
@@ -29,14 +30,11 @@ MODEL_SRC  = src/model/xvariable.cpp \
              src/model/xioput.cpp \
              src/model/xcondition.cpp \
              src/model/xmodel_validate.cpp \
-             src/model/model_manager.cpp \
-             src/model/generate_task_list.cpp \
              src/model/task.cpp \
              src/model/dependency.cpp \
              src/model/xgraph.cpp \
              src/model/model.cpp
-MODEL_TEST = src/model/tests/test_model_manager.cpp \
-			 src/model/tests/test_xgraph.cpp
+MODEL_TEST = src/model/tests/test_xgraph.cpp
 MEM_SRC    = src/mem/memory_manager.cpp \
              src/mem/agent_memory.cpp \
              src/mem/agent_shadow.cpp \
@@ -79,10 +77,12 @@ SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
              $(IO_TEST_POP) \
              $(IO_TEST_MODEL)        
 OBJECTS    = $(SOURCES:.cpp=.o)
-HEADERS    = src/io/io_xml_model.hpp \
+IO_MODEL_SIM_SRC_TEST = $(IO_SRC) $(IO_TEST) \
+             $(MODEL_SRC) $(MODEL_TEST) $(SIM_SRC) $(SIM_TEST)
+IO_MODEL_SIM_HEADERS = src/io/io_xml_model.hpp \
 			 src/io/io_xml_pop.hpp \
 			 src/io/io_manager.hpp \
-             src/model/xmachine.hpp \
+			 src/model/xmachine.hpp \
              src/model/xmodel.hpp \
              src/model/xmodel_validate.hpp \
              src/model/xvariable.hpp \
@@ -92,12 +92,13 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/model/xmessage.hpp \
              src/model/xioput.hpp \
              src/model/xcondition.hpp \
-             src/model/model_manager.hpp \
              src/model/task.hpp \
              src/model/dependency.hpp \
              src/model/xgraph.hpp \
              src/model/model.hpp \
-             src/mem/memory_manager.hpp \
+             src/sim/sim_manager.hpp \
+             src/sim/simulation.hpp
+OTHER_HEADERS = src/mem/memory_manager.hpp \
              src/mem/agent_memory.hpp \
              src/mem/agent_shadow.hpp \
              src/mem/memory_iterator.hpp \
@@ -110,8 +111,6 @@ HEADERS    = src/io/io_xml_model.hpp \
              src/exe/task_manager.hpp \
              src/exe/task_queue_interface.hpp \
              src/exe/worker_thread.hpp \
-             src/sim/sim_manager.hpp \
-             src/sim/simulation.hpp \
              src/mb/board_writer.hpp \
              src/mb/client.hpp \
              src/mb/mb_common.hpp \
@@ -129,6 +128,7 @@ HEADERS    = src/io/io_xml_model.hpp \
              headers/exceptions/exe.hpp \
              headers/exceptions/all.hpp \
              headers/include/flame.h
+HEADERS    = $(IO_MODEL_SIM_HEADERS) $(OTHER_HEADERS)
 DEPS       = Makefile $(HEADERS)
 EXECUTABLE = run_tests
 RM         = rm -f
@@ -152,11 +152,11 @@ doc:
 
 CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
-	$(CPPLINT) $(SOURCES) $(HEADERS)
+	$(CPPLINT) $(IO_MODEL_SIM_SRC_TEST) $(IO_MODEL_SIM_HEADERS)
 
 CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
 cccc:
-	cccc $(SOURCES) $(HEADERS) --outdir=cccc; \
+	cccc $(IO_MODEL_SIM_SRC_TEST) $(IO_MODEL_SIM_HEADERS) --outdir=cccc; \
 	$(CCCCSUMMARY) cccc
 
 # dsymutil - only relevent on Mac OS X

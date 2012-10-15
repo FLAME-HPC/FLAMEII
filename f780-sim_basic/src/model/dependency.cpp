@@ -41,18 +41,23 @@ Dependency::DependencyType Dependency::getDependencyType() {
 
 std::string Dependency::getGraphName() {
     std::string graphName;
+    // If communication
     if (dependencyType_ == Dependency::communication)
         graphName.append("Message");
+    // If data
     else if (dependencyType_ == Dependency::data ||
             dependencyType_ == Dependency::variable)
         graphName.append("Data");
+    // If state
     else if (dependencyType_ == Dependency::state)
         graphName.append("State");
+    // If condition
     else if (dependencyType_ == Dependency::condition)
             graphName.append("Condition");
+    // If initialisation
     else if (dependencyType_ == Dependency::init)
         graphName.append("");
-    //graphName.append(name_);
+    // graphName.append(name_);
     return graphName;
 }
 

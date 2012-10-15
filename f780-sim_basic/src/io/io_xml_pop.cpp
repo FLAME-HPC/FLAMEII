@@ -155,7 +155,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     /* Loop variables */
     size_t ii;
 
-    printf("Writing file: %s\n", file_name.c_str());
+    printf("Writing file: '%s'\n", file_name.c_str());
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
@@ -205,6 +205,8 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
         fprintf(stderr, "Error: Unable to open: '%s'\n", file_name.c_str());
         return 1;
     }
+
+    printf("Reading file: '%s'\n", file_name.c_str());
 
     /* Read the first node */
     ret = xmlTextReaderRead(reader);
@@ -426,7 +428,7 @@ int IOXMLPop::createDataSchema(std::string const& file,
     /* The xml text writer */
     xmlTextWriterPtr writer;
 
-    printf("Writing file: %s\n", file.c_str());
+    printf("Writing file: '%s'\n", file.c_str());
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file.c_str(), 0);

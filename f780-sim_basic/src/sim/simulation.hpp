@@ -10,7 +10,6 @@
 #ifndef SIM__SIMULATION_HPP_
 #define SIM__SIMULATION_HPP_
 #include <string>
-#include "model/model_manager.hpp"
 #include "model/model.hpp"
 
 namespace flame { namespace sim {

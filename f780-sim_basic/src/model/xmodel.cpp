@@ -10,9 +10,11 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
+#include <map>
 #include "./xmodel.hpp"
-#include "mb/message_board_manager.hpp"
-#include "include/flame.h"
+#include "../mb/message_board_manager.hpp"
+#include "../../headers/include/flame.h"
 
 namespace flame { namespace model {
 
@@ -108,7 +110,8 @@ int XModel::validate() {
     return validator.validate();
 }
 
-int XModel::registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr) {
+int XModel::registerAgentFunction(std::string name,
+        flame::exe::TaskFunction f_ptr) {
     funcMap_.insert(std::make_pair(name, f_ptr));
 
     return 0;
@@ -142,15 +145,12 @@ int XModel::registerWithMessageBoardManager() {
     // For each message
     for (m = messages_.begin(); m != messages_.end(); m++) {
         try { mgr.RegisterMessage((*m)->getName()); }
-        catch (const flame::exceptions::logic_error& E) {
+        catch(const flame::exceptions::logic_error& E) {
             std::fprintf(stderr,
-                "Error: %s\nWhen registering '%s' message with the message manager\n",
+        "Error: %s\nWhen registering '%s' message with the message manager\n",
                 E.what(), (*m)->getName().c_str());
             return 1;
         }
-
-        //mgr.RegisterMessageVar<location_message>("location", FLAME_MESSAGE_VARNAME);
-        //flame_mb_api_hack_initialise();
 /*
         for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {
             if ((*v)->getType() == "int")
@@ -172,6 +172,34 @@ int XModel::registerWithMessageBoardManager() {
         }
         */
     }
+
+    return 0;
+}
+
+int XModel::registerWithTaskManager() {
+    XGraph modelGraph;
+    std::vector<XMachine*>::iterator agent;
+    std::set<XGraph *> graphs;
+
+    modelGraph.setAgentName(name_);
+
+    // Consolidate agent graphs into a model graph
+    for (agent = agents_.begin();
+            agent != agents_.end(); agent++) {
+        // Generate agent graph
+        (*agent)->generateDependencyGraph();
+        // Add to model graph
+        // (*agent)->addToModelGraph(&modelGraph);
+        graphs.insert((*agent)->getFunctionDependencyGraph());
+    }
+
+    modelGraph.importGraphs(graphs);
+
+#ifdef TESTBUILD
+    modelGraph.writeGraphviz(name_ + ".dot");
+#endif
+
+    modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 
     return 0;
 }

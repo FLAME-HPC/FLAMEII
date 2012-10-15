@@ -10,6 +10,7 @@
 
 #ifndef MODEL__MODEL_HPP_
 #define MODEL__MODEL_HPP_
+#include <string>
 #include "model/xmodel.hpp"
 #include "include/flame.h"
 #include "mb/message_board_manager.hpp"
@@ -19,16 +20,17 @@ namespace model {
 
 class Model {
   public:
-    Model(std::string model);
+    explicit Model(std::string model);
     ~Model();
     int registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr);
     template <typename T>
     int registerMessageType(std::string name) {
-        flame::mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
+        flame::mb::MessageBoardManager& mgr =
+                mb::MessageBoardManager::GetInstance();
 
         mgr.RegisterMessageVar<T>(name, FLAME_MESSAGE_VARNAME);
         // compat/C/mb_api.cpp
-        //RegisterMessageType<T>(name);
+        // RegisterMessageType<T>(name);
         flame_mb_api_hack_initialise();
 
         return 0;

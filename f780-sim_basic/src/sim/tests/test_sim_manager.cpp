@@ -17,7 +17,6 @@
 #include "include/flame.h"
 #include "../sim_manager.hpp"
 #include "io/io_manager.hpp"
-#include "model/model_manager.hpp"
 #include "model/model.hpp"
 
 #include "mb/client.hpp"

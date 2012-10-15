@@ -10,45 +10,44 @@
 #include <cstdio>
 #include <string>
 #include "model.hpp"
-#include "model/model_manager.hpp"
-#include "mb/message_board_manager.hpp"
-
-#include "mem/memory_manager.hpp"
-#include "mb/message_board_manager.hpp"
-#include "exe/task_manager.hpp"
-#include "exe/scheduler.hpp"
-#include "exe/fifo_task_queue.hpp"
-#include "include/flame.h"
-
-#include "mb/client.hpp"
-#include "mb/message.hpp"
-#include "mb/message_iterator.hpp"
+#include "io/io_manager.hpp"
 
 namespace flame {
 namespace model {
 
 Model::Model(std::string path_to_model)
     : modelLoaded_(false) {
-    flame::model::ModelManager modelManager;
+    flame::io::IOManager ioManager;
     int rc = 0;
 
-    rc += modelManager.loadModel(path_to_model, &model_);
-    if (rc == 0) {
-        modelLoaded_ = true;
-    } else {
+    // Load model
+    rc = ioManager.loadModel(path_to_model, &model_);
+    if (rc != 0) {
         std::fprintf(stderr, "Error: Cannot load model\n");
+        model_.clear();
+        return;
     }
+
+    // Validate model
+    rc = model_.validate();
+    if (rc != 0) {
+std::fprintf(stderr, "Error: Model from XML file could not be validated.\n");
+        model_.clear();
+        return;
+    }
+
+    modelLoaded_ = true;
 }
 
 Model::~Model() {
-
 }
 
 flame::model::XModel * Model::getXModel() {
     return &model_;
 }
 
-int Model::registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr) {
+int Model::registerAgentFunction(std::string name,
+        flame::exe::TaskFunction f_ptr) {
     return model_.registerAgentFunction(name, f_ptr);
 }
 

@@ -15,7 +15,7 @@
 #include "./xvariable.hpp"
 #include "./xfunction.hpp"
 #include "./xgraph.hpp"
-#include "exe/task_interface.hpp"
+#include "../exe/task_interface.hpp"
 
 namespace flame { namespace model {
 

@@ -17,7 +17,6 @@
 namespace flame { namespace sim {
 
 Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
-    flame::model::ModelManager modelManager;
     flame::io::IOManager iomanager;
     int rc = 0;
 
@@ -25,8 +24,8 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
     popLoaded_ = false;
     model_ = model->getXModel();
 
-    rc += modelManager.registerModelWithMemoryManager(model_);
-    rc += modelManager.registerModelWithMessageBoardManager(model_);
+    rc += model_->registerWithMemoryManager();
+    rc += model_->registerWithMessageBoardManager();
 
     if (rc == 0) modelLoaded_ = true;
 
@@ -35,19 +34,19 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
         if (rc == 0) {
             popLoaded_ = true;
         } else {
-            std::fprintf(stderr, "Error: Cannot load pop because model not loaded\n");
+            std::fprintf(stderr,
+                    "Error: Cannot load pop because model not loaded\n");
         }
     }
 }
 
 void Simulation::start(size_t iterations) {
-    flame::model::ModelManager modelManager;
-
     if (popLoaded_) {
         // Register agents with memory and task manager
-        modelManager.registerModelWithTaskManager(model_);
+        model_->registerWithTaskManager();
     } else {
-        std::fprintf(stderr, "Error: Cannot start simulation because pop not loaded\n");
+        std::fprintf(stderr,
+                "Error: Cannot start simulation because pop not loaded\n");
     }
 
     exe::Scheduler s;
