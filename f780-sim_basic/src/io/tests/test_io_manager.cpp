@@ -175,12 +175,6 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
     fclose(oneFile);
     BOOST_CHECK(differences == 0);
 
-    /* Remove created xmlpop.xsd */
-    std::string xmlpopxsd = "src/io/tests/models/all_data_its/xmlpop.xsd";
-    printf("Removing file: %s\n", xmlpopxsd.c_str());
-    if (remove(xmlpopxsd.c_str()) != 0)
-        fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-            xmlpopxsd.c_str());
     /* Remove created 1.xml */
     printf("Removing file: %s\n", onexml.c_str());
     if (remove(onexml.c_str()) != 0)

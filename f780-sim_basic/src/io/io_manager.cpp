@@ -36,23 +36,23 @@ int IOManager::readPop(std::string file_name,
         /* Set path to xml pop location */
         ioxmlpop.setXmlPopPath(file_name);
         /* Validate xml first */
-        xmlpopxsd = ioxmlpop.xmlPopPath();
-        xmlpopxsd.append("xmlpop.xsd");
+        xmlpopxsd = std::string(ioxmlpop.xmlPopPath()).append("xmlpop.xsd");
         /* Create data schema */
-        rc = ioxmlpop.createDataSchema(xmlpopxsd, model);
-        if (rc != 0) {
+        if (ioxmlpop.createDataSchema(xmlpopxsd, model) != 0) {
             fprintf(stderr, "Error: Could not create data schema\n");
             return rc;
         }
         /* Validate data using schema */
-        rc = ioxmlpop.validateData(file_name, xmlpopxsd);
-        if (rc != 0) {
+        if (ioxmlpop.validateData(file_name, xmlpopxsd) != 0) {
             fprintf(stderr, "Error: Could not validate data with schema\n");
             return rc;
         }
+        printf("Removing file: %s\n", xmlpopxsd.c_str());
+        if (remove(xmlpopxsd.c_str()) != 0)
+        fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
+                xmlpopxsd.c_str());
         /* Read validated pop xml */
-        rc = ioxmlpop.readXMLPop(file_name, model, &memoryManager);
-        return rc;
+        return ioxmlpop.readXMLPop(file_name, model, &memoryManager);
     } else {
         throw flame::exceptions::flame_io_exception("unknown file type");
     }
