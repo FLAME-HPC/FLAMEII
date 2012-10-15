@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Model: model object for users to use
  */
+#include <cstdio>
 #include <string>
 #include "model.hpp"
 #include "model/model_manager.hpp"
