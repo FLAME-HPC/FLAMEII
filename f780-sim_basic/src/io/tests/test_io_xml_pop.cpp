@@ -85,41 +85,41 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_missing.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 1);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_malformed.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 2);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_unknown_tag.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 3);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_unknown_agent.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 4);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_unknown_variable.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 5);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_var_not_int.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 6);
 
     rc = ioxmlpop.readXMLPop(
             "src/io/tests/models/all_data_its/0_var_not_double.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 6);
 
     std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
-    rc = ioxmlpop.readXMLPop(zeroxml, &model, &memoryManager);
+    rc = ioxmlpop.readXMLPop(zeroxml, &model);
     BOOST_CHECK(rc == 0);
 
     /* Test pop data read in */
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 
     /* Test pop data written out */
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
-    rc = ioxmlpop.writeXMLPop(onexml, 1, &model, &memoryManager);
+    rc = ioxmlpop.writeXMLPop(onexml, 1, &model);
     BOOST_CHECK(rc == 0);
     /* Check 0.xml and 1.xml are identical */
     size_t differences = 1;

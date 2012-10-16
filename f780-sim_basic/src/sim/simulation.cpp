@@ -17,7 +17,7 @@
 namespace flame { namespace sim {
 
 Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
-    flame::io::IOManager iomanager;
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
     int rc = 0;
 
     modelLoaded_ = false;
@@ -30,17 +30,20 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
     if (rc == 0) modelLoaded_ = true;
 
     if (modelLoaded_) {
-        rc = iomanager.readPop(pop_file, model_, io::IOManager::xml);
-        if (rc == 0) {
-            popLoaded_ = true;
-        } else {
-            std::fprintf(stderr,
-                    "Error: Cannot load pop because model not loaded\n");
+        popLoaded_ = true;
+        try {
+            iomanager.readPop(pop_file, model_, io::IOManager::xml);
+        }
+        catch(flame::exceptions::flame_io_exception& E) {
+            std::fprintf(stderr, "Error: %s\n", E.what());
+            popLoaded_ = false;
         }
     }
 }
 
 void Simulation::start(size_t iterations) {
+    size_t ii;
+
     if (popLoaded_) {
         // Register agents with memory and task manager
         model_->registerWithTaskManager();
@@ -53,7 +56,8 @@ void Simulation::start(size_t iterations) {
     exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
     s.AssignType(q, exe::Task::AGENT_FUNCTION);
     s.AssignType(q, exe::Task::MB_FUNCTION);
-    s.RunIteration();
+    for (ii = 0; ii < iterations; ++ii)
+        s.RunIteration();
 }
 
 }}  // namespace flame::sim

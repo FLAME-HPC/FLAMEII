@@ -17,13 +17,15 @@ namespace model {
 
 Model::Model(std::string path_to_model)
     : modelLoaded_(false) {
-    flame::io::IOManager ioManager;
+    flame::io::IOManager& ioManager = flame::io::IOManager::GetInstance();
     int rc = 0;
 
     // Load model
-    rc = ioManager.loadModel(path_to_model, &model_);
-    if (rc != 0) {
-        std::fprintf(stderr, "Error: Cannot load model\n");
+    try {
+        ioManager.loadModel(path_to_model, &model_);
+    }
+    catch(flame::exceptions::flame_io_exception& E) {
+        std::fprintf(stderr, "Error: %s\n", E.what());
         model_.clear();
         return;
     }

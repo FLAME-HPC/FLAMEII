@@ -70,7 +70,8 @@ SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
              $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
              $(IO_TEST_MAN) \
              $(IO_TEST_POP) \
-             $(IO_TEST_MODEL)
+             $(IO_TEST_MODEL) \
+             $(SIM_TEST)
 #             $(EXE_TEST) \
              $(SIM_TEST) \
              $(MB_TEST) \

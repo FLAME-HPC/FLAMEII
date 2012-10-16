@@ -36,7 +36,7 @@ typedef struct {
 } my_location_message;
 
 FLAME_AGENT_FUNC(outputdata) {
-    printf("outputdata\n");
+    // printf("outputdata\n");
 
     location_message msg;
     msg.x = flame_mem_get_double("x");
@@ -62,13 +62,13 @@ FLAME_AGENT_FUNC(inputdata) {
     }
     flame_msg_iterator_free(iter);
 
-    printf("inputdata checksum=%d\n", checksum);
+    // printf("inputdata checksum=%d\n", checksum);
 
     return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNC(move) {
-    printf("move\n");
+    // printf("move\n");
     return FLAME_AGENT_ALIVE;
 }
 

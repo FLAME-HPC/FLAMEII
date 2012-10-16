@@ -19,56 +19,46 @@
 
 namespace io = flame::io;
 namespace model = flame::model;
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(IOManager)
 
 /* Test the reading of XML model files and sub model files. */
 BOOST_AUTO_TEST_CASE(test_manager_load_model) {
-    int rc;
-    io::IOManager iomanager;
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
     model::XModel model;
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/missing.xml", &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/missing.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/malformed_xml.xml", &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/malformed_xml.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/not_xmodel.xml", &model);
-    BOOST_CHECK(rc == 3);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/not_xmodel.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/xmodelv1.xml", &model);
-    BOOST_CHECK(rc == 4);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/xmodelv1.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/submodel_enable_error.xml", &model);
-    BOOST_CHECK(rc == 5);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_enable_error.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/submodel_end_not_xml.xml", &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_end_not_xml.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/submodel_duplicate.xml", &model);
-    BOOST_CHECK(rc == 7);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_duplicate.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/submodel_missing.xml", &model);
-    BOOST_CHECK(rc == 8);
+    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_missing.xml",
+            &model), e::flame_io_exception);
 
-    rc = iomanager.loadModel(
-            "src/io/tests/models/all_not_valid.xml", &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(iomanager.loadModel("src/io/tests/models/all_not_valid.xml",
+            &model));
 }
 
 /* Test the reading of XML population files. */
 BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
-    int rc;
-    io::IOManager iomanager;
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
     model::XModel model;
     flame::mem::MemoryManager& memoryManager =
             flame::mem::MemoryManager::GetInstance();
@@ -79,53 +69,45 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
     model.validate();
     model.registerWithMemoryManager();
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_missing.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_malformed.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_unknown_tag.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_unknown_agent.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_unknown_variable.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_var_not_int.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
-    rc = iomanager.readPop(
+    BOOST_CHECK_THROW(iomanager.readPop(
             "src/io/tests/models/all_data_its/0_var_not_double.xml",
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc != 0);
+            io::IOManager::xml), e::flame_io_exception);
 
     std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
-    rc = iomanager.readPop(zeroxml,
+    BOOST_CHECK_NO_THROW(iomanager.readPop(zeroxml,
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc == 0);
+            io::IOManager::xml));
 
     /* Test pop data read in */
     /* Test ints data */
@@ -145,11 +127,10 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
 
     /* Test pop data written out */
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
-    rc = iomanager.writePop(onexml,
+    BOOST_CHECK_NO_THROW(iomanager.writePop(onexml,
             1,
             &model,
-            io::IOManager::xml);
-    BOOST_CHECK(rc == 0);
+            io::IOManager::xml));
     /* Check 0.xml and 1.xml are identical */
     size_t differences = 1;
     int c0, c1;

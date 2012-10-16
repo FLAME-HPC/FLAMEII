@@ -16,6 +16,7 @@
 #include <vector>
 #include <cstdio>
 #include "./io_xml_pop.hpp"
+#include "../mem/vector_wrapper.hpp"
 
 void printErr(std::string message);
 
@@ -29,12 +30,13 @@ IOXMLPop::IOXMLPop() {
 
 template <class T>
 int IOXMLPop::setupVectorReader(model::XMachine * agent,
-        model::XVariable * var,
-        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+        model::XVariable * var, size_t * noAgents,
         std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
         size_t jj) {
+    flame::mem::MemoryManager& memoryManager =
+                    flame::mem::MemoryManager::GetInstance();
     /* Create vector reader.. */
-    std::vector<T> * ro = memoryManager->GetVector<T>(
+    std::vector<T> * ro = memoryManager.GetVector<T>(
                     agent->getName(), var->getName());
     /* ..and add to list of vectors. */
     varVectors->push_back(ro);
@@ -49,8 +51,7 @@ fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
     return 0;
 }
 
-int IOXMLPop::setupVectorReaders(model::XMachine * agent,
-        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+int IOXMLPop::setupVectorReaders(model::XMachine * agent, size_t * noAgents,
         std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors) {
     size_t jj;
 
@@ -66,10 +67,10 @@ int IOXMLPop::setupVectorReaders(model::XMachine * agent,
          */
         if (var->getType() == "int")
             setupVectorReader<int>(
-                    agent, var, memoryManager, noAgents, varVectors, jj);
+                    agent, var, noAgents, varVectors, jj);
         if (var->getType() == "double")
             setupVectorReader<double>(
-                    agent, var, memoryManager, noAgents, varVectors, jj);
+                    agent, var, noAgents, varVectors, jj);
     }
 
     return 0;
@@ -110,8 +111,7 @@ int IOXMLPop::writeXMLAgentVariables(model::XMachine * agent,
     return 0;
 }
 
-int IOXMLPop::writeXMLAgent(model::XMachine * agent,
-        flame::mem::MemoryManager * memoryManager, xmlTextWriterPtr writer) {
+int IOXMLPop::writeXMLAgent(model::XMachine * agent, xmlTextWriterPtr writer) {
     int rc;
     size_t kk;
     /* List of memory vector readers populated for each agent */
@@ -120,7 +120,7 @@ int IOXMLPop::writeXMLAgent(model::XMachine * agent,
     size_t noAgents;
 
     /* Setup vector readers for agent memory variables */
-    rc = setupVectorReaders(agent, memoryManager, &noAgents, &varVectors);
+    rc = setupVectorReaders(agent, &noAgents, &varVectors);
     if (rc != 0) return rc;
 
     /* For each agent in the simulation */
@@ -148,8 +148,7 @@ int IOXMLPop::writeXMLAgent(model::XMachine * agent,
 }
 
 int IOXMLPop::writeXMLPop(std::string file_name,
-        int iterationNo, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager) {
+        int iterationNo, model::XModel * model) {
     /* Return code */
     int rc = 0;
     /* The xml text writer */
@@ -180,7 +179,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
 
     /* For each agent type in the model */
     for (ii = 0; ii < model->getAgents()->size(); ii++) {
-        rc = writeXMLAgent(model->getAgents()->at(ii), memoryManager, writer);
+        rc = writeXMLAgent(model->getAgents()->at(ii), writer);
         if (rc != 0) return rc;
     }
 
@@ -193,8 +192,22 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     return rc;
 }
 
-int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager) {
+void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
+    flame::mem::MemoryManager& memoryManager =
+                        flame::mem::MemoryManager::GetInstance();
+    // Get access to vector
+    flame::mem::VectorWrapperBase* vw =
+            memoryManager.GetVectorWrapper(agent_name, var_name);
+
+    void* p = vw->GetRawPtr();
+    while (p != NULL) {
+        // Write var out
+
+        vw->StepRawPtr(p);
+    }
+}
+
+int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
     xmlTextReaderPtr reader;
     int ret, rc = 0;
     /* Using vector instead of stack as need to access earlier tags */
@@ -219,7 +232,7 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
     /* Continue reading nodes until end */
     while (ret == 1 && rc == 0) {
         /* Process node */
-        rc = processNode(reader, model, memoryManager, &tags, &agent);
+        rc = processNode(reader, model, &tags, &agent);
         /* Read next node */
         ret = xmlTextReaderRead(reader);
     }
@@ -548,8 +561,9 @@ int IOXMLPop::processStartNode(std::vector<std::string> * tags,
 
 template <class T>
 int IOXMLPop::processTextVariableCast(std::string value,
-        std::vector<std::string> * tags,
-        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent) {
+        std::vector<std::string> * tags, model::XMachine ** agent) {
+    flame::mem::MemoryManager& memoryManager =
+                    flame::mem::MemoryManager::GetInstance();
     T typeValue;
     try {
         typeValue = boost::lexical_cast<T>(value);
@@ -563,15 +577,14 @@ int IOXMLPop::processTextVariableCast(std::string value,
     }
     /* Add value to memory manager */
     std::vector<T>* vec =
-        memoryManager->GetVector<T>(
+        memoryManager.GetVector<T>(
             (*agent)->getName(), tags->back());
     vec->push_back(typeValue);
     return 0;
 }
 
 int IOXMLPop::processTextVariable(std::string value,
-        std::vector<std::string> * tags,
-        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent) {
+        std::vector<std::string> * tags, model::XMachine ** agent) {
     int rc;
     /* Get pointer to variable type */
     model::XVariable * var = (*agent)->getVariable(tags->back());
@@ -581,11 +594,11 @@ int IOXMLPop::processTextVariable(std::string value,
          * use appropriate casting function */
         if (var->getType() == "int") {
             rc = processTextVariableCast<int>(
-                    value, tags, memoryManager, agent);
+                    value, tags, agent);
             if (rc != 0) return rc;
         } else if (var->getType() == "double") {
             rc = processTextVariableCast<double>(
-                    value, tags, memoryManager, agent);
+                    value, tags, agent);
             if (rc != 0) return rc;
         }
     } else {
@@ -599,8 +612,7 @@ int IOXMLPop::processTextVariable(std::string value,
 
 int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
-        model::XMachine ** agent, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager) {
+        model::XMachine ** agent, model::XModel * model) {
     int rc = 0;
 
     /* Read value */
@@ -617,7 +629,7 @@ int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
             rc = 4;
         }
     } else { if (*agent) /* Check if agent exists */
-        rc = processTextVariable(value, tags, memoryManager, agent);
+        rc = processTextVariable(value, tags, agent);
     }
 
     return rc;
@@ -642,7 +654,6 @@ fprintf(stderr, "Error: Tag is not closed properly: '%s' with '%s'\n",
 }
 
 int IOXMLPop::processNode(xmlTextReaderPtr reader, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager,
         std::vector<std::string> * tags, model::XMachine ** agent) {
     int rc = 0;
     /* Node name */
@@ -670,7 +681,7 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader, model::XModel * model,
         case 3: /* Text */
             if (tags->size() == 3 && tags->at(1) == "xagent")
                 rc = processTextAgent(
-                    tags, reader, agent, model, memoryManager);
+                    tags, reader, agent, model);
             break;
         case 15: /* End element */
             rc = processEndNode(tags, name, agent);

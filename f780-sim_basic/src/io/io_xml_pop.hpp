@@ -28,10 +28,10 @@ class IOXMLPop {
   public:
     IOXMLPop();
     int readXMLPop(std::string file_name,
-        model::XModel * model,
-        flame::mem::MemoryManager * memoryManager);
+        model::XModel * model);
     int writeXMLPop(std::string file_name, int iterationNo,
-        model::XModel * model, flame::mem::MemoryManager * memoryManager);
+        model::XModel * model);
+    void writeXMLPop(std::string agent_name, std::string var_name);
     int createDataSchema(std::string const& file,
         flame::model::XModel * model);
     int validateData(std::string const& data_file,
@@ -73,17 +73,17 @@ class IOXMLPop {
     int endXMLDoc(xmlTextWriterPtr writer);
     template <class T>
     int setupVectorReader(model::XMachine * agent, model::XVariable * var,
-        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+        size_t * noAgents,
         std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
         size_t jj);
     int setupVectorReaders(model::XMachine * agent,
-        flame::mem::MemoryManager * memoryManager, size_t * noAgents,
+        size_t * noAgents,
         std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors);
     int writeXMLAgentVariables(model::XMachine * agent, xmlTextWriterPtr writer,
         std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
         size_t kk);
     int writeXMLAgent(model::XMachine * agent,
-        flame::mem::MemoryManager * memoryManager, xmlTextWriterPtr writer);
+        xmlTextWriterPtr writer);
     int openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
     int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
@@ -92,17 +92,15 @@ class IOXMLPop {
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,
-        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent);
+        model::XMachine ** agent);
     int processTextVariable(std::string value, std::vector<std::string> * tags,
-        flame::mem::MemoryManager * memoryManager, model::XMachine ** agent);
+        model::XMachine ** agent);
     int processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
-        model::XMachine ** agent, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager);
+        model::XMachine ** agent, model::XModel * model);
     int processEndNode(std::vector<std::string> * tags, std::string name,
         model::XMachine ** agent);
     int processNode(xmlTextReaderPtr reader, model::XModel * model,
-        flame::mem::MemoryManager * memoryManager,
         std::vector<std::string> * tags, model::XMachine ** agent);
     std::string xml_pop_path;
     bool xml_pop_path_is_set;

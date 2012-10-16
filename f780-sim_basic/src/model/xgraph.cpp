@@ -156,7 +156,6 @@ Dependency * XGraph::getDependency(Edge e) {
 }
 
 int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
-    printf("a1\n");
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_1.dot");
 #endif
@@ -165,11 +164,9 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
     transformConditionalStatesToConditions();
     // Contract state vertices
     contractStateVertices();
-    printf("a2\n");
 #ifdef TESTBUILD
     writeGraphviz(agentName_ + "_2.dot");
 #endif
-    printf("a3\n");
     // Add data and condition dependencies
     addDataAndConditionDependencies(variables);
     // Remove state dependencies
