@@ -9,6 +9,7 @@
  */
 #ifndef HEADERS_INCLUDE_FLAME_H_
 #define HEADERS_INCLUDE_FLAME_H_
+#include <ostream>
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,7 +78,14 @@ typedef struct {
   int id;
 } location_message;
 
+inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
+  os << "{" << ob.x << ', ' << ob.y << ", " << ob.z << ", " << ob.id << "}";
+  return os;
+}
+
+
 #ifdef __cplusplus
 }
 #endif
+
 #endif  // HEADERS_INCLUDE_FLAME_H_

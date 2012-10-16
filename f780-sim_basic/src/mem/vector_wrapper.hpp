@@ -10,6 +10,7 @@
 #ifndef MEM__MEMORY_VECTOR_HPP
 #define MEM__MEMORY_VECTOR_HPP
 #include <vector>
+#include <ostream>
 #include <typeinfo>
 #include "boost/any.hpp"
 #include "exceptions/all.hpp"
@@ -43,6 +44,9 @@ class VectorWrapperBase {
     //! returns a pointer to the next next element in the array
     //! or NULL if the end of the array is reached
     virtual void* StepRawPtr(void* ptr) = 0;
+
+    //! Prints the contents of the vector to the given stream
+    virtual void OutputToStream(std::ostream& os, std::string delim) = 0;
 
     //! Appends to vector using value wrapped in boost::any
     virtual void push_back(boost::any value) = 0;
@@ -111,6 +115,17 @@ class VectorWrapper: public VectorWrapperBase {
         return NULL;
       }
       return static_cast<void*>(static_cast<T*>(ptr)+1);
+    }
+
+    //! Prints the contents of the vector to the given stream
+    void OutputToStream(std::ostream& os, std::string delim) {
+      typedef typename std::vector<T>::const_iterator const_iterator;
+      const_iterator b = v_.begin();
+      const_iterator e = v_.end();
+      for (const_iterator i = b; i != e; ++i) {
+        if (i != b) os << delim;
+        os << *i;
+      }
     }
 
     const std::type_info* GetDataType() const {
