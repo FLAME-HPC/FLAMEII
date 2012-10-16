@@ -28,6 +28,8 @@
 #include "exe/task_manager.hpp"
 #include "include/flame.h"
 
+void printErr(std::string message);
+
 namespace flame { namespace model {
 
 XGraph::XGraph() {
@@ -350,9 +352,9 @@ int XGraph::registerAllowAccess(flame::exe::Task * task,
             task->AllowAccess((*sit), writeable);
         }
         catch(const flame::exceptions::logic_error& E) {
-            std::fprintf(stderr, "Error: %s\n", E.what());
-            std::fprintf(stderr, "When allowing access for '%s' variable\n",
-                    (*sit).c_str());
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When allowing access for variable ") +
+                    (*sit));
             return 1;
         }
     }
@@ -376,9 +378,9 @@ int XGraph::registerAllowMessage(flame::exe::Task * task,
                 task->AllowMessageRead((*sit));
         }
         catch(const flame::exceptions::logic_error& E) {
-            std::fprintf(stderr, "Error: %s\n", E.what());
-            std::fprintf(stderr, "When allowing access for '%s' message\n",
-                    (*sit).c_str());
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When allowing access for message ") +
+                    (*sit));
             return 1;
         }
     }
@@ -395,8 +397,8 @@ int XGraph::registerAgentTask(Task * t,
     // Try and find function pointer from map
     it = funcMap.find(t->getName());
     if (it == funcMap.end()) {
-        std::fprintf(stderr, "Error: function '%s' has not be registered %s\n",
-        t->getTaskName().c_str(), "and therefore a task cannot be created");
+        printErr(std::string("Error: function '%s' has not be registered ") +
+    t->getTaskName() + std::string("and therefore a task cannot be created"));
         return 3;
     }
 
@@ -415,8 +417,9 @@ int XGraph::registerAgentTask(Task * t,
         if (rc != 0) return 1;
     }
     catch(const flame::exceptions::flame_exception& E) {
-    std::fprintf(stderr, "Error: %s\nWhen creating a task for '%s' function\n",
-            E.what(), t->getTaskName().c_str());
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating a task for function ") +
+            t->getTaskName());
         return 2;
     }
 
@@ -433,9 +436,9 @@ int XGraph::registerDataTask(Task * t) {
     // taskManager.CreateAgentTask(taskName, "Circle", ((*it).second));
     }
     catch(const flame::exceptions::flame_exception& E) {
-std::fprintf(stderr, "Error: %s\nWhen creating an io task for '%s' agent\n",
-                E.what(),
-                agentName.c_str());
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating an io task for agent ") +
+                agentName);
         return 2;
     }
 
@@ -456,9 +459,9 @@ int XGraph::registerMessageTask(Task * t) {
                 exe::MessageBoardTask::OP_CLEAR);
     }
     catch(const flame::exceptions::logic_error& E) {
-        std::fprintf(stderr,
-            "Error: %s\nWhen creating a sync task for '%s' message\n",
-            E.what(), t->getName().c_str());
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating a sync task for message ") +
+            t->getName());
         return 2;
     }
 
@@ -467,20 +470,25 @@ int XGraph::registerMessageTask(Task * t) {
 
 int XGraph::registerDependencies() {
     flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-
     boost::graph_traits<Graph>::edge_iterator iei, iei_end;
-    // Add all in and out vertex edges to set of edges to be removed
+
+    // For each edge
     for (boost::tie(iei, iei_end) = boost::edges(*graph_);
             iei != iei_end; ++iei) {
+        // Get the source
         std::string source = getTask(
                 boost::source((Edge)*iei, *graph_))->getTaskName();
+        // Get the target
         std::string target = getTask(
                 boost::target((Edge)*iei, *graph_))->getTaskName();
+        // Add dependency
         try { taskManager.AddDependency(target, source); }
         catch(const flame::exceptions::flame_exception& E) {
-            std::fprintf(
-            stderr, "Error: %s\nWhen adding a dependency between %s and %s\n",
-            E.what(), source.c_str(), target.c_str());
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When adding a dependency between ") +
+             source +
+             std::string(" and ") +
+             target);
         }
     }
 
@@ -1052,11 +1060,13 @@ int XGraph::checkCyclicDependencies() {
         // Find associated tasks
         Task * t1 = getTask(boost::source(err.edge(), *graph_));
         Task * t2 = getTask(boost::target(err.edge(), *graph_));
-        std::fprintf(stderr,
-                    "Error: cycle detected %s -> %s -> %s\n",
-                    t1->getName().c_str(),
-                    d->getName().c_str(),
-                    t2->getName().c_str());
+        std::string error = "Error: cycle detected %s -> %s -> %s\n";
+        error.append(t1->getName());
+        error.append(" -> ");
+        error.append(d->getName());
+        error.append(" -> ");
+        error.append(t2->getName());
+        printErr(error);
         return 1;
     }
 
@@ -1079,10 +1089,10 @@ int XGraph::checkFunctionConditions() {
                     Task * t = getTask(boost::target((Edge)*oei, *graph_));
                     // If condition is null then return an error
                     if (!t->hasCondition()) {
-                        std::fprintf(stderr,
-            "Error: Function '%s' from a state with more than one %s\n",
-                        t->getName().c_str(),
-                        "out going function does not have a condition.");
+                        printErr(std::string(
+            "Error: Function '%s' from a state with more than one ") +
+                        t->getName() +
+                std::string("out going function does not have a condition."));
                         return 1;
                     }
                 }

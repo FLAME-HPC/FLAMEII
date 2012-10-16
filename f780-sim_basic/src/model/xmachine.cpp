@@ -14,6 +14,8 @@
 #include "./xmachine.hpp"
 #include "mem/memory_manager.hpp"
 
+void printErr(std::string message);
+
 namespace flame { namespace model {
 
 XMachine::XMachine() {
@@ -123,15 +125,15 @@ int XMachine::findStartEndStates() {
     }
     if (startStates.size() == 0) {
         // No start states found
-        std::fprintf(stderr,
-            "Error: %s agent doesn't have a start state\n", name_.c_str());
+        printErr(std::string("Error: ") +
+                name_ + std::string("agent doesn't have a start state"));
         return 1;
     } else if (startStates.size() > 1) {
         // Multiple start states found
-        std::fprintf(stderr,
-    "Error: %s agent has multiple possible start states:\n", name_.c_str());
+        printErr(std::string("Error: ") +
+            name_ + std::string(" agent has multiple possible start states:"));
         for (s = startStates.begin(); s != startStates.end(); s++)
-            std::fprintf(stderr, "\t%s\n", s->c_str());
+            printErr(std::string("\t") + *s);
         return 2;
     }
     // One start state

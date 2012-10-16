@@ -17,6 +17,13 @@
 #include "./xmodel_validate.hpp"
 #include "model/xmodel.hpp"
 
+void printErr(std::string message) {
+    // Print message to stderr
+#ifndef TESTBUILD
+    std::fprintf(stderr, "%s\n", message.c_str());
+#endif
+}
+
 namespace flame { namespace model {
 
 XModelValidate::XModelValidate(XModel * m) {
@@ -44,8 +51,7 @@ int XModelValidate::validate() {
     /* Validate model constants */
     rc = validateVariables(model->getConstants(), model, false);
     if (rc != 0) {
-        std::fprintf(stderr,
-            "       from environment constants.\n");
+        printErr("       from environment constants.");
         errors += rc;
     }
     /* Validate time units */
@@ -57,9 +63,8 @@ int XModelValidate::validate() {
 
     /* If errors print out information */
     if (errors > 0) {
-        std::fprintf(stderr, "%d error", errors);
-        if (errors > 1) std::fprintf(stderr, "s");
-        std::fprintf(stderr, " found.\n");
+        printErr(std::string(boost::lexical_cast<std::string>(errors) +
+                " error(s) found."));
     }
 
     /* Return number of errors */
@@ -82,9 +87,8 @@ int XModelValidate::validateDataTypes(std::vector<XADT*> adts, XModel * model) {
     for (ii = 0; ii < adts.size(); ii++) {
         rc = validateADT(adts.at(ii), model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from data type: '%s'.\n",
-                adts.at(ii)->getName().c_str());
+            printErr(std::string("       from data type: ") +
+                adts.at(ii)->getName());
             errors += rc;
         }
     }
@@ -101,9 +105,8 @@ int XModelValidate::validateTimeUnits(
     for (ii = 0; ii < timeUnits.size(); ii++) {
         rc = processTimeUnit(timeUnits.at(ii));
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from time unit: '%s'.\n",
-                timeUnits.at(ii)->getName().c_str());
+            printErr(std::string("       from time unit: ") +
+                timeUnits.at(ii)->getName());
             errors++;
         }
     }
@@ -111,9 +114,8 @@ int XModelValidate::validateTimeUnits(
     for (ii = 0; ii < timeUnits.size(); ii++) {
         rc = validateTimeUnit(timeUnits.at(ii), model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from time unit: '%s'.\n",
-                timeUnits.at(ii)->getName().c_str());
+            printErr(std::string("       from time unit: ") +
+                timeUnits.at(ii)->getName());
             errors++;
         }
     }
@@ -129,9 +131,8 @@ int XModelValidate::validateAgents(std::vector<XMachine*> agents,
     for (ii = 0; ii < agents.size(); ii++) {
         rc = validateAgent(agents.at(ii), model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from agent: '%s'.\n",
-                agents.at(ii)->getName().c_str());
+            printErr(std::string("       from agent: ") +
+                agents.at(ii)->getName());
             errors += rc;
         }
     }
@@ -146,9 +147,8 @@ int XModelValidate::validateMessages(std::vector<XMessage*> messages,
     for (ii = 0; ii < messages.size(); ii++) {
         rc = validateMessage(messages.at(ii), model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from message: '%s'.\n",
-                messages.at(ii)->getName().c_str());
+            printErr(std::string("       from message: ") +
+                messages.at(ii)->getName());
             errors += rc;
         }
     }
@@ -179,8 +179,8 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
 
     /* Check name is valid */
     if (!name_is_allowed(agent->getName())) {
-        std::fprintf(stderr, "Error: Agent name is not valid: '%s',\n",
-            agent->getName().c_str());
+        printErr(std::string("Error: Agent name is not valid: ") +
+            agent->getName());
         errors++;
     }
 
@@ -188,8 +188,8 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     for (ii = 0; ii < model->getAgents()->size(); ii++)
         if (agent != model->getAgents()->at(ii) &&
                 agent->getName() == model->getAgents()->at(ii)->getName()) {
-            std::fprintf(stderr, "Error: Duplicate agent name: '%s',\n",
-                agent->getName().c_str());
+            printErr(std::string("Error: Duplicate agent name: ") +
+                agent->getName());
             errors++;
         }
 
@@ -200,8 +200,8 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     for (ii = 0; ii < agent->getFunctions()->size(); ii++) {
         rc = validateAgentFunction(agent->getFunctions()->at(ii),
                 agent, model);
-        if (rc != 0) { std::fprintf(stderr, "       from function: '%s',\n",
-                agent->getFunctions()->at(ii)->getName().c_str());
+        if (rc != 0) { printErr(std::string("       from function: ") +
+                agent->getFunctions()->at(ii)->getName());
             errors += rc;
         }
     }
@@ -261,17 +261,17 @@ int XModelValidate::processVariableStaticArray(XVariable * variable) {
                     positionOfCloseBracket-positionOfOpenBracket-1);
             /* Try and cast and if successful */
             if (castStringToInt(&arraySizeString, &arraySize)) {
-                if (arraySize < 1) { std::fprintf(stderr,
-                        "Error: Static array size is not valid: '%d'\n",
-                        arraySize);
+                if (arraySize < 1) { printErr(std::string(
+                        "Error: Static array size is not valid: ") +
+                        boost::lexical_cast<std::string>(arraySize));
                     errors++;
                 }
                 /* Set successful array size integer */
                 variable->setStaticArraySize(arraySize);
             /* If cast not successful */
-            } else { std::fprintf(stderr,
-                    "Error: Static array number not an integer: '%s'\n",
-                    arraySizeString.c_str());
+            } else { printErr(std::string(
+                    "Error: Static array number not an integer: ") +
+                    arraySizeString);
                 errors++;
             }
 
@@ -309,9 +309,9 @@ int XModelValidate::processVariable(XVariable * variable,
             variable->setConstant(false);
         } else {
             /* If constant value is not true or false */
-            std::fprintf(stderr,
-            "Error: variable constant value is not 'true' or 'false': '%s',\n",
-                variable->getConstantString().c_str());
+            printErr(std::string(
+            "Error: variable constant value is not 'true' or 'false': ") +
+                variable->getConstantString());
             errors++;
         }
     }
@@ -328,10 +328,11 @@ int XModelValidate::processVariables(std::vector<XVariable*> * variables,
     for (ii = 0; ii < variables->size(); ii++) {
         rc = processVariable(variables->at(ii), model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from variable: '%s %s',\n",
-                variables->at(ii)->getType().c_str(),
-                variables->at(ii)->getName().c_str());
+            printErr(std::string(
+                "       from variable: ") +
+                variables->at(ii)->getType() +
+                std::string(" ") +
+                variables->at(ii)->getName());
             errors += rc;
         }
     }
@@ -363,17 +364,17 @@ int XModelValidate::processMemoryAccessVariable(std::string name,
             usedVariables->insert(name);
         } else {
             // If variable already used
-            std::fprintf(stderr,
-                "Error: Memory access variable name is a duplicate: '%s',\n",
-                name.c_str());
+            printErr(std::string(
+                "Error: Memory access variable name is a duplicate: ") +
+                name);
             errors++;
         }
 
     } else {
         // If variable does not exist
-        std::fprintf(stderr,
-            "Error: Memory access variable name is not valid: '%s',\n",
-            name.c_str());
+        printErr(std::string(
+            "Error: Memory access variable name is not valid: ") +
+            name);
         errors++;
     }
 
@@ -417,9 +418,9 @@ void XModelValidate::validateVariableName(XVariable * v, int * errors,
     unsigned int jj;
     /* Check names are valid */
     if (!name_is_allowed(v->getName())) {
-        std::fprintf(stderr,
-            "Error: Variable name is not valid: '%s',\n",
-            v->getName().c_str());
+        printErr(std::string(
+            "Error: Variable name is not valid: ") +
+            v->getName());
         (*errors)++;
     }
     /* Check for duplicate names */
@@ -427,9 +428,9 @@ void XModelValidate::validateVariableName(XVariable * v, int * errors,
         /* Check names are equal and not same variable */
         if (v != variables->at(jj) &&
             v->getName() == variables->at(jj)->getName()) {
-            std::fprintf(stderr,
-                "Error: Duplicate variable name: '%s',\n",
-                v->getName().c_str());
+            printErr(std::string(
+                "Error: Duplicate variable name: ") +
+                v->getName());
             (*errors)++;
         }
     }
@@ -445,9 +446,11 @@ void XModelValidate::validateVariableType(XVariable * v, int * errors,
             foundValidDataType = true;
     /* If valid data type not found */
     if (!foundValidDataType) {
-        std::fprintf(stderr,
-            "Error: Data type: '%s' not valid for variable name: '%s',\n",
-            v->getType().c_str(), v->getName().c_str());
+        printErr(std::string(
+            "Error: Data type: '%s' not valid for variable name: ") +
+            v->getType() +
+            std::string(" ") +
+            v->getName());
         (*errors)++;
     }
 
@@ -455,13 +458,17 @@ void XModelValidate::validateVariableType(XVariable * v, int * errors,
     /* If dynamic arrays not allowed and variable holds a dynamic array */
     if (!allowDyamicArrays && v->holdsDynamicArray()) {
         if (v->isDynamicArray())
-            std::fprintf(stderr,
-                "Error: Dynamic array not allowed: '%s_array %s',\n",
-                v->getType().c_str(), v->getName().c_str());
+            printErr(std::string(
+                "Error: Dynamic array not allowed: ") +
+                    v->getType() +
+                    std::string("_array ") +
+                    v->getName());
         else
-            std::fprintf(stderr,
-        "Error: Dynamic array (in data type) not allowed: '%s %s',\n",
-                v->getType().c_str(), v->getName().c_str());
+            printErr(std::string(
+        "Error: Dynamic array (in data type) not allowed: ") +
+                v->getType() +
+                std::string(" ") +
+                v->getName());
         (*errors)++;
     }
 }
@@ -492,9 +499,9 @@ int XModelValidate::validateFunctionFile(std::string name) {
 
     /* Name ends in '.c' */
     if (!boost::algorithm::ends_with(name, ".c")) {
-        std::fprintf(stderr,
-            "Error: Function file does not end in '.c': '%s',\n",
-            name.c_str());
+        printErr(std::string(
+            "Error: Function file does not end in '.c': ") +
+            name);
         errors++;
     }
 
@@ -510,16 +517,16 @@ int XModelValidate::processTimeUnitPeriod(XTimeUnit * timeUnit) {
         /* Try and cast to integer */
         period = boost::lexical_cast<int>(timeUnit->getPeriodString());
     } catch(const boost::bad_lexical_cast&) {
-        std::fprintf(stderr, "Error: Period number not an integer: '%s'\n",
-            timeUnit->getPeriodString().c_str());
+        printErr(std::string("Error: Period number not an integer: ") +
+            timeUnit->getPeriodString());
         errors++;
         castSuccessful = false;
     }
     /* If cast was successful */
     if (castSuccessful) {
         if (period < 1) {
-            std::fprintf(stderr, "Error: Period value is not valid: '%d'\n",
-                period);
+            printErr(std::string("Error: Period value is not valid: ") +
+                boost::lexical_cast<std::string>(period));
             errors++;
         }
         /* Set successful array size integer */
@@ -540,9 +547,9 @@ int XModelValidate::processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
                 timeUnit->getUnit() == model->getTimeUnits()->at(ii)->getName())
             unitIsValid = true;
     if (!unitIsValid) {
-        std::fprintf(stderr,
-                "Error: Time unit unit is not valid: '%s',\n",
-                timeUnit->getUnit().c_str());
+        printErr(std::string(
+                "Error: Time unit unit is not valid: ") +
+                timeUnit->getUnit());
             errors++;
     }
     return errors;
@@ -553,15 +560,15 @@ int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
 
     /* Check name is valid */
     if (!name_is_allowed(timeUnit->getName())) {
-        std::fprintf(stderr,
-            "Error: Time unit name is not valid: '%s',\n",
-            timeUnit->getName().c_str());
+        printErr(std::string(
+            "Error: Time unit name is not valid: ") +
+            timeUnit->getName());
         return 1;
     }
 
     /* Check that name is not iteration */
     if (timeUnit->getName() == "iteration") {
-        std::fprintf(stderr, "Error: Time unit name cannot be 'iteration',\n");
+        printErr(std::string("Error: Time unit name cannot be 'iteration'"));
         return 1;
     }
 
@@ -582,8 +589,8 @@ int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
                                 model->getTimeUnits()->end(), timeUnit));
                 return 0;
             } else {
-                std::fprintf(stderr, "Error: Duplicate time unit name: '%s'\n",
-                    timeUnit->getName().c_str());
+                printErr(std::string("Error: Duplicate time unit name: ") +
+                    timeUnit->getName());
                 return 1;
             }
         }
@@ -608,9 +615,9 @@ int XModelValidate::validateADT(XADT * adt, XModel * model) {
 
     /* Check name is valid */
     dataTypeNameIsValid = name_is_allowed(adt->getName());
-    if (!dataTypeNameIsValid) { std::fprintf(stderr,
-            "Error: Data type name is not valid: '%s',\n",
-            adt->getName().c_str());
+    if (!dataTypeNameIsValid) { printErr(std::string(
+            "Error: Data type name is not valid: ") +
+            adt->getName());
         errors++;
     }
 
@@ -618,9 +625,9 @@ int XModelValidate::validateADT(XADT * adt, XModel * model) {
     for (jj = 0; jj < model->getAllowedDataTypes()->size(); jj++)
         if (adt->getName() == model->getAllowedDataTypes()->at(jj)) {
             dataTypeNameIsValid = false;
-            std::fprintf(stderr,
-                "Error: Data type already exists: '%s',\n",
-                adt->getName().c_str());
+            printErr(std::string(
+                "Error: Data type already exists: ") +
+                adt->getName());
             errors++;
         }
 
@@ -650,8 +657,8 @@ int XModelValidate::validateAgentFunctionIOput(XFunction * xfunction,
         rc = validateAgentCommunication(xfunction->getInputs()->at(kk),
                 agent, model);
         if (rc != 0) {
-            std::fprintf(stderr, "       from input of message: '%s',\n",
-                xfunction->getInputs()->at(kk)->getMessageName().c_str());
+            printErr(std::string("       from input of message: ") +
+                xfunction->getInputs()->at(kk)->getMessageName());
             errors += rc;
         }
     }
@@ -662,8 +669,8 @@ int XModelValidate::validateAgentFunctionIOput(XFunction * xfunction,
         rc = validateAgentCommunication(xfunction->getOutputs()->at(kk),
                 agent, model);
         if (rc != 0) {
-            std::fprintf(stderr, "       from output of message: '%s',\n",
-                xfunction->getInputs()->at(kk)->getMessageName().c_str());
+            printErr(std::string("       from output of message: ") +
+                xfunction->getInputs()->at(kk)->getMessageName());
             errors += rc;
         }
     }
@@ -679,25 +686,25 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
 
     /* Check name is valid */
     if (!name_is_allowed(xfunction->getName())) {
-        std::fprintf(stderr,
-            "Error: Function name is not valid: '%s',\n",
-            xfunction->getName().c_str());
+        printErr(std::string(
+            "Error: Function name is not valid: ") +
+            xfunction->getName());
         errors++;
     }
 
     /* Check current state name is valid */
     if (!name_is_allowed(xfunction->getCurrentState())) {
-        std::fprintf(stderr,
-            "Error: Function current state name is not valid: '%s',\n",
-            xfunction->getCurrentState().c_str());
+        printErr(std::string(
+            "Error: Function current state name is not valid: ") +
+            xfunction->getCurrentState());
         errors++;
     }
 
     /* Check next state name is valid */
     if (!name_is_allowed(xfunction->getNextState())) {
-        std::fprintf(stderr,
-            "Error: Function next state name is not valid: '%s',\n",
-            xfunction->getNextState().c_str());
+        printErr(std::string(
+            "Error: Function next state name is not valid: ") +
+            xfunction->getNextState());
         errors++;
     }
 
@@ -721,9 +728,9 @@ int XModelValidate::validateRandomString(XIOput * xioput) {
     } else if (xioput->getRandomString() == "false") {
         xioput->setRandom(false);
     } else {
-        std::fprintf(stderr,
-        "Error: input random is not 'true' or 'false': '%s',\n",
-            xioput->getRandomString().c_str());
+        printErr(std::string(
+        "Error: input random is not 'true' or 'false': ") +
+            xioput->getRandomString());
         return 1;
     }
 
@@ -736,9 +743,9 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
     XMessage * xmessage = model->getMessage(xioput->getMessageName());
 
     /* Check message type */
-    if (xmessage == 0) { std::fprintf(stderr,
-        "Error: message name is not valid: '%s',\n",
-            xioput->getMessageName().c_str());
+    if (xmessage == 0) { printErr(std::string(
+        "Error: message name is not valid: ") +
+            xioput->getMessageName());
         errors++;
     }
 
@@ -753,9 +760,9 @@ int XModelValidate::validateAgentCommunication(XIOput * xioput,
     if (xioput->isRandomSet()) errors += validateRandomString(xioput);
 
     /* Cannot be sorted and random at the same time */
-    if (xioput->isSort() && xioput->isRandom()) { std::fprintf(stderr,
-            "Error: input cannot be sorted and random too: '%s',\n",
-            xioput->getMessageName().c_str());
+    if (xioput->isSort() && xioput->isRandom()) { printErr(std::string(
+            "Error: input cannot be sorted and random too: ") +
+            xioput->getMessageName());
         errors++;
     }
 
@@ -781,24 +788,24 @@ int XModelValidate::validateSort(XIOput * xioput, XMessage * xmessage) {
     /* Check message is valid */
     if (xmessage != 0) {
         if (!xmessage->validateVariableName(xioput->getSortKey())) {
-            std::fprintf(stderr,
-                "Error: sort key is not a valid message variable: '%s',\n",
-                xioput->getSortKey().c_str());
+            printErr(std::string(
+                "Error: sort key is not a valid message variable: ") +
+                xioput->getSortKey());
             errors++;
         }
     /* If message is not valid */
     } else {
-       std::fprintf(stderr,
-    "Error: cannot validate sort key as the message type is invalid: '%s',\n",
-           xioput->getSortKey().c_str());
+        printErr(std::string(
+    "Error: cannot validate sort key as the message type is invalid: ") +
+           xioput->getSortKey());
        errors++;
     }
     /* Validate order as ascending or descending */
     if (xioput->getSortOrder() != "ascend" &&
             xioput->getSortOrder() != "descend") {
-        std::fprintf(stderr,
-            "Error: sort order is not 'ascend' or 'descend': '%s',\n",
-            xioput->getSortOrder().c_str());
+        printErr(std::string(
+            "Error: sort order is not 'ascend' or 'descend': ") +
+            xioput->getSortOrder());
         errors++;
     }
 
@@ -811,8 +818,8 @@ int XModelValidate::validateMessage(XMessage * xmessage, XModel * model) {
 
     /* Check name is valid */
     if (!name_is_allowed(xmessage->getName())) {
-        std::fprintf(stderr, "Error: Message name is not valid: '%s',\n",
-            xmessage->getName().c_str());
+        printErr(std::string("Error: Message name is not valid: ") +
+            xmessage->getName());
         errors++;
     }
 
@@ -820,8 +827,8 @@ int XModelValidate::validateMessage(XMessage * xmessage, XModel * model) {
     for (ii = 0; ii < model->getMessages()->size(); ii++)
         if (xmessage != model->getMessages()->at(ii) &&
             xmessage->getName() == model->getMessages()->at(ii)->getName()) {
-            std::fprintf(stderr, "Error: Duplicate message name: '%s',\n",
-                xmessage->getName().c_str());
+            printErr(std::string("Error: Duplicate message name: ") +
+                xmessage->getName());
             errors++;
         }
 

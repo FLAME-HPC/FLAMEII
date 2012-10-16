@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(test_manager_load_model) {
 
     rc = iomanager.loadModel(
             "src/io/tests/models/all_not_valid.xml", &model);
-    BOOST_CHECK(rc == 41);
+    BOOST_CHECK(rc == 0);
 }
 
 /* Test the reading of XML population files. */
@@ -75,6 +75,9 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
 
     /* Read model xml */
     iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+
+    model.validate();
+    model.registerWithMemoryManager();
 
     rc = iomanager.readPop(
             "src/io/tests/models/all_data_its/0_missing.xml",
@@ -176,7 +179,7 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
     BOOST_CHECK(differences == 0);
 
     /* Remove created 1.xml */
-    printf("Removing file: %s\n", onexml.c_str());
+    // printf("Removing file: %s\n", onexml.c_str());
     if (remove(onexml.c_str()) != 0)
         fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
             onexml.c_str());

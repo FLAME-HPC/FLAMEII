@@ -11,6 +11,8 @@
 #include "exceptions/io.hpp"
 #include "./io_manager.hpp"
 
+void printErr(std::string message);
+
 namespace flame { namespace io {
 
 int IOManager::loadModel(std::string const& file,
@@ -22,6 +24,19 @@ int IOManager::loadModel(std::string const& file,
     if (rc != 0) return rc;
 
     return rc;
+}
+
+int removeFile(std::string file) {
+    if (remove(file.c_str()) != 0) {
+        printErr(std::string("Warning: Could not delete the file: ") +
+                file);
+        return 1;
+    }
+#ifndef TESTBUILD
+    printf("Removing file: %s\n", file.c_str());
+#endif
+
+    return 0;
 }
 
 int IOManager::readPop(std::string file_name,
@@ -38,19 +53,19 @@ int IOManager::readPop(std::string file_name,
         /* Validate xml first */
         xmlpopxsd = std::string(ioxmlpop.xmlPopPath()).append("xmlpop.xsd");
         /* Create data schema */
-        if (ioxmlpop.createDataSchema(xmlpopxsd, model) != 0) {
+        rc = ioxmlpop.createDataSchema(xmlpopxsd, model);
+        if (rc != 0) {
             fprintf(stderr, "Error: Could not create data schema\n");
             return rc;
         }
         /* Validate data using schema */
-        if (ioxmlpop.validateData(file_name, xmlpopxsd) != 0) {
-            fprintf(stderr, "Error: Could not validate data with schema\n");
+        rc = ioxmlpop.validateData(file_name, xmlpopxsd);
+        if (rc != 0) {
+            printErr("Error: Could not validate data with schema\n");
+            removeFile(xmlpopxsd);
             return rc;
         }
-        printf("Removing file: %s\n", xmlpopxsd.c_str());
-        if (remove(xmlpopxsd.c_str()) != 0)
-        fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-                xmlpopxsd.c_str());
+        removeFile(xmlpopxsd);
         /* Read validated pop xml */
         return ioxmlpop.readXMLPop(file_name, model, &memoryManager);
     } else {
@@ -70,8 +85,7 @@ int IOManager::writePop(std::string file_name,
     if (fileType == xml) {
         /* Check a path has been set */
         if (!ioxmlpop.xmlPopPathIsSet()) {
-            fprintf(stderr, "Error: Path not set by reading pop data\n");
-            return -1;
+            throw flame::exceptions::flame_io_exception("path not set");
         }
         /* Write out pop to xml */
         rc = ioxmlpop.writeXMLPop(file_name,

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(validate_model) {
     ioxmlmodel.readXMLModel(
             "src/io/tests/models/all_not_valid.xml", &model);
     rc = model.validate();
-    BOOST_CHECK(rc == 41);
+    BOOST_CHECK(rc == 40);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

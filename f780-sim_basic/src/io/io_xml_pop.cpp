@@ -17,6 +17,8 @@
 #include <cstdio>
 #include "./io_xml_pop.hpp"
 
+void printErr(std::string message);
+
 namespace model = flame::model;
 
 namespace flame { namespace io { namespace xml {
@@ -155,7 +157,9 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     /* Loop variables */
     size_t ii;
 
+#ifndef TESTBUILD
     printf("Writing file: '%s'\n", file_name.c_str());
+#endif
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
@@ -202,11 +206,13 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
     reader = xmlReaderForFile(file_name.c_str(), NULL, 0);
     /* Check if file opened successfully */
     if (reader == NULL) {
-        fprintf(stderr, "Error: Unable to open: '%s'\n", file_name.c_str());
+        printErr(std::string("Error: Unable to open: ") + file_name);
         return 1;
     }
 
+#ifndef TESTBUILD
     printf("Reading file: '%s'\n", file_name.c_str());
+#endif
 
     /* Read the first node */
     ret = xmlTextReaderRead(reader);
@@ -223,8 +229,8 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model,
     if (rc != 0) return rc;
     /* If error reading node return */
     if (ret != 0) {
-        fprintf(stderr, "Error: Failed to parse: '%s'\n",
-            file_name.c_str());
+        printErr(std::string("Error: Failed to parse: ") +
+            file_name);
         return 2;
     }
 
@@ -428,7 +434,9 @@ int IOXMLPop::createDataSchema(std::string const& file,
     /* The xml text writer */
     xmlTextWriterPtr writer;
 
+#ifndef TESTBUILD
     printf("Writing file: '%s'\n", file.c_str());
+#endif
 
     /* Open file to write to, with no compression */
     writer = xmlNewTextWriterFilename(file.c_str(), 0);
@@ -457,9 +465,9 @@ int IOXMLPop::openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
     *doc = xmlReadFile(data_file.c_str(), NULL, 0);
     /* Return error if the file was not successfully parsed */
     if (*doc == NULL) {
-        std::fprintf(stderr,
-                "Error: Data file cannot be opened/parsed: %s\n",
-                data_file.c_str());
+        printErr(std::string(
+                "Error: Data file cannot be opened/parsed: ") +
+                data_file);
         return -5;
     }
 
@@ -531,8 +539,8 @@ int IOXMLPop::processStartNode(std::vector<std::string> * tags,
         tags->size() == 2) {
         tags->push_back(name);
     } else {
-        fprintf(stderr, "Error: Unknown tag: '%s'\n",
-                name.c_str());
+        printErr(std::string("Error: Unknown tag: ") +
+                name);
         return 3;
     }
     return 0;
@@ -546,10 +554,11 @@ int IOXMLPop::processTextVariableCast(std::string value,
     try {
         typeValue = boost::lexical_cast<T>(value);
     } catch(const boost::bad_lexical_cast&) {
-        std::fprintf(stderr,
-"Error: variable could not be cast to correct type: '%s' in '%s'\n",
-            value.c_str(),
-            tags->back().c_str());
+        printErr(std::string(
+"Error: variable could not be cast to correct type: ") +
+            value +
+            std::string(" in ") +
+            tags->back());
         return 6;
     }
     /* Add value to memory manager */
@@ -580,8 +589,8 @@ int IOXMLPop::processTextVariable(std::string value,
             if (rc != 0) return rc;
         }
     } else {
-        fprintf(stderr, "Error: Agent variable is not recognised: '%s'\n",
-                tags->back().c_str());
+        printErr(std::string("Error: Agent variable is not recognised: ") +
+                tags->back());
         return 5;
     }
 
@@ -603,7 +612,8 @@ int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
         (*agent) = model->getAgent(value);
         /* If agent name is unknown */
         if (!(*agent)) {
-fprintf(stderr, "Error: Agent type is not recognised: '%s'\n", value.c_str());
+            printErr(std::string("Error: Agent type is not recognised: ") +
+                    value.c_str());
             rc = 4;
         }
     } else { if (*agent) /* Check if agent exists */
