@@ -42,7 +42,7 @@ void WorkerThread::ProcessQueue() {
 
 void WorkerThread::RunTask(Task::id_type task_id) {
 //#ifdef TESTBUILD
-//  std::cout << " - " << boost::this_thread::get_id() \
+//  std::cout << " - " << boost::this_thread::get_id()
 //           << " running task " << task_id << std::endl;
 //#endif
   TaskManager::GetInstance().GetTask(task_id).Run();
