@@ -196,6 +196,7 @@ int IOXMLPop::writeXMLPop(std::string file_name,
 void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
     flame::mem::MemoryManager& memoryManager =
                         flame::mem::MemoryManager::GetInstance();
+
     // Get access to vector
     flame::mem::VectorWrapperBase* vw =
             memoryManager.GetVectorWrapper(agent_name, var_name);

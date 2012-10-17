@@ -424,13 +424,14 @@ int XGraph::registerAgentTask(Task * t,
 }
 
 int XGraph::registerDataTask(Task * t) {
-    // std::string taskName = t->getTaskName();
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    std::string taskName = t->getTaskName();
     std::string agentName = t->getParentName();
+    std::string varName = t->getName();
 
     try {
-    // printf("Adding task %s io task\n", taskName.c_str());
-    // Hard coded agent name as model tasks don't have an agent!
-    // taskManager.CreateAgentTask(taskName, "Circle", ((*it).second));
+        taskManager.CreateIOTask(taskName, agentName, varName,
+                flame::exe::IOTask::OP_OUTPUT);
     }
     catch(const flame::exceptions::flame_exception& E) {
         printErr(std::string("Error: ") + E.what());
@@ -505,10 +506,11 @@ int XGraph::registerTasksAndDependenciesWithTaskManager(
         // If agent task
         if (type == Task::xfunction || type == Task::xcondition)
             registerAgentTask(t, funcMap);
-        // If data task
-        if (type == Task::start_model || type == Task::finish_model ||
-                type == Task::io_pop_write)
+        // If agent data task
+        if (type == Task::io_pop_write)
             registerDataTask(t);
+        // If model data task
+        if (type == Task::start_model || type == Task::finish_model) {}
         // If message task
         if (type == Task::xmessage_sync || type == Task::xmessage_clear)
             registerMessageTask(t);
@@ -732,16 +734,17 @@ void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
             boost::lexical_cast<std::string>(count++), Task::io_pop_write);
         Vertex vertex = addVertex(task);
         task->getWriteVariables()->insert((*lws->begin()).first);
+        task->setName((*lws->begin()).first);
         // Check first var against other var task sets, if same then add to
         // current task and remove
-        for (vwit = ++lws->begin(); vwit != lws->end();) {
+/*        for (vwit = ++lws->begin(); vwit != lws->end();) {
             if (compareTaskSets((*lws->begin()).second, (*vwit).second)) {
                 task->getWriteVariables()->insert((*vwit).first);
                 lws->erase(vwit++);
             } else {
                 vwit++;
             }
-        }
+        }*/
         // Add edges from each writing vector to task
         for (sit = (*lws->begin()).second.begin();
                 sit != (*lws->begin()).second.end(); sit++)

@@ -24,7 +24,7 @@ namespace e = flame::exceptions;
 BOOST_AUTO_TEST_SUITE(IOManager)
 
 /* Test the reading of XML model files and sub model files. */
-BOOST_AUTO_TEST_CASE(test_manager_load_model) {
+BOOST_AUTO_TEST_CASE(test_loadModel) {
     flame::io::IOManager& m = flame::io::IOManager::GetInstance();
     model::XModel model;
 
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_manager_load_model) {
 }
 
 /* Test the reading of XML population files. */
-BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
+BOOST_AUTO_TEST_CASE(test_readPop) {
     flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
     model::XModel model;
     flame::mem::MemoryManager& memoryManager =
@@ -127,6 +127,23 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
         BOOST_CHECK_CLOSE(*(rod->begin()+ii), *(expectedd+ii), 0.0001);
     }
 
+    /* Reset memory manager as to not affect next test suite */
+    memoryManager.Reset();
+}
+
+BOOST_AUTO_TEST_CASE(test_writePop_model) {
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+    flame::mem::MemoryManager& memoryManager =
+                flame::mem::MemoryManager::GetInstance();
+    model::XModel model;
+    std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
+
+    // Read model
+    iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+    model.registerWithMemoryManager();
+    // Read pop
+    iomanager.readPop(zeroxml, &model, io::IOManager::xml);
+
     /* Test pop data written out */
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
     BOOST_CHECK_NO_THROW(iomanager.writePop(onexml,
@@ -167,6 +184,42 @@ BOOST_AUTO_TEST_CASE(test_manager_read_pop) {
         fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
             onexml.c_str());
 
+    /* Reset memory manager as to not affect next test suite */
+    memoryManager.Reset();
+}
+
+BOOST_AUTO_TEST_CASE(test_writePop_1_agent_var) {
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+    flame::mem::MemoryManager& memoryManager =
+                flame::mem::MemoryManager::GetInstance();
+    model::XModel model;
+    std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
+
+    // Read model
+    iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+    model.registerWithMemoryManager();
+    // Read pop
+    iomanager.readPop(zeroxml, &model, io::IOManager::xml);
+
+    BOOST_CHECK_THROW(iomanager.writePop("na", "int_single"),
+            std::runtime_error);
+
+    BOOST_CHECK_THROW(iomanager.writePop("agent_a", "na"), std::runtime_error);
+
+    BOOST_CHECK_NO_THROW(iomanager.writePop("agent_a", "int_single"));
+
+    // Check contents of 0_agent_a_int_single.xml
+    /*FILE *file;
+    zeroFile = fopen(zeroxml.c_str(), "r");
+    if (file == 0)
+            fprintf(stderr, "Warning: Could not open the file: %s\n",
+                    zeroxml.c_str());
+
+    // Remove created 0_agent_a_int_single.xml
+    if (remove("0_agent_a_int_single.xml") != 0)
+        fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
+                "0_agent_a_int_single.xml");
+*/
     /* Reset memory manager as to not affect next test suite */
     memoryManager.Reset();
 }

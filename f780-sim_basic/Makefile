@@ -46,6 +46,7 @@ MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
              src/mem/tests/test_vector_wrapper.cpp
 EXE_SRC    = src/exe/agent_task.cpp \
              src/exe/fifo_task_queue.cpp \
+             src/exe/io_task.cpp \
              src/exe/message_board_task.cpp \
              src/exe/scheduler.cpp \
              src/exe/task_manager.cpp \
@@ -110,6 +111,7 @@ OTHER_HEADERS = src/mem/memory_manager.hpp \
              src/mem/vector_wrapper.hpp \
              src/exe/agent_task.hpp \
              src/exe/fifo_task_queue.hpp \
+             src/exe/io_task.hpp \
              src/exe/message_board_task.hpp \
              src/exe/scheduler.hpp \
              src/exe/task_interface.hpp \

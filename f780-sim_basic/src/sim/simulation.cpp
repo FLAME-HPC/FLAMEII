@@ -56,6 +56,7 @@ void Simulation::start(size_t iterations) {
     exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
     s.AssignType(q, exe::Task::AGENT_FUNCTION);
     s.AssignType(q, exe::Task::MB_FUNCTION);
+    s.AssignType(q, exe::Task::IO_FUNCTION);
     for (ii = 0; ii < iterations; ++ii)
         s.RunIteration();
 }

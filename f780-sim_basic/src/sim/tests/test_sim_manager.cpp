@@ -108,14 +108,14 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     m.registerMessageType<location_message>("location");
 
     s.start(1);
-
+/*
     flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
     iomanager.writePop("Circle", "x");
 
     iomanager.writePop("Circle", "id");
 
-    /*flame::mem::MemoryManager& memoryManager =
+    flame::mem::MemoryManager& memoryManager =
                 flame::mem::MemoryManager::GetInstance();
     std::vector<double>* rod =
                 memoryManager.GetVector<double>("Circle", "x");
@@ -123,7 +123,8 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     for (ii = 0; ii < 10; ii++) {
         printf("x: %f\n", rod->at(ii));
         BOOST_CHECK_CLOSE(*(rod->begin()+ii), *(expectedd+ii), 0.0001);
-    }*/
+    }
+    */
 }
 
 BOOST_AUTO_TEST_SUITE_END()
