@@ -25,7 +25,6 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
     model_ = model->getXModel();
 
     rc += model_->registerWithMemoryManager();
-    rc += model_->registerWithMessageBoardManager();
 
     if (rc == 0) modelLoaded_ = true;
 
@@ -42,8 +41,6 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
 }
 
 void Simulation::start(size_t iterations) {
-    size_t ii;
-
     if (popLoaded_) {
         // Register agents with memory and task manager
         model_->registerWithTaskManager();
@@ -57,8 +54,10 @@ void Simulation::start(size_t iterations) {
     s.AssignType(q, exe::Task::AGENT_FUNCTION);
     s.AssignType(q, exe::Task::MB_FUNCTION);
     s.AssignType(q, exe::Task::IO_FUNCTION);
+
+    size_t ii;
     for (ii = 0; ii < iterations; ++ii)
-        s.RunIteration();
+       s.RunIteration();
 }
 
 }}  // namespace flame::sim

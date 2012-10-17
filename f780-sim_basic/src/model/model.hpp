@@ -13,7 +13,7 @@
 #include <string>
 #include "model/xmodel.hpp"
 #include "include/flame.h"
-#include "mb/message_board_manager.hpp"
+#include "compat/C/compatibility_manager.hpp"
 #include "compat/C/compatibility_manager.hpp"
 namespace flame {
 namespace model {
@@ -24,16 +24,11 @@ class Model {
     ~Model();
     int registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr);
     template <typename T>
-    int registerMessageType(std::string name) {
-        flame::mb::MessageBoardManager& mgr =
-                mb::MessageBoardManager::GetInstance();
+    void registerMessageType(std::string name) {
+        flame::compat::c::CompatibilityManager& compat_mgr =
+                flame::compat::c::CompatibilityManager::GetInstance();
 
-        //mgr.RegisterMessageVar<T>(name, FLAME_MESSAGE_VARNAME);
-        // compat/C/mb_api.cpp
-        // RegisterMessageType<T>(name);
-        //flame_mb_api_hack_initialise();
-
-        return 0;
+        compat_mgr.RegisterMessage<T>(name);
     }
     flame::model::XModel * getXModel();
   private:

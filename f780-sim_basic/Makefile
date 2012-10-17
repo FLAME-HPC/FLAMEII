@@ -18,8 +18,8 @@ IO_TEST_MAN   = src/io/tests/test_io_manager.cpp
 IO_TEST_POP   = src/io/tests/test_io_xml_pop.cpp
 IO_TEST_MODEL = src/io/tests/test_io_xml_model.cpp
 IO_TEST    = $(IO_TEST_MAN) $(IO_TEST_POP) $(IO_TEST_MODEL)
-COMPAT_SRC = src/compat/C/mb_api.cpp \
-             src/compat/C/mem_api.cpp
+COMPAT_SRC = src/compat/C/compatibility_manager.cpp \
+             src/compat/C/flame_compat_c.cpp
 MODEL_SRC  = src/model/xvariable.cpp \
              src/model/xadt.cpp \
              src/model/xtimeunit.cpp \
@@ -104,7 +104,11 @@ IO_MODEL_SIM_HEADERS = src/io/io_xml_model.hpp \
              src/model/model.hpp \
              src/sim/sim_manager.hpp \
              src/sim/simulation.hpp
-OTHER_HEADERS = src/mem/memory_manager.hpp \
+OTHER_HEADERS = src/compat/C/compatibility_manager.hpp \
+             src/compat/C/flame_compat_c.hpp \
+             src/compat/C/message_board_wrapper.hpp \
+             src/compat/C/message_iterator_wrapper.hpp \
+             src/mem/memory_manager.hpp \
              src/mem/agent_memory.hpp \
              src/mem/agent_shadow.hpp \
              src/mem/memory_iterator.hpp \
