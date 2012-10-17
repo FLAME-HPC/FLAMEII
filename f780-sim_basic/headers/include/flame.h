@@ -79,7 +79,7 @@ typedef struct {
 } location_message;
 
 inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
-  os << "{" << ob.x << ', ' << ob.y << ", " << ob.z << ", " << ob.id << "}";
+  os << "{" << ob.x << ", " << ob.y << ", " << ob.z << ", " << ob.id << "}";
   return os;
 }
 
