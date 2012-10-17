@@ -24,7 +24,7 @@ Model::Model(std::string path_to_model)
     try {
         ioManager.loadModel(path_to_model, &model_);
     }
-    catch(flame::exceptions::flame_io_exception& E) {
+    catch(const flame::exceptions::flame_io_exception& E) {
         std::fprintf(stderr, "Error: %s\n", E.what());
         model_.clear();
         return;

@@ -25,34 +25,36 @@ BOOST_AUTO_TEST_SUITE(IOManager)
 
 /* Test the reading of XML model files and sub model files. */
 BOOST_AUTO_TEST_CASE(test_manager_load_model) {
-    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+    flame::io::IOManager& m = flame::io::IOManager::GetInstance();
     model::XModel model;
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/missing.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/missing.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/malformed_xml.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/malformed_xml.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/not_xmodel.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/not_xmodel.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/xmodelv1.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/xmodelv1.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_enable_error.xml",
+    BOOST_CHECK_THROW(
+            m.loadModel("src/io/tests/models/submodel_enable_error.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_end_not_xml.xml",
+    BOOST_CHECK_THROW(
+            m.loadModel("src/io/tests/models/submodel_end_not_xml.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_duplicate.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/submodel_duplicate.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(iomanager.loadModel("src/io/tests/models/submodel_missing.xml",
+    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/submodel_missing.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_NO_THROW(iomanager.loadModel("src/io/tests/models/all_not_valid.xml",
+    BOOST_CHECK_NO_THROW(m.loadModel("src/io/tests/models/all_not_valid.xml",
             &model));
 }
 

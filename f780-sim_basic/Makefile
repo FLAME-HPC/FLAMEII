@@ -34,7 +34,8 @@ MODEL_SRC  = src/model/xvariable.cpp \
              src/model/dependency.cpp \
              src/model/xgraph.cpp \
              src/model/model.cpp
-MODEL_TEST = src/model/tests/test_xgraph.cpp
+MODEL_TEST = src/model/tests/test_xgraph.cpp \
+             src/model/tests/test_model_validation.cpp
 MEM_SRC    = src/mem/memory_manager.cpp \
              src/mem/agent_memory.cpp \
              src/mem/agent_shadow.cpp \

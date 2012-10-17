@@ -105,10 +105,8 @@
 <description></description>
 <variables>
 <variable><type>int</type><name>id</name><description></description></variable>
-<variable><type>double</type><name>range</name><description></description></variable>
 <variable><type>double</type><name>x</name><description></description></variable>
 <variable><type>double</type><name>y</name><description></description></variable>
-<variable><type>double</type><name>z</name><description></description></variable>
 </variables>
 </message>
 

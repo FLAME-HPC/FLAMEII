@@ -15,8 +15,11 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 #include "./io_xml_pop.hpp"
 #include "../mem/vector_wrapper.hpp"
+#include "exceptions/io.hpp"
 
 void printErr(std::string message);
 
@@ -24,9 +27,7 @@ namespace model = flame::model;
 
 namespace flame { namespace io { namespace xml {
 
-IOXMLPop::IOXMLPop() {
-    xml_pop_path_is_set = false;
-}
+IOXMLPop::IOXMLPop() : iteration_(0), xml_pop_path_is_set(false) {}
 
 template <class T>
 int IOXMLPop::setupVectorReader(model::XMachine * agent,
@@ -199,12 +200,37 @@ void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
     flame::mem::VectorWrapperBase* vw =
             memoryManager.GetVectorWrapper(agent_name, var_name);
 
-    void* p = vw->GetRawPtr();
+    /*void* p = vw->GetRawPtr();
     while (p != NULL) {
         // Write var out
+        if (strcmp(vw->GetDataType()->name(), "i") == 0)
+            printf("%s = %d\n", var_name.c_str(), *(int*)(p));
+        if (strcmp(vw->GetDataType()->name(), "d") == 0)
+            printf("%s = %f\n", var_name.c_str(), *(double*)(p));
+        p = vw->StepRawPtr(p);
+    }*/
 
-        vw->StepRawPtr(p);
-    }
+    std::ofstream stream;
+    std::string file_name = boost::lexical_cast<std::string>(iteration_);
+    file_name.append("_");
+    file_name.append(agent_name);
+    file_name.append("_");
+    file_name.append(var_name);
+    file_name.append(".xml");
+    stream.open(file_name.c_str());
+    // std::stringstream stream;
+    if (!stream.is_open())
+        throw flame::exceptions::flame_io_exception("Could not write pop file");
+    stream << "<" << var_name << ">";
+    std::string delim = "</";
+    delim.append(var_name);
+    delim.append(">\n<");
+    delim.append(var_name);
+    delim.append(">");
+    vw->OutputToStream(stream, delim);
+    stream << "</" << var_name << ">";
+    // printf("%s\n", stream.str().c_str());
+    stream.close();
 }
 
 int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
@@ -817,6 +843,10 @@ int IOXMLPop::endXMLDoc(xmlTextWriterPtr writer) {
         return 2;
     }
     return 0;
+}
+
+void IOXMLPop::setIteration(size_t i) {
+    iteration_ = i;
 }
 
 }}}  // namespace flame::io::xml

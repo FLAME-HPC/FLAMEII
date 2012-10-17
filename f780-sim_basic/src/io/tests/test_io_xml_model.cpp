@@ -63,18 +63,4 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     BOOST_CHECK(rc == 0);
 }
 
-BOOST_AUTO_TEST_CASE(validate_model) {
-    int rc;
-    xml::IOXMLModel ioxmlmodel;
-    model::XModel model;
-
-    /* Test model validation using single file with all errors.
-     * Possibly in future use a correct file and mutate for each
-     * error and test separately. */
-    ioxmlmodel.readXMLModel(
-            "src/io/tests/models/all_not_valid.xml", &model);
-    rc = model.validate();
-    BOOST_CHECK(rc == 40);
-}
-
 BOOST_AUTO_TEST_SUITE_END()

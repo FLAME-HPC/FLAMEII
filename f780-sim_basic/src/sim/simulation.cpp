@@ -34,7 +34,7 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
         try {
             iomanager.readPop(pop_file, model_, io::IOManager::xml);
         }
-        catch(flame::exceptions::flame_io_exception& E) {
+        catch(const flame::exceptions::flame_io_exception& E) {
             std::fprintf(stderr, "Error: %s\n", E.what());
             popLoaded_ = false;
         }

@@ -39,6 +39,7 @@ class IOXMLPop {
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
     void setXmlPopPath(std::string path);
+    void setIteration(size_t i);
 
   private:
     int createDataSchemaHead(xmlTextWriterPtr writer);
@@ -103,6 +104,7 @@ class IOXMLPop {
     int processNode(xmlTextReaderPtr reader, model::XModel * model,
         std::vector<std::string> * tags, model::XMachine ** agent);
     std::string xml_pop_path;
+    size_t iteration_;
     bool xml_pop_path_is_set;
 };
 }}}  // namespace flame::io::xml

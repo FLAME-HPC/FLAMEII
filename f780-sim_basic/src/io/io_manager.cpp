@@ -57,7 +57,8 @@ void IOManager::readPop(std::string file_name,
         rc = ioxmlpop.validateData(file_name, xmlpopxsd);
         removeFile(xmlpopxsd);
         if (rc != 0)
-            throw exc::flame_io_exception("Could not validate data with schema");
+            throw exc::flame_io_exception(
+                    "Could not validate data with schema");
         /* Read validated pop xml */
         rc = ioxmlpop.readXMLPop(file_name, model);
         if (rc != 0)
@@ -93,11 +94,12 @@ void IOManager::writePop(std::string file_name,
 }
 
 void IOManager::writePop(std::string agent_name, std::string var_name) {
-
+    ioxmlpop.writeXMLPop(agent_name, var_name);
 }
 
 void IOManager::setIteration(size_t i) {
     iteration_ = i;
+    ioxmlpop.setIteration(i);
 }
 
 }}  // namespace flame::io
