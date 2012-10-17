@@ -12,6 +12,11 @@
 
 namespace flame { namespace compat { namespace c {
 
+/*!
+ * \brief Returns a MessageBoardWrapper for a given message
+ *
+ * Throws flame::exceptions::invalid_variable if msg is invalid
+ */
 MessageBoardWrapper* CompatibilityManager::GetBoardWrapper(std::string msg) {
   try {
     return &mb_map_.at(msg);

@@ -70,7 +70,7 @@ void flame_mem_set_float_actual_(void* mem, const char* key, float value);
 
 // -------------- Message Board APIs ------------------
 
-
+//! Opaque handle to message iterator
 typedef void* flame_msg_iterator;
 
 #define flame_msg_post(msg_name, msg_ptr) \

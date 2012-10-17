@@ -33,6 +33,7 @@ class MessageBoardWrapperImpl : public MessageBoardWrapper {
     explicit MessageBoardWrapperImpl(std::string name)
         : MessageBoardWrapper(name) {}
 
+    //! Posts a message on behalf of the caller
     void PostMessage(flame::mb::Client* mb, void* msg_ptr) {
       T* typed_ptr = static_cast<T*>(msg_ptr);
       flame::mb::MessageHandle msg = mb->NewMessage(name_);
@@ -40,6 +41,7 @@ class MessageBoardWrapperImpl : public MessageBoardWrapper {
       msg->Post();
     }
 
+    //! Returns a message iterator for all messages of a specific type
     MessageIteratorWrapper* GetMessages(flame::mb::Client* mb) {
       return new MessageIteratorWrapperImpl<T>(mb->GetMessages(name_));
     }

@@ -17,16 +17,17 @@ namespace flame { namespace compat { namespace c {
 
 class MessageIteratorWrapper {
   public:
-    static const std::string MESSAGE_VARNAME;
-
     explicit MessageIteratorWrapper(flame::mb::MessageIteratorHandle h)
         : handle_(h) {}
     virtual ~MessageIteratorWrapper() {}
     virtual void GetMessage(void *out_ptr) = 0;
+    //! Returns true if the iteratio has ended
     bool AtEnd(void) const { return handle_->AtEnd(); }
+    //! Progresses the iterator. Return false if end of iteration is met.
     bool Next(void) { return handle_->Next(); }
 
   protected:
+    //! Store handle to actual message iterator
     flame::mb::MessageIteratorHandle handle_;
 };
 
@@ -36,6 +37,7 @@ class MessageIteratorWrapperImpl : public MessageIteratorWrapper {
     explicit MessageIteratorWrapperImpl(flame::mb::MessageIteratorHandle h)
         : MessageIteratorWrapper(h) {}  // call parent constructor
 
+    //! Writes the current message to memory location, out_ptr
     void GetMessage(void *out_ptr) {
       T* typed_out_ptr = static_cast<T*>(out_ptr);
       *typed_out_ptr = handle_->Get<T>(Constants::MESSAGE_VARNAME);

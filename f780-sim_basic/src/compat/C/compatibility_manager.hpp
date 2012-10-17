@@ -22,14 +22,23 @@ namespace mb = flame::mb;
 
 class CompatibilityManager {
   public:
-    //! Returns instance of singleton object
-    //!  When used in a multithreaded environment, this should be called
-    //!  at lease once before threads are spawned.
+    /*!
+     * \brief Returns instance of singleton object
+     *
+     * When used in a multithreaded environment, this should be called
+     *  at lease once before threads are spawned.
+     */
     static CompatibilityManager& GetInstance() {
       static CompatibilityManager instance;
       return instance;
     }
 
+    /*!
+     * \brief Registers a message of a specific type
+     *
+     * We register the message and var with the MessageBoardManager, then
+     * map the message name to a MessageBoardWrapper instance.
+     */
     template <typename T>
     void RegisterMessage(std::string msg_name) {
       mb::MessageBoardManager& mm = mb::MessageBoardManager::GetInstance();
@@ -38,6 +47,7 @@ class CompatibilityManager {
       mb_map_.insert(msg_name, new MessageBoardWrapperImpl<T>(msg_name));
     }
 
+    //! Returns a message board wrapper for a specific message
     MessageBoardWrapper* GetBoardWrapper(std::string msg);
 
 #ifdef TESTBUILD
