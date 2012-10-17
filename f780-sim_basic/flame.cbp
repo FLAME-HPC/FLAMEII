@@ -73,12 +73,20 @@
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
+		<Unit filename="src/compat/C/compatibility_manager.cpp" />
+		<Unit filename="src/compat/C/compatibility_manager.hpp" />
+		<Unit filename="src/compat/C/flame_compat_c.cpp" />
+		<Unit filename="src/compat/C/flame_compat_c.hpp" />
 		<Unit filename="src/compat/C/mb_api.cpp" />
 		<Unit filename="src/compat/C/mem_api.cpp" />
+		<Unit filename="src/compat/C/message_board_wrapper.hpp" />
+		<Unit filename="src/compat/C/message_iterator_wrapper.hpp" />
 		<Unit filename="src/exe/agent_task.cpp" />
 		<Unit filename="src/exe/agent_task.hpp" />
 		<Unit filename="src/exe/fifo_task_queue.cpp" />
 		<Unit filename="src/exe/fifo_task_queue.hpp" />
+		<Unit filename="src/exe/io_task.cpp" />
+		<Unit filename="src/exe/io_task.hpp" />
 		<Unit filename="src/exe/message_board_task.cpp" />
 		<Unit filename="src/exe/message_board_task.hpp" />
 		<Unit filename="src/exe/scheduler.cpp" />
@@ -104,6 +112,15 @@
 		<Unit filename="src/io/io_xml_model.hpp" />
 		<Unit filename="src/io/io_xml_pop.cpp" />
 		<Unit filename="src/io/io_xml_pop.hpp" />
+		<Unit filename="src/io/tests/test_io_manager.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/io/tests/test_io_xml_model.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/io/tests/test_io_xml_pop.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/mb/board_writer.cpp" />
 		<Unit filename="src/mb/board_writer.hpp" />
 		<Unit filename="src/mb/client.cpp" />
@@ -157,13 +174,13 @@
 		<Unit filename="src/mem/vector_wrapper.hpp" />
 		<Unit filename="src/model/dependency.cpp" />
 		<Unit filename="src/model/dependency.hpp" />
-		<Unit filename="src/model/generate_task_list.cpp" />
 		<Unit filename="src/model/model.cpp" />
 		<Unit filename="src/model/model.hpp" />
-		<Unit filename="src/model/model_manager.cpp" />
-		<Unit filename="src/model/model_manager.hpp" />
 		<Unit filename="src/model/task.cpp" />
 		<Unit filename="src/model/task.hpp" />
+		<Unit filename="src/model/tests/test_xgraph.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/model/xadt.cpp" />
 		<Unit filename="src/model/xadt.hpp" />
 		<Unit filename="src/model/xcondition.cpp" />

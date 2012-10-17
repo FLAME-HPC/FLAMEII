@@ -14,7 +14,7 @@
 #include "model/xmodel.hpp"
 #include "include/flame.h"
 #include "mb/message_board_manager.hpp"
-
+#include "compat/C/compatibility_manager.hpp"
 namespace flame {
 namespace model {
 
@@ -28,10 +28,10 @@ class Model {
         flame::mb::MessageBoardManager& mgr =
                 mb::MessageBoardManager::GetInstance();
 
-        mgr.RegisterMessageVar<T>(name, FLAME_MESSAGE_VARNAME);
+        //mgr.RegisterMessageVar<T>(name, FLAME_MESSAGE_VARNAME);
         // compat/C/mb_api.cpp
         // RegisterMessageType<T>(name);
-        flame_mb_api_hack_initialise();
+        //flame_mb_api_hack_initialise();
 
         return 0;
     }
