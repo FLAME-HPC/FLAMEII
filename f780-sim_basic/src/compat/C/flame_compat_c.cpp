@@ -25,19 +25,46 @@ namespace com  = flame::compat::c;
 extern "C" {
 #endif
 
+// -------------- Memory Access APIs ------------------
+
+int flame_mem_get_int_actual_(void* mem, const char* key) {
+  return flame_mem_get<int>(mem, key);
+}
+
+void flame_mem_set_int_actual_(void* mem, const char* key, int value) {
+  flame_mem_set<int>(mem, key, value);
+}
+
+double flame_mem_get_double_actual_(void* mem, const char* key) {
+  return flame_mem_get<double>(mem, key);
+}
+
+void flame_mem_set_double_actual_(void* mem, const char* key, double value) {
+  flame_mem_set<double>(mem, key, value);
+}
+
+float flame_mem_get_float_actual_(void* mem, const char* key) {
+  return flame_mem_get<float>(mem, key);
+}
+
+void flame_mem_set_float_actual_(void* mem, const char* key, float value) {
+  flame_mem_set<float>(mem, key, value);
+}
+
+
 // -------------- Message Board APIs ------------------
 
-void flame_msg_post_actual(void* mb_client,
-                           std::string msg_name,
-                           void* msg_ptr) {
+void flame_msg_post_actual_(void* mb_client,
+                            std::string msg_name,
+                            void* msg_ptr) {
   flame::mb::Client* client = static_cast<flame::mb::Client*>(mb_client);
   com::CompatibilityManager& compat = com::CompatibilityManager::GetInstance();
   com::MessageBoardWrapper *board =  compat.GetBoardWrapper(msg_name);
   board->PostMessage(client, msg_ptr);
 }
 
-flame_msg_iterator flame_msg_get_iterator_actual(void* mb_client,
-                                                 std::string msg_name) {
+flame_msg_iterator flame_msg_get_iterator_actual_(void* mb_client,
+                                                  std::string msg_name) {
   flame::mb::Client* client = static_cast<flame::mb::Client*>(mb_client);
   com::CompatibilityManager& compat = com::CompatibilityManager::GetInstance();
   com::MessageBoardWrapper *board =  compat.GetBoardWrapper(msg_name);

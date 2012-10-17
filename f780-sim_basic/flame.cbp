@@ -77,8 +77,6 @@
 		<Unit filename="src/compat/C/compatibility_manager.hpp" />
 		<Unit filename="src/compat/C/flame_compat_c.cpp" />
 		<Unit filename="src/compat/C/flame_compat_c.hpp" />
-		<Unit filename="src/compat/C/mb_api.cpp" />
-		<Unit filename="src/compat/C/mem_api.cpp" />
 		<Unit filename="src/compat/C/message_board_wrapper.hpp" />
 		<Unit filename="src/compat/C/message_iterator_wrapper.hpp" />
 		<Unit filename="src/exe/agent_task.cpp" />

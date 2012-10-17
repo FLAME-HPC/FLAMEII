@@ -113,10 +113,8 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   t1.AllowAccess("id");
   t1.AllowMessagePost("location");
 
-  exe::Task &ts = tm.CreateMessageBoardTask("sync", "location",
-                                            exe::MessageBoardTask::OP_SYNC);
-  exe::Task &tc = tm.CreateMessageBoardTask("clear", "location",
-                                            exe::MessageBoardTask::OP_CLEAR);
+  tm.CreateMessageBoardTask("sync", "location", exe::MessageBoardTask::OP_SYNC);
+  tm.CreateMessageBoardTask("clear", "location", exe::MessageBoardTask::OP_CLEAR);
 
   exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
   t2.AllowAccess("checksum", true);
