@@ -26,6 +26,12 @@ class Scheduler {
     typedef size_t QueueId;
     typedef std::map<Task::TaskType, QueueId> RouteMap;
 
+    //! Constructor. Initialises iter_count to 1
+    Scheduler() : iter_count_(1) {}
+
+    //! Constructor. Allows for custom value for initial iter_count.
+    explicit Scheduler(size_t iter_count) : iter_count_(iter_count) {}
+
     //! \brief Allocates a task queue of a given type and returns its id
     template <typename T>
     QueueId CreateQueue(size_t slots) {
@@ -65,6 +71,8 @@ class Scheduler {
     //!
     //! Temporary staging area for tasks that have been completed
     std::vector<Task::id_type> doneq_;
+
+    size_t iter_count_;
 };
 
 }}  // namespace flame::exe
