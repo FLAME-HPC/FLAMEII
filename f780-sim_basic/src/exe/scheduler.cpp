@@ -28,7 +28,7 @@ void Scheduler::AssignType(QueueId qid, Task::TaskType type) {
   }
 
   RouteMap::iterator lb = route_.lower_bound(type);
-  if (lb != route_.end() && !(route_.key_comp()(lb->first, type))) {
+  if (lb != route_.end() && !(route_.key_comp()(type, lb->first))) {
     throw flame::exceptions::invalid_argument("type already assigned");
   } else {
     route_.insert(lb, RouteMap::value_type(type, qid));
