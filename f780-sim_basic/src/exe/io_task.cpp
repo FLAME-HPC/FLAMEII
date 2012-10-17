@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Task that performs IO operations
  */
+#include <string>
 #include "mem/memory_manager.hpp"
 #include "io/io_manager.hpp"
 #include "io_task.hpp"
@@ -22,7 +23,7 @@ IOTask::IOTask(std::string task_name, std::string agent_name,
 }
 
 void IOTask::Run(void) {
-  switch(op_) {
+  switch (op_) {
     case OP_OUTPUT:
       flame::io::IOManager::GetInstance().writePop(agent_name_, var_name_);
       break;

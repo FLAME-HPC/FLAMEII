@@ -205,6 +205,9 @@
 		<Unit filename="src/sim/sim_manager.hpp" />
 		<Unit filename="src/sim/simulation.cpp" />
 		<Unit filename="src/sim/simulation.hpp" />
+		<Unit filename="src/sim/tests/test_sim_manager.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />

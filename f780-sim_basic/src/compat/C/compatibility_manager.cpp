@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Container to handle type mappings and conversions for the C API
  */
+#include <string>
 #include "compatibility_manager.hpp"
 
 namespace flame { namespace compat { namespace c {
@@ -14,7 +15,7 @@ namespace flame { namespace compat { namespace c {
 MessageBoardWrapper* CompatibilityManager::GetBoardWrapper(std::string msg) {
   try {
     return &mb_map_.at(msg);
-  } catch (const boost::bad_ptr_container_operation& E) {
+  } catch(const boost::bad_ptr_container_operation& E) {
     throw flame::exceptions::invalid_variable("Unknown message");
   }
 }

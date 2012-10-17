@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
   // --- the following already done by compat.RegisterMessage ---
   // mb_mgr.RegisterMessage("location");
-  //mb_mgr.RegisterMessageVar<location_message>("location",
+  // mb_mgr.RegisterMessageVar<location_message>("location",
   //                              flame::compat::c::Constants::MESSAGE_VARNAME);
 
 
@@ -116,7 +116,8 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   t1.AllowMessagePost("location");
 
   tm.CreateMessageBoardTask("sync", "location", exe::MessageBoardTask::OP_SYNC);
-  tm.CreateMessageBoardTask("clear", "location", exe::MessageBoardTask::OP_CLEAR);
+  tm.CreateMessageBoardTask("clear", "location",
+                            exe::MessageBoardTask::OP_CLEAR);
 
   exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
   t2.AllowAccess("checksum", true);

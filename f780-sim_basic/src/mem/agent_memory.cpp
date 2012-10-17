@@ -42,5 +42,4 @@ VectorWrapperBase* AgentMemory::GetVectorWrapper(const std::string& var_name) {
 bool AgentMemory::IsRegistered(std::string var_name) const {
   return (mem_map_.find(var_name) != mem_map_.end());
 }
-    
 }}  // namespace flame::mem

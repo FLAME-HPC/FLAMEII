@@ -9,6 +9,7 @@
  */
 #ifndef MEM__MEMORY_VECTOR_HPP
 #define MEM__MEMORY_VECTOR_HPP
+#include <string>
 #include <vector>
 #include <ostream>
 #include <typeinfo>

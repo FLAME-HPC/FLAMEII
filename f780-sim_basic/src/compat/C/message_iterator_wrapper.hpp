@@ -9,6 +9,7 @@
  */
 #ifndef COMPAT__C__MESSAGE_ITERATOR_WRAPPER_HPP_
 #define COMPAT__C__MESSAGE_ITERATOR_WRAPPER_HPP_
+#include <string>
 #include "mb/message_iterator.hpp"
 #include "flame_compat_c.hpp"
 

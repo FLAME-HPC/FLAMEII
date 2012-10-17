@@ -79,7 +79,7 @@ class AgentMemory {
 
     //! Returns true if said memory variable has been registered.
     bool IsRegistered(std::string var_name) const;
-    
+
   private:
     std::string agent_name_;  //! Name of agent
     MemoryMap mem_map_;  //! Map of var names to VectorWrapper

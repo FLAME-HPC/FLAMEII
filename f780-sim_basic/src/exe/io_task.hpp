@@ -9,7 +9,9 @@
  */
 #ifndef EXE__IO_TASK_HPP_
 #define EXE__IO_TASK_HPP_
+#include <string>
 #include "task_interface.hpp"
+
 namespace flame { namespace exe {
 
 class IOTask : public Task {

@@ -24,10 +24,10 @@ void WorkerThread::join() {
 }
 
 void WorkerThread::ProcessQueue() {
-//#ifdef TESTBUILD
-//  boost::thread::id tid = boost::this_thread::get_id();
-//  std::cout << ">> Thread started : " << tid << std::endl;
-//#endif
+  // #ifdef TESTBUILD
+  //   boost::thread::id tid = boost::this_thread::get_id();
+  //   std::cout << ">> Thread started : " << tid << std::endl;
+  // #endif
   Task::id_type task_id = tq_->GetNextTask();  // calls wait() if queue empty
 
   while (!Task::IsTermTask(task_id)) {
@@ -35,16 +35,16 @@ void WorkerThread::ProcessQueue() {
     tq_->TaskDone(task_id);  // register completed task
     task_id = tq_->GetNextTask();  // calls wait() if queue empty
   }
-//#ifdef TESTBUILD
-//  std::cout << ">> (Thread ending) : " << tid << std::endl;
-//#endif
+  // #ifdef TESTBUILD
+  //   std::cout << ">> (Thread ending) : " << tid << std::endl;
+  // #endif
 }
 
 void WorkerThread::RunTask(Task::id_type task_id) {
-//#ifdef TESTBUILD
-//  std::cout << " - " << boost::this_thread::get_id()
-//           << " running task " << task_id << std::endl;
-//#endif
+  // #ifdef TESTBUILD
+  //   std::cout << " - " << boost::this_thread::get_id()
+  //            << " running task " << task_id << std::endl;
+  // #endif
   TaskManager::GetInstance().GetTask(task_id).Run();
 }
 

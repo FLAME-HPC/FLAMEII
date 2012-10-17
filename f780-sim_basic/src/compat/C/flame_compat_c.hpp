@@ -42,23 +42,29 @@ extern "C" {
 #define FLAME_MESSAGE_BOARD_CLIENT FLAME_unique_symbol_000_002__
 
 #define FLAME_AGENT_FUNC(funcName) \
-      int funcName(void* FLAME_MEMORY_ITERATOR, void* FLAME_MESSAGE_BOARD_CLIENT)
+     int funcName(void* FLAME_MEMORY_ITERATOR, void* FLAME_MESSAGE_BOARD_CLIENT)
 
 /*! Function pointer type for agent transition functions */
 typedef FLAME_AGENT_FUNC((*AgentFuncPtr));
 
 // -------------- Memory Access APIs ------------------
 
-#define flame_mem_get_int(k)   flame_mem_get_int_actual_(FLAME_MEMORY_ITERATOR, k)
-#define flame_mem_set_int(k,v) flame_mem_set_int_actual_(FLAME_MEMORY_ITERATOR,k,v)
+#define flame_mem_get_int(k) \
+        flame_mem_get_int_actual_(FLAME_MEMORY_ITERATOR, k)
+#define flame_mem_set_int(k, v) \
+        flame_mem_set_int_actual_(FLAME_MEMORY_ITERATOR, k, v)
 int flame_mem_get_int_actual_(void* mem, const char* key);
 void flame_mem_set_int_actual_(void* mem, const char* key, int value);
-#define flame_mem_get_double(k)   flame_mem_get_double_actual_(FLAME_MEMORY_ITERATOR, k)
-#define flame_mem_set_double(k,v) flame_mem_set_double_actual_(FLAME_MEMORY_ITERATOR,k,v)
+#define flame_mem_get_double(k) \
+        flame_mem_get_double_actual_(FLAME_MEMORY_ITERATOR, k)
+#define flame_mem_set_double(k, v) \
+        flame_mem_set_double_actual_(FLAME_MEMORY_ITERATOR, k, v)
 double flame_mem_get_double_actual_(void* mem, const char* key);
 void flame_mem_set_double_actual_(void* mem, const char* key, double value);
-#define flame_mem_get_float(k)   flame_mem_get_float_actual_(FLAME_MEMORY_ITERATOR, k)
-#define flame_mem_set_float(k,v) flame_mem_set_float_actual_(FLAME_MEMORY_ITERATOR,k,v)
+#define flame_mem_get_float(k) \
+        flame_mem_get_float_actual_(FLAME_MEMORY_ITERATOR, k)
+#define flame_mem_set_float(k, v) \
+        flame_mem_set_float_actual_(FLAME_MEMORY_ITERATOR, k, v)
 float flame_mem_get_float_actual_(void* mem, const char* key);
 void flame_mem_set_float_actual_(void* mem, const char* key, float value);
 
