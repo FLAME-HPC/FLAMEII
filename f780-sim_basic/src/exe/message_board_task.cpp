@@ -20,12 +20,13 @@ namespace flame { namespace exe {
  * Initialies msg_name_ and op_, and checks that the specified board exists.
  */
 MessageBoardTask::MessageBoardTask(std::string task_name,
-                     std::string msg_name,
-                     Operation op)
+                                   std::string msg_name,
+                                   Operation op)
     : msg_name_(msg_name), op_(op) {
   if (!flame::mb::MessageBoardManager::GetInstance().BoardExists(msg_name)) {
     throw flame::exceptions::invalid_argument("Unknown message name");
   }
+  task_name_ = task_name;
 }
 
 /*!

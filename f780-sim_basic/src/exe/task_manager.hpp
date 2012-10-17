@@ -20,6 +20,7 @@
 #include "boost/ptr_container/ptr_map.hpp"
 #include "boost/thread/mutex.hpp"
 #include "message_board_task.hpp"
+#include "io_task.hpp"
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {
@@ -54,6 +55,12 @@ class TaskManager {
                                  std::string msg_name,
                                  MessageBoardTask::Operation op);
 
+    //! \brief Registers and returns a new IO Task
+    Task& CreateIOTask(std::string task_name,
+                       std::string agent_name,
+                       std::string var_name,
+                       IOTask::Operation op);
+                       
     //! \brief Returns a registered Task given a task id
     Task& GetTask(TaskId task_id);
 

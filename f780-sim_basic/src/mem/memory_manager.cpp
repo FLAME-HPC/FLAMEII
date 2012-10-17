@@ -53,6 +53,18 @@ bool MemoryManager::IsRegisteredAgent(const std::string& agent_name) const {
   return (agent_map_.find(agent_name) != agent_map_.end());
 }
 
+void MemoryManager::AssertVarRegistered(const std::string& agent_name,
+                                    const std::string& var_name)  const {
+  try {
+    if (!agent_map_.at(agent_name).IsRegistered(var_name)) {
+      throw exc::invalid_variable("unknown memory variable name");
+    }
+  }
+  catch(const boost::bad_ptr_container_operation& E) {
+    throw exc::invalid_agent("unknown agent name");
+  }
+}
+
 AgentShadowPtr MemoryManager::GetAgentShadow(const std::string& agent_name) {
   return AgentShadowPtr(new AgentShadow(&GetAgentMemory(agent_name)));
 }
