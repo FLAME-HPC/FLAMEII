@@ -42,12 +42,36 @@ BOOST_AUTO_TEST_CASE(memiter_initialise_memory_manager) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
+BOOST_AUTO_TEST_CASE(memiter_test_noaccess) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
 
   BOOST_CHECK_THROW(mgr.GetAgentShadow("Square"), e::invalid_agent);
   mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
 
+  // We shouldn't need access to memory to detect population size
+  BOOST_CHECK_EQUAL(shadow->get_size(), (size_t)10);
+
+  // Get memory iterator
+  mem::MemoryIteratorPtr iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
+
+  // Iterable?
+  for (int i = 0; i < 10; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+  // Should now be at end of iteration
+  BOOST_CHECK_EQUAL(iptr->Step(), false);
+  BOOST_CHECK_EQUAL(iptr->AtEnd(), true);
+}
+
+BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+
+  BOOST_CHECK_THROW(mgr.GetAgentShadow("Square"), e::invalid_agent);
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
 
   // Adding access to invalid var
   BOOST_CHECK_THROW(shadow->AllowAccess("NotVar"), e::invalid_variable);
@@ -202,6 +226,74 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
   BOOST_CHECK_EQUAL(j, 7);
   BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)5);
 }
+
+
+BOOST_AUTO_TEST_CASE(memiter_test_sizechange) {
+  mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();
+  mem::AgentShadowPtr shadow = mgr.GetAgentShadow("Circle");
+
+  // We shouldn't need access to memory to detect population size
+  BOOST_CHECK_EQUAL(shadow->get_size(), (size_t)10);
+
+  // Get memory iterator
+  mem::MemoryIteratorPtr iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)10);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
+
+  // Iterable?
+  for (int i = 0; i < 10; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+  // Should now be at end of iteration
+  BOOST_CHECK_EQUAL(iptr->Step(), false);
+  BOOST_CHECK_EQUAL(iptr->AtEnd(), true);
+
+  // grow the vectors
+  std::vector<int>* x_ptr = mgr.GetVector<int>("Circle", "x_int");
+  std::vector<double>* y_ptr = mgr.GetVector<double>("Circle", "y_dbl");
+  std::vector<double>* z_ptr = mgr.GetVector<double>("Circle", "z_dbl");
+  std::vector<double>* q_ptr = mgr.GetVector<double>("Circle", "q_dbl");
+  for (int i = 0; i < 10; ++i) {
+    x_ptr->push_back(i);
+    y_ptr->push_back(i * 1.0);
+    z_ptr->push_back(i * 2.0);
+    q_ptr->push_back(i * 3.0);
+  }
+
+  // using the same shadow, new iterator should see new size
+  iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)20);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
+  // Iterable?
+  for (int i = 0; i < 20; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+
+  // reduce size
+  for (int i = 0; i < 15; ++i) {
+    x_ptr->pop_back();
+    y_ptr->pop_back();
+    z_ptr->pop_back();
+    q_ptr->pop_back();
+  }
+
+  // using the same shadow, new iterator should see new size
+  iptr = shadow->GetMemoryIterator();
+  BOOST_CHECK_EQUAL(iptr->get_size(), (size_t)5);
+  BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
+  // Iterable?
+  for (int i = 0; i < 5; i++) {
+    BOOST_CHECK_EQUAL(iptr->AtEnd(), false);
+    BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)i);
+    BOOST_CHECK_EQUAL(iptr->Step(), true);
+  }
+}
+
+
 
 BOOST_AUTO_TEST_CASE(memiter_reset_memory_manager) {
   mem::MemoryManager& mgr = mem::MemoryManager::GetInstance();

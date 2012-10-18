@@ -16,6 +16,7 @@
 #include "exe/task_manager.hpp"
 #include "../scheduler.hpp"
 #include "../fifo_task_queue.hpp"
+#include "../splitting_fifo_task_queue.hpp"
 #include "compat/C/compatibility_manager.hpp"
 #include "include/flame.h"
 
@@ -130,9 +131,10 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
 
   // Run
   exe::Scheduler s;
-  exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
+  exe::Scheduler::QueueId q = s.CreateQueue<exe::SplittingFIFOTaskQueue>(4);
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
   s.AssignType(q, exe::Task::MB_FUNCTION);
+  s.SetSplittable(exe::Task::AGENT_FUNCTION);
   s.RunIteration();
 
   // Check checksum for each agent. This tells use that all agents

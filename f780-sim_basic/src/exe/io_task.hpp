@@ -35,6 +35,11 @@ class IOTask : public Task {
       throw flame::exceptions::logic_error("method not applicable");
     }
 
+    //! Returns a task splitter (not supported by MB task)
+    TaskSplitterHandle SplitTask(size_t max_tasks, size_t min_task_size) {
+      throw flame::exceptions::not_implemented("method not applicable");
+    }
+
     //! Runs the task
     void Run(void);
 

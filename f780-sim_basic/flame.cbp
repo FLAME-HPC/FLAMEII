@@ -89,10 +89,14 @@
 		<Unit filename="src/exe/message_board_task.hpp" />
 		<Unit filename="src/exe/scheduler.cpp" />
 		<Unit filename="src/exe/scheduler.hpp" />
+		<Unit filename="src/exe/splitting_fifo_task_queue.cpp" />
+		<Unit filename="src/exe/splitting_fifo_task_queue.hpp" />
 		<Unit filename="src/exe/task_interface.hpp" />
 		<Unit filename="src/exe/task_manager.cpp" />
 		<Unit filename="src/exe/task_manager.hpp" />
 		<Unit filename="src/exe/task_queue_interface.hpp" />
+		<Unit filename="src/exe/task_splitter.cpp" />
+		<Unit filename="src/exe/task_splitter.hpp" />
 		<Unit filename="src/exe/tests/test_execution_module.cpp">
 			<Option target="Test" />
 		</Unit>
@@ -100,6 +104,9 @@
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/exe/tests/test_task_manager.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/exe/tests/test_task_splitter.cpp">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/exe/worker_thread.cpp" />
