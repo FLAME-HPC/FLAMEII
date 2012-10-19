@@ -34,7 +34,8 @@ typedef struct {
 } my_location_message;
 
 // The structure must support the << operator for it to be store in the board
-inline std::ostream &operator<<(std::ostream &os, const my_location_message& ob) {
+inline std::ostream &operator<<(std::ostream &os,
+        const my_location_message& ob) {
     os << "{" << ob.x << ", " << ob.y << ", " << ob.id << "}";
     return os;
 }
@@ -113,7 +114,18 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     // Register message types
     m.registerMessageType<my_location_message>("location");
 
-    s.start(2);
+    s.start(1);
+
+    // Reset memory manager
+    flame::mem::MemoryManager::GetInstance().Reset();
+
+    // Try and use generated output as input
+    sim::Simulation s2(&m, "src/sim/tests/models/circles/1.xml");
+
+    /* Remove created all_data.xsd */
+    if (remove("src/sim/tests/models/circles/1.xml") != 0)
+    fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
+            "src/sim/tests/models/circles/1.xml");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

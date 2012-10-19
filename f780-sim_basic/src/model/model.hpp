@@ -14,7 +14,6 @@
 #include "model/xmodel.hpp"
 #include "include/flame.h"
 #include "compat/C/compatibility_manager.hpp"
-#include "compat/C/compatibility_manager.hpp"
 namespace flame {
 namespace model {
 

@@ -431,19 +431,23 @@ int XGraph::registerDataTask(Task * t) {
     Task::TaskType taskType = t->getTaskType();
 
     try {
+        // If agent var data
         if (taskType == Task::io_pop_write)
             taskManager.CreateIOTask(taskName, agentName, varName,
                 flame::exe::IOTask::OP_OUTPUT);
+        // If model start data
         if (taskType == Task::start_model)
             taskManager.CreateIOTask(taskName, "", "",
                             flame::exe::IOTask::OP_INIT);
+        // If model finish data
         if (taskType == Task::finish_model)
             taskManager.CreateIOTask(taskName, "", "",
                             flame::exe::IOTask::OP_FIN);
     }
+    // Catch exception
     catch(const flame::exceptions::flame_exception& E) {
         printErr(std::string("Error: ") + E.what());
-        printErr(std::string("When creating an io task for agent ") +
+        printErr(std::string("When creating an io task for ") +
                 agentName);
         return 2;
     }
@@ -519,8 +523,6 @@ int XGraph::registerTasksAndDependenciesWithTaskManager(
         if (type == Task::io_pop_write ||
                 type == Task::start_model || type == Task::finish_model)
             registerDataTask(t);
-        // If model data task
-        if (type == Task::start_model || type == Task::finish_model) {}
         // If message task
         if (type == Task::xmessage_sync || type == Task::xmessage_clear)
             registerMessageTask(t);

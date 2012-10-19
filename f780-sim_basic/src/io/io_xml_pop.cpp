@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <utility>
 #include <iostream>
 #include <fstream>
 #include "./io_xml_pop.hpp"
@@ -194,27 +195,10 @@ int IOXMLPop::writeXMLPop(std::string file_name,
     return rc;
 }
 
-void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
-    // Save agent vars to a map
-    // Because IO doesn't have any info on agent memory
-    // Use this info to call Memory Manager
-    //agentVarMap_.insert(make_pair(agent_name, var_name));
-/*    agentVarMap::iterator it
-        = agentVarMap_.find(agent_name);
-    if (it == agentVarMap_.end()) {
-        std::pair<agentVarMap::iterator, bool> ret;
-        ret = agentVarMap_.insert(make_pair(agent_name, std::set<std::string>()));
-        (*ret.first).second.insert(var_name);
-    } else {
-        (*it).second.insert(var_name);
-    }*/
-}
+void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {}
 
 void IOXMLPop::initialiseData() {
     // Write out xml start and environment data
-
-    // Clear agent variable map
-    //agentVarMap_.clear();
 }
 
 struct VarVecData {
@@ -225,15 +209,49 @@ struct VarVecData {
     flame::mem::VectorWrapperBase* vw;
 };
 
+void IOXMLPop::writeAgents(xmlTextWriterPtr writer) {
+    std::vector<std::string>::iterator sit;
+    int rc;
+    /* For each agent type in the model */
+    agentVarMap::iterator it;
+    for (it = agentVarMap_.begin(); it != agentVarMap_.end(); it++) {
+        std::vector<VarVecData> dataMap;
+        std::vector<VarVecData>::iterator dit;
+        bool stillData = true;
+        for (sit = (*it).second.begin(); sit != (*it).second.end(); sit++) {
+            flame::mem::VectorWrapperBase* vw =
+flame::mem::MemoryManager::GetInstance().GetVectorWrapper((*it).first, (*sit));
+            dataMap.push_back(VarVecData((*sit), vw->GetRawPtr(), vw));
+            if (vw->GetRawPtr() == NULL) stillData = false;
+        }
+
+        while (stillData) {
+            /* Open root tag */
+            rc = writeXMLTag(writer, "xagent");
+            // if (rc != 0) return rc;
+            /* Write agent name */
+            rc = writeXMLTag(writer, "name", (*it).first);
+            // if (rc != 0) return rc;
+            for (dit = dataMap.begin(); dit != dataMap.end(); dit++) {
+                if (strcmp((*dit).vw->GetDataType()->name(), "i") == 0)
+rc = writeXMLTag(writer, (*dit).varName, *reinterpret_cast<int*>((*dit).p));
+                if (strcmp((*dit).vw->GetDataType()->name(), "d") == 0)
+rc = writeXMLTag(writer, (*dit).varName, *reinterpret_cast<double*>((*dit).p));
+                (*dit).p = (*dit).vw->StepRawPtr((*dit).p);
+            if ((*dit).p == NULL && dit+1 == dataMap.end()) stillData = false;
+            }
+            /* Close the element named xagent. */
+            writeXMLEndTag(writer);
+        }
+    }
+}
+
 void IOXMLPop::finaliseData() {
     // Write out agent data and xml finish
-    flame::mem::MemoryManager& memoryManager =
-        flame::mem::MemoryManager::GetInstance();
     /* The xml text writer */
     xmlTextWriterPtr writer;
     /* Loop variables */
     int rc;
-    std::vector<std::string>::iterator sit;
 
     /* Check a path has been set */
     if (!xmlPopPathIsSet()) {
@@ -261,45 +279,11 @@ void IOXMLPop::finaliseData() {
     // if (rc != 0) return rc;
 
     /* Write itno tag with iteration number */
-    rc = writeXMLTag(writer, "itno", (int)iteration_);
+    rc = writeXMLTag(writer, "itno", static_cast<int>(iteration_));
     // if (rc != 0) return rc;
 
-
-
-    /* For each agent type in the model */
-    flame::mem::VectorWrapperBase* vw;
-    agentVarMap::iterator it;
-    for (it=agentVarMap_.begin(); it!=agentVarMap_.end(); it++) {
-        std::vector<VarVecData> dataMap;
-        std::vector<VarVecData>::iterator dit;
-        bool stillData = true;
-        for (sit=(*it).second.begin(); sit!=(*it).second.end(); sit++) {
-            vw = memoryManager.GetVectorWrapper((*it).first, (*sit));
-            dataMap.push_back(VarVecData((*sit), vw->GetRawPtr(), vw));
-            if (vw->GetRawPtr() == NULL) stillData = false;
-        }
-
-        while (stillData) {
-            /* Open root tag */
-            rc = writeXMLTag(writer, "xagent");
-            //if (rc != 0) return rc;
-            /* Write agent name */
-            rc = writeXMLTag(writer, "name", (*it).first);
-            //if (rc != 0) return rc;
-            for (dit=dataMap.begin(); dit!=dataMap.end(); dit++) {
-                if (strcmp((*dit).vw->GetDataType()->name(), "i") == 0)
-                    //printf("%s = %d\n", (*dit).varName.c_str(), *(int*)((*dit).p));
-                rc = writeXMLTag(writer, (*dit).varName.c_str(), *(int*)((*dit).p));
-                if (strcmp((*dit).vw->GetDataType()->name(), "d") == 0)
-                    //printf("%s = %f\n", (*dit).varName.c_str(), *(double*)((*dit).p));
-                rc = writeXMLTag(writer, (*dit).varName.c_str(), *(double*)((*dit).p));
-                (*dit).p = (*dit).vw->StepRawPtr((*dit).p);
-                if ((*dit).p == NULL && dit+1 == dataMap.end()) stillData = false;
-            }
-            /* Close the element named xagent. */
-            writeXMLEndTag(writer);
-        }
-    }
+    // Write agent memory out
+    writeAgents(writer);
 
     /* End xml file, automatically ends states tag */
     rc = endXMLDoc(writer);
@@ -308,6 +292,22 @@ void IOXMLPop::finaliseData() {
     xmlFreeTextWriter(writer);
 }
 
+void IOXMLPop::saveAgentVariableData(model::XModel * model) {
+    agentVarMap_.clear();
+    std::vector<model::XMachine*>::iterator agent_it;
+    std::vector<model::XVariable*>::iterator var_it;
+    std::pair<agentVarMap::iterator, bool> avm;
+    for (agent_it = model->getAgents()->begin();
+            agent_it != model->getAgents()->end(); agent_it++) {
+        // Add agent to agent var map for use when writing
+        avm = agentVarMap_.insert(std::make_pair((*agent_it)->getName(),
+                std::vector<std::string>()));
+        for (var_it = (*agent_it)->getVariables()->begin();
+                var_it != (*agent_it)->getVariables()->end(); var_it++) {
+            (*avm.first).second.push_back((*var_it)->getName());
+        }
+    }
+}
 
 int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
     xmlTextReaderPtr reader;
@@ -350,19 +350,7 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
     }
 
     /* Save agent vars to a structure */
-    agentVarMap_.clear();
-    std::vector<model::XMachine*>::iterator agent_it;
-    std::vector<model::XVariable*>::iterator var_it;
-    std::pair<agentVarMap::iterator, bool> avm;
-    for (agent_it = model->getAgents()->begin();
-            agent_it != model->getAgents()->end(); agent_it++) {
-        // Add agent to agent var map for use when writing
-        avm = agentVarMap_.insert(std::make_pair((*agent_it)->getName(), std::vector<std::string>()));
-        for (var_it = (*agent_it)->getVariables()->begin();
-                var_it != (*agent_it)->getVariables()->end(); var_it++) {
-            (*avm.first).second.push_back((*var_it)->getName());
-        }
-    }
+    saveAgentVariableData(model);
 
     /* Return successfully */
     return 0;
@@ -682,8 +670,10 @@ int IOXMLPop::processTextVariableCast(std::string value,
     flame::mem::MemoryManager& memoryManager =
                     flame::mem::MemoryManager::GetInstance();
     T typeValue;
+    // Try and cast string to type
     try {
         typeValue = boost::lexical_cast<T>(value);
+    // Catch exception
     } catch(const boost::bad_lexical_cast&) {
         printErr(std::string(
 "Error: variable could not be cast to correct type: ") +
@@ -692,11 +682,12 @@ int IOXMLPop::processTextVariableCast(std::string value,
             tags->back());
         return 6;
     }
-    /* Add value to memory manager */
+    // Add value to memory manager
     std::vector<T>* vec =
         memoryManager.GetVector<T>(
             (*agent)->getName(), tags->back());
     vec->push_back(typeValue);
+
     return 0;
 }
 

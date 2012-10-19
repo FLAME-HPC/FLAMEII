@@ -14,6 +14,7 @@
 #include <libxml/xmlwriter.h>
 #include <string>
 #include <vector>
+#include <map>
 #include "mem/memory_manager.hpp"
 #include "model/xmodel.hpp"
 
@@ -45,6 +46,8 @@ class IOXMLPop {
     void setIteration(size_t i);
 
   private:
+    void saveAgentVariableData(model::XModel * model);
+    void writeAgents(xmlTextWriterPtr writer);
     int createDataSchemaHead(xmlTextWriterPtr writer);
     int createDataSchemaAgentNameType(xmlTextWriterPtr writer,
         flame::model::XModel * model);
