@@ -24,6 +24,7 @@
 void printErr(std::string message);
 
 namespace model = flame::model;
+namespace exc = flame::exceptions;
 
 namespace flame { namespace io { namespace xml {
 
@@ -194,62 +195,115 @@ int IOXMLPop::writeXMLPop(std::string file_name,
 }
 
 void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
-    /*    flame::mem::MemoryManager& memoryManager =
-                        flame::mem::MemoryManager::GetInstance();
-
-    // Get access to vector
-    flame::mem::VectorWrapperBase* vw =
-            memoryManager.GetVectorWrapper(agent_name, var_name);
-
-    std::string file_name = boost::lexical_cast<std::string>(iteration_);
-    file_name.append(".xml");
-    std::ofstream file;
-    file.open(file_name.c_str());
-    void* p = vw->GetRawPtr();
-    while (p != NULL) {
-        file.seekp(5, std::ios::end);
-        // Write var out
-        if (strcmp(vw->GetDataType()->name(), "i") == 0)
-            file << *(int*)(p);
-            //std::fprintf(file, "%d", *(int*)(p));
-            //printf("%s = %d\n", var_name.c_str(), *(int*)(p));
-        if (strcmp(vw->GetDataType()->name(), "d") == 0)
-            file << *(double*)(p);
-            //std::fprintf(file, "%f", *(double*)(p));
-            //printf("%s = %f\n", var_name.c_str(), *(double*)(p));
-        p = vw->StepRawPtr(p);
+    // Save agent vars to a map
+    // Because IO doesn't have any info on agent memory
+    // Use this info to call Memory Manager
+    //agentVarMap_.insert(make_pair(agent_name, var_name));
+    agentVarMap::iterator it
+        = agentVarMap_.find(agent_name);
+    if (it == agentVarMap_.end()) {
+        std::pair<agentVarMap::iterator, bool> ret;
+        ret = agentVarMap_.insert(make_pair(agent_name, std::set<std::string>()));
+        (*ret.first).second.insert(var_name);
+    } else {
+        (*it).second.insert(var_name);
     }
-    file.close();
-
-    std::ofstream stream;
-    std::string file_name = boost::lexical_cast<std::string>(iteration_);
-    file_name.append("_");
-    file_name.append(agent_name);
-    file_name.append("_");
-    file_name.append(var_name);
-    file_name.append(".xml");
-    stream.open(file_name.c_str());
-    // std::stringstream stream;
-    if (!stream.is_open())
-        throw flame::exceptions::flame_io_exception("Could not write pop file");
-    stream << "<" << var_name << ">";
-    std::string delim = "</";
-    delim.append(var_name);
-    delim.append(">\n<");
-    delim.append(var_name);
-    delim.append(">");
-    vw->OutputToStream(stream, delim);
-    stream << "</" << var_name << ">";
-    // printf("%s\n", stream.str().c_str());
-    stream.close();*/
 }
 
 void IOXMLPop::initialiseData() {
+    // Write out xml start and environment data
 
+    // Clear agent variable map
+    agentVarMap_.clear();
 }
 
-void IOXMLPop::finaliseData() {
+struct VarVecData {
+    VarVecData(std::string s, void* ptr, flame::mem::VectorWrapperBase* v) :
+        varName(s), p(ptr), vw(v) {}
+    std::string varName;
+    void* p;
+    flame::mem::VectorWrapperBase* vw;
+};
 
+void IOXMLPop::finaliseData() {
+    // Write out agent data and xml finish
+    flame::mem::MemoryManager& memoryManager =
+        flame::mem::MemoryManager::GetInstance();
+    /* The xml text writer */
+    xmlTextWriterPtr writer;
+    /* Loop variables */
+    int rc;
+    std::set<std::string>::iterator sit;
+
+    /* Check a path has been set */
+    if (!xmlPopPathIsSet()) {
+        throw exc::flame_io_exception(
+                "Path not set");
+    }
+
+    std::string file_name = xml_pop_path;
+    file_name.append(boost::lexical_cast<std::string>(iteration_));
+    file_name.append(".xml");
+
+#ifndef TESTBUILD
+    printf("Writing file: '%s'\n", file_name.c_str());
+#endif
+
+    /* Open file to write to, with no compression */
+    writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
+    if (writer == NULL)
+    throw exc::flame_io_exception("Opening xml population file to write to");
+    /* Write tags on new lines */
+    xmlTextWriterSetIndent(writer, 1);
+
+    /* Open root tag */
+    rc = writeXMLTag(writer, "states");
+    // if (rc != 0) return rc;
+
+    /* Write itno tag with iteration number */
+    rc = writeXMLTag(writer, "itno", (int)iteration_);
+    // if (rc != 0) return rc;
+
+    /* For each agent type in the model */
+    flame::mem::VectorWrapperBase* vw;
+    agentVarMap::iterator it;
+    for (it=agentVarMap_.begin(); it!=agentVarMap_.end(); it++) {
+        std::vector<VarVecData> dataMap;
+        std::vector<VarVecData>::iterator dit;
+        bool stillData = true;
+        for (sit=(*it).second.begin(); sit!=(*it).second.end(); sit++) {
+            vw = memoryManager.GetVectorWrapper((*it).first, (*sit));
+            dataMap.push_back(VarVecData((*sit), vw->GetRawPtr(), vw));
+            if (vw->GetRawPtr() == NULL) stillData = false;
+        }
+
+        while (stillData) {
+            /* Open root tag */
+            rc = writeXMLTag(writer, "xagent");
+            //if (rc != 0) return rc;
+            /* Write agent name */
+            rc = writeXMLTag(writer, "name", (*it).first);
+            //if (rc != 0) return rc;
+            for (dit=dataMap.begin(); dit!=dataMap.end(); dit++) {
+                if (strcmp((*dit).vw->GetDataType()->name(), "i") == 0)
+                    //printf("%s = %d\n", (*dit).varName.c_str(), *(int*)((*dit).p));
+                rc = writeXMLTag(writer, (*dit).varName.c_str(), *(int*)((*dit).p));
+                if (strcmp((*dit).vw->GetDataType()->name(), "d") == 0)
+                    //printf("%s = %f\n", (*dit).varName.c_str(), *(double*)((*dit).p));
+                rc = writeXMLTag(writer, (*dit).varName.c_str(), *(double*)((*dit).p));
+                (*dit).p = (*dit).vw->StepRawPtr((*dit).p);
+                if ((*dit).p == NULL && dit+1 == dataMap.end()) stillData = false;
+            }
+            /* Close the element named xagent. */
+            writeXMLEndTag(writer);
+        }
+    }
+
+    /* End xml file, automatically ends states tag */
+    rc = endXMLDoc(writer);
+
+    /* Free the xml writer */
+    xmlFreeTextWriter(writer);
 }
 
 

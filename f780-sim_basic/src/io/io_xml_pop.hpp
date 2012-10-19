@@ -23,6 +23,7 @@ namespace flame { namespace io { namespace xml {
 
 typedef std::vector<int>* intVecPtr;
 typedef std::vector<double>* doubleVecPtr;
+typedef std::map<std::string, std::set<std::string> > agentVarMap;
 
 class IOXMLPop {
   public:
@@ -108,6 +109,7 @@ class IOXMLPop {
     std::string xml_pop_path;
     size_t iteration_;
     bool xml_pop_path_is_set;
+    agentVarMap agentVarMap_;
 };
 }}}  // namespace flame::io::xml
 #endif  // IO__XML_POP_HPP_

@@ -428,10 +428,18 @@ int XGraph::registerDataTask(Task * t) {
     std::string taskName = t->getTaskName();
     std::string agentName = t->getParentName();
     std::string varName = t->getName();
+    Task::TaskType taskType = t->getTaskType();
 
     try {
-        taskManager.CreateIOTask(taskName, agentName, varName,
+        if (taskType == Task::io_pop_write)
+            taskManager.CreateIOTask(taskName, agentName, varName,
                 flame::exe::IOTask::OP_OUTPUT);
+        if (taskType == Task::start_model)
+            taskManager.CreateIOTask(taskName, "", "",
+                            flame::exe::IOTask::OP_INIT);
+        if (taskType == Task::finish_model)
+            taskManager.CreateIOTask(taskName, "", "",
+                            flame::exe::IOTask::OP_FIN);
     }
     catch(const flame::exceptions::flame_exception& E) {
         printErr(std::string("Error: ") + E.what());
@@ -480,14 +488,15 @@ int XGraph::registerDependencies() {
         std::string target = getTask(
                 boost::target((Edge)*iei, *graph_))->getTaskName();
         // Add dependency
-        try { taskManager.AddDependency(target, source); }
+        taskManager.AddDependency(target, source);
+        /*try { taskManager.AddDependency(target, source); }
         catch(const flame::exceptions::flame_exception& E) {
             printErr(std::string("Error: ") + E.what());
             printErr(std::string("When adding a dependency between ") +
              source +
              std::string(" and ") +
              target);
-        }
+        }*/
     }
 
     return 0;
@@ -506,8 +515,9 @@ int XGraph::registerTasksAndDependenciesWithTaskManager(
         // If agent task
         if (type == Task::xfunction || type == Task::xcondition)
             registerAgentTask(t, funcMap);
-        // If agent data task
-        if (type == Task::io_pop_write)
+        // If data task
+        if (type == Task::io_pop_write ||
+                type == Task::start_model || type == Task::finish_model)
             registerDataTask(t);
         // If model data task
         if (type == Task::start_model || type == Task::finish_model) {}
@@ -726,12 +736,12 @@ void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
     VarMapToVertices::iterator vwit;
     std::set<size_t>::iterator sit;
     VarMapToVertices * lws = endTask_->getLastWrites();
-    size_t count;
+    size_t count = 0;
 
     while (!lws->empty()) {
         // Create new io write task
         Task * task = new Task(agentName_,
-            boost::lexical_cast<std::string>(count++), Task::io_pop_write);
+            boost::lexical_cast<std::string>(++count), Task::io_pop_write);
         Vertex vertex = addVertex(task);
         task->getWriteVariables()->insert((*lws->begin()).first);
         task->setName((*lws->begin()).first);

@@ -49,9 +49,14 @@ EXE_SRC    = src/exe/agent_task.cpp \
              src/exe/io_task.cpp \
              src/exe/message_board_task.cpp \
              src/exe/scheduler.cpp \
+             src/exe/splitting_fifo_task_queue.cpp \
              src/exe/task_manager.cpp \
+             src/exe/task_splitter.cpp \
              src/exe/worker_thread.cpp
-EXE_TEST   = src/exe/tests/test_task_access_to_mb.cpp
+EXE_TEST   = src/exe/tests/test_execution_module.cpp \
+             src/exe/tests/test_task_access_to_mb.cpp \
+             src/exe/tests/test_task_manager.cpp \
+             src/exe/tests/test_task_splitter.cpp
 SIM_SRC    = src/sim/sim_manager.cpp \
              src/sim/simulation.cpp
 SIM_TEST   = src/sim/tests/test_sim_manager.cpp
@@ -118,9 +123,11 @@ OTHER_HEADERS = src/compat/C/compatibility_manager.hpp \
              src/exe/io_task.hpp \
              src/exe/message_board_task.hpp \
              src/exe/scheduler.hpp \
+             src/exe/splitting_fifo_task_queue.hpp \
              src/exe/task_interface.hpp \
              src/exe/task_manager.hpp \
              src/exe/task_queue_interface.hpp \
+             src/exe/task_splitter.hpp \
              src/exe/worker_thread.hpp \
              src/mb/board_writer.hpp \
              src/mb/client.hpp \
