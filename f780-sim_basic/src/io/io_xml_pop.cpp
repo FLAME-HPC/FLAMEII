@@ -199,7 +199,7 @@ void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
     // Because IO doesn't have any info on agent memory
     // Use this info to call Memory Manager
     //agentVarMap_.insert(make_pair(agent_name, var_name));
-    agentVarMap::iterator it
+/*    agentVarMap::iterator it
         = agentVarMap_.find(agent_name);
     if (it == agentVarMap_.end()) {
         std::pair<agentVarMap::iterator, bool> ret;
@@ -207,14 +207,14 @@ void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
         (*ret.first).second.insert(var_name);
     } else {
         (*it).second.insert(var_name);
-    }
+    }*/
 }
 
 void IOXMLPop::initialiseData() {
     // Write out xml start and environment data
 
     // Clear agent variable map
-    agentVarMap_.clear();
+    //agentVarMap_.clear();
 }
 
 struct VarVecData {
@@ -233,7 +233,7 @@ void IOXMLPop::finaliseData() {
     xmlTextWriterPtr writer;
     /* Loop variables */
     int rc;
-    std::set<std::string>::iterator sit;
+    std::vector<std::string>::iterator sit;
 
     /* Check a path has been set */
     if (!xmlPopPathIsSet()) {
@@ -263,6 +263,8 @@ void IOXMLPop::finaliseData() {
     /* Write itno tag with iteration number */
     rc = writeXMLTag(writer, "itno", (int)iteration_);
     // if (rc != 0) return rc;
+
+
 
     /* For each agent type in the model */
     flame::mem::VectorWrapperBase* vw;
@@ -345,6 +347,21 @@ int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
         printErr(std::string("Error: Failed to parse: ") +
             file_name);
         return 2;
+    }
+
+    /* Save agent vars to a structure */
+    agentVarMap_.clear();
+    std::vector<model::XMachine*>::iterator agent_it;
+    std::vector<model::XVariable*>::iterator var_it;
+    std::pair<agentVarMap::iterator, bool> avm;
+    for (agent_it = model->getAgents()->begin();
+            agent_it != model->getAgents()->end(); agent_it++) {
+        // Add agent to agent var map for use when writing
+        avm = agentVarMap_.insert(std::make_pair((*agent_it)->getName(), std::vector<std::string>()));
+        for (var_it = (*agent_it)->getVariables()->begin();
+                var_it != (*agent_it)->getVariables()->end(); var_it++) {
+            (*avm.first).second.push_back((*var_it)->getName());
+        }
     }
 
     /* Return successfully */
