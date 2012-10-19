@@ -19,6 +19,8 @@ class IOTask : public Task {
   public:
     //! Allowed operation types
     enum Operation {
+      OP_INIT,
+      OP_FIN,
       OP_OUTPUT
     };
 

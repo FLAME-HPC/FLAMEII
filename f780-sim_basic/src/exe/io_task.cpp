@@ -17,8 +17,10 @@ namespace flame { namespace exe {
 IOTask::IOTask(std::string task_name, std::string agent_name,
                std::string var_name, Operation op)
     : agent_name_(agent_name), var_name_(var_name), op_(op) {
-  flame::mem::MemoryManager::GetInstance().AssertVarRegistered(agent_name,
-                                                               var_name);
+  if (op_ == OP_OUTPUT) {
+    flame::mem::MemoryManager::GetInstance().AssertVarRegistered(agent_name,
+                                                                 var_name);
+  }
   task_name_ = task_name;
 }
 
@@ -26,6 +28,12 @@ void IOTask::Run(void) {
   switch (op_) {
     case OP_OUTPUT:
       flame::io::IOManager::GetInstance().writePop(agent_name_, var_name_);
+      break;
+    case OP_INIT:
+      flame::io::IOManager::GetInstance().initialiseData();
+      break;
+    case OP_FIN:
+      flame::io::IOManager::GetInstance().finaliseData();
       break;
     default:
       throw flame::exceptions::not_implemented("Operation not implemented");
