@@ -32,6 +32,8 @@ class IOXMLPop {
     int writeXMLPop(std::string file_name, int iterationNo,
         model::XModel * model);
     void writeXMLPop(std::string agent_name, std::string var_name);
+    void initialiseData();
+    void finaliseData();
     int createDataSchema(std::string const& file,
         flame::model::XModel * model);
     int validateData(std::string const& data_file,

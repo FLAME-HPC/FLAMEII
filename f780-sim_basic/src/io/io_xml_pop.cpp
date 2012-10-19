@@ -194,22 +194,32 @@ int IOXMLPop::writeXMLPop(std::string file_name,
 }
 
 void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
-    flame::mem::MemoryManager& memoryManager =
+    /*    flame::mem::MemoryManager& memoryManager =
                         flame::mem::MemoryManager::GetInstance();
 
     // Get access to vector
     flame::mem::VectorWrapperBase* vw =
             memoryManager.GetVectorWrapper(agent_name, var_name);
 
-    /*void* p = vw->GetRawPtr();
+    std::string file_name = boost::lexical_cast<std::string>(iteration_);
+    file_name.append(".xml");
+    std::ofstream file;
+    file.open(file_name.c_str());
+    void* p = vw->GetRawPtr();
     while (p != NULL) {
+        file.seekp(5, std::ios::end);
         // Write var out
         if (strcmp(vw->GetDataType()->name(), "i") == 0)
-            printf("%s = %d\n", var_name.c_str(), *(int*)(p));
+            file << *(int*)(p);
+            //std::fprintf(file, "%d", *(int*)(p));
+            //printf("%s = %d\n", var_name.c_str(), *(int*)(p));
         if (strcmp(vw->GetDataType()->name(), "d") == 0)
-            printf("%s = %f\n", var_name.c_str(), *(double*)(p));
+            file << *(double*)(p);
+            //std::fprintf(file, "%f", *(double*)(p));
+            //printf("%s = %f\n", var_name.c_str(), *(double*)(p));
         p = vw->StepRawPtr(p);
-    }*/
+    }
+    file.close();
 
     std::ofstream stream;
     std::string file_name = boost::lexical_cast<std::string>(iteration_);
@@ -231,8 +241,17 @@ void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {
     vw->OutputToStream(stream, delim);
     stream << "</" << var_name << ">";
     // printf("%s\n", stream.str().c_str());
-    stream.close();
+    stream.close();*/
 }
+
+void IOXMLPop::initialiseData() {
+
+}
+
+void IOXMLPop::finaliseData() {
+
+}
+
 
 int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
     xmlTextReaderPtr reader;

@@ -200,12 +200,12 @@ BOOST_AUTO_TEST_CASE(test_writePop_1_agent_var) {
     model.registerWithMemoryManager();
     // Read pop
     iomanager.readPop(zeroxml, &model, io::IOManager::xml);
-
+/*
     BOOST_CHECK_THROW(iomanager.writePop("na", "int_single"),
             std::runtime_error);
 
     BOOST_CHECK_THROW(iomanager.writePop("agent_a", "na"), std::runtime_error);
-
+*/
     BOOST_CHECK_NO_THROW(iomanager.writePop("agent_a", "int_single"));
 
     // Check contents of 0_agent_a_int_single.xml

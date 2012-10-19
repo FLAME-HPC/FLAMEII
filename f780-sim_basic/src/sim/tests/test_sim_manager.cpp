@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     // Register message types
     m.registerMessageType<my_location_message>("location");
 
-    s.start(1);
+    s.start(2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

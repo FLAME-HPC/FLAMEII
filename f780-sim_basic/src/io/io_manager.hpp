@@ -36,6 +36,8 @@ class IOManager {
             model::XModel * model,
             FileType fileType);
     void writePop(std::string agent_name, std::string var_name);
+    void initialiseData();
+    void finaliseData();
     void setIteration(size_t i);
 
   private:

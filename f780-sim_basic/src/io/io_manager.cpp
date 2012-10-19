@@ -97,6 +97,14 @@ void IOManager::writePop(std::string agent_name, std::string var_name) {
     ioxmlpop.writeXMLPop(agent_name, var_name);
 }
 
+void IOManager::initialiseData() {
+    ioxmlpop.initialiseData();
+}
+
+void IOManager::finaliseData() {
+    ioxmlpop.finaliseData();
+}
+
 void IOManager::setIteration(size_t i) {
     iteration_ = i;
     ioxmlpop.setIteration(i);
