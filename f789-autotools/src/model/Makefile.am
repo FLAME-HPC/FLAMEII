@@ -12,9 +12,12 @@ noinst_LTLIBRARIES = lib_flame_model.la
 
 base_CPPFLAGS = -I$(top_srcdir)/headers -I$(top_srcdir)/src
 
+# we include src/io/io_manager.hpp which include libxml2 headers (temporary?)
+extra_CPPFLAGS = -I/usr/include/libxml2
+
 lib_flame_model_la_LIBS     = @COMMON_LIBS@
 lib_flame_model_la_LDFLAGS  = @COMMON_LDFLAGS@
-lib_flame_model_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS)
+lib_flame_model_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS) $(extra_CPPFLAGS)
 lib_flame_model_la_SOURCES  = \
   dependency.cpp \
   dependency.hpp \
