@@ -195,7 +195,7 @@ int XModel::registerWithTaskManager() {
 
     modelGraph.importGraphs(graphs);
 
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     modelGraph.writeGraphviz(name_ + ".dot");
 #endif
 

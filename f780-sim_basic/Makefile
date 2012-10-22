@@ -1,6 +1,7 @@
 CC         = g++
 # -Wno-long-long is used to suppress long long integer warnings from Boost
-CFLAGS     = -g -Wall -Wno-long-long -pedantic -DTESTBUILD#-DUSE_VARIABLE_VERTICES 
+CFLAGS     = -g -Wall -Wno-long-long -pedantic -DTESTBUILD
+             #\ -DUSE_VARIABLE_VERTICES -DOUTPUT_GRAPHS
 BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
 LDFLAGS    = -L$(BOOSTDIR)/stage/lib
 # Boost library naming support, -mt for multithreading, -d for debug
@@ -75,18 +76,14 @@ MB_TEST    = src/mb/tests/test_board_iteration.cpp \
              src/mb/tests/test_board_writer.cpp
 SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
              $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
+             $(MODEL_TEST) \
              $(IO_TEST_MAN) \
              $(IO_TEST_POP) \
              $(IO_TEST_MODEL) \
-             $(SIM_TEST)
-#             $(EXE_TEST) \
-             $(SIM_TEST) \
              $(MB_TEST) \
-			 $(MODEL_TEST) \
              $(MEM_TEST) \
-             $(IO_TEST_MAN) \
-             $(IO_TEST_POP) \
-             $(IO_TEST_MODEL)        
+             $(EXE_TEST)
+#             $(SIM_TEST)
 OBJECTS    = $(SOURCES:.cpp=.o)
 IO_MODEL_SIM_SRC_TEST = $(IO_SRC) $(IO_TEST) \
              $(MODEL_SRC) $(MODEL_TEST) $(SIM_SRC) $(SIM_TEST)
@@ -164,6 +161,9 @@ $(OBJECTS): $(DEPS)
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE); \
 	$(RM) -r cccc
+
+run: all
+	./run_tests --log_level=test_suite
 
 doc:
 	doxygen

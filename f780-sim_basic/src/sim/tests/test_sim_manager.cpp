@@ -120,12 +120,19 @@ BOOST_AUTO_TEST_CASE(test_simManager) {
     flame::mem::MemoryManager::GetInstance().Reset();
 
     // Try and use generated output as input
-    sim::Simulation s2(&m, "src/sim/tests/models/circles/1.xml");
+    BOOST_CHECK_NO_THROW(
+        sim::Simulation s2(&m, "src/sim/tests/models/circles/1.xml"));
 
     /* Remove created all_data.xsd */
     if (remove("src/sim/tests/models/circles/1.xml") != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
             "src/sim/tests/models/circles/1.xml");
+
+    // Reset memory manager
+    flame::mem::MemoryManager::GetInstance().Reset();
+    flame::exe::TaskManager::GetInstance().Reset();
+    flame::compat::c::CompatibilityManager::GetInstance().Reset();
+    flame::mb::MessageBoardManager::GetInstance().Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

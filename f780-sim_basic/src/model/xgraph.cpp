@@ -156,7 +156,7 @@ Dependency * XGraph::getDependency(Edge e) {
 }
 
 int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_1.dot");
 #endif
     // Transform conditional states (more than one out edge)
@@ -164,14 +164,14 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
     transformConditionalStatesToConditions();
     // Contract state vertices
     contractStateVertices();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_2.dot");
 #endif
     // Add data and condition dependencies
     addDataAndConditionDependencies(variables);
     // Remove state dependencies
     removeStateDependencies();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_3.dot");
 #endif
     // Add data output tasks
@@ -181,12 +181,12 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
     contractVariableVertices();
 #endif
 
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_4.dot");
 #endif
     // Remove redundant dependencies
     removeRedundantDependencies();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_5.dot");
 #endif
     return 0;

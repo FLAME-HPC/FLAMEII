@@ -13,6 +13,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include "../xmodel_validate.hpp"
+#include "io/io_manager.hpp"
 
 namespace model = flame::model;
 namespace xml = flame::io::xml;
