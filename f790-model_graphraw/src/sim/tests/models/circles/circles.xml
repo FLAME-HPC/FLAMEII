@@ -1,0 +1,115 @@
+<xmodel version="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation='http://flame.ac.uk/schema/xmml_v2.xsd'>
+
+<name>Circles</name>
+<version>01</version>
+<description></description>
+
+<environment>
+
+<functionFiles>
+  <file>circles.c</file>
+</functionFiles>
+
+</environment>
+
+<agents>
+
+<xagent>
+<name>Circle</name>
+<description></description>
+<memory>
+  <variable><type>int</type><name>id</name><description></description></variable>
+  <variable><type>double</type><name>x</name><description></description></variable>
+  <variable><type>double</type><name>y</name><description></description></variable>
+  <variable><type>double</type><name>fx</name><description></description></variable>
+  <variable><type>double</type><name>fy</name><description></description></variable>
+  <variable><type>double</type><name>radius</name><description></description></variable>
+</memory>
+
+<functions>
+
+<function><name>outputdata</name>
+<description></description>
+<currentState>start</currentState>
+<nextState>1</nextState>
+<memoryAccess>
+<readOnly>
+<variableName>id</variableName>
+<variableName>x</variableName>
+<variableName>y</variableName>
+<variableName>radius</variableName>
+</readOnly>
+<readWrite>
+</readWrite>
+</memoryAccess>
+<outputs>
+  <output><messageName>location</messageName></output>
+</outputs>
+</function>
+
+<function><name>inputdata</name>
+<description></description>
+<currentState>1</currentState>
+<nextState>2</nextState>
+<memoryAccess>
+<readOnly>
+<variableName>id</variableName>
+<variableName>x</variableName>
+<variableName>y</variableName>
+<variableName>radius</variableName>
+</readOnly>
+<readWrite>
+<variableName>fx</variableName>
+<variableName>fy</variableName>
+</readWrite>
+</memoryAccess>
+<inputs>
+<input>
+  <messageName>location</messageName>
+  <filter>
+    <lhs><value>a.id</value></lhs>
+    <op>NEQ</op>
+    <rhs><value>m.id</value></rhs>
+  </filter>
+</input>
+</inputs>
+</function>
+
+<function><name>move</name>
+<description></description>
+<currentState>2</currentState>
+<nextState>end</nextState>
+<memoryAccess>
+<readOnly>
+<variableName>fx</variableName>
+<variableName>fy</variableName>
+</readOnly>
+<readWrite>
+<variableName>x</variableName>
+<variableName>y</variableName>
+</readWrite>
+</memoryAccess>
+</function>
+
+</functions>
+
+</xagent>
+
+</agents>
+
+<messages>
+
+<message>
+<name>location</name>
+<description></description>
+<variables>
+<variable><type>int</type><name>id</name><description></description></variable>
+<variable><type>double</type><name>x</name><description></description></variable>
+<variable><type>double</type><name>y</name><description></description></variable>
+</variables>
+</message>
+
+</messages>
+
+</xmodel>
