@@ -60,7 +60,8 @@ EXE_TEST   = src/exe/tests/test_execution_module.cpp \
              src/exe/tests/test_task_splitter.cpp
 SIM_SRC    = src/sim/sim_manager.cpp \
              src/sim/simulation.cpp
-SIM_TEST   = src/sim/tests/test_sim_manager.cpp
+SIM_TEST   = src/sim/tests/test_sim_manager.cpp \
+             src/sim/tests/test_simulation.cpp
 MB_SRC     = src/mb/board_writer.cpp \
              src/mb/client.cpp \
              src/mb/message_board_manager.cpp \
