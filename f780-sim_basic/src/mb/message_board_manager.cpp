@@ -48,6 +48,7 @@ MessageBoard& MessageBoardManager::GetMessageBoard(std::string msg_name) {
 //! Creates and returns a handle to a board writer
 MessageBoard::Writer MessageBoardManager::GetBoardWriter(
                                                   const std::string& msg_name) {
+  boost::lock_guard<boost::mutex> lock(mutex_);
   return GetMessageBoard(msg_name).GetBoardWriter();
 }
 
