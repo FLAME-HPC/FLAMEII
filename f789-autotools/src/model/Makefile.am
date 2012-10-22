@@ -18,9 +18,8 @@ lib_flame_model_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS)
 lib_flame_model_la_SOURCES  = \
   dependency.cpp \
   dependency.hpp \
-  generate_task_list.cpp \
-  model_manager.cpp \
-  model_manager.hpp \
+  model.cpp \
+  model.hpp \
   task.cpp \
   task.hpp \
   xadt.cpp \
@@ -45,3 +44,4 @@ lib_flame_model_la_SOURCES  = \
   xtimeunit.hpp \
   xvariable.cpp \
   xvariable.hpp
+

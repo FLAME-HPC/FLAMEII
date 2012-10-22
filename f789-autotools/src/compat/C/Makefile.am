@@ -16,5 +16,10 @@ lib_flame_compat_c_la_LIBS     = @COMMON_LIBS@
 lib_flame_compat_c_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_compat_c_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS)
 lib_flame_compat_c_la_SOURCES  = \
-  mb_api.cpp \
-  mem_api.cpp
+  compatibility_manager.cpp \
+  compatibility_manager.hpp \
+  flame_compat_c.cpp \
+  flame_compat_c.hpp \
+  message_board_wrapper.hpp \
+  message_iterator_wrapper.hpp
+
