@@ -584,9 +584,11 @@ int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
                     (*it)->getPeriod() &&
                     timeUnit->getUnit() == (*it)->getUnit()) {
                 // Remove exact duplicate
-                model->getTimeUnits()->erase(
-                        std::find(model->getTimeUnits()->begin(),
-                                model->getTimeUnits()->end(), timeUnit));
+                std::vector<XTimeUnit*>::iterator tit =
+                    std::find(model->getTimeUnits()->begin(),
+                        model->getTimeUnits()->end(), timeUnit);
+                delete (*tit);
+                model->getTimeUnits()->erase(tit);
                 return 0;
             } else {
                 printErr(std::string("Error: Duplicate time unit name: ") +
