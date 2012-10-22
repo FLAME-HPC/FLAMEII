@@ -22,12 +22,11 @@ typedef std::map<std::string, std::set<size_t> > VarMapToVertices;
 
 class Task {
   public:
-    enum TaskType { xfunction = 0, sync_start, sync_finish, xstate,
+    enum TaskType { xfunction = 0, xstate, xmessage_sync, xmessage_clear,
                     io_pop_write, start_agent, finish_agent, xcondition,
-                    xvariable, xmessage, start_model };
+                    xvariable, start_model, finish_model, xmessage};
     Task(std::string parentName, std::string name, TaskType type);
-    void setTaskID(size_t id);
-    size_t getTaskID();
+    std::string getTaskName();
     void setParentName(std::string parentName);
     std::string getParentName();
     void setName(std::string name);
@@ -38,6 +37,8 @@ class Task {
     size_t getLevel();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
+    void addReadOnlyVariable(std::string name);
+    std::set<std::string>* getReadOnlyVariables();
     void addReadVariable(std::string name);
     std::set<std::string>* getReadVariables();
     void addWriteVariable(std::string name);
@@ -46,13 +47,16 @@ class Task {
     bool hasCondition();
     VarMapToVertices * getLastWrites();
     std::set<size_t> * getLastConditions();
+    void addOutputMessage(std::string name);
+    std::set<std::string>* getOutputMessages();
+    void addInputMessage(std::string name);
+    std::set<std::string>* getInputMessages();
 
   private:
+    // Agent name if function or output
     std::string parentName_;
     /* Function name/Message name/Memory variable name */
     std::string name_;
-    /* Task identifier: a unique handle for each task */
-    size_t taskID_;
     /* Task type: a label to determine which queue the task belongs to */
     TaskType taskType_;
     /* Priority level: determines the priority of this task should there
@@ -60,6 +64,8 @@ class Task {
     size_t priorityLevel_;
     /* Level number: used to initially order tasks in the queue */
     size_t level_;
+    /*! \brief Names of variables that are read only (RO variables) */
+    std::set<std::string> readOnlyVariables_;
     /*! \brief Names of variables that are read (RO and RW variables) */
     std::set<std::string> readVariables_;
     /*! \brief Names of variables that are written (RW variables) */
@@ -68,6 +74,10 @@ class Task {
     bool hasCondition_;
     VarMapToVertices lastWrites_;
     std::set<size_t> lastConditions_;
+    /*! \brief Names of messages that are output */
+    std::set<std::string> outputMessages_;
+    /*! \brief Names of messages that are input */
+    std::set<std::string> inputMessages_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

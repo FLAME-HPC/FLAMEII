@@ -17,6 +17,8 @@
 #include "./xmessage.hpp"
 #include "./xmodel.hpp"
 
+void printErr(std::string message);
+
 namespace flame { namespace model {
 
 /*!
@@ -25,6 +27,8 @@ namespace flame { namespace model {
  * Initialise all condition variables.
  */
 XCondition::XCondition() {
+    timePhaseValue = 0;
+    timePhaseIsVariable = false;
     isNot = false;
     isTime = false;
     isValues = false;
@@ -161,9 +165,9 @@ int XCondition::processSymbolsTime() {
         try {
             timePhaseValue = boost::lexical_cast<int>(timePhaseVariable);
         } catch(const boost::bad_lexical_cast& E) {
-            std::fprintf(stderr,
-                "Error: Cannot cast time phase to an integer: %s\n",
-                timePhaseVariable.c_str());
+            printErr(std::string(
+                "Error: Cannot cast time phase to an integer: ") +
+                timePhaseVariable);
             errors++;
         }
     }
@@ -173,9 +177,9 @@ int XCondition::processSymbolsTime() {
         try {
             timeDuration = boost::lexical_cast<int>(timeDurationString);
         } catch(const boost::bad_lexical_cast& E) {
-            std::fprintf(stderr,
-                "Error: Cannot cast time duration to an integer: %s\n",
-                timeDurationString.c_str());
+            printErr(std::string(
+                "Error: Cannot cast time duration to an integer: ") +
+                timeDurationString);
             errors++;
         }
     }
@@ -202,9 +206,9 @@ int XCondition::processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
         try {
             *hsDouble = boost::lexical_cast<double>(*hs);
         } catch(const boost::bad_lexical_cast& E) {
-            std::fprintf(stderr,
-        "Error: Condition/filter value not variable or number: %s\n",
-                hs->c_str());
+            printErr(std::string(
+        "Error: Condition/filter value not variable or number: ") +
+                *hs);
             errors++;
         }
     }
@@ -235,9 +239,9 @@ int XCondition::processSymbolsValues() {
         op = ">";
     } else {
         /* Handle unknown operator */
-        std::fprintf(stderr,
-            "Error: Condition/filter op value not recognised: %s\n",
-            op.c_str());
+        printErr(std::string(
+            "Error: Condition/filter op value not recognised: ") +
+            op);
         errors++;
     }
 
@@ -258,9 +262,9 @@ int XCondition::processSymbolsConditions() {
     } else if (op == "OR") {
         op = "||";
     } else {
-        std::fprintf(stderr,
-            "Error: Condition/filter op value not recognised: %s\n",
-            op.c_str());
+        printErr(std::string(
+            "Error: Condition/filter op value not recognised: ") +
+            op);
         errors++;
     }
 
@@ -286,8 +290,8 @@ int XCondition::processSymbols() {
             isConditions = true;
             errors += processSymbolsConditions();
         } else {
-            std::fprintf(stderr,
-        "Error: lhs and rhs are not both values or both nested conditions\n");
+            printErr(std::string(
+        "Error: lhs and rhs are not both values or both nested conditions"));
             errors++;
         }
     }
@@ -307,18 +311,18 @@ int XCondition::validateTime(XMachine * agent, XModel * model,
     }
     /* Handle invalid time period */
     if (!validPeriod) {
-        std::fprintf(stderr,
-            "Error: time period is not a valid time unit: '%s',\n",
-            timePeriod.c_str());
+        printErr(std::string(
+            "Error: time period is not a valid time unit: ") +
+            timePeriod);
         errors++;
     }
     /* If time phase is an agent variable then validate it */
     if (timePhaseIsVariable) {
         /* Handle invalid time phase variable */
         if (!agent->validateVariableName(timePhaseVariable)) {
-            std::fprintf(stderr,
-    "Error: time phase variable is not a valid agent variable: '%s',\n",
-                timePhaseVariable.c_str());
+            printErr(std::string(
+    "Error: time phase variable is not a valid agent variable: ") +
+                timePhaseVariable);
             errors++;
         } else {
             // If agent variable is valid then add to
@@ -337,8 +341,8 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
     if (*hsIsAgentVariable) {
         /* Try and validate */
         if (!agent->validateVariableName(*hs)) {
-            std::fprintf(stderr,
-        "Error: value is not a valid agent variable: '%s',\n", hs->c_str());
+            printErr(std::string(
+        "Error: value is not a valid agent variable: ") + *hs);
             return 1;
         } else {
             // If agent variable is valid then add to
@@ -351,14 +355,14 @@ rootCondition->readOnlyVariables_.insert(agent->getVariable(*hs)->getName());
         if (xmessage != 0) {
             /* Try and validate */
             if (!xmessage->validateVariableName(*hs)) {
-                std::fprintf(stderr,
-        "Error: value is not a valid message variable: '%s',\n", hs->c_str());
+                printErr(std::string(
+        "Error: value is not a valid message variable: ") + *hs);
                 return 1;
             }
         } else {
-            std::fprintf(stderr,
-        "Error: cannot validate value as the message type is invalid: '%s',\n",
-                hs->c_str());
+            printErr(std::string(
+        "Error: cannot validate value as the message type is invalid: ") +
+                *hs);
             return 1;
         }
     }

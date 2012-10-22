@@ -25,8 +25,6 @@
 				</Compiler>
 				<Linker>
 					<Add library="boost_unit_test_framework" />
-					<Add library="boost_thread-mt" />
-					<Add library="xml2" />
 				</Linker>
 			</Target>
 			<Target title="Debug">
@@ -61,6 +59,12 @@
 			<Add directory="./headers" />
 			<Add directory="./src" />
 		</Compiler>
+		<Linker>
+			<Add library="xml2" />
+			<Add library="boost_thread-mt" />
+			<Add library="boost_system" />
+			<Add library="boost_filesystem" />
+		</Linker>
 		<Unit filename="headers/exceptions/all.hpp" />
 		<Unit filename="headers/exceptions/base.hpp" />
 		<Unit filename="headers/exceptions/exe.hpp" />
@@ -69,12 +73,18 @@
 		<Unit filename="run_tests.cpp">
 			<Option target="Test" />
 		</Unit>
-		<Unit filename="src/compat/C/mb_api.cpp" />
-		<Unit filename="src/compat/C/mem_api.cpp" />
+		<Unit filename="src/compat/C/compatibility_manager.cpp" />
+		<Unit filename="src/compat/C/compatibility_manager.hpp" />
+		<Unit filename="src/compat/C/flame_compat_c.cpp" />
+		<Unit filename="src/compat/C/flame_compat_c.hpp" />
+		<Unit filename="src/compat/C/message_board_wrapper.hpp" />
+		<Unit filename="src/compat/C/message_iterator_wrapper.hpp" />
 		<Unit filename="src/exe/agent_task.cpp" />
 		<Unit filename="src/exe/agent_task.hpp" />
 		<Unit filename="src/exe/fifo_task_queue.cpp" />
 		<Unit filename="src/exe/fifo_task_queue.hpp" />
+		<Unit filename="src/exe/io_task.cpp" />
+		<Unit filename="src/exe/io_task.hpp" />
 		<Unit filename="src/exe/message_board_task.cpp" />
 		<Unit filename="src/exe/message_board_task.hpp" />
 		<Unit filename="src/exe/scheduler.cpp" />
@@ -101,6 +111,21 @@
 		</Unit>
 		<Unit filename="src/exe/worker_thread.cpp" />
 		<Unit filename="src/exe/worker_thread.hpp" />
+		<Unit filename="src/io/io_manager.cpp" />
+		<Unit filename="src/io/io_manager.hpp" />
+		<Unit filename="src/io/io_xml_model.cpp" />
+		<Unit filename="src/io/io_xml_model.hpp" />
+		<Unit filename="src/io/io_xml_pop.cpp" />
+		<Unit filename="src/io/io_xml_pop.hpp" />
+		<Unit filename="src/io/tests/test_io_manager.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/io/tests/test_io_xml_model.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/io/tests/test_io_xml_pop.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="src/mb/board_writer.cpp" />
 		<Unit filename="src/mb/board_writer.hpp" />
 		<Unit filename="src/mb/client.cpp" />
@@ -152,6 +177,44 @@
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="src/mem/vector_wrapper.hpp" />
+		<Unit filename="src/model/dependency.cpp" />
+		<Unit filename="src/model/dependency.hpp" />
+		<Unit filename="src/model/model.cpp" />
+		<Unit filename="src/model/model.hpp" />
+		<Unit filename="src/model/task.cpp" />
+		<Unit filename="src/model/task.hpp" />
+		<Unit filename="src/model/tests/test_xgraph.cpp">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="src/model/xadt.cpp" />
+		<Unit filename="src/model/xadt.hpp" />
+		<Unit filename="src/model/xcondition.cpp" />
+		<Unit filename="src/model/xcondition.hpp" />
+		<Unit filename="src/model/xfunction.cpp" />
+		<Unit filename="src/model/xfunction.hpp" />
+		<Unit filename="src/model/xgraph.cpp" />
+		<Unit filename="src/model/xgraph.hpp" />
+		<Unit filename="src/model/xioput.cpp" />
+		<Unit filename="src/model/xioput.hpp" />
+		<Unit filename="src/model/xmachine.cpp" />
+		<Unit filename="src/model/xmachine.hpp" />
+		<Unit filename="src/model/xmessage.cpp" />
+		<Unit filename="src/model/xmessage.hpp" />
+		<Unit filename="src/model/xmodel.cpp" />
+		<Unit filename="src/model/xmodel.hpp" />
+		<Unit filename="src/model/xmodel_validate.cpp" />
+		<Unit filename="src/model/xmodel_validate.hpp" />
+		<Unit filename="src/model/xtimeunit.cpp" />
+		<Unit filename="src/model/xtimeunit.hpp" />
+		<Unit filename="src/model/xvariable.cpp" />
+		<Unit filename="src/model/xvariable.hpp" />
+		<Unit filename="src/sim/sim_manager.cpp" />
+		<Unit filename="src/sim/sim_manager.hpp" />
+		<Unit filename="src/sim/simulation.cpp" />
+		<Unit filename="src/sim/simulation.hpp" />
+		<Unit filename="src/sim/tests/test_sim_manager.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -81,6 +81,10 @@ class MemoryManager {
     //! Checks if an agent with a given name has been registered
     bool IsRegisteredAgent(const std::string& agent_name) const;
 
+    //! Checks if an agent name and message var name has been registered
+    void AssertVarRegistered(const std::string& agent_name,
+                             const std::string& var_name) const;
+
     AgentShadowPtr GetAgentShadow(const std::string& agent_name);
 
 #ifdef TESTBUILD

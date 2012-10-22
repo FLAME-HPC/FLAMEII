@@ -31,6 +31,12 @@ class Scheduler {
     typedef size_t QueueId;
     typedef std::map<Task::TaskType, QueueId> RouteMap;
 
+    //! Constructor. Initialises iter_count to 1
+    Scheduler() : iter_count_(1) {}
+
+    //! Constructor. Allows for custom value for initial iter_count.
+    explicit Scheduler(size_t iter_count) : iter_count_(iter_count) {}
+
     /*!
      * \brief Creates a task queue of the given type and returns its id
      * \param[in] slots The number of slots to allocated for the queue
@@ -67,14 +73,23 @@ class Scheduler {
     //! \brief Returns the minimum vector size to maintain when splitting task
     size_t GetMinVectorSize(Task::TaskType type) const;
 
-    //! \brief Callback function used to indicate that a task is completed
+    /*! 
+     * \brief Callback function used to indicate that a task is completed
+     *
+     * Assigned to each associated task queue for reverse communication
+     */
     void TaskDoneCallback(Task::id_type task_id);
 
     //! \brief Runs a single iteration
     void RunIteration();
 
   private:
-    //! \brief Equeues task within the associated queue
+    /*! 
+     * \brief Equeues task within the associated queue
+     *
+     * The queue is selected based on the task type and contents of
+     * route_ map which is populated by AssignType()
+     */
     void EnqueueTask(Task::id_type task_id);
 
     //! \brief Returns true if the given id is a valid queue id
@@ -91,6 +106,8 @@ class Scheduler {
      * Temporary staging area for tasks that have been completed
      */
     std::vector<Task::id_type> doneq_;
+
+    size_t iter_count_;
 };
 
 }}  // namespace flame::exe

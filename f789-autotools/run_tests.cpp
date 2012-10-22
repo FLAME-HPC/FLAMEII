@@ -11,14 +11,22 @@
 #define BOOST_TEST_MODULE Flame Test Suite
 #include <boost/test/unit_test.hpp>
 #include <libxml/parser.h>
+#include <libxml/xmlerror.h>
+
+// Empty libxml error handler
+void err(void *ctx, const char *msg, ...) {}
 
 struct TestConfig {
+    // global setup
     TestConfig() {
-        /* global setup */
+        // Stop libxml error output
+        xmlGenericErrorFunc handler = (xmlGenericErrorFunc)err;
+        initGenericErrorDefaultFunc(&handler);
     }
+
+    // global teardown
     ~TestConfig() {
-        /* global teardown */
-        printf("Clean up xmllib\n");
+        // Flush libxml memory
         xmlCleanupParser();
     }
 };

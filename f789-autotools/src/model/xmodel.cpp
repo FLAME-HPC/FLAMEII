@@ -10,7 +10,11 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
+#include <map>
 #include "./xmodel.hpp"
+#include "../mb/message_board_manager.hpp"
+#include "../../headers/include/flame.h"
 
 namespace flame { namespace model {
 
@@ -106,17 +110,96 @@ int XModel::validate() {
     return validator.validate();
 }
 
-int XModel::initialise() {
+int XModel::registerAgentFunction(std::string name,
+        flame::exe::TaskFunction f_ptr) {
+    funcMap_.insert(std::make_pair(name, f_ptr));
+
+    return 0;
+}
+
+int XModel::registerWithMemoryManager() {
+    int rc;
     std::vector<XMachine*>::iterator agent;
 
     // For each agent
     for (agent = getAgents()->begin();
          agent != getAgents()->end(); ++agent) {
-        // Generate graphs
-        (*agent)->generateDependencyGraph();
         // Register with memory manager
-        (*agent)->registerWithMemoryManager();
+        rc = (*agent)->registerWithMemoryManager();
+        if (rc != 0) {
+std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
+                    (*agent)->getName().c_str());
+            return 1;
+        }
     }
+
+    return 0;
+}
+
+int XModel::registerWithMessageBoardManager() {
+    mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
+    std::vector<XMachine*>::iterator agent;
+    std::vector<XMessage*>::iterator m;
+    std::vector<XVariable*>::iterator v;
+
+    // For each message
+    for (m = messages_.begin(); m != messages_.end(); m++) {
+        try { mgr.RegisterMessage((*m)->getName()); }
+        catch(const flame::exceptions::logic_error& E) {
+            std::fprintf(stderr,
+        "Error: %s\nWhen registering '%s' message with the message manager\n",
+                E.what(), (*m)->getName().c_str());
+            return 1;
+        }
+/*
+        for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {
+            if ((*v)->getType() == "int")
+                try { mgr.RegisterMessageVar<int>((*m)->getName(), (*v)->getName()); }
+                catch  (const flame::exceptions::logic_error& E) {
+                    std::fprintf(stderr,
+                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
+                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
+                    return 1;
+                }
+            if ((*v)->getType() == "double")
+                try { mgr.RegisterMessageVar<double>((*m)->getName(), (*v)->getName()); }
+                catch  (const flame::exceptions::logic_error& E) {
+                    std::fprintf(stderr,
+                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
+                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
+                    return 1;
+                }
+        }
+        */
+    }
+
+    return 0;
+}
+
+int XModel::registerWithTaskManager() {
+    XGraph modelGraph;
+    std::vector<XMachine*>::iterator agent;
+    std::set<XGraph *> graphs;
+
+    modelGraph.setAgentName(name_);
+
+    // Consolidate agent graphs into a model graph
+    for (agent = agents_.begin();
+            agent != agents_.end(); agent++) {
+        // Generate agent graph
+        (*agent)->generateDependencyGraph();
+        // Add to model graph
+        // (*agent)->addToModelGraph(&modelGraph);
+        graphs.insert((*agent)->getFunctionDependencyGraph());
+    }
+
+    modelGraph.importGraphs(graphs);
+
+#ifdef OUTPUT_GRAPHS
+    modelGraph.writeGraphviz(name_ + ".dot");
+#endif
+
+    modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 
     return 0;
 }
@@ -267,6 +350,10 @@ void XModel::addAllowedDataType(std::string name) {
 
 std::vector<std::string> * XModel::getAllowedDataTypes() {
     return &allowedDataTypes_;
+}
+
+std::map<std::string, flame::exe::TaskFunction> XModel::getFuncMap() {
+    return funcMap_;
 }
 
 }}  // namespace flame::model

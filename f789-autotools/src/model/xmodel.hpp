@@ -11,6 +11,7 @@
 #define MODEL__XMODEL_HPP_
 #include <string>
 #include <vector>
+#include <map>
 #include "./xmachine.hpp"
 #include "./xvariable.hpp"
 #include "./xadt.hpp"
@@ -28,7 +29,10 @@ class XModel {
     void setup();
     void print();
     int validate();
-    int initialise();
+    int registerWithMemoryManager();
+    int registerWithMessageBoardManager();
+    int registerWithTaskManager();
+    int registerAgentFunction(std::string, flame::exe::TaskFunction);
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);
@@ -52,6 +56,7 @@ class XModel {
     std::vector<XMessage*> * getMessages();
     void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
+    std::map<std::string, flame::exe::TaskFunction> getFuncMap();
 
   private:
     std::string name_;
@@ -66,6 +71,8 @@ class XModel {
     std::vector<XMessage*> messages_;
     /*! \brief A list of allowed data types to check variables */
     std::vector<std::string> allowedDataTypes_;
+    /*! \brief A map from function name to function pointer */
+    std::map<std::string, flame::exe::TaskFunction> funcMap_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_HPP_

@@ -9,10 +9,13 @@
  */
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <vector>
 #include <cstdio>
 #include "io_xml_model.hpp"
+
+void printErr(std::string message);
 
 namespace model = flame::model;
 
@@ -44,9 +47,9 @@ int IOXMLModel::validateXMLModelRootElement(
         xmlNode *root_element, std::string file_name) {
     /* Catch error if no root called xmodel */
     if (getElementName(root_element) != "xmodel") {
-        std::fprintf(stderr,
-            "Error: Model file does not have root called 'xmodel': %s\n",
-                file_name.c_str());
+        printErr(std::string(
+                "Error: Model file does not have root called 'xmodel': ") +
+                file_name);
         return 3;
     }
 
@@ -55,12 +58,16 @@ int IOXMLModel::validateXMLModelRootElement(
     std::string version = reinterpret_cast<const char*>(version_ptr);
     xmlFree(version_ptr);
     if (version != "2") {
-        std::fprintf(stderr,
-    "Error: Model file is not 'xmodel' version 2: %s\n", file_name.c_str());
+        printErr(std::string("Error: Model file is not 'xmodel' version 2: ") +
+                file_name);
         return 4;
     }
 
     return 0;
+}
+
+void err2(void *ctx, const char *msg, ...) {
+    // Don't output error
 }
 
 int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
@@ -77,8 +84,9 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     directory.append("/");
 
     /* Print out diagnostics */
+#ifndef TESTBUILD
     fprintf(stdout, "Reading '%s'\n", file_name.c_str());
-
+#endif
     /* Save absolute path to check the file is not read again */
     model->setPath(boost::filesystem::absolute(filePath).string());
 
@@ -88,8 +96,8 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Check if file opened successfully */
     if (doc == NULL) {
         /* Return error if the file was not successfully parsed */
-        std::fprintf(stderr, "Error: Model file cannot be opened/parsed: %s\n",
-                file_name.c_str());
+        printErr(std::string("Error: Model file cannot be opened/parsed: ") +
+                file_name);
         return 1;
     }
 
@@ -138,10 +146,11 @@ int IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
 }
 
 int IOXMLModel::readUnknownElement(xmlNode * node) {
-    std::fprintf(stderr,
-            "Warning: Model file has unknown element '%s' on line %d\n",
-            node->name,
-            node->line);
+    std::string error = "Warning: Model file has unknown element '";
+    error.append(boost::lexical_cast<std::string>(node->name));
+    error.append("' on line ");
+    error.append(boost::lexical_cast<std::string>(node->line));
+    printErr(error);
 
     /* Return zero to carry on as normal */
     return 0;
@@ -177,9 +186,8 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
         /* Check file name ends in '.xml' or '.XML' */
         if (!boost::algorithm::ends_with(fileName, ".xml") &&
                 !boost::algorithm::ends_with(fileName, ".XML")) {
-            std::fprintf(stderr, "Error: %s '%s'\n",
-                "Included model file does not end in '.xml':",
-                fileName.c_str());
+        printErr(std::string("Included model file does not end in '.xml': ") +
+                fileName);
             return 6;
         }
 
@@ -189,17 +197,17 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
         /* Check sub model is not a duplicate */
         if (!model->addIncludedModel(
             boost::filesystem::absolute(fileName).string())) {
-            std::fprintf(stderr,
-                "Error: Included model is a duplicate: '%s'\n",
-                fileName.c_str());
+            printErr(std::string(
+                "Error: Included model is a duplicate: ") +
+                fileName);
             return 7;
         }
 
         /* Read model file... */
         rc = readXMLModel(fileName, model);
         if (rc != 0) {
-            std::fprintf(stderr,
-                "       from included model '%s'\n", fileName.c_str());
+            printErr(std::string(
+                "       from included model ") + fileName);
             return 8;
         }
     }
@@ -226,8 +234,8 @@ int IOXMLModel::readIncludedModel(xmlNode * node,
                 if (enabledString == "true") { enable = true;
                 } else if (enabledString == "false") { enable = false;
                 } else {
-std::fprintf(stderr, "Error: Included model has invalid enabled value '%s'\n",
-                        enabledString.c_str());
+printErr(std::string("Error: Included model has invalid enabled value ") +
+                        enabledString);
                     return 5;
                 }
             } else {

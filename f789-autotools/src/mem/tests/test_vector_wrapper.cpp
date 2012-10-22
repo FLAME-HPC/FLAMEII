@@ -9,6 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
+#include <sstream>
 #include "boost/test/unit_test.hpp"
 #include "../vector_wrapper.hpp"
 #include "exceptions/mem.hpp"
@@ -37,6 +38,10 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   BOOST_CHECK_EQUAL(vi->size(), (size_t)3);
   BOOST_CHECK_EQUAL(pi->size(), (size_t)3);
 
+  std::stringstream stream1;
+  pi->OutputToStream(stream1, ", ");
+  BOOST_CHECK_EQUAL("1, 2, 3", stream1.str());
+
   BOOST_CHECK(vd->empty());
   BOOST_CHECK(pd->empty());
   vd->push_back(10.1);
@@ -44,6 +49,10 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   vd->push_back(30.3);
   BOOST_CHECK_EQUAL(vd->size(), (size_t)3);
   BOOST_CHECK_EQUAL(pd->size(), (size_t)3);
+
+  std::stringstream stream2;
+  pd->OutputToStream(stream2, ", ");
+  BOOST_CHECK_EQUAL("10.1, 20.2, 30.3", stream2.str());
 
   // check GetRawPtr with different offsets
   BOOST_CHECK_THROW(pi->GetRawPtr(100), flame::exceptions::invalid_argument);

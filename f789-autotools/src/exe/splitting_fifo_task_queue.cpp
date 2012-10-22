@@ -123,7 +123,7 @@ void SplittingFIFOTaskQueue::Enqueue(Task::id_type task_id) {
       // register subtasks. Wake ALL workers and return
       split_map_.insert(SplitMap::value_type(task_id, ts));
       // wake up more workers
-      for (size_t i = 0; i < ts->GetNumTasks() -1; --i) {
+      for (size_t i = 0; i < ts->GetNumTasks() -1; ++i) {
         ready_.notify_one();
       }
     }

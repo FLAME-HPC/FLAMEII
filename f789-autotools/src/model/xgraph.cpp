@@ -12,6 +12,7 @@
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -24,6 +25,10 @@
 #include "./xcondition.hpp"
 #include "./xfunction.hpp"
 #include "./task.hpp"
+#include "exe/task_manager.hpp"
+#include "include/flame.h"
+
+void printErr(std::string message);
 
 namespace flame { namespace model {
 
@@ -33,10 +38,13 @@ XGraph::XGraph() {
     vertex2task_ = new std::vector<Task *>;
     edge2dependency_ = new EdgeMap;
     taskImported_ = false;
+    endTask_ = 0;
+    startTask_ = 0;
 }
 
 XGraph::~XGraph() {
     std::vector<Task *>::iterator vit;
+    EdgeMap::iterator eit;
     /* Free task memory */
     if (!taskImported_)
         for (vit = vertex2task_->begin(); vit != vertex2task_->end(); vit++)
@@ -44,6 +52,9 @@ XGraph::~XGraph() {
     // Free vertex task mapping
     delete vertex2task_;
     // Free edge dependency mapping
+    for (eit = edge2dependency_->begin();
+            eit != edge2dependency_->end(); eit++)
+        delete (*eit).second;
     delete edge2dependency_;
     // Free graph
     delete graph_;
@@ -149,7 +160,7 @@ Dependency * XGraph::getDependency(Edge e) {
 }
 
 int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_1.dot");
 #endif
     // Transform conditional states (more than one out edge)
@@ -157,14 +168,14 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
     transformConditionalStatesToConditions();
     // Contract state vertices
     contractStateVertices();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_2.dot");
 #endif
     // Add data and condition dependencies
     addDataAndConditionDependencies(variables);
     // Remove state dependencies
     removeStateDependencies();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_3.dot");
 #endif
     // Add data output tasks
@@ -174,12 +185,12 @@ int XGraph::generateDependencyGraph(std::vector<XVariable*> * variables) {
     contractVariableVertices();
 #endif
 
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_4.dot");
 #endif
     // Remove redundant dependencies
     removeRedundantDependencies();
-#ifdef TESTBUILD
+#ifdef OUTPUT_GRAPHS
     writeGraphviz(agentName_ + "_5.dot");
 #endif
     return 0;
@@ -226,8 +237,10 @@ void XGraph::generateStateGraphStates(XFunction * function, Task * task,
                 function->getCondition()->getReadOnlyVariables();
         // For each condition read variable add to current state
         // read variables
-        for (sit = rov->begin(); sit != rov->end(); sit++)
+        for (sit = rov->begin(); sit != rov->end(); sit++) {
             currentState->addReadVariable(*sit);
+            currentState->addReadOnlyVariable(*sit);
+        }
     }
 }
 
@@ -235,9 +248,12 @@ void XGraph::generateStateGraphVariables(XFunction * function, Task * task) {
     std::vector<std::string>::iterator sitv;
     // For each read only variable
     for (sitv = function->getReadOnlyVariables()->begin();
-            sitv != function->getReadOnlyVariables()->end(); sitv++)
+            sitv != function->getReadOnlyVariables()->end(); sitv++) {
+        // Add to task read only variables
+        task->addReadOnlyVariable(*sitv);
         // Add to task read variables
         task->addReadVariable(*sitv);
+    }
     // For each read write variable
     for (sitv = function->getReadWriteVariables()->begin();
             sitv != function->getReadWriteVariables()->end(); sitv++) {
@@ -256,7 +272,7 @@ Task * XGraph::generateStateGraphMessagesAddMessageToGraph(std::string name) {
                 (*vit)->getName() == name) return (*vit);
 
     // Add state as a task to the task list
-    Task * task = new Task("Message", name, Task::xmessage);
+    Task * task = new Task(name, name, Task::xmessage);
     addVertex(task);
     return task;
 }
@@ -265,20 +281,26 @@ void XGraph::generateStateGraphMessages(XFunction * function, Task * task) {
     std::vector<XIOput*>::iterator ioput;
     // Find outputting functions
     for (ioput = function->getOutputs()->begin();
-         ioput != function->getOutputs()->end(); ++ioput)
+         ioput != function->getOutputs()->end(); ++ioput) {
+        // Add output message to function task
+        task->addOutputMessage((*ioput)->getMessageName());
         // Add edge from function vertex to message vertex
         addEdge(getVertex(task),
                 getVertex(generateStateGraphMessagesAddMessageToGraph(
                     (*ioput)->getMessageName())),
                 (*ioput)->getMessageName(), Dependency::communication);
+    }
     // Find inputting functions
     for (ioput = function->getInputs()->begin();
-         ioput != function->getInputs()->end(); ++ioput)
+         ioput != function->getInputs()->end(); ++ioput) {
+        // Add input message to function task
+        task->addInputMessage((*ioput)->getMessageName());
         // Add egde from message vertex to function vertex
         addEdge(getVertex(generateStateGraphMessagesAddMessageToGraph(
                     (*ioput)->getMessageName())),
                     getVertex(task),
                 (*ioput)->getMessageName(), Dependency::communication);
+    }
 }
 
 int XGraph::generateStateGraph(std::vector<XFunction*> functions,
@@ -317,6 +339,206 @@ void XGraph::generateTaskList(std::vector<Task*> * tasks) {
     for (vit = sorted_vertices.rbegin();
             vit != sorted_vertices.rend(); vit++)
         tasks->push_back(getTask((*vit)));
+}
+
+int XGraph::registerAllowAccess(flame::exe::Task * task,
+        std::set<std::string> * vars, bool writeable) {
+    std::set<std::string>::iterator sit;
+
+    // For each variable name
+    for (sit = vars->begin();
+            sit != vars->end(); sit++) {
+        try {
+            // Allow access for variable name
+            task->AllowAccess((*sit), writeable);
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When allowing access for variable ") +
+                    (*sit));
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int XGraph::registerAllowMessage(flame::exe::Task * task,
+        std::set<std::string> * messages, bool post) {
+    std::set<std::string>::iterator sit;
+
+    // For each message
+    for (sit = messages->begin();
+            sit != messages->end(); sit++) {
+        // Update task with appropriate access
+        try {
+            // If output message then allow post
+            if (post) task->AllowMessagePost((*sit));
+            // If input message then allow read
+            else
+                task->AllowMessageRead((*sit));
+        }
+        catch(const flame::exceptions::logic_error& E) {
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When allowing access for message ") +
+                    (*sit));
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int XGraph::registerAgentTask(Task * t,
+        std::map<std::string, flame::exe::TaskFunction> funcMap) {
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    std::map<std::string, flame::exe::TaskFunction>::iterator it;
+    int rc = 0;
+
+    // Try and find function pointer from map
+    it = funcMap.find(t->getName());
+    if (it == funcMap.end()) {
+        printErr(std::string("Error: function '%s' has not be registered ") +
+    t->getTaskName() + std::string("and therefore a task cannot be created"));
+        return 3;
+    }
+
+    try {
+        // Create agent task
+        flame::exe::Task& task = taskManager.CreateAgentTask(
+                t->getTaskName(), t->getParentName(), ((*it).second));
+        // Allow access to read only variables
+        rc += registerAllowAccess(&task, t->getReadOnlyVariables(), false);
+        // Allow access to read write variables
+        rc += registerAllowAccess(&task, t->getWriteVariables(), true);
+        // Add access to output messages
+        rc += registerAllowMessage(&task, t->getOutputMessages(), true);
+        // Add access to input messages
+        rc += registerAllowMessage(&task, t->getInputMessages(), false);
+        if (rc != 0) return 1;
+    }
+    catch(const flame::exceptions::flame_exception& E) {
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating a task for function ") +
+            t->getTaskName());
+        return 2;
+    }
+
+    return 0;
+}
+
+int XGraph::registerDataTask(Task * t) {
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    std::string taskName = t->getTaskName();
+    std::string agentName = t->getParentName();
+    std::string varName = t->getName();
+    Task::TaskType taskType = t->getTaskType();
+
+    try {
+        // If agent var data
+        if (taskType == Task::io_pop_write)
+            taskManager.CreateIOTask(taskName, agentName, varName,
+                flame::exe::IOTask::OP_OUTPUT);
+        // If model start data
+        if (taskType == Task::start_model)
+            taskManager.CreateIOTask(taskName, "", "",
+                            flame::exe::IOTask::OP_INIT);
+        // If model finish data
+        if (taskType == Task::finish_model)
+            taskManager.CreateIOTask(taskName, "", "",
+                            flame::exe::IOTask::OP_FIN);
+    }
+    // Catch exception
+    catch(const flame::exceptions::flame_exception& E) {
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating an io task for ") +
+                agentName);
+        return 2;
+    }
+
+    return 0;
+}
+
+int XGraph::registerMessageTask(Task * t) {
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+
+    try {
+        // If sync task then create sync task
+        if (t->getTaskType() == Task::xmessage_sync)
+            taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
+                exe::MessageBoardTask::OP_SYNC);
+        // If clear task then create clear task
+        if (t->getTaskType() == Task::xmessage_clear)
+            taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
+                exe::MessageBoardTask::OP_CLEAR);
+    }
+    catch(const flame::exceptions::logic_error& E) {
+        printErr(std::string("Error: ") + E.what());
+        printErr(std::string("When creating a sync task for message ") +
+            t->getName());
+        return 2;
+    }
+
+    return 0;
+}
+
+int XGraph::registerDependencies() {
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    boost::graph_traits<Graph>::edge_iterator iei, iei_end;
+
+    // For each edge
+    for (boost::tie(iei, iei_end) = boost::edges(*graph_);
+            iei != iei_end; ++iei) {
+        // Get the source
+        std::string source = getTask(
+                boost::source((Edge)*iei, *graph_))->getTaskName();
+        // Get the target
+        std::string target = getTask(
+                boost::target((Edge)*iei, *graph_))->getTaskName();
+        // Add dependency
+        taskManager.AddDependency(target, source);
+        /*try { taskManager.AddDependency(target, source); }
+        catch(const flame::exceptions::flame_exception& E) {
+            printErr(std::string("Error: ") + E.what());
+            printErr(std::string("When adding a dependency between ") +
+             source +
+             std::string(" and ") +
+             target);
+        }*/
+    }
+
+    return 0;
+}
+
+int XGraph::registerTasksAndDependenciesWithTaskManager(
+        std::map<std::string, flame::exe::TaskFunction> funcMap) {
+    flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+    std::pair<VertexIterator, VertexIterator> vp;
+
+    // For each vertex
+    for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+        Task * t = getTask(*vp.first);
+        Task::TaskType type = t->getTaskType();
+
+        // If agent task
+        if (type == Task::xfunction || type == Task::xcondition)
+            registerAgentTask(t, funcMap);
+        // If data task
+        if (type == Task::io_pop_write ||
+                type == Task::start_model || type == Task::finish_model)
+            registerDataTask(t);
+        // If message task
+        if (type == Task::xmessage_sync || type == Task::xmessage_clear)
+            registerMessageTask(t);
+    }
+
+    // Register dependencies with the Task Manager
+    registerDependencies();
+
+    // Once finalised, tasks and dependencies can no longer be added
+    taskManager.Finalise();
+
+    return 0;
 }
 
 void clearVarWriteSet(std::string name,
@@ -433,9 +655,9 @@ void XGraph::addReadDependencies(Vertex v, Task * t) {
                         addEdge(*it, v, *varit, Dependency::variable);
 #else
                         addEdge(*it, v, "Data", Dependency::variable);
-#endif
                         // Add vertex to ones already used
                         alreadyUsed.insert(*it);
+#endif
                     }
                 }
             }
@@ -452,12 +674,12 @@ void XGraph::addWritingVerticesToList(Vertex v, Task * t) {
         clearVarWriteSet((*varit), t->getLastWrites());
 #ifdef USE_VARIABLE_VERTICES
         // New vertex
-        Task * task = new Task((*varit), Task::xvariable);
+        Task * task = new Task(agentName_, (*varit), Task::xvariable);
         Vertex varVertex = addVertex(task);
         // Edge to vertex
-        addEdge((*vit), v, (*varit), Dependency::variable);
+        addEdge(v, varVertex, (*varit), Dependency::variable);
         // Add new write
-        addVectorToVarWriteSet((*varit), varVertex, task->getLastWrites());
+        addVectorToVarWriteSet((*varit), varVertex, t->getLastWrites());
 #else
         // Add new write
         addVectorToVarWriteSet((*varit), v, t->getLastWrites());
@@ -520,22 +742,25 @@ void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
     VarMapToVertices::iterator vwit;
     std::set<size_t>::iterator sit;
     VarMapToVertices * lws = endTask_->getLastWrites();
+    size_t count = 0;
 
     while (!lws->empty()) {
         // Create new io write task
-        Task * task = new Task(agentName_, "", Task::io_pop_write);
+        Task * task = new Task(agentName_,
+            boost::lexical_cast<std::string>(++count), Task::io_pop_write);
         Vertex vertex = addVertex(task);
         task->getWriteVariables()->insert((*lws->begin()).first);
+        task->setName((*lws->begin()).first);
         // Check first var against other var task sets, if same then add to
         // current task and remove
-        for (vwit = ++lws->begin(); vwit != lws->end();) {
+/*        for (vwit = ++lws->begin(); vwit != lws->end();) {
             if (compareTaskSets((*lws->begin()).second, (*vwit).second)) {
                 task->getWriteVariables()->insert((*vwit).first);
                 lws->erase(vwit++);
             } else {
                 vwit++;
             }
-        }
+        }*/
         // Add edges from each writing vector to task
         for (sit = (*lws->begin()).second.begin();
                 sit != (*lws->begin()).second.end(); sit++)
@@ -567,6 +792,8 @@ void XGraph::removeStateDependencies() {
 void XGraph::transformConditionalStatesToConditions() {
     std::pair<VertexIterator, VertexIterator> vp;
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+    size_t count;
+
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
         // If out edges is larger than 1 and a state task
@@ -574,7 +801,8 @@ void XGraph::transformConditionalStatesToConditions() {
                 getTask(*vp.first)->getTaskType() == Task::xstate) {
             // Change task type to a condition
             getTask(*vp.first)->setTaskType(Task::xcondition);
-            getTask(*vp.first)->setName("Condition");
+            getTask(*vp.first)->setName(
+                    boost::lexical_cast<std::string>(count++));
             getTask(*vp.first)->setPriorityLevel(5);
         }
     }
@@ -683,15 +911,12 @@ Vertex XGraph::getMessageVertex(std::string name, Task::TaskType type) {
                 vertex2task_->at(ii)->getTaskType() == type)
             return ii;
     // Otherwise create new vertex and return
-    Task * t = new Task("Message", name, type);
+    Task * t = new Task(name, name, type);
     Vertex v = addVertex(t);
-    // If finish type then add edge to start task
-    if (type == Task::sync_finish)
-        add_edge(getMessageVertex(name, Task::sync_start), v, *graph_);
     return v;
 }
 
-void XGraph::splitMessageTasks() {
+void XGraph::changeMessageTasksToSync() {
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
     boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
     std::vector<Vertex> vertexToDelete;
@@ -704,8 +929,7 @@ void XGraph::splitMessageTasks() {
         // If message task
         if (t->getTaskType() == Task::xmessage) {
             // Create start and finish syncs
-            Vertex s = getMessageVertex(t->getName(), Task::sync_start);
-            Vertex f = getMessageVertex(t->getName(), Task::sync_finish);
+            Vertex s = getMessageVertex(t->getName(), Task::xmessage_sync);
             // For each incoming edge to message add to start
             for (boost::tie(iei, iei_end) = boost::in_edges(ii, *graph_);
                             iei != iei_end; ++iei) {
@@ -715,7 +939,7 @@ void XGraph::splitMessageTasks() {
             // For each out going edge to message add to finish
             for (boost::tie(oei, oei_end) = boost::out_edges(ii, *graph_);
                             oei != oei_end; ++oei) {
-                add_edge(f, boost::target(*oei, *graph_), *graph_);
+                add_edge(s, boost::target(*oei, *graph_), *graph_);
                 edgesToRemove.insert(*oei);
             }
             // delete message task
@@ -735,20 +959,18 @@ void XGraph::import(XGraph * graph) {
     std::map<Vertex, Vertex> import2new;
     EdgeIterator eit, end;
 
-    // Add start task
-    /*Task * task = new Task("", agentName_, Task::start_model);
-    Vertex startVertex = addVertex(task);
-    startTask_ = task;*/
-
     // For each task vertex map
     for (ii = 0; ii < v2t->size(); ii++) {
         // Add vertex to current graph
         Vertex v = addVertex(v2t->at(ii));
         // Add to vertex to vertex map
         import2new.insert(std::make_pair(ii, v));
-        // If task is an init agent then add egde
-        /*if (v2t->at(ii)->getTaskType() == Task::start_agent)
-            add_edge(startVertex, v, *graph_);*/
+        // If task is an init agent then add edge
+        if (v2t->at(ii)->getTaskType() == Task::start_agent)
+        add_edge(getVertex(startTask_), v, *graph_);
+        // If task is a data output task then add edge
+        if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
+        add_edge(v, getVertex(endTask_), *graph_);
     }
     // For each edge
     for (boost::tie(eit, end) = boost::edges(*(graph->getGraph()));
@@ -762,6 +984,53 @@ void XGraph::import(XGraph * graph) {
     }
 
     graph->setTasksImported(true);
+}
+
+void XGraph::importGraphs(std::set<XGraph*> graphs) {
+    std::set<XGraph*>::iterator it;
+
+    // Add start task
+    Task * t = new Task(agentName_, "Start", Task::start_model);
+    addVertex(t);
+    startTask_ = t;
+    // Add finish task
+    t = new Task(agentName_, "Finish", Task::finish_model);
+    addVertex(t);
+    endTask_ = t;
+
+    for (it = graphs.begin(); it != graphs.end(); it++)
+        import((*it));
+
+    // Contract start agents
+    contractVertices(Task::start_agent, Dependency::blank);
+    // Add message sync tasks
+    changeMessageTasksToSync();
+    // Add message clear tasks
+    addMessageClearTasks();
+}
+
+void XGraph::addMessageClearTasks() {
+    VertexIterator vi, vi_end;
+    boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
+
+    // For each variable vertex
+    for (boost::tie(vi, vi_end) = boost::vertices(*graph_);
+            vi != vi_end; ++vi) {
+        Task * t = getTask((*vi));
+        // For each message sync task
+        if (t->getTaskType() == Task::xmessage_sync) {
+            // Create message clear task
+            Task * task = new Task(t->getParentName(),
+                    t->getName(), Task::xmessage_clear);
+            Vertex clearV = addVertex(task);
+            // Get target tasks
+            for (boost::tie(oei, oei_end) =
+                boost::out_edges((*vi), *graph_); oei != oei_end; ++oei) {
+                // Add edge from target tasks to clear task
+                add_edge(boost::target((Edge)*oei, *graph_), clearV, *graph_);
+            }
+        }
+    }
 }
 
 /*!
@@ -807,11 +1076,13 @@ int XGraph::checkCyclicDependencies() {
         // Find associated tasks
         Task * t1 = getTask(boost::source(err.edge(), *graph_));
         Task * t2 = getTask(boost::target(err.edge(), *graph_));
-        std::fprintf(stderr,
-                    "Error: cycle detected %s -> %s -> %s\n",
-                    t1->getName().c_str(),
-                    d->getName().c_str(),
-                    t2->getName().c_str());
+        std::string error = "Error: cycle detected %s -> %s -> %s\n";
+        error.append(t1->getName());
+        error.append(" -> ");
+        error.append(d->getName());
+        error.append(" -> ");
+        error.append(t2->getName());
+        printErr(error);
         return 1;
     }
 
@@ -834,10 +1105,10 @@ int XGraph::checkFunctionConditions() {
                     Task * t = getTask(boost::target((Edge)*oei, *graph_));
                     // If condition is null then return an error
                     if (!t->hasCondition()) {
-                        std::fprintf(stderr,
-            "Error: Function '%s' from a state with more than one %s\n",
-                        t->getName().c_str(),
-                        "out going function does not have a condition.");
+                        printErr(std::string(
+            "Error: Function '%s' from a state with more than one ") +
+                        t->getName() +
+                std::string("out going function does not have a condition."));
                         return 1;
                     }
                 }
@@ -862,29 +1133,32 @@ struct vertex_label_writer {
             out << "\" shape=folder, style=filled, fillcolor=orange]";
         } else {
             out << " [label=\"";
-            if (t->getTaskType() == Task::sync_start)
-                out << "SS: ";
-            else if (t->getTaskType() == Task::sync_finish)
-                out << "SF: ";
+            if (t->getTaskType() == Task::xmessage_sync)
+                out << "SYNC: " << t->getName() << "\"";
+            else if (t->getTaskType() == Task::xmessage_clear)
+                out << "CLEAR: " << t->getName() << "\"";
             else if (t->getTaskType() == Task::start_agent ||
                     t->getTaskType() == Task::start_model)
-                out << "Start\\n";
-            else if (t->getTaskType() == Task::finish_agent)
-                out << "Finish\\n";
-            out << t->getName() << "\"";
+                out << "Start\\n" << t->getParentName() << "\"";
+            else if (t->getTaskType() == Task::finish_agent ||
+                    t->getTaskType() == Task::finish_model)
+                out << "Finish\\n" << t->getParentName() << "\"";
+            else
+                out << t->getName() << "\"";
             if (t->getTaskType() == Task::xfunction)
                 out << " shape=rect, style=filled, fillcolor=yellow";
             if (t->getTaskType() == Task::xcondition)
                 out << " shape=invhouse, style=filled, fillcolor=yellow";
             if (t->getTaskType() == Task::start_agent ||
                     t->getTaskType() == Task::finish_agent ||
-                    t->getTaskType() == Task::start_model)
+                    t->getTaskType() == Task::start_model ||
+                    t->getTaskType() == Task::finish_model)
                 out << " shape=ellipse, style=filled, fillcolor=red";
-            if (t->getTaskType() == Task::xvariable)
-                out << " shape=ellipse";
-            if (t->getTaskType() == Task::xmessage ||
-                    t->getTaskType() == Task::sync_start ||
-                    t->getTaskType() == Task::sync_finish) {
+            if (t->getTaskType() == Task::xvariable ||
+                    t->getTaskType() == Task::xstate)
+                out << " shape=ellipse, style=filled, fillcolor=white";
+            if (t->getTaskType() == Task::xmessage_clear ||
+                    t->getTaskType() == Task::xmessage_sync) {
                 out << " shape=parallelogram, style=filled, ";
                 out << "fillcolor=lightblue";
             }
@@ -909,7 +1183,8 @@ struct edge_label_writer {
         EdgeMap::iterator it = edge2dependency->find(e);
         if (it != edge2dependency->end()) d = (*it).second;
         out << " [";
-        if (d) out << "label=\"" << d->getGraphName() << "\" ";
+        if (d) if (d->getDependencyType() != Dependency::blank)
+            out << "label=\"" << d->getGraphName() << "\" ";
         if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
         out << "]";
     }
@@ -919,7 +1194,7 @@ struct edge_label_writer {
 };
 
 struct graph_writer {
-    void operator()(std::ostream& out) const {
+    void operator()(std::ostream& /*out*/) const {
         // out << "node [shape = rect]" << std::endl;
     }
 };
