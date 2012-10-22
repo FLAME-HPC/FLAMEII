@@ -1,6 +1,6 @@
-CC         = g++
+CPPC       = g++
 # -Wno-long-long is used to suppress long long integer warnings from Boost
-CFLAGS     = -g -Wall -Wno-long-long -pedantic -DTESTBUILD
+CPPFLAGS   = -g -Wall -Wno-long-long -pedantic -DTESTBUILD -DDEBUG
              #\ -DUSE_VARIABLE_VERTICES -DOUTPUT_GRAPHS
 BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
 LDFLAGS    = -L$(BOOSTDIR)/stage/lib
@@ -152,12 +152,12 @@ RM         = rm -f
 all: $(SOURCES) $(EXECUTABLE)
 	
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
+	$(CPPC) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
 
 $(OBJECTS): $(DEPS)
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $(INCLUDE) $< -o $@
+	$(CPPC) -c $(CPPFLAGS) $(INCLUDE) $< -o $@
 
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE); \
