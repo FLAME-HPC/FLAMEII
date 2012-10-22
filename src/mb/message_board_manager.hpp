@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "boost/thread/mutex.hpp"
 #include "boost/ptr_container/ptr_map.hpp"
 #include "message_board.hpp"
 
@@ -73,6 +74,7 @@ class MessageBoardManager {
   private:
     //! Map used to associate a message name with a MessageBoard object
     BoardMap board_map_;
+    boost::mutex mutex_;
 
     //! This is a singleton class. Disable manual instantiation
     MessageBoardManager() {}

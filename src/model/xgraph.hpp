@@ -19,6 +19,7 @@
 #include "./task.hpp"
 #include "./xfunction.hpp"
 #include "./xvariable.hpp"
+#include "../exe/task_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -51,19 +52,33 @@ class XGraph {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
+    int registerAgentTask(Task * t,
+            std::map<std::string, flame::exe::TaskFunction> funcMap);
+    int registerDataTask(Task * t);
+    int registerMessageTask(Task * t);
+    int registerDependencies();
+    int registerTasksAndDependenciesWithTaskManager(
+            std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
-    void splitMessageTasks();
     void setTasksImported(bool b);
     std::vector<Task *> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
+    void importGraphs(std::set<XGraph*> graphs);
 #ifdef TESTBUILD
     void testBoostGraphLibrary();
     bool testCompareTaskSets();
 #endif
 
   private:
+    Vertex getMessageVertex(std::string name, Task::TaskType type);
+    void changeMessageTasksToSync();
+    void addMessageClearTasks();
+    int registerAllowAccess(flame::exe::Task * task,
+            std::set<std::string> * vars, bool writeable);
+    int registerAllowMessage(flame::exe::Task * task,
+            std::set<std::string> * messages, bool post);
     Vertex addVertex(Task * t);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
@@ -97,7 +112,6 @@ class XGraph {
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    Vertex getMessageVertex(std::string name, Task::TaskType type);
     Graph * graph_;
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;

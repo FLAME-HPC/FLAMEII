@@ -11,7 +11,6 @@
 #define EXE__MESSAGE_BOARD_TASK_HPP_
 #include <string>
 #include "exceptions/all.hpp"
-#include "mem/memory_iterator.hpp"  // only for unnecessary GetMemoryIterator
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {

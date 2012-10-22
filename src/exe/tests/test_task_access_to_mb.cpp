@@ -9,6 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
+#include <ostream>
 #include "boost/test/unit_test.hpp"
 #include "mem/memory_manager.hpp"
 #include "mb/message_board_manager.hpp"
@@ -16,6 +17,7 @@
 #include "../scheduler.hpp"
 #include "../fifo_task_queue.hpp"
 #include "../splitting_fifo_task_queue.hpp"
+#include "compat/C/compatibility_manager.hpp"
 #include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
@@ -25,6 +27,18 @@ namespace mem = flame::mem;
 namespace mb = flame::mb;
 
 const int AGENT_COUNT = 100;
+
+// Datatype of our message
+typedef struct {
+  double x, y, z;
+  int id;
+} location_message;
+
+// The structure must support the << operator for it to be store in the board
+inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
+  os << "{" << ob.x << ", " << ob.y << ", " << ob.z << ", " << ob.id << "}";
+  return os;
+}
 
 FLAME_AGENT_FUNC(func_post_message) {
   location_message msg;
@@ -54,6 +68,10 @@ FLAME_AGENT_FUNC(func_read_message) {
 }
 
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
+  // C compatibility mode
+  flame::compat::c::CompatibilityManager& compat = \
+         flame::compat::c::CompatibilityManager::GetInstance();
+
   // Define agents and population
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
   mem_mgr.RegisterAgent("Circle");
@@ -79,12 +97,15 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   }
 
   // Register Message Board
+  // Use compat manager for C API
+  compat.RegisterMessage<location_message>("location");
+
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
-  mb_mgr.RegisterMessage("location");
-  mb_mgr.RegisterMessageVar<location_message>("location",
-                                              FLAME_MESSAGE_VARNAME);
-  // --------------- DEPLOY HACK -------------
-  flame_mb_api_hack_initialise();  // assign "location" to type location_message
+  // --- the following already done by compat.RegisterMessage ---
+  // mb_mgr.RegisterMessage("location");
+  // mb_mgr.RegisterMessageVar<location_message>("location",
+  //                              flame::compat::c::Constants::MESSAGE_VARNAME);
+
 
   // Register Task
   exe::TaskManager& tm = exe::TaskManager::GetInstance();
@@ -95,10 +116,9 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   t1.AllowAccess("id");
   t1.AllowMessagePost("location");
 
-  exe::Task &ts = tm.CreateMessageBoardTask("sync", "location",
-                                            exe::MessageBoardTask::OP_SYNC);
-  exe::Task &tc = tm.CreateMessageBoardTask("clear", "location",
-                                            exe::MessageBoardTask::OP_CLEAR);
+  tm.CreateMessageBoardTask("sync", "location", exe::MessageBoardTask::OP_SYNC);
+  tm.CreateMessageBoardTask("clear", "location",
+                            exe::MessageBoardTask::OP_CLEAR);
 
   exe::Task &t2 = tm.CreateAgentTask("read", "Circle", func_read_message);
   t2.AllowAccess("checksum", true);
@@ -133,6 +153,7 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mem_mgr.Reset();
   mb_mgr.Reset();
   tm.Reset();
+  compat.Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

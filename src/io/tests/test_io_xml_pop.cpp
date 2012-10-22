@@ -25,22 +25,22 @@ BOOST_AUTO_TEST_SUITE(IOPop)
 
 /* Test creation of data schema */
 BOOST_AUTO_TEST_CASE(test_data_schema) {
-    int rc;
     xml::IOXMLPop ioxmlpop;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
 
     /* Read model xml */
-    ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model);
+    BOOST_CHECK_NO_THROW(
+            ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model));
 
     /* Generate data schema */
-    rc = ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(
+            ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model));
 
     /* Validate data using schema */
     std::string xsd = "src/io/tests/models/all_data.xsd";
-    rc = ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml", xsd);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(
+            ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml", xsd));
     /* Remove created all_data.xsd */
     if (remove(xsd.c_str()) != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
@@ -83,43 +83,43 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
         memoryManager.HintPopulationSize(agent->getName(), pop_size_hint);
     }
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_missing.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 1);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_malformed.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 2);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_unknown_tag.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 3);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_unknown_agent.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 4);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_unknown_variable.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 5);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_var_not_int.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 6);
 
-    rc = ioxmlpop.readXMLPop(
+    rc = ioxmlpop.readPop(
             "src/io/tests/models/all_data_its/0_var_not_double.xml",
-            &model, &memoryManager);
+            &model);
     BOOST_CHECK(rc == 6);
 
     std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
-    rc = ioxmlpop.readXMLPop(zeroxml, &model, &memoryManager);
+    rc = ioxmlpop.readPop(zeroxml, &model);
     BOOST_CHECK(rc == 0);
 
     /* Test pop data read in */
@@ -139,8 +139,9 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 
     /* Test pop data written out */
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
-    rc = ioxmlpop.writeXMLPop(onexml, 1, &model, &memoryManager);
-    BOOST_CHECK(rc == 0);
+    ioxmlpop.setIteration(1);
+    ioxmlpop.setXmlPopPath(zeroxml);
+    ioxmlpop.finaliseData();
     /* Check 0.xml and 1.xml are identical */
     size_t differences = 1;
     int c0, c1;

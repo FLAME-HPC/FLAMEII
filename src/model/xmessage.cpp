@@ -15,6 +15,8 @@
 namespace flame { namespace model {
 
 XMessage::XMessage() {
+    syncFinishTask_ = 0;
+    syncStartTask_ = 0;
 }
 
 /*!

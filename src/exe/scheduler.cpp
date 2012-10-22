@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/scheduler
+ * \file src/exe/scheduler.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -15,6 +15,7 @@
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/condition_variable.hpp"
 #include "boost/foreach.hpp"
+#include "io/io_manager.hpp"
 #include "exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "scheduler.hpp"
@@ -154,6 +155,10 @@ void Scheduler::RunIteration() {
   TaskManager &tm = TaskManager::GetInstance();
   tm.Finalise();
 
+  // inform IO manager of the current iteration count
+  flame::io::IOManager &io = flame::io::IOManager::GetInstance();
+  io.setIteration(iter_count_);
+
   // sanity check. avoid deadlock if no ready tasks
   if (!tm.IterTaskAvailable()) {
     throw flame::exceptions::flame_exe_exception("No runnable tasks");
@@ -177,6 +182,7 @@ void Scheduler::RunIteration() {
   }
 
   tm.IterReset();  // prepare for next iteration
+  ++iter_count_;  // increment iteration count (for next iter)
 }
 
 /*!

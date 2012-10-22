@@ -39,6 +39,11 @@ BOOST_AUTO_TEST_CASE(test_register_agent) {
   // Registering a single agent variable
   mgr.RegisterAgentVar<int>("Circle", "val");
 
+  BOOST_CHECK_NO_THROW(mgr.AssertVarRegistered("Circle", "val"));
+  BOOST_CHECK_THROW(mgr.AssertVarRegistered("Round", "val"), e::invalid_agent);
+  BOOST_CHECK_THROW(mgr.AssertVarRegistered("Circle", "vol"),
+                    e::invalid_variable);
+
   // Registering multiple agent variables
   std::vector<std::string> var_names;
   var_names.push_back("x");

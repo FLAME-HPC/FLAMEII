@@ -13,7 +13,7 @@
 #include <libxml/tree.h>
 #include <string>
 #include <vector>
-#include "../model/model_manager.hpp"
+#include "model/xmodel.hpp"
 
 namespace model = flame::model;
 

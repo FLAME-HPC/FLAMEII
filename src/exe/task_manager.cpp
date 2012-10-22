@@ -63,6 +63,21 @@ Task& TaskManager::CreateMessageBoardTask(std::string task_name,
 
   return *task_ptr;
 }
+//! \brief Registers and returns a new IO Task
+Task& TaskManager::CreateIOTask(std::string task_name,
+                                std::string agent_name,
+                                std::string var_name,
+                                IOTask::Operation op) {
+  IOTask* task_ptr = new IOTask(task_name, agent_name, var_name, op);
+  try {  // register new task with manager
+    RegisterTask(task_name, task_ptr);
+  } catch(const flame::exceptions::logic_error& E) {
+    delete task_ptr;  // free memory if registration failed.
+    throw E;  // rethrow exception
+  }
+
+  return *task_ptr;
+}
 
 /*!
  * \brief Internal method to register a task within the manager
