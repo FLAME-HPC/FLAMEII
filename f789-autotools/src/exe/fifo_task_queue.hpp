@@ -33,12 +33,12 @@ class FIFOTaskQueue : public TaskQueue {
     void TaskDone(Task::id_type task_id);
 
     //! \brief Specify tasks than can be split (not applicable)
-    void SetSplittable(Task::TaskType task_type) {
+    void SetSplittable(Task::TaskType /*task_type*/) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
 
     //! \brief Specify maximum splits per task (not applicable)
-    void SetMaxTasksPerSplit(size_t max_tasks_per_split) {
+    void SetMaxTasksPerSplit(size_t /*max_tasks_per_split*/) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
 
@@ -48,7 +48,7 @@ class FIFOTaskQueue : public TaskQueue {
     }
 
     //! \brief Specify minimum vector size after split (not applicable)
-    void SetMinVectorSize(size_t min_vector_size) {
+    void SetMinVectorSize(size_t /*min_vector_size*/) {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
 
