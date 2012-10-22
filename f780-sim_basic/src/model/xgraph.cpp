@@ -44,6 +44,7 @@ XGraph::XGraph() {
 
 XGraph::~XGraph() {
     std::vector<Task *>::iterator vit;
+    EdgeMap::iterator eit;
     /* Free task memory */
     if (!taskImported_)
         for (vit = vertex2task_->begin(); vit != vertex2task_->end(); vit++)
@@ -51,6 +52,9 @@ XGraph::~XGraph() {
     // Free vertex task mapping
     delete vertex2task_;
     // Free edge dependency mapping
+    for (eit = edge2dependency_->begin();
+            eit != edge2dependency_->end(); eit++)
+        delete (*eit).second;
     delete edge2dependency_;
     // Free graph
     delete graph_;
