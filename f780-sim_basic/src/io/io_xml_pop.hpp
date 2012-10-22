@@ -34,9 +34,9 @@ class IOXMLPop {
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();
-    int createDataSchema(std::string const& file,
+    void createDataSchema(std::string const& file,
         flame::model::XModel * model);
-    int validateData(std::string const& data_file,
+    void validateData(std::string const& data_file,
         std::string const& schema_file);
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
@@ -46,50 +46,37 @@ class IOXMLPop {
   private:
     void saveAgentVariableData(model::XModel * model);
     void writeAgents(xmlTextWriterPtr writer);
-    int createDataSchemaHead(xmlTextWriterPtr writer);
-    int createDataSchemaAgentNameType(xmlTextWriterPtr writer,
+    void createDataSchemaHead(xmlTextWriterPtr writer);
+    void createDataSchemaAgentNameType(xmlTextWriterPtr writer,
         flame::model::XModel * model);
-    int createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
+    void createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
         flame::model::XModel * model);
-    int createDataSchemaAgentVars(xmlTextWriterPtr writer,
+    void createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model);
-    int createDataSchemaAgentVar(xmlTextWriterPtr writer,
+    void createDataSchemaAgentVar(xmlTextWriterPtr writer,
         std::vector<model::XVariable*>::iterator variable);
-    int createDataSchemaDefineAgents(xmlTextWriterPtr writer);
-    int createDataSchemaDefineTags(xmlTextWriterPtr writer);
-    int writeXMLEndTag(xmlTextWriterPtr writer);
-    int writeXMLEndTag(xmlTextWriterPtr writer, int count);
-    int writeXMLTag(xmlTextWriterPtr writer, std::string name);
-    int writeXMLTag(xmlTextWriterPtr writer, std::string name, int value);
-    int writeXMLTag(xmlTextWriterPtr writer, std::string name, double value);
-    int writeXMLTag(xmlTextWriterPtr writer,
+    void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
+    void createDataSchemaDefineTags(xmlTextWriterPtr writer);
+    void writeXMLEndTag(xmlTextWriterPtr writer);
+    void writeXMLEndTag(xmlTextWriterPtr writer, int count);
+    void writeXMLTag(xmlTextWriterPtr writer, std::string name);
+    void writeXMLTag(xmlTextWriterPtr writer, std::string name, int value);
+    void writeXMLTag(xmlTextWriterPtr writer, std::string name, double value);
+    void writeXMLTag(xmlTextWriterPtr writer,
         std::string name, std::string value);
-    int writeXMLTagAttribute(xmlTextWriterPtr writer,
+    void writeXMLTagAttribute(xmlTextWriterPtr writer,
         std::string name, std::string value);
-    int writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+    void writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name, std::string value);
-    int writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+    void writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name1, std::string value1,
         std::string name2, std::string value2);
-    int writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
+    void writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
         std::string name1, std::string value1,
         std::string name2, std::string value2,
         std::string name3, std::string value3);
-    int endXMLDoc(xmlTextWriterPtr writer);
-    template <class T>
-    int setupVectorReader(model::XMachine * agent, model::XVariable * var,
-        size_t * noAgents,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
-        size_t jj);
-    int setupVectorReaders(model::XMachine * agent,
-        size_t * noAgents,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors);
-    int writeXMLAgentVariables(model::XMachine * agent, xmlTextWriterPtr writer,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
-        size_t kk);
-    int writeXMLAgent(model::XMachine * agent,
-        xmlTextWriterPtr writer);
-    int openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
+    void endXMLDoc(xmlTextWriterPtr writer);
+    void openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
     int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
         xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
