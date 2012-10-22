@@ -146,10 +146,7 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
 
     /* Test pop data written out */
     std::string onexml = "src/io/tests/models/all_data_its/1.xml";
-    BOOST_CHECK_NO_THROW(iomanager.writePop(onexml,
-            1,
-            &model,
-            io::IOManager::xml));
+    BOOST_CHECK_NO_THROW(iomanager.finaliseData());
     /* Check 0.xml and 1.xml are identical */
     size_t differences = 1;
     int c0, c1;

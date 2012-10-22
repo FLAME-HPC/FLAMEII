@@ -60,7 +60,7 @@ void IOManager::readPop(std::string file_name,
             throw exc::flame_io_exception(
                     "Could not validate data with schema");
         /* Read validated pop xml */
-        rc = ioxmlpop.readXMLPop(file_name, model);
+        rc = ioxmlpop.readPop(file_name, model);
         if (rc != 0)
             throw exc::flame_io_exception("Could not read pop file");
     } else {
@@ -68,33 +68,8 @@ void IOManager::readPop(std::string file_name,
     }
 }
 
-void IOManager::writePop(std::string file_name,
-            int iterationNo,
-            model::XModel * model,
-            FileType fileType) {
-    int rc;
-
-    /* If file type selected is xml */
-    if (fileType == xml) {
-        /* Check a path has been set */
-        if (!ioxmlpop.xmlPopPathIsSet()) {
-            throw exc::flame_io_exception(
-                    "Path not set");
-        }
-        /* Write out pop to xml */
-        rc = ioxmlpop.writeXMLPop(file_name,
-                iterationNo, model);
-        if (rc != 0)
-            throw exc::flame_io_exception(
-                    "Could not write pop file");
-    /* Through exception for unknown file types */
-    } else {
-        throw exc::flame_io_exception("Unknown file type");
-    }
-}
-
 void IOManager::writePop(std::string agent_name, std::string var_name) {
-    ioxmlpop.writeXMLPop(agent_name, var_name);
+    ioxmlpop.writePop(agent_name, var_name);
 }
 
 void IOManager::initialiseData() {

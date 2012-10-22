@@ -31,10 +31,6 @@ class IOManager {
     void readPop(std::string file_name,
             model::XModel * model,
             FileType fileType);
-    void writePop(std::string file_name,
-            int iterationNo,
-            model::XModel * model,
-            FileType fileType);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();

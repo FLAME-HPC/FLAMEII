@@ -77,15 +77,12 @@ MB_TEST    = src/mb/tests/test_board_iteration.cpp \
              src/mb/tests/test_board_writer.cpp
 SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
              $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
-             $(EXE_TEST)
-#             $(MODEL_TEST) \
-             $(IO_TEST_MAN) \
-             $(IO_TEST_POP) \
-             $(IO_TEST_MODEL) \
+             $(EXE_TEST) \
              $(MB_TEST) \
              $(MEM_TEST) \
-             $(EXE_TEST)
-#             $(SIM_TEST)
+             $(IO_TEST) \
+             $(MODEL_TEST) \
+             $(SIM_TEST)
 OBJECTS    = $(SOURCES:.cpp=.o)
 IO_MODEL_SIM_SRC_TEST = $(IO_SRC) $(IO_TEST) \
              $(MODEL_SRC) $(MODEL_TEST) $(SIM_SRC) $(SIM_TEST)

@@ -31,174 +31,12 @@ namespace flame { namespace io { namespace xml {
 
 IOXMLPop::IOXMLPop() : iteration_(0), xml_pop_path_is_set(false) {}
 
-template <class T>
-int IOXMLPop::setupVectorReader(model::XMachine * agent,
-        model::XVariable * var, size_t * noAgents,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
-        size_t jj) {
-    flame::mem::MemoryManager& memoryManager =
-                    flame::mem::MemoryManager::GetInstance();
-    /* Create vector reader.. */
-    std::vector<T> * ro = memoryManager.GetVector<T>(
-                    agent->getName(), var->getName());
-    /* ..and add to list of vectors. */
-    varVectors->push_back(ro);
-    /* Check array length */
-    if (jj == 0) *noAgents = ro->size();
-    else if (ro->size() != *noAgents) {
-fprintf(stderr, "Error: Memory vector size does not correspond: '%s'\n",
-            var->getName().c_str());
-        return 3;
-    }
-
-    return 0;
-}
-
-int IOXMLPop::setupVectorReaders(model::XMachine * agent, size_t * noAgents,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors) {
-    size_t jj;
-
-    /* For each memory variable */
-    for (jj = 0; jj < agent->getVariables()->size(); jj++) {
-        /* Assign to local xvariable variable */
-        model::XVariable * var = agent->getVariables()->at(jj);
-
-        /* Set up vector readers for each memory variable
-         * dependent on variable data type and add to a
-         * list ready to be used to write each agents
-         * memory out in one go.
-         */
-        if (var->getType() == "int")
-            setupVectorReader<int>(
-                    agent, var, noAgents, varVectors, jj);
-        if (var->getType() == "double")
-            setupVectorReader<double>(
-                    agent, var, noAgents, varVectors, jj);
-    }
-
-    return 0;
-}
-
-int IOXMLPop::writeXMLAgentVariables(model::XMachine * agent,
-        xmlTextWriterPtr writer,
-        std::vector< boost::variant<intVecPtr, doubleVecPtr> > * varVectors,
-        size_t kk) {
-    size_t jj;
-    int rc;
-
-    /* For each memory variable */
-    for (jj = 0;
-        jj < agent->getVariables()->size(); jj++) {
-        /* Assign to local xvariable variable */
-        model::XVariable * var = agent->getVariables()->at(jj);
-
-        /* Write variable value dependent on the variable
-         * type by accessing the associated vector reader
-         * from the list of vector readers and taking the
-         * nth element corresponding with the nth agent.
-         */
-        if (var->getType() == "int") {
-            rc = writeXMLTag(writer, var->getName(),
-                    *(boost::get<intVecPtr>(
-                    varVectors->at(jj))->begin()+kk));
-            if (rc != 0) return rc;
-        }
-        if (var->getType() == "double") {
-            rc = writeXMLTag(writer, var->getName(),
-                *(boost::get<doubleVecPtr>(
-                varVectors->at(jj))->begin()+kk) );
-            if (rc != 0) return rc;
-        }
-    }
-
-    return 0;
-}
-
-int IOXMLPop::writeXMLAgent(model::XMachine * agent, xmlTextWriterPtr writer) {
-    int rc;
-    size_t kk;
-    /* List of memory vector readers populated for each agent */
-    std::vector< boost::variant<intVecPtr, doubleVecPtr> > varVectors;
-    /* The number of agents per agent type */
-    size_t noAgents;
-
-    /* Setup vector readers for agent memory variables */
-    rc = setupVectorReaders(agent, &noAgents, &varVectors);
-    if (rc != 0) return rc;
-
-    /* For each agent in the simulation */
-    for (kk = 0; kk < noAgents; kk++) {
-        /* Open root tag */
-        rc = writeXMLTag(writer, "xagent");
-        if (rc != 0) return rc;
-
-        /* Write agent name */
-        rc = writeXMLTag(writer, "name", agent->getName());
-        if (rc != 0) return rc;
-
-        /* Write agent variables */
-        rc = writeXMLAgentVariables(agent, writer, &varVectors, kk);
-        if (rc != 0) return rc;
-
-        /* Close the element named xagent. */
-        writeXMLEndTag(writer);
-    }
-
-    /* Clear the memory vector reader list for the next agent type */
-    varVectors.clear();
-
-    return 0;
-}
-
-int IOXMLPop::writeXMLPop(std::string file_name,
-        int iterationNo, model::XModel * model) {
-    /* Return code */
-    int rc = 0;
-    /* The xml text writer */
-    xmlTextWriterPtr writer;
-    /* Loop variables */
-    size_t ii;
-
-#ifndef TESTBUILD
-    printf("Writing file: '%s'\n", file_name.c_str());
-#endif
-
-    /* Open file to write to, with no compression */
-    writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
-    if (writer == NULL) {
-        fprintf(stderr, "Error: Opening xml population file to write to\n");
-        return 1;
-    }
-    /* Write tags on new lines */
-    xmlTextWriterSetIndent(writer, 1);
-
-    /* Open root tag */
-    rc = writeXMLTag(writer, "states");
-    if (rc != 0) return rc;
-
-    /* Write itno tag with iteration number */
-    rc = writeXMLTag(writer, "itno", iterationNo);
-    if (rc != 0) return rc;
-
-    /* For each agent type in the model */
-    for (ii = 0; ii < model->getAgents()->size(); ii++) {
-        rc = writeXMLAgent(model->getAgents()->at(ii), writer);
-        if (rc != 0) return rc;
-    }
-
-    /* End xml file, automatically ends states tag */
-    rc = endXMLDoc(writer);
-
-    /* Free the xml writer */
-    xmlFreeTextWriter(writer);
-
-    return rc;
-}
-
-void IOXMLPop::writeXMLPop(std::string agent_name, std::string var_name) {}
+// This method is empty because you can't (without a lot of difficulty)
+// write xml row-wise
+void IOXMLPop::writePop(std::string agent_name, std::string var_name) {}
 
 void IOXMLPop::initialiseData() {
-    // Write out xml start and environment data
+    // Write out xml start and environment data when inplemented
 }
 
 struct VarVecData {
@@ -309,7 +147,7 @@ void IOXMLPop::saveAgentVariableData(model::XModel * model) {
     }
 }
 
-int IOXMLPop::readXMLPop(std::string file_name, model::XModel * model) {
+int IOXMLPop::readPop(std::string file_name, model::XModel * model) {
     xmlTextReaderPtr reader;
     int ret, rc = 0;
     /* Using vector instead of stack as need to access earlier tags */
