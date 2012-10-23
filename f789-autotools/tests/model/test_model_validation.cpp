@@ -12,7 +12,7 @@
 #   define BOOST_TEST_MODULE XGraph
 #endif
 #include <boost/test/unit_test.hpp>
-#include "../xmodel_validate.hpp"
+#include "model/xmodel_validate.hpp"
 #include "io/io_manager.hpp"
 
 namespace model = flame::model;
@@ -28,8 +28,7 @@ BOOST_AUTO_TEST_CASE(validate_model) {
     /* Test model validation using single file with all errors.
      * Possibly in future use a correct file and mutate for each
      * error and test separately. */
-    iomanager.loadModel(
-            "src/io/tests/models/all_not_valid.xml", &model);
+    iomanager.loadModel("io/models/all_not_valid.xml", &model);
     rc = model.validate();
     BOOST_CHECK(rc == 40);
 }

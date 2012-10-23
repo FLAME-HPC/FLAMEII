@@ -14,9 +14,9 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "../xgraph.hpp"
-#include "../dependency.hpp"
-#include "../xfunction.hpp"
+#include "model/xgraph.hpp"
+#include "model/dependency.hpp"
+#include "model/xfunction.hpp"
 
 namespace model = flame::model;
 

@@ -42,6 +42,11 @@ run_tests_SOURCES += \
   io/test_io_xml_model.cpp \
   io/test_io_xml_pop.cpp
 
+# Add tests for "model"
+run_tests_SOURCES += \
+  model/test_model_validation.cpp \
+  model/test_xgraph.cpp
+
 else
 
 endif
