@@ -7,6 +7,19 @@
 # Copyright (c) 2012 University of Sheffield
 # ============================================================================
 
+##### TODOs ############
+# --disable-compat-C
+# --with-boost
+#  * unit_test_framework
+#  * thread
+#  * system
+#  * filesystem
+# --with-libxml2
+# Doxyfile.in
+# make cpplint
+# make cccc
+# make coverage
+
 # Note: first 3 segments of the version number should contain only digits
 AC_INIT(libflame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
 
@@ -43,9 +56,17 @@ AC_PROG_LIBTOOL
 AC_DISABLE_SHARED
 
 #### CUSTOM FLAGS #####
+
 COMMON_LIBS=""
 COMMON_LDFLAGS=""
-COMMON_CPPFLAGS="-I/usr/include/libxml2"
+COMMON_CPPFLAGS=""
+
+# Assign include path relative to Makefile
+AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)/src -I$(top_builddir)/headers'])
+
+# For now, we're hard-coded to require libxml2 
+COMMON_CPPFLAGS+="-I/usr/include/libxml2"
+
 CPPFLAGS_DEV="-DDEBUG -g"
 CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
 CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
@@ -119,6 +140,7 @@ AS_IF([test "x${enable_test_build}" = "xyes"], [
   WANT_TEST_BUILD=1
 ])
 AC_SUBST(WANT_TEST_BUILD)
+AM_CONDITIONAL(BUILD_TESTS, test $WANT_TEST_BUILD = 1)
 
 # Update CPPFLAGS_COMMON based on build type
 if test $WANT_PROD_BUILD -eq 1; then
@@ -128,6 +150,8 @@ elif test $WANT_TEST_BUILD -eq 1; then
 else
   COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_DEV}"
 fi
+
+
 # Substitute vars into Makefiles
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
@@ -135,9 +159,6 @@ AC_SUBST(COMMON_LIBS)
 
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
-
-# check boost stuff
-# check libxml2
 
 ############ Libtool stuff ##############
 LT_INIT()
@@ -153,6 +174,8 @@ src/io/Makefile
 src/mb/Makefile
 src/exe/Makefile
 src/mem/Makefile
+src/mem/tests/Makefile
+src/sim/Makefile
 src/model/Makefile
 src/compat/C/Makefile
 ])

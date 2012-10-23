@@ -11,16 +11,23 @@
 # Pass additional flags to make
 ACLOCAL_AMFLAGS = -I m4
 
-# Directories to search
-SUBDIRS = src/exe src/io src/mb src/mem src/model
+# Directories to search and build
+SUBDIRS = \
+  src/io \
+  src/mb \
+  src/mem \
+  src/exe \
+  src/sim \
+  src/model \
+  src/compat/C
 
 # header files
-include_HEADERS = \
-  $(top_srcdir)/headers/exceptions/all.hpp \
-  $(top_srcdir)/headers/exceptions/base.hpp \
-  $(top_srcdir)/headers/exceptions/exe.hpp \
-  $(top_srcdir)/headers/exceptions/io.hpp \
-  $(top_srcdir)/headers/exceptions/mem.hpp
+#include_HEADERS = \
+#  headers/exceptions/all.hpp \
+#  headers/exceptions/base.hpp \
+#  headers/exceptions/exe.hpp \
+#  headers/exceptions/io.hpp \
+#  headers/exceptions/mem.hpp
   
 # Library to install
 lib_LTLIBRARIES = libflame2.la
@@ -33,14 +40,25 @@ libflame2_la_LIBADD  = \
   src/io/lib_flame_io.la  \
   src/mb/lib_flame_mb.la  \
   src/mem/lib_flame_mem.la  \
-  src/model/lib_flame_model.la
+  src/sim/lib_flame_sim.la  \
+  src/model/lib_flame_model.la \
+  src/compat/C/lib_flame_compat_c.la
 
-# TODO: conditionally include Compatibily code
-SUBDIRS += src/compat/C
-libflame2_la_LIBADD  += src/compat/C/lib_flame_compat_c.la
+# Should tests be built?
+if BUILD_TESTS
+SUBDIRS += \
+           src/mem/tests
+           
+noinst_PROGRAMS = run_tests
+run_tests_SOURCES = tests/run_tests.cpp
+run_tests_LDFLAGS = -lboost_unit_test_framework -lxml2
+run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
+run_tests_LIBS = \
+  src/mem/tests/libtest_mem.la
 
+endif
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog
-                    
+
 
