@@ -29,6 +29,12 @@ run_tests_SOURCES += \
   exe/test_task_manager.cpp \
   exe/test_task_splitter.cpp
 
+# Add tests for "mb"
+run_tests_SOURCES += \
+  mb/test_board_iteration.cpp \
+  mb/test_board_manager.cpp \
+  mb/test_board_proxy.cpp \
+  mb/test_board_writer.cpp
 else
 
 endif
