@@ -11,7 +11,7 @@
 #include <vector>
 #include <sstream>
 #include "boost/test/unit_test.hpp"
-#include "../vector_wrapper.hpp"
+#include "mem/vector_wrapper.hpp"
 #include "exceptions/mem.hpp"
 
 namespace m = flame::mem;

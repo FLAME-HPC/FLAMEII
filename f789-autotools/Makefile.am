@@ -6,7 +6,7 @@
 # Copyright (c) 2012 STFC Rutherford Appleton Laboratory
 # Copyright (c) 2012 University of Sheffield
 # ============================================================================
-# $Id: $
+# $Id$
 
 # Pass additional flags to make
 ACLOCAL_AMFLAGS = -I m4
@@ -21,14 +21,6 @@ SUBDIRS = \
   src/model \
   src/compat/C
 
-# header files
-#include_HEADERS = \
-#  headers/exceptions/all.hpp \
-#  headers/exceptions/base.hpp \
-#  headers/exceptions/exe.hpp \
-#  headers/exceptions/io.hpp \
-#  headers/exceptions/mem.hpp
-  
 # Library to install
 lib_LTLIBRARIES = libflame2.la
 
