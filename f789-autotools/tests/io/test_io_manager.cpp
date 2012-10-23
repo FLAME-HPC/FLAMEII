@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 #include <cstdio>
-#include "../io_manager.hpp"
+#include "io/io_manager.hpp"
 
 namespace io = flame::io;
 namespace model = flame::model;
@@ -28,33 +28,33 @@ BOOST_AUTO_TEST_CASE(test_loadModel) {
     flame::io::IOManager& m = flame::io::IOManager::GetInstance();
     model::XModel model;
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/missing.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/missing.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/malformed_xml.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/malformed_xml.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/not_xmodel.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/not_xmodel.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/xmodelv1.xml",
-            &model), e::flame_io_exception);
-
-    BOOST_CHECK_THROW(
-            m.loadModel("src/io/tests/models/submodel_enable_error.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/xmodelv1.xml",
             &model), e::flame_io_exception);
 
     BOOST_CHECK_THROW(
-            m.loadModel("src/io/tests/models/submodel_end_not_xml.xml",
+            m.loadModel("io/models/submodel_enable_error.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/submodel_duplicate.xml",
+    BOOST_CHECK_THROW(
+            m.loadModel("io/models/submodel_end_not_xml.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_THROW(m.loadModel("src/io/tests/models/submodel_missing.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/submodel_duplicate.xml",
             &model), e::flame_io_exception);
 
-    BOOST_CHECK_NO_THROW(m.loadModel("src/io/tests/models/all_not_valid.xml",
+    BOOST_CHECK_THROW(m.loadModel("io/models/submodel_missing.xml",
+            &model), e::flame_io_exception);
+
+    BOOST_CHECK_NO_THROW(m.loadModel("io/models/all_not_valid.xml",
             &model));
 }
 
@@ -66,47 +66,47 @@ BOOST_AUTO_TEST_CASE(test_readPop) {
             flame::mem::MemoryManager::GetInstance();
 
     /* Read model xml */
-    iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+    iomanager.loadModel("io/models/all_data.xml", &model);
 
     model.validate();
     model.registerWithMemoryManager();
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_missing.xml",
+            "io/models/all_data_its/0_missing.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_malformed.xml",
+            "io/models/all_data_its/0_malformed.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_unknown_tag.xml",
+            "io/models/all_data_its/0_unknown_tag.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_unknown_agent.xml",
+            "io/models/all_data_its/0_unknown_agent.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_unknown_variable.xml",
+            "io/models/all_data_its/0_unknown_variable.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_var_not_int.xml",
+            "io/models/all_data_its/0_var_not_int.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
     BOOST_CHECK_THROW(iomanager.readPop(
-            "src/io/tests/models/all_data_its/0_var_not_double.xml",
+            "io/models/all_data_its/0_var_not_double.xml",
             &model,
             io::IOManager::xml), e::flame_io_exception);
 
-    std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
+    std::string zeroxml = "io/models/all_data_its/0.xml";
     BOOST_CHECK_NO_THROW(iomanager.readPop(zeroxml,
             &model,
             io::IOManager::xml));
@@ -136,16 +136,16 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
     flame::mem::MemoryManager& memoryManager =
                 flame::mem::MemoryManager::GetInstance();
     model::XModel model;
-    std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
+    std::string zeroxml = "io/models/all_data_its/0.xml";
 
     // Read model
-    iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+    iomanager.loadModel("io/models/all_data.xml", &model);
     model.registerWithMemoryManager();
     // Read pop
     iomanager.readPop(zeroxml, &model, io::IOManager::xml);
 
     /* Test pop data written out */
-    std::string onexml = "src/io/tests/models/all_data_its/1.xml";
+    std::string onexml = "io/models/all_data_its/1.xml";
     BOOST_CHECK_NO_THROW(iomanager.finaliseData());
     /* Check 0.xml and 1.xml are identical */
     size_t differences = 1;
@@ -190,10 +190,10 @@ BOOST_AUTO_TEST_CASE(test_writePop_1_agent_var) {
     flame::mem::MemoryManager& memoryManager =
                 flame::mem::MemoryManager::GetInstance();
     model::XModel model;
-    std::string zeroxml = "src/io/tests/models/all_data_its/0.xml";
+    std::string zeroxml = "io/models/all_data_its/0.xml";
 
     // Read model
-    iomanager.loadModel("src/io/tests/models/all_data.xml", &model);
+    iomanager.loadModel("io/models/all_data.xml", &model);
     model.registerWithMemoryManager();
     // Read pop
     iomanager.readPop(zeroxml, &model, io::IOManager::xml);

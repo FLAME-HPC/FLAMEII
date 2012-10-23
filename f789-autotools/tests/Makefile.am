@@ -35,6 +35,13 @@ run_tests_SOURCES += \
   mb/test_board_manager.cpp \
   mb/test_board_proxy.cpp \
   mb/test_board_writer.cpp
+
+# Add tests for "io"
+run_tests_SOURCES += \
+  io/test_io_manager.cpp \
+  io/test_io_xml_model.cpp \
+  io/test_io_xml_pop.cpp
+
 else
 
 endif

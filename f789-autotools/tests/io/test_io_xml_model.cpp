@@ -13,7 +13,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <vector>
-#include "../io_xml_model.hpp"
+#include "io/io_xml_model.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
@@ -27,39 +27,39 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
     model::XModel model;
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/missing.xml", &model);
+            "io/models/missing.xml", &model);
     BOOST_CHECK(rc == 1);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/malformed_xml.xml", &model);
+            "io/models/malformed_xml.xml", &model);
     BOOST_CHECK(rc == 1);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/not_xmodel.xml", &model);
+            "io/models/not_xmodel.xml", &model);
     BOOST_CHECK(rc == 3);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/xmodelv1.xml", &model);
+            "io/models/xmodelv1.xml", &model);
     BOOST_CHECK(rc == 4);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/submodel_enable_error.xml", &model);
+            "io/models/submodel_enable_error.xml", &model);
     BOOST_CHECK(rc == 5);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/submodel_end_not_xml.xml", &model);
+            "io/models/submodel_end_not_xml.xml", &model);
     BOOST_CHECK(rc == 6);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/submodel_duplicate.xml", &model);
+            "io/models/submodel_duplicate.xml", &model);
     BOOST_CHECK(rc == 7);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/submodel_missing.xml", &model);
+            "io/models/submodel_missing.xml", &model);
     BOOST_CHECK(rc == 8);
 
     rc = ioxmlmodel.readXMLModel(
-            "src/io/tests/models/all_not_valid.xml", &model);
+            "io/models/all_not_valid.xml", &model);
     BOOST_CHECK(rc == 0);
 }
 
