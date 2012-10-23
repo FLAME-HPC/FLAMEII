@@ -170,11 +170,11 @@ AC_CONFIG_FILES([Makefile])
 # convert *.in files
 AC_OUTPUT([
 README
+tests/Makefile
 src/io/Makefile
 src/mb/Makefile
 src/exe/Makefile
 src/mem/Makefile
-src/mem/tests/Makefile
 src/sim/Makefile
 src/model/Makefile
 src/compat/C/Makefile

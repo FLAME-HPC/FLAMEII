@@ -34,7 +34,7 @@ lib_LTLIBRARIES = libflame2.la
 
 # Flags to build that library
 libflame2_la_SOURCES =
-libflame2_la_LDFLAGS =
+libflame2_la_LDFLAGS = -lboost_thread -lboost_filesystem
 libflame2_la_LIBADD  = \
   src/exe/lib_flame_exe.la \
   src/io/lib_flame_io.la  \
@@ -46,15 +46,6 @@ libflame2_la_LIBADD  = \
 
 # Should tests be built?
 if BUILD_TESTS
-SUBDIRS += \
-           src/mem/tests
-           
-noinst_PROGRAMS = run_tests
-run_tests_SOURCES = tests/run_tests.cpp
-run_tests_LDFLAGS = -lboost_unit_test_framework -lxml2
-run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-run_tests_LIBS = \
-  src/mem/tests/libtest_mem.la
 
 endif
 
