@@ -36,12 +36,20 @@ libflame2_la_LIBADD  = \
   src/model/lib_flame_model.la \
   src/compat/C/lib_flame_compat_c.la
 
-# Should tests be built?
-if BUILD_TESTS
-
-endif
-
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog
+
+if BUILD_TESTS
+
+test:
+	@(cd tests && make && ./run_tests --report_level=short --show_progress)
+	
+else
+
+test:
+	@echo "** TEST BUILD NOT ENABLED"
+	@echo "   To build the tests, rerun ./configure with --enable-test-build"
+	
+endif
 
 

@@ -145,10 +145,13 @@ AM_CONDITIONAL(BUILD_TESTS, test $WANT_TEST_BUILD = 1)
 # Update CPPFLAGS_COMMON based on build type
 if test $WANT_PROD_BUILD -eq 1; then
   COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_PROD}"
+  AC_DEFINE([BUILD_TYPE], ["production"], [Library build type])
 elif test $WANT_TEST_BUILD -eq 1; then
   COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_TEST}"
+  AC_DEFINE([BUILD_TYPE], ["test"], [Library build type])
 else
   COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_DEV}"
+  AC_DEFINE([BUILD_TYPE], ["development"], [Library build type])
 fi
 
 

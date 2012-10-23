@@ -53,5 +53,8 @@ run_tests_SOURCES += \
   sim/test_simulation.cpp
 
 else
-
+run: all
+all:
+	@echo "** TEST BUILD NOT ENABLED"
+	@echo "   To build the tests, rerun ./configure with --enable-test-build"
 endif
