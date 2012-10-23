@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 #include "include/flame.h"
-#include "../sim_manager.hpp"
+#include "sim/sim_manager.hpp"
 #include "io/io_manager.hpp"
 #include "model/model.hpp"
 
@@ -103,13 +103,13 @@ FLAME_AGENT_FUNC(move) {
 
 BOOST_AUTO_TEST_CASE(test_simulation) {
     // Create model
-    flame::model::Model m("src/sim/tests/models/circles/circles.xml");
+    flame::model::Model m("sim/models/circles/circles.xml");
     // Register agent functions
     m.registerAgentFunction("outputdata", &outputdata);
     m.registerAgentFunction("inputdata", &inputdata);
     m.registerAgentFunction("move", &move);
 
-    sim::Simulation s(&m, "src/sim/tests/models/circles/0.xml");
+    sim::Simulation s(&m, "sim/models/circles/0.xml");
 
     // Register message types
     m.registerMessageType<my_location_message>("location");
@@ -121,12 +121,12 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
 
     // Try and use generated output as input
     BOOST_CHECK_NO_THROW(
-        sim::Simulation s2(&m, "src/sim/tests/models/circles/1.xml"));
+        sim::Simulation s2(&m, "sim/models/circles/1.xml"));
 
     /* Remove created all_data.xsd */
-    if (remove("src/sim/tests/models/circles/1.xml") != 0)
+    if (remove("sim/models/circles/1.xml") != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-            "src/sim/tests/models/circles/1.xml");
+            "sim/models/circles/1.xml");
 
     // Reset memory manager
     flame::mem::MemoryManager::GetInstance().Reset();

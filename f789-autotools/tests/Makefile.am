@@ -47,6 +47,11 @@ run_tests_SOURCES += \
   model/test_model_validation.cpp \
   model/test_xgraph.cpp
 
+# Add tests for "sim"
+run_tests_SOURCES += \
+  sim/test_sim_manager.cpp \
+  sim/test_simulation.cpp
+
 else
 
 endif
