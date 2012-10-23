@@ -14,9 +14,9 @@
 #include "mem/memory_manager.hpp"
 #include "mb/message_board_manager.hpp"
 #include "exe/task_manager.hpp"
-#include "../scheduler.hpp"
-#include "../fifo_task_queue.hpp"
-#include "../splitting_fifo_task_queue.hpp"
+#include "exe/scheduler.hpp"
+#include "exe/fifo_task_queue.hpp"
+#include "exe/splitting_fifo_task_queue.hpp"
 #include "compat/C/compatibility_manager.hpp"
 #include "include/flame.h"
 

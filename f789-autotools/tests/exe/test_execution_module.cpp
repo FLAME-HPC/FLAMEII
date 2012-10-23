@@ -11,11 +11,11 @@
 #include <vector>
 #include "boost/test/unit_test.hpp"
 #include "mem/memory_manager.hpp"
-#include "../task_manager.hpp"
-#include "../task_interface.hpp"
-#include "../fifo_task_queue.hpp"
-#include "../splitting_fifo_task_queue.hpp"
-#include "../scheduler.hpp"
+#include "exe/task_manager.hpp"
+#include "exe/task_interface.hpp"
+#include "exe/fifo_task_queue.hpp"
+#include "exe/splitting_fifo_task_queue.hpp"
+#include "exe/scheduler.hpp"
 #include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)

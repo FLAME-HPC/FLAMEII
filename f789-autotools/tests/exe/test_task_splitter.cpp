@@ -12,8 +12,8 @@
 #include "boost/test/unit_test.hpp"
 #include "exceptions/all.hpp"
 #include "mem/memory_manager.hpp"
-#include "../task_manager.hpp"
-#include "../task_splitter.hpp"
+#include "exe/task_manager.hpp"
+#include "exe/task_splitter.hpp"
 #include "include/flame.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)

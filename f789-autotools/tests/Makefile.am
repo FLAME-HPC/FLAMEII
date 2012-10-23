@@ -22,6 +22,13 @@ run_tests_SOURCES += \
   mem/test_memory_manager.cpp \
   mem/test_vector_wrapper.cpp
 
+# Add tests for "exe"
+run_tests_SOURCES += \
+  exe/test_execution_module.cpp \
+  exe/test_task_access_to_mb.cpp \
+  exe/test_task_manager.cpp \
+  exe/test_task_splitter.cpp
+
 else
 
 endif

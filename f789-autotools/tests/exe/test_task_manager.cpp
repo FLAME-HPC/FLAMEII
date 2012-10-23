@@ -12,8 +12,8 @@
 #include <string>
 #include "boost/test/unit_test.hpp"
 #include "include/flame.h"
-#include "../../mem/memory_manager.hpp"
-#include "../task_manager.hpp"
+#include "mem/memory_manager.hpp"
+#include "exe/task_manager.hpp"
 
 BOOST_AUTO_TEST_SUITE(TaskManager)
 
