@@ -11,11 +11,10 @@
 noinst_LTLIBRARIES = lib_flame_io.la
 
 base_CPPFLAGS = -I$(top_srcdir)/headers -I$(top_srcdir)/src
-extra_CPPFLAGS = -I/usr/include/libxml2
 
 lib_flame_io_la_LIBS     = @COMMON_LIBS@
 lib_flame_io_la_LDFLAGS  = @COMMON_LDFLAGS@ -lxml2
-lib_flame_io_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS) $(extra_CPPFLAGS)
+lib_flame_io_la_CPPFLAGS = @COMMON_CPPFLAGS@ $(base_CPPFLAGS)
 lib_flame_io_la_SOURCES  = \
   io_manager.cpp \
   io_manager.hpp \

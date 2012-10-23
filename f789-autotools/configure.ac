@@ -28,8 +28,10 @@ AC_CONFIG_HEADER([headers/include/config.h])
 # Path to custom m4 commands
 AC_CONFIG_MACRO_DIR([m4])
 
-# initialise CFLAGS so it does not default to -g -O2
-CPPFLAGS=""
+# initialise CXXFLAGS so it AC_PROG_CXX does not add in "-g -O2"
+if test -z $CXXFLAGS; then
+  CXXFLAGS=""
+fi
 
 # Check for programs
 AC_PROG_CXX([g++ pgCC icc, xlC])
@@ -41,10 +43,12 @@ AC_PROG_LIBTOOL
 AC_DISABLE_SHARED
 
 #### CUSTOM FLAGS #####
-CPPFLAGS_COMMON=""
-CPPFLAGS_TEST="-DTESTBUILD"
-CPPFLAGS_DEBUG="-DDEBUG"
-CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING"
+COMMON_LIBS=""
+COMMON_LDFLAGS=""
+COMMON_CPPFLAGS="-I/usr/include/libxml2"
+CPPFLAGS_DEV="-DDEBUG -g"
+CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
+CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
 
 GCC_FLAGS_LVL1="-fno-common -std=c++98 -Wall -pedantic"
 # (C-only) -Wstrict-prototypes -Wmissing-prototypes
@@ -60,7 +64,7 @@ case "$CXX" in
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL1}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL2}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL3}"
-    #CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL4}"
+    CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL4}"
     #CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_SHOWSTOPPER}"
     ;;
   pgCC*)
@@ -77,17 +81,56 @@ case "$CXX" in
     ;;
 esac
 
-############ PARAMS FOR SUBSTITUTION #################
-COMMON_CPPFLAGS="${CPPFLAGS} ${CPPFLAGS_COMMON} ${CPPFLAGS_DEBUG}"
-# TODO: Add ${CPPFLAGS_TEST} for --enable-tests
-# TODO: Swap DEBUG for PROD for --production
-# TODO: Consider building both test/debug and prod on --multi-lib ?
+
+############ CHOOSE BUILD TYPES ############################
+
+# Build production library but removing checks and debug symbols
+# (default: disabled)
+WANT_PROD_BUILD=0
+AC_ARG_ENABLE([production-build],
+              [AC_HELP_STRING(
+                  [--enable-production-build],
+                  [Build a production version of the libraryy]
+              )])
+AS_IF([test "x$enable_production_build" = "xyes"], [
+  WANT_PROD_BUILD=1
+])
+AC_SUBST(WANT_PROD_BUILD)
+
+# Include tests and build test code into library
+# (default: disabled)
+WANT_TEST_BUILD=0
+AC_ARG_ENABLE([test-build],
+              [AC_HELP_STRING(
+                  [--enable-test-build],
+                  [Build tests and a test version of the library]
+              )])
+AS_IF([test "x${enable_test_build}" = "xyes"], [
+  if test $WANT_PROD_BUILD -eq 1; then
+    AC_MSG_ERROR([
+** CONFLICTING OPTIONS.
+   Tests cannot be built using production code. You can use only ONE of
+   the following options:
+     --enable-production-build
+     --enable-test-build
+    ])
+    exit 1
+  fi
+  WANT_TEST_BUILD=1
+])
+AC_SUBST(WANT_TEST_BUILD)
+
+# Update CPPFLAGS_COMMON based on build type
+if test $WANT_PROD_BUILD -eq 1; then
+  COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_PROD}"
+elif test $WANT_TEST_BUILD -eq 1; then
+  COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_TEST}"
+else
+  COMMON_CPPFLAGS="${COMMON_CPPFLAGS} ${CPPFLAGS_DEV}"
+fi
+# Substitute vars into Makefiles
 AC_SUBST(COMMON_CPPFLAGS)
-
-COMMON_LDFLAGS=""
 AC_SUBST(COMMON_LDFLAGS)
-
-COMMON_LIBS=""
 AC_SUBST(COMMON_LIBS)
 
 ############# CHECKS ####################
