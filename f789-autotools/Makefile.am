@@ -26,7 +26,7 @@ lib_LTLIBRARIES = libflame2.la
 
 # Flags to build that library
 libflame2_la_SOURCES =
-libflame2_la_LDFLAGS = @BOOST_LDFLAGS@ @BOOST_THREAD_LIB@ -lboost_filesystem
+libflame2_la_LDFLAGS = @LIBFLAME_LDFLAGS@
 libflame2_la_LIBADD  = \
   src/exe/lib_flame_exe.la \
   src/io/lib_flame_io.la  \

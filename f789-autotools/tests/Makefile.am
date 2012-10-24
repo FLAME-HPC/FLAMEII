@@ -15,6 +15,12 @@ run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 run_tests_LDADD = $(top_srcdir)/libflame2.la
 run_tests_SOURCES = ./run_tests.cpp
 
+#### Note: ####
+#
+# We list all source files here instead of using convenience libraries since
+# independent compilation breaks automatic test registration of boost_unit_test
+#
+
 # Add tests for "mem"
 run_tests_SOURCES += \
   mem/test_agent_memory.cpp \

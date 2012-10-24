@@ -65,18 +65,39 @@ FLAME_BOOST_BASE([1.46])
 # - calls : AC_SUBST(BOOST_THREAD_LIB)
 FLAME_BOOST_THREAD
 
-# Check 
-#### CUSTOM FLAGS #####
+# Check for boost_thread
+# - calls : AC_SUBST(BOOST_FILESYSTEM_LIB)
+FLAME_BOOST_FILESYSTEM
+
+# Check for libxml2
+# - calls : AC_SUBST(LIBXML2_CPPFLAGS) / AC_SUBST(LIBXML2_LIBS)
+FLAME_CHECK_LIBXML2
+
+# Notes:
+# - We don't use AM_PATH_XML2 since that is provided by libxml2-devel.
+#   and so the macro is not available if users do not have libxml2 installed
+# - libxml2 uses pkg-config, so we could use PKG_CHECK_MODULES
+#   * e.g. PKG_CHECK_MODULES([XML2], [libxml-2.0])
+#   * This does not allow a uniform way of specifying custom libxml2 location,
+#     i.e. --with-libxml2=LIBXML2_PATH
+
+#### LDFLAGS FOR LINKING MAIN LIBRARY ####
+
+LIBFLAME_LDFLAGS="${BOOST_LDFLAGS} ${BOOST_THREAD_LIB} ${BOOST_FILESYSTEM_LIB} "
+# For now, we're hard-coded to require libxml2 ($XML_CPPFLAGS)
+LIBFLAME_LDFLAGS+="${LIBXML2_LIBS} "
+
+AC_SUBST(LIBFLAME_LDFLAGS)
+
+#### CUSTOM FLAGS APPLIED TO ALL MODULES #####
 
 COMMON_LIBS=""
 COMMON_LDFLAGS=""
-COMMON_CPPFLAGS="${BOOST_CPPFLAGS}"
+COMMON_CPPFLAGS="${BOOST_CPPFLAGS} ${LIBXML2_CFLAGS} "
 
 # Assign include path relative to Makefile
 AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)/src -I$(top_builddir)/headers'])
 
-# For now, we're hard-coded to require libxml2 
-COMMON_CPPFLAGS+="-I/usr/include/libxml2"
 
 CPPFLAGS_DEV="-DDEBUG -g"
 CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
@@ -97,7 +118,7 @@ case "$CXX" in
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL2}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL3}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL4}"
-    #CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_SHOWSTOPPER}"
+    ##CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_SHOWSTOPPER}"
     ;;
   pgCC*)
     CPPFLAGS="${CPPFLAGS} -c9x -Minform=warn"
