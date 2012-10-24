@@ -57,8 +57,14 @@ class XModel {
     void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
     std::map<std::string, flame::exe::TaskFunction> getFuncMap();
+#ifdef TESTBUILD
+    void generateGraph(XGraph * modelGraph);
+#endif
 
   private:
+#ifndef TESTBUILD
+    void generateGraph(XGraph * modelGraph);
+#endif
     std::string name_;
     /*! \brief The absolute path to the model file */
     std::string path_;
