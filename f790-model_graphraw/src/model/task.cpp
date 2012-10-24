@@ -111,8 +111,14 @@ bool Task::hasCondition() {
     return hasCondition_;
 }
 
+void Task::addReadWriteVariable(std::string name) {
+    readVariables_.insert(name);
+    writeVariables_.insert(name);
+}
+
 void Task::addReadOnlyVariable(std::string name) {
     readOnlyVariables_.insert(name);
+    readVariables_.insert(name);
 }
 
 std::set<std::string>* Task::getReadOnlyVariables() {
@@ -137,6 +143,10 @@ std::set<std::string>* Task::getWriteVariables() {
 
 VarMapToVertices * Task::getLastWrites() {
     return &lastWrites_;
+}
+
+VarMapToVertices * Task::getLastReads() {
+    return &lastReads_;
 }
 
 std::set<size_t> * Task::getLastConditions() {

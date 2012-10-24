@@ -151,37 +151,16 @@ int XModel::registerWithMessageBoardManager() {
                 E.what(), (*m)->getName().c_str());
             return 1;
         }
-/*
-        for (v = (*m)->getVariables()->begin(); v != (*m)->getVariables()->end(); v++) {
-            if ((*v)->getType() == "int")
-                try { mgr.RegisterMessageVar<int>((*m)->getName(), (*v)->getName()); }
-                catch  (const flame::exceptions::logic_error& E) {
-                    std::fprintf(stderr,
-                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
-                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
-                    return 1;
-                }
-            if ((*v)->getType() == "double")
-                try { mgr.RegisterMessageVar<double>((*m)->getName(), (*v)->getName()); }
-                catch  (const flame::exceptions::logic_error& E) {
-                    std::fprintf(stderr,
-                        "Error: %s\nWhen registering '%s' message variable in message '%s'\n",
-                        E.what(), (*v)->getName().c_str(), (*m)->getName().c_str());
-                    return 1;
-                }
-        }
-        */
     }
 
     return 0;
 }
 
-int XModel::registerWithTaskManager() {
-    XGraph modelGraph;
+void XModel::generateGraph(XGraph * modelGraph) {
     std::vector<XMachine*>::iterator agent;
     std::set<XGraph *> graphs;
 
-    modelGraph.setAgentName(name_);
+    modelGraph->setAgentName(name_);
 
     // Consolidate agent graphs into a model graph
     for (agent = agents_.begin();
@@ -193,11 +172,17 @@ int XModel::registerWithTaskManager() {
         graphs.insert((*agent)->getFunctionDependencyGraph());
     }
 
-    modelGraph.importGraphs(graphs);
+    modelGraph->importGraphs(graphs);
 
 #ifdef OUTPUT_GRAPHS
-    modelGraph.writeGraphviz(name_ + ".dot");
+    modelGraph->writeGraphviz(name_ + ".dot");
 #endif
+}
+
+int XModel::registerWithTaskManager() {
+    XGraph modelGraph;
+
+    generateGraph(&modelGraph);
 
     modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 

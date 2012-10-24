@@ -1,7 +1,7 @@
 CPPC       = g++
 # -Wno-long-long is used to suppress long long integer warnings from Boost
-CPPFLAGS   = -g -Wall -Wno-long-long -pedantic -DTESTBUILD -DDEBUG
-             #\ -DUSE_VARIABLE_VERTICES -DOUTPUT_GRAPHS
+CPPFLAGS   = -g -Wall -Wno-long-long -pedantic -DTESTBUILD -DDEBUG \
+             -DOUTPUT_GRAPHS #-DUSE_VARIABLE_VERTICES
 BOOSTDIR   = /Users/stc/workspace/boost/boost_1_48_0
 LDFLAGS    = -L$(BOOSTDIR)/stage/lib
 # Boost library naming support, -mt for multithreading, -d for debug
@@ -77,7 +77,8 @@ MB_TEST    = src/mb/tests/test_board_iteration.cpp \
              src/mb/tests/test_board_writer.cpp
 SOURCES    = $(COMPAT_SRC) $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) \
              $(EXE_SRC) $(MB_SRC) $(SIM_SRC) run_tests.cpp \
-             $(EXE_TEST) \
+             src/model/tests/test_xgraph.cpp
+#             $(EXE_TEST) \
              $(MB_TEST) \
              $(MEM_TEST) \
              $(IO_TEST) \
@@ -162,7 +163,7 @@ clean:
 	$(RM) -r cccc
 
 run: all
-	./run_tests --log_level=test_suite
+	./run_tests --log_level=test_suite --catch_system_error=no
 
 doc:
 	doxygen

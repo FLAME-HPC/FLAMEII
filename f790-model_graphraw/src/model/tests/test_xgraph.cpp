@@ -14,46 +14,72 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "../xgraph.hpp"
-#include "../dependency.hpp"
-#include "../xfunction.hpp"
+#include "model/xgraph.hpp"
+#include "model/model.hpp"
+#include "io/io_manager.hpp"
 
 namespace model = flame::model;
+namespace io = flame::io;
 
 BOOST_AUTO_TEST_SUITE(XGraph)
 
-BOOST_AUTO_TEST_CASE(TestCompareTaskSets) {
+/*BOOST_AUTO_TEST_CASE(TestCompareTaskSets) {
     model::XGraph xgraph;
 
     bool r = xgraph.testCompareTaskSets();
     BOOST_CHECK(r == true);
-}
+}*/
 
+
+BOOST_AUTO_TEST_CASE(test_raw_conflict) {
+    model::XGraph graph;
+
+    // Add function tasks to graph
+    model::Task f0("agent", "f0", model::Task::xfunction);
+    f0.addReadOnlyVariable("a");
+    model::Task f1("agent", "f1", model::Task::xfunction);
+    f1.addReadOnlyVariable("a");
+    model::Task f2("agent", "f2", model::Task::xfunction);
+    f2.addReadWriteVariable("a");
+    model::Task f3("agent", "f3", model::Task::xfunction);
+    f3.addReadOnlyVariable("a");
+    model::Vertex v0 = graph.addTestVertex(&f0);
+    model::Vertex v1 = graph.addTestVertex(&f1);
+    model::Vertex v2 = graph.addTestVertex(&f2);
+    model::Vertex v3 = graph.addTestVertex(&f3);
+    // Add dependencies between tasks
+    graph.addTestEdge(v0, v1, "", model::Dependency::state);
+    graph.addTestEdge(v1, v2, "", model::Dependency::state);
+    graph.addTestEdge(v2, v3, "", model::Dependency::state);
+    // Set up graph for processing
+    std::vector<model::XVariable*> variables;
+    model::XVariable a("a");
+    variables.push_back(&a);
+    graph.setTestStartTask(&f0);
+    graph.addTestEndTask(&f3);
+    graph.setTasksImported(true);
+    graph.setAgentName("test_xgraph");
+    // Process graph
+    graph.generateDependencyGraph(&variables);
+    // Test outcome
+    BOOST_CHECK(graph.dependencyExists("f1", "f2") == true);
+    BOOST_CHECK(graph.dependencyExists("f0", "f2") == true);
+}
 /*
-BOOST_AUTO_TEST_CASE(test_xgraph) {
-    model::XGraph xgraph;
-
-    xgraph.testBoostGraphLibrary();
-}
-
-BOOST_AUTO_TEST_CASE(generateDependencyGraph) {
-    int rc;
-    flame::io::IOManager ioManager;
+BOOST_AUTO_TEST_CASE(test_raw_conflict) {
+    flame::io::IOManager& m = flame::io::IOManager::GetInstance();
     flame::model::XModel model;
+    flame::model::XGraph graph;
+    int rc;
 
-    rc = ioManager.loadModel("model", &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(m.loadModel(
+            "src/model/tests/models/test_raw_conflict.xml", &model));
     rc = model.validate();
     BOOST_CHECK(rc == 0);
+    model.generateGraph(&graph);
 
-    std::vector<flame::model::XMachine*>::iterator agent;
-
-        // For each agent generate graphs
-        for (agent = model.getAgents()->begin();
-             agent != model.getAgents()->end(); ++agent) {
-            (*agent)->generateDependencyGraph();
-        }
-
+    BOOST_CHECK(graph.dependencyExists("f1", "f2") == true);
+    BOOST_CHECK(graph.dependencyExists("f0", "f2") == true);
 }
 
 BOOST_AUTO_TEST_CASE(test_add_variable_vertices_1) {
