@@ -6,6 +6,10 @@
 # Copyright (c) 2012 STFC Rutherford Appleton Laboratory
 # Copyright (c) 2012 University of Sheffield
 # ============================================================================
+#
+# Note: Instead of CXXFLAGS (for C++ builds) we deal mainly with CPPFLAGS so
+#       that the flags will be applied to both C and C++ code compilation.
+#
 
 ##### TODOs ############
 # --disable-compat-C
@@ -165,7 +169,7 @@ LIBFLAME_LDFLAGS+="${LIBXML2_LIBS} "
 
 #### SET DEFAULT CPPFLAGS (Can be overridden by users) ####
 
-GCC_FLAGS_LVL1="-fno-common -std=c++98 -Wall -pedantic"
+GCC_FLAGS_LVL1="-fno-common -Wall -pedantic"
 # (C-only) -Wstrict-prototypes -Wmissing-prototypes
 GCC_FLAGS_LVL2="-Wextra -Wpointer-arith"
 GCC_FLAGS_LVL3="-Wreturn-type -Wswitch -Wshadow -Wcast-align -Wunused"
@@ -175,21 +179,28 @@ GCC_FLAGS_SHOWSTOPPER="-Werror" # OTT
 # Default CPPFLAGS
 # Need extra checks to set this depending on compiler
 case "$CXX" in
-  g++*)
+  g++*|gcc*)
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL1}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL2}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL3}"
     CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_LVL4}"
     ##CPPFLAGS="${CPPFLAGS} ${GCC_FLAGS_SHOWSTOPPER}"
+  
+    CFLAGS="${CFLAGS} -std=c99 -Wstrict-prototypes -Wmissing-prototypes"
+    CXXFLAGS="${CXXFLAGS} -std=c++98"
     ;;
-  pgCC*)
+  pgCC*|pgcc*)
     CPPFLAGS="${CPPFLAGS} -c9x -Minform=warn"
     ;;
   icc*)
-    CPPFLAGS="${CPPFLAGS} -std=gnu++98 -Wall"
+    CPPFLAGS="${CPPFLAGS} -Wall"
+    CXXFLAGS="${CXXFLAGS} -std=gnu++98"
+    CFLAGS="${CFLAGS} -std=c99"
     ;;
-  xlC*)
-    CPPFLAGS="${CPPFLAGS} -qlang=strict98 -qinfo=all -qflag=w:u -qcheck=all"
+  xlC*|xlc*)
+    CPPFLAGS="${CPPFLAGS} -qinfo=all -qflag=w:u -qcheck=all"
+    CXXFLAGS="${CXXFLAGS} -qlang=strict98"
+    CFLAGS="${CFLAGS} -qlanglvl=stdc99"
     ;;
   *)
     CPPFLAGS="${CPPFLAGS}"
