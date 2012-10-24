@@ -13,12 +13,6 @@
 
 ##### TODOs ############
 # --disable-compat-C
-# --with-boost
-#  * unit_test_framework
-#  * thread
-#  * system
-#  * filesystem
-# --with-libxml2
 # Doxyfile.in
 # make cpplint
 # make cccc
@@ -29,7 +23,6 @@ AC_INIT(libflame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
 
 # Automake
 AM_INIT_AUTOMAKE
-#AM_MAINTAINER_MODE
 
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)

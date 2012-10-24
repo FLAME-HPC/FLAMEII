@@ -42,7 +42,7 @@ EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog
 if BUILD_TESTS
 
 test:
-	@(cd tests && make && ./run_tests --report_level=short --show_progress)
+	@(make && cd tests && make && ./run_tests --report_level=short --show_progress)
 	
 else
 

@@ -98,7 +98,7 @@ AC_DEFUN([FLAME_BOOST_THREAD],
                            ax_cv_boost_thread=no)
         CXXFLAGS=$CXXFLAGS_SAVE
         AC_LANG_POP([C++])
-    ])
+      ])
     
     if test "x$ax_cv_boost_thread" = "xyes"; then
     
