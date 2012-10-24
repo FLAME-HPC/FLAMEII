@@ -58,14 +58,18 @@ AC_DISABLE_SHARED
 ##### CHECK BOOST #####
 
 # Check boost version
-#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_CPPFLAGS)
+#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
 FLAME_BOOST_BASE([1.46])
+
+# Check for boost_thread
+# - calls : AC_SUBST(BOOST_THREAD_LIB)
+FLAME_BOOST_THREAD
 
 # Check 
 #### CUSTOM FLAGS #####
 
 COMMON_LIBS=""
-COMMON_LDFLAGS="${BOOST_LDFLAGS}"
+COMMON_LDFLAGS=""
 COMMON_CPPFLAGS="${BOOST_CPPFLAGS}"
 
 # Assign include path relative to Makefile

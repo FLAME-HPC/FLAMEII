@@ -35,7 +35,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 # 
-# $Id: $
+# $Id$
 
 AC_DEFUN([FLAME_BOOST_BASE],
 [
@@ -56,7 +56,6 @@ AC_ARG_WITH([boost],
   ],
   [ac_boost_path="" ]
 )
-ac_boost_path=${with_boost}
 
 #AC_ARG_WITH([boost],
 #  [AS_HELP_STRING([--with-boost@<:@=ARG@:>@],
