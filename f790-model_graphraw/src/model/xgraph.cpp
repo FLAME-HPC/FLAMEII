@@ -430,9 +430,14 @@ void XGraph::registerDataTask(Task * t) {
     if (taskType == Task::io_pop_write) {
         // For each write variable
         for (it = t->getWriteVariables()->begin();
-                it != t->getWriteVariables()->end(); it++)
-        taskManager.CreateIOTask(taskName, agentName, (*it),
-            flame::exe::IOTask::OP_OUTPUT);
+                it != t->getWriteVariables()->end(); it++) {
+            taskName = "AD_";
+            taskName.append(agentName);
+            taskName.append("_");
+            taskName.append((*it));
+            taskManager.CreateIOTask(taskName, agentName, (*it),
+                    flame::exe::IOTask::OP_OUTPUT);
+        }
     }
     // If model start data
     if (taskType == Task::start_model)
@@ -735,8 +740,6 @@ void XGraph::addDataDependencies(
             addWritingVerticesToList(*vit, task);
         }
     }
-
-    writeGraphviz("test.dot");
 }
 
 bool setContains(std::set<std::string>* a, std::set<std::string>* find_in_a) {
@@ -825,7 +828,7 @@ void XGraph::transformConditionalStatesToConditions(
     std::pair<VertexIterator, VertexIterator> vp;
     boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
     std::vector<XVariable*>::iterator it;
-    size_t count;
+    size_t count = 0;
 
     // For each vertex
     for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
@@ -1256,12 +1259,14 @@ bool XGraph::dependencyExists(std::string name1, std::string name2) {
     int v1 = -1, v2 = -1;
     size_t ii;
 
+    // For each task find vertex of task names
     for (ii = 0; ii < vertex2task_->size(); ii++) {
         if (vertex2task_->at(ii)->getName() == name1) v1 = ii;
         if (vertex2task_->at(ii)->getName() == name2) v2 = ii;
     }
+    // If either vertex not found then return false
     if (v1 == -1 || v2 == -1) return false;
-
+    // Check for edge between vertices
     std::pair<Edge, bool> p = boost::edge((Vertex)v1, (Vertex)v2, *graph_);
     return p.second;
 }

@@ -31,16 +31,16 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 
     /* Read model xml */
     BOOST_CHECK_NO_THROW(
-            ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model));
+        ioxmlmodel.readXMLModel("src/io/tests/models/all_data.xml", &model));
 
     /* Generate data schema */
     BOOST_CHECK_NO_THROW(
-            ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model));
+        ioxmlpop.createDataSchema("src/io/tests/models/all_data.xsd", &model));
 
     /* Validate data using schema */
     std::string xsd = "src/io/tests/models/all_data.xsd";
     BOOST_CHECK_NO_THROW(
-            ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml", xsd));
+        ioxmlpop.validateData("src/io/tests/models/all_data_its/0.xml", xsd));
     /* Remove created all_data.xsd */
     if (remove(xsd.c_str()) != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",

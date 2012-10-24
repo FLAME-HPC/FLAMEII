@@ -38,6 +38,7 @@ void Simulation::start(size_t iterations) {
     if (popLoaded_) {
         // Register agents with memory and task manager
         model_->registerWithTaskManager();
+
     } else {
         std::fprintf(stderr,
                 "Error: Cannot start simulation because pop not loaded\n");
