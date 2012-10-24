@@ -1,14 +1,12 @@
-# ===========================================================================
-#       http://www.gnu.org/software/autoconf-archive/ax_boost_base.html
-# ===========================================================================
+# =============================================================================
+# SYNOPSIS
+#
+#   FLAME_BOOST_BASE([MINIMUM-VERSION], [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 #
 # NOTE
 #
-#   This macro has been modified to suit the FLAME2 project.
-#
-# SYNOPSIS
-#
-#   AX_BOOST_BASE([MINIMUM-VERSION], [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+#   This macro has adapted from AX_BOOST_BASE.
+#   See: http://www.gnu.org/software/autoconf-archive/ax_boost_base.html
 #
 # DESCRIPTION
 #
@@ -16,8 +14,7 @@
 #
 #   If no path to the installed boost library is given the macro searches
 #   under /usr, /usr/local, /opt and /opt/local and evaluates the
-#   $BOOST_ROOT environment variable. Further documentation is available at
-#   <http://randspringer.de/boost/index.html>.
+#   $BOOST_ROOT environment variable.
 #
 #   This macro calls:
 #
@@ -37,40 +34,59 @@
 #   permitted in any medium without royalty provided the copyright notice
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
+# 
+# $Id: $
 
-#serial 21
-
-AC_DEFUN([AX_BOOST_BASE],
+AC_DEFUN([FLAME_BOOST_BASE],
 [
+
+want_boost="yes"  # We definitely want boost.
+
 AC_ARG_WITH([boost],
-  [AS_HELP_STRING([--with-boost@<:@=ARG@:>@],
-    [use Boost library from a standard location (ARG=yes),
-     from the specified location (ARG=<path>),
-     or disable it (ARG=no)
-     @<:@ARG=yes@:>@ ])],
-    [
-    if test "$withval" = "no"; then
-        want_boost="no"
-    elif test "$withval" = "yes"; then
-        want_boost="yes"
-        ac_boost_path=""
+  [AS_HELP_STRING(
+    [--with-boost=BOOST_DIR],
+    [Specify path to Boost installation]
+  )],
+  [
+    if test -d "$withval"; then
+      ac_boost_path="$withval"
     else
-        want_boost="yes"
-        ac_boost_path="$withval"
+      AC_MSG_ERROR(--with-boost expects a valid directory name)
     fi
-    ],
-    [want_boost="yes"])
+  ],
+  [ac_boost_path="" ]
+)
+ac_boost_path=${with_boost}
+
+#AC_ARG_WITH([boost],
+#  [AS_HELP_STRING([--with-boost@<:@=ARG@:>@],
+#    [use Boost library from a standard location (ARG=yes),
+#     from the specified location (ARG=<path>),
+#     or disable it (ARG=no)
+#     @<:@ARG=yes@:>@ ])],
+#    [
+#    if test "$withval" = "no"; then
+#        want_boost="no"
+#    elif test "$withval" = "yes"; then
+#        want_boost="yes"
+#        ac_boost_path=""
+#    else
+#        want_boost="yes"
+#        ac_boost_path="$withval"
+#    fi
+#    ],
+#    [want_boost="yes"])
 
 
 AC_ARG_WITH([boost-libdir],
-        AS_HELP_STRING([--with-boost-libdir=LIB_DIR],
+        AS_HELP_STRING([--with-boost-libdir=BOOST_LIB_DIR],
         [Force given directory for boost libraries. Note that this will override library path detection, so use this parameter only if default library detection fails and you know exactly where your boost libraries are located.]),
         [
         if test -d "$withval"
         then
                 ac_boost_lib_path="$withval"
         else
-                AC_MSG_ERROR(--with-boost-libdir expected directory name)
+                AC_MSG_ERROR(--with-boost-libdir expects a valid directory name)
         fi
         ],
         [ac_boost_lib_path=""]
