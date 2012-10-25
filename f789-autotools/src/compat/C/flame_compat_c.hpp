@@ -41,6 +41,8 @@ extern "C" {
 #define FLAME_MEMORY_ITERATOR FLAME_unique_symbol_000_001__
 #define FLAME_MESSAGE_BOARD_CLIENT FLAME_unique_symbol_000_002__
 
+#define FLAME_AGENT_FUNCTION(f) FLAME_AGENT_FUNC(f)
+
 #define FLAME_AGENT_FUNC(funcName) \
      int funcName(void* FLAME_MEMORY_ITERATOR, void* FLAME_MESSAGE_BOARD_CLIENT)
 

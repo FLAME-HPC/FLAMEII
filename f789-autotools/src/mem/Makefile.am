@@ -10,16 +10,26 @@
 
 noinst_LTLIBRARIES = lib_flame_mem.la
 
+module_headers = \
+  agent_memory.hpp \
+  agent_shadow.hpp \
+  memory_iterator.hpp \
+  memory_manager.hpp \
+  vector_wrapper.hpp
+  
+module_sources = \
+  agent_memory.cpp \
+  agent_shadow.cpp \
+  memory_iterator.cpp \
+  memory_manager.cpp
+
+# Header install path
+library_includedir = $(pkgincludedir)/mem
+
+# Headers to install
+library_include_HEADERS = $(module_headers)
+
 lib_flame_mem_la_LIBS     = @COMMON_LIBS@
 lib_flame_mem_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_mem_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_mem_la_SOURCES  = \
-  agent_memory.cpp \
-  agent_memory.hpp \
-  agent_shadow.cpp \
-  agent_shadow.hpp \
-  memory_iterator.cpp \
-  memory_iterator.hpp \
-  memory_manager.cpp \
-  memory_manager.hpp \
-  vector_wrapper.hpp
+lib_flame_mem_la_SOURCES  = $(module_headers) $(module_sources)

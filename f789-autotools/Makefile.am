@@ -19,7 +19,8 @@ SUBDIRS = \
   src/exe \
   src/sim \
   src/model \
-  src/compat/C
+  src/compat/C \
+  headers/exceptions
 
 # Library to install
 lib_LTLIBRARIES = libflame2.la
@@ -35,6 +36,18 @@ libflame2_la_LIBADD  = \
   src/sim/lib_flame_sim.la  \
   src/model/lib_flame_model.la \
   src/compat/C/lib_flame_compat_c.la
+
+# C API header
+include_HEADERS = headers/include/flame.h
+
+# Exceptions 
+nobase_include_HEADERS = \
+  headers/exceptions/all.hpp \
+  headers/exceptions/base.hpp \
+  headers/exceptions/exe.hpp \
+  headers/exceptions/io.hpp \
+  headers/exceptions/mem.hpp
+  
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog

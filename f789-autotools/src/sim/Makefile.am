@@ -10,13 +10,23 @@
 
 noinst_LTLIBRARIES = lib_flame_sim.la
 
+module_headers = \
+  sim_manager.hpp \
+  simulation.hpp
+
+module_sources = \
+  sim_manager.cpp \
+  simulation.cpp
+
+# Header install path
+library_includedir = $(pkgincludedir)/sim
+
+# Install all headers
+library_include_HEADERS = $(module_headers)
+
 lib_flame_sim_la_LIBS     = @COMMON_LIBS@
 lib_flame_sim_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_sim_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_sim_la_SOURCES  = \
-  sim_manager.cpp \
-  sim_manager.hpp \
-  simulation.cpp \
-  simulation.hpp
+lib_flame_sim_la_SOURCES  = $(module_headers) $(module_sources)
 
 

@@ -19,7 +19,7 @@
 # make coverage
 
 # Note: first 3 segments of the version number should contain only digits
-AC_INIT(libflame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(flame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
 
 # Automake
 AM_INIT_AUTOMAKE
@@ -247,4 +247,5 @@ src/mem/Makefile
 src/sim/Makefile
 src/model/Makefile
 src/compat/C/Makefile
+headers/exceptions/Makefile
 ])

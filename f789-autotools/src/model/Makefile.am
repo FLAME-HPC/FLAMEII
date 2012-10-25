@@ -10,36 +10,48 @@
 
 noinst_LTLIBRARIES = lib_flame_model.la
 
+module_headers = \
+  dependency.hpp \
+  model.hpp \
+  task.hpp \
+  xadt.hpp \
+  xcondition.hpp \
+  xfunction.hpp \
+  xgraph.hpp \
+  xioput.hpp \
+  xmachine.hpp \
+  xmessage.hpp \
+  xmodel.hpp \
+  xmodel_validate.hpp \
+  xtimeunit.hpp \
+  xvariable.hpp
+
+module_sources = \
+  dependency.cpp \
+  model.cpp \
+  task.cpp \
+  xadt.cpp \
+  xcondition.cpp \
+  xfunction.cpp \
+  xgraph.cpp \
+  xioput.cpp \
+  xmachine.cpp \
+  xmessage.cpp \
+  xmodel.cpp \
+  xmodel_validate.cpp \
+  xtimeunit.cpp \
+  xvariable.cpp
+
+# Header install path
+library_includedir = $(pkgincludedir)/model
+
+# Install all headers
+library_include_HEADERS = $(module_headers)
+
 lib_flame_model_la_LIBS     = @COMMON_LIBS@
 lib_flame_model_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_model_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_model_la_SOURCES  = \
-  dependency.cpp \
-  dependency.hpp \
-  model.cpp \
-  model.hpp \
-  task.cpp \
-  task.hpp \
-  xadt.cpp \
-  xadt.hpp \
-  xcondition.cpp \
-  xcondition.hpp \
-  xfunction.cpp \
-  xfunction.hpp \
-  xgraph.cpp \
-  xgraph.hpp \
-  xioput.cpp \
-  xioput.hpp \
-  xmachine.cpp \
-  xmachine.hpp \
-  xmessage.cpp \
-  xmessage.hpp \
-  xmodel.cpp \
-  xmodel.hpp \
-  xmodel_validate.cpp \
-  xmodel_validate.hpp \
-  xtimeunit.cpp \
-  xtimeunit.hpp \
-  xvariable.cpp \
-  xvariable.hpp
+lib_flame_model_la_SOURCES  = $(module_headers) $(module_sources)
+  
+
 
