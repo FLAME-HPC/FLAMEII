@@ -28,6 +28,12 @@ AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 AC_COPYRIGHT([Copyright (c) 2012 STFC Rutherford Appleton Laboratory])
 
+# Initiliase libtool
+# - Turn off shared libraries during beta-testing, since they
+#   make the build process take too long.
+#LT_INIT
+LT_INIT([disable-shared])
+
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
 AC_CONFIG_SRCDIR([src/mem/agent_memory.cpp])
@@ -48,10 +54,6 @@ AC_PROG_CXX([g++ pgCC icc, xlC])
 AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
 
-# Turn off shared libraries during beta-testing, since they
-# make the build process take too long.
-AC_DISABLE_SHARED
-
 # Initialse flags that will be applied to all compilations/linking
 COMMON_LIBS=""
 COMMON_LDFLAGS=""
@@ -66,7 +68,6 @@ AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)/src -I$(top_builddir)/headers'])
 CPPFLAGS_DEV="-DDEBUG -g"
 CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
 CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
-
 
 ############ CHOOSE BUILD TYPES ############################
 
@@ -228,9 +229,6 @@ AC_SUBST(COMMON_LIBS)
 
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
-
-############ Libtool stuff ##############
-LT_INIT()
 
 ############# Create Output ##############
 
