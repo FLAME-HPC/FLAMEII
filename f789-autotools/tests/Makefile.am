@@ -10,7 +10,7 @@
 if BUILD_TESTS
 
 noinst_PROGRAMS = run_tests
-run_tests_LDFLAGS = -lboost_unit_test_framework @COMMON_LDFLAGS@
+run_tests_LDFLAGS = @BOOST_UNIT_TEST_FRAMEWORK_LIB@ @COMMON_LDFLAGS@
 run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 run_tests_LDADD = $(top_srcdir)/libflame2.la
 run_tests_SOURCES = ./run_tests.cpp

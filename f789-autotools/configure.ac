@@ -56,7 +56,7 @@ AC_PROG_LIBTOOL
 
 # Initialse flags that will be applied to all compilations/linking
 COMMON_LIBS=""
-COMMON_LDFLAGS="-lboost_system "
+COMMON_LDFLAGS=""
 COMMON_CPPFLAGS=""
 # Initialise flags used only when linking main library
 LIBFLAME_LDFLAGS=""
@@ -150,9 +150,14 @@ AC_LANG_POP([C++])
 # - calls : AC_SUBST(BOOST_THREAD_LIB)
 FLAME_BOOST_THREAD
 
+# Check for boost_system (required by boost_filesystem)
+# - calls : AC_SUBST(BOOST_SYSTEM_LIB)
+FLAME_BOOST_SYSTEM
+
 # Check for boost_thread
 # - calls : AC_SUBST(BOOST_FILESYSTEM_LIB)
 FLAME_BOOST_FILESYSTEM
+
 
 if test $WANT_TEST_BUILD -eq 1; then
   # Check for boost_unit_test_framework
@@ -178,6 +183,9 @@ FLAME_CHECK_LIBXML2
 
 LIBFLAME_LDFLAGS+="${BOOST_LDFLAGS} ${BOOST_THREAD_LIB} ${BOOST_FILESYSTEM_LIB} "
 COMMON_CPPFLAGS+="${BOOST_CPPFLAGS} ${LIBXML2_CPPFLAGS} "
+COMMON_LDFLAGS+="${BOOST_SYSTEM_LIB} " # needs to be linked against user code if static lib used
+# TODO: Separate out USER_LDFLAGS
+
 # For now, we're hard-coded to require libxml2 ($XML_CPPFLAGS)
 LIBFLAME_LDFLAGS+="${LIBXML2_LIBS} "
 
