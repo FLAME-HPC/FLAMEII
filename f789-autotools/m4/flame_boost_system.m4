@@ -12,7 +12,7 @@
 # DESCRIPTION
 #
 #   Test for System library from the Boost C++ libraries. The macro requires
-#   a preceding call to FLAME_BOOST_BASE.
+#   a preceding call to FLAME_BOOST_BASE and FLAME_BOOST_LIB_SUFFIX
 #
 #   This macro calls:
 #
@@ -40,15 +40,22 @@ AC_DEFUN([FLAME_BOOST_SYSTEM],
 [
 
   want_boost="yes"  # We definitely want boost.
+  base_lib="boost_system"
   
-  AC_ARG_WITH([boost-system],
-    [AS_HELP_STRING(
-      [--with-boost-system=BOOST_SYSTEM_LIB],
-      [Choose specific boost system library for the linker, e.g. --with-boost-system=boost_system-gcc-mt]
-    )],
-    [ax_boost_user_system_lib="$withval"],
-    [ax_boost_user_system_lib=""]
-  )
+  if test "x$BOOST_LIB_SUFFIX" = "x"; then
+    ax_boost_user_system_lib=""
+  else
+    ax_boost_user_system_lib="${base_lib}-${BOOST_LIB_SUFFIX}"
+  fi
+    
+#  AC_ARG_WITH([boost-system],
+#    [AS_HELP_STRING(
+#      [--with-boost-system=BOOST_SYSTEM_LIB],
+#      [Choose specific boost system library for the linker, e.g. --with-boost-system=boost_system-gcc-mt]
+#    )],
+#    [ax_boost_user_system_lib="$withval"],
+#    [ax_boost_user_system_lib=""]
+#  )
 
 #  AC_ARG_WITH([boost-system],
 #  AS_HELP_STRING([--with-boost-system@<:@=special-lib@:>@],

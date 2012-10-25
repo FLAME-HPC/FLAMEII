@@ -126,6 +126,10 @@ fi
 #  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
 FLAME_BOOST_BASE([1.46])
 
+# Allows user to change boost library suffix
+#  - sets var BOOST_LIB_SUFFIX
+FLAME_BOOST_LIB_SUFFIX
+
 # Header files we need (do we really need to test these?)
 AC_LANG_PUSH([C++])  # build tests using C++
 AC_CHECK_HEADER([boost/graph/adjacency_list.hpp], [],

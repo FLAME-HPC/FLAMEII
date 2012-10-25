@@ -12,7 +12,7 @@
 # DESCRIPTION
 #
 #   Test for Unit_Test_Framework library from the Boost C++ libraries. The
-#   macro requires a preceding call to FLAME_BOOST_BASE.
+#   macro requires a preceding call to FLAME_BOOST_BASE  and FLAME_BOOST_LIB_SUFFIX
 #
 #   This macro calls:
 #
@@ -37,15 +37,22 @@
 AC_DEFUN([FLAME_BOOST_UNIT_TEST_FRAMEWORK],
 [
   want_boost="yes"  # We definitely want boost.
-
-  AC_ARG_WITH([boost-unit-test-framework],
-    [AS_HELP_STRING(
-      [--boost-unit-test-framework=BOOST_UNIT_TEST_FRAMEWORK_LIB],
-      [Choose specific boost Unit_Test_Framework library for the linker, e.g. --with-boost-unit-test-framework=boost_unit_test_framework-gcc]
-    )],
-    [ax_boost_user_unit_test_framework_lib="$withval"],
-    [ax_boost_user_unit_test_framework_lib=""]
-  )
+  base_lib="boost_unit_test_framework"
+  
+  if test "x$BOOST_LIB_SUFFIX" = "x"; then
+    ax_boost_user_unit_test_framework_lib=""
+  else
+    ax_boost_user_unit_test_framework_lib="${base_lib}-${BOOST_LIB_SUFFIX}"
+  fi
+  
+#  AC_ARG_WITH([boost-unit-test-framework],
+#    [AS_HELP_STRING(
+#      [--boost-unit-test-framework=BOOST_UNIT_TEST_FRAMEWORK_LIB],
+#      [Choose specific boost Unit_Test_Framework library for the linker, e.g. --with-boost-unit-test-framework=boost_unit_test_framework-gcc]
+#    )],
+#    [ax_boost_user_unit_test_framework_lib="$withval"],
+#    [ax_boost_user_unit_test_framework_lib=""]
+#  )
   
 #  AC_ARG_WITH([boost-unit-test-framework],
 #  AS_HELP_STRING([--with-boost-unit-test-framework@<:@=special-lib@:>@],

@@ -12,7 +12,7 @@
 # DESCRIPTION
 #
 #   Test for Thread library from the Boost C++ libraries. The macro requires
-#   a preceding call to FLAME_BOOST_BASE.
+#   a preceding call to FLAME_BOOST_BASE and FLAME_BOOST_LIB_SUFFIX
 #
 #   This macro calls:
 #
@@ -39,15 +39,23 @@ AC_DEFUN([FLAME_BOOST_THREAD],
 [
 
   want_boost="yes"  # We definitely want boost.
+  base_lib="boost_thread"
+  
+  if test "x$BOOST_LIB_SUFFIX" = "x"; then
+    ax_boost_user_thread_lib=""
+  else
+    ax_boost_user_thread_lib="${base_lib}-${BOOST_LIB_SUFFIX}"
+  fi
+  
+#  AC_ARG_WITH([boost-thread],
+#    [AS_HELP_STRING(
+#      [--with-boost-thread=BOOST_THREAD_LIB],
+#      [Choose specific boost thread library for the linker, e.g. --with-boost-thread=boost_thread-gcc-mt]
+#    )],
+#    [ax_boost_user_thread_lib="$withval"],
+#    [ax_boost_user_thread_lib=""]
+#  )
 
-  AC_ARG_WITH([boost-thread],
-    [AS_HELP_STRING(
-      [--with-boost-thread=BOOST_THREAD_LIB],
-      [Choose specific boost thread library for the linker, e.g. --with-boost-thread=boost_thread-gcc-mt]
-    )],
-    [ax_boost_user_thread_lib="$withval"],
-    [ax_boost_user_thread_lib=""]
-  )
 # AC_ARG_WITH([boost-thread],
 # AS_HELP_STRING([--with-boost-thread@<:@=special-lib@:>@],
 #                   [use the Thread library from boost - it is possible to specify a certain library for the linker

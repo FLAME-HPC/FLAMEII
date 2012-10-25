@@ -12,7 +12,7 @@
 # DESCRIPTION
 #
 #   Test for Filesystem library from the Boost C++ libraries. The macro
-#   requires a preceding call to FLAME_BOOST_BASE. 
+#   requires a preceding call to FLAME_BOOST_BASE and FLAME_BOOST_LIB_SUFFIX
 #   This macro calls:
 #
 #     AC_SUBST(BOOST_FILESYSTEM_LIB)
@@ -37,17 +37,23 @@
 
 AC_DEFUN([FLAME_BOOST_FILESYSTEM],
 [
-
   want_boost="yes"  # We definitely want boost.
+  base_lib="boost_filesystem"
   
-  AC_ARG_WITH([boost-filesystem],
-    [AS_HELP_STRING(
-      [--with-boost-filesystem=BOOST_FILESYSTEM_LIB],
-      [Choose specific boost filesystem library for the linker, e.g. --with-boost-filesystem=boost_filesystem-gcc-mt]
-    )],
-    [ax_boost_user_filesystem_lib="$withval"],
-    [ax_boost_user_filesystem_lib=""]
-  )
+  if test "x$BOOST_LIB_SUFFIX" = "x"; then
+    ax_boost_user_filesystem_lib=""
+  else
+    ax_boost_user_filesystem_lib="${base_lib}-${BOOST_LIB_SUFFIX}"
+  fi
+    
+#  AC_ARG_WITH([boost-filesystem],
+#    [AS_HELP_STRING(
+#      [--with-boost-filesystem=BOOST_FILESYSTEM_LIB],
+#      [Choose specific boost filesystem library for the linker, e.g. --with-boost-filesystem=boost_filesystem-gcc-mt]
+#    )],
+#    [ax_boost_user_filesystem_lib="$withval"],
+#    [ax_boost_user_filesystem_lib=""]
+#  )
   
 #  AC_ARG_WITH([boost-filesystem],
 #  AS_HELP_STRING([--with-boost-filesystem@<:@=special-lib@:>@],
