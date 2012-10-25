@@ -119,11 +119,31 @@ else
   AC_DEFINE([BUILD_TYPE], ["development"], [Library build type])
 fi
 
-##### CHECK BOOST (non-header-only libraries) #####
+##### CHECK BOOST #####
 
 # Check boost version
 #  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
 FLAME_BOOST_BASE([1.46])
+
+# Header files we need (do we really need to test these?)
+AC_LANG_PUSH([C++])  # build tests using C++
+AC_CHECK_HEADER([boost/graph/adjacency_list.hpp], [],
+                [AC_MSG_FAILURE([Boost Graph Library headers missing])])
+AC_CHECK_HEADER([boost/any.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/any.hpp])]) 
+AC_CHECK_HEADER([boost/function.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/function.hpp])])
+AC_CHECK_HEADER([boost/foreach.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/foreach.hpp])])
+AC_CHECK_HEADER([boost/shared_ptr.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/shared_ptr.hpp])])
+AC_CHECK_HEADER([boost/ptr_container/ptr_map.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_map.hpp])])
+AC_CHECK_HEADER([boost/ptr_container/ptr_vector.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_vector.hpp])]) 
+AC_LANG_POP([C++])
+
+# ----------- non-header-only libs ----------------------
 
 # Check for boost_thread
 # - calls : AC_SUBST(BOOST_THREAD_LIB)
