@@ -40,15 +40,6 @@ libflame2_la_LIBADD  = \
 # C API header
 include_HEADERS = headers/include/flame.h
 
-# Exceptions 
-nobase_include_HEADERS = \
-  headers/exceptions/all.hpp \
-  headers/exceptions/base.hpp \
-  headers/exceptions/exe.hpp \
-  headers/exceptions/io.hpp \
-  headers/exceptions/mem.hpp
-  
-
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog
 
