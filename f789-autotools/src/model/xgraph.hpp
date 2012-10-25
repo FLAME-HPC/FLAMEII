@@ -54,7 +54,7 @@ class XGraph {
     void generateTaskList(std::vector<Task*> * tasks);
     int registerAgentTask(Task * t,
             std::map<std::string, flame::exe::TaskFunction> funcMap);
-    int registerDataTask(Task * t);
+    void registerDataTask(Task * t);
     int registerMessageTask(Task * t);
     int registerDependencies();
     int registerTasksAndDependenciesWithTaskManager(
@@ -67,8 +67,12 @@ class XGraph {
     void writeGraphviz(std::string fileName);
     void importGraphs(std::set<XGraph*> graphs);
 #ifdef TESTBUILD
-    void testBoostGraphLibrary();
-    bool testCompareTaskSets();
+    bool dependencyExists(std::string name1, std::string name2);
+    Vertex addTestVertex(Task * t);
+    void addTestEdge(Vertex to, Vertex from, std::string name,
+            Dependency::DependencyType type);
+    void setTestStartTask(Task * task);
+    void addTestEndTask(Task * task);
 #endif
 
   private:
@@ -91,13 +95,15 @@ class XGraph {
     void generateStateGraphMessages(XFunction * function, Task * task);
     void addStartTask(std::vector<XVariable*> * variables);
     void addEndTask();
-    void copyWritingAndConditionVerticesFromInEdges(Vertex v, Task * t);
+    void copyWritingAndReadingVerticesFromInEdges(Vertex v, Task * t);
     void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
+    void addWriteDependencies(Vertex v, Task * t);
     void addReadDependencies(Vertex v, Task * t);
     void addWritingVerticesToList(Vertex v, Task * t);
-    void addDataAndConditionDependencies(std::vector<XVariable*> * variables);
+    void addDataDependencies(std::vector<XVariable*> * variables);
     void setStartTask(Task * task);
-    void transformConditionalStatesToConditions();
+    void transformConditionalStatesToConditions(
+            std::vector<XVariable*> * variables);
     void contractStateVertices();
     void contractVariableVertices();
     void removeRedundantDependencies();

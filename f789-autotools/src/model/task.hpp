@@ -37,6 +37,7 @@ class Task {
     size_t getLevel();
     void setPriorityLevel(size_t l);
     size_t getPriorityLevel();
+    void addReadWriteVariable(std::string name);
     void addReadOnlyVariable(std::string name);
     std::set<std::string>* getReadOnlyVariables();
     void addReadVariable(std::string name);
@@ -46,6 +47,7 @@ class Task {
     void setHasCondition(bool hasCondition);
     bool hasCondition();
     VarMapToVertices * getLastWrites();
+    VarMapToVertices * getLastReads();
     std::set<size_t> * getLastConditions();
     void addOutputMessage(std::string name);
     std::set<std::string>* getOutputMessages();
@@ -73,6 +75,7 @@ class Task {
     /*! \brief Does this task have an associated condition */
     bool hasCondition_;
     VarMapToVertices lastWrites_;
+    VarMapToVertices lastReads_;
     std::set<size_t> lastConditions_;
     /*! \brief Names of messages that are output */
     std::set<std::string> outputMessages_;

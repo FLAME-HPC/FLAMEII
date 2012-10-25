@@ -16,8 +16,6 @@
 #include <vector>
 #include <cstdio>
 #include <utility>
-#include <iostream>
-#include <fstream>
 #include "./io_xml_pop.hpp"
 #include "../mem/vector_wrapper.hpp"
 #include "exceptions/io.hpp"
@@ -49,9 +47,12 @@ struct VarVecData {
 
 void IOXMLPop::writeAgents(xmlTextWriterPtr writer) {
     std::vector<std::string>::iterator sit;
-    /* For each agent type in the model */
+
+    // For each agent type in the model
     agentVarMap::iterator it;
     for (it = agentVarMap_.begin(); it != agentVarMap_.end(); it++) {
+        // For each agent variable save name, pointer to data and
+        // pointer to vector wrapper
         std::vector<VarVecData> dataMap;
         std::vector<VarVecData>::iterator dit;
         bool stillData = true;
@@ -62,6 +63,7 @@ flame::mem::MemoryManager::GetInstance().GetVectorWrapper((*it).first, (*sit));
             if (vw->GetRawPtr() == NULL) stillData = false;
         }
 
+        // While there is still data write out each agent to xml
         while (stillData) {
             /* Open root tag */
             writeXMLTag(writer, "xagent");

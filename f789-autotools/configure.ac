@@ -56,7 +56,7 @@ AC_PROG_LIBTOOL
 
 # Initialse flags that will be applied to all compilations/linking
 COMMON_LIBS=""
-COMMON_LDFLAGS=""
+COMMON_LDFLAGS="-lboost_system "
 COMMON_CPPFLAGS=""
 # Initialise flags used only when linking main library
 LIBFLAME_LDFLAGS=""
