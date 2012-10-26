@@ -20,8 +20,9 @@ SUBDIRS = \
   src/sim \
   src/model \
   src/compat/C \
-  tests \
   headers/exceptions
+
+DIST_SUBDIRS = $(SUBDIRS) tests
 
 # Library to install
 lib_LTLIBRARIES = libflame2.la
@@ -39,22 +40,28 @@ libflame2_la_LIBADD  = \
   src/compat/C/lib_flame_compat_c.la
 
 # C API header
-include_HEADERS = headers/include/flame.h
+include_HEADERS = headers/include/flame.h src/flame2_config.h
 
 # Extra files to add into distribution
-EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog
+EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
+  tests/io/models \
+  tests/sim/models \
+  tests/model/models
+
+dist-hook:
+	@find $(distdir) -name ".svn" -print0 | xargs -0 rm -rf
 
 if BUILD_TESTS
 
 test:
 	@(make && cd tests && make && ./run_tests --report_level=short --show_progress)
-	
+
 else
 
 test:
 	@echo "** TEST BUILD NOT ENABLED"
 	@echo "   To build the tests, rerun ./configure with --enable-test-build"
-	
+
 endif
 
 

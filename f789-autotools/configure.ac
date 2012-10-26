@@ -26,7 +26,10 @@ AM_INIT_AUTOMAKE
 
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
-AC_COPYRIGHT([Copyright (c) 2012 STFC Rutherford Appleton Laboratory])
+AC_COPYRIGHT([
+  Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+  Copyright (c) 2012 University of Sheffield
+])
 
 # Initiliase libtool
 # - Turn off shared libraries during beta-testing, since they
@@ -39,7 +42,7 @@ LT_INIT([disable-shared])
 AC_CONFIG_SRCDIR([src/mem/agent_memory.cpp])
 
 # Path to generated config header file
-AC_CONFIG_HEADER([headers/include/config.h])
+AC_CONFIG_HEADER([src/flame2_config.h])
 
 # Path to custom m4 commands
 AC_CONFIG_MACRO_DIR([m4])
@@ -238,6 +241,8 @@ AC_SUBST(LIBFLAME_LDFLAGS)
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)
+AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
+                   [extra CPPFLAGS applied by ./configure options])
 
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
