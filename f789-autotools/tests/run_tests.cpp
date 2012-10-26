@@ -14,7 +14,7 @@
 #include <libxml/xmlerror.h>
 
 // Empty libxml error handler
-void err(void *ctx, const char *msg, ...) {}
+void err(void* /*ctx*/, const char* /*msg*/, ...) {}
 
 struct TestConfig {
     // global setup

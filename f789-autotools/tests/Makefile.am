@@ -61,6 +61,5 @@ run_tests_SOURCES += \
 else
 run: all
 all:
-	@echo "** TEST BUILD NOT ENABLED"
-	@echo "   To build the tests, rerun ./configure with --enable-test-build"
+	@echo "Test build not enabled. Skipping."
 endif

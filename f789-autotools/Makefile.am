@@ -20,6 +20,7 @@ SUBDIRS = \
   src/sim \
   src/model \
   src/compat/C \
+  tests \
   headers/exceptions
 
 # Library to install
