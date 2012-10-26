@@ -2,7 +2,7 @@ CPP_SOURCES = main.cpp
 C_SOURCES   = agent_functions.c
 HEADERS     = agent_functions.h message_datatypes.h
 
-FLAME2_DIR=/home/lsc/work/sandbox/flame2_model/installation
+FLAME2_DIR=/home/lsc/work/build/flame2
 # Based on $(includedir) and $(pkgincludedir) and @COMMON_CPPFLAGS@
 FLAME2_CPPFLAGS = -I$(FLAME2_DIR)/include -I$(FLAME2_DIR)/include/flame2 -I/usr/include/libxml2
 FLAME2_LDFLAGS = -L$(FLAME2_DIR)/lib -lflame2 -lboost_filesystem -lboost_system -lxml2 -lboost_thread
