@@ -1,5 +1,5 @@
+#include <iostream>
 #include "compat/C/compatibility_manager.hpp"
-//#include "mem/memory_manager.hpp"
 #include "exe/task_manager.hpp"
 #include "exe/scheduler.hpp"
 #include "exe/splitting_fifo_task_queue.hpp"
@@ -11,16 +11,31 @@
 
 int main(int argc, const char* argv[]) {
 
-  // Grab num_cores and num_iters from input args
-  size_t num_cores, num_iters;
-  // Grab pop file path and model path
-  std::string pop_path;
-  std::string model_path;
+  if (argc < 3 || argc > 4) {
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << " POP_DATA NUM_ITERATIONS [NUM_CORES]" << std::endl;
+    exit(1);
+  }
 
-  // Hardcode for now
-  num_cores = 2;
-  num_iters = 2;
-  pop_path = "0.xml";
+  std::string pop_path = argv[1];
+  size_t num_iters = (size_t)atoi(argv[2]);
+  if (num_iters == 0) {
+    std::cerr << "Invalid value for NUM_ITERATIONS" << std::endl;
+    exit(2);
+  }
+
+  size_t num_cores = 1; // default to single core run
+  if (argc > 3) {
+    num_cores = (size_t)atoi(argv[3]);
+    if (num_cores == 0) {
+      std::cerr << "Invalid value for NUM_CORES" << std::endl;
+      exit(3);
+    }
+  }
+  
+  // We shouldn't really need a model file since main.cpp is meant to be
+  // generated based on circles.xml
+  std::string model_path;
   model_path = "circles.xml";
 
   /*
@@ -55,7 +70,7 @@ int main(int argc, const char* argv[]) {
   iomanager.loadModel(model_path, &model);
   model.validate();
   model.registerWithMemoryManager();
-  iomanager.readPop("./0.xml", &model, flame::io::IOManager::xml);
+  iomanager.readPop(pop_path, &model, flame::io::IOManager::xml);
 
   // Define tasks
   flame::exe::TaskManager& task_mgr = flame::exe::TaskManager::GetInstance();
@@ -91,6 +106,7 @@ int main(int argc, const char* argv[]) {
                                   flame::exe::MessageBoardTask::OP_SYNC);
   task_mgr.CreateMessageBoardTask("__MB__clear_location", "location", 
                                   flame::exe::MessageBoardTask::OP_CLEAR);
+  /*
   task_mgr.CreateIOTask("__IO__output_Circle_x", "Circle", "x",
                                   flame::exe::IOTask::OP_OUTPUT);
   task_mgr.CreateIOTask("__IO__output_Circle_y", "Circle", "y",
@@ -106,7 +122,8 @@ int main(int argc, const char* argv[]) {
   // Need to remember model environment constants
   //task_mgr.CreateIOTask("__IO__output_Model_env", "Circles", "env" 
   //                                flame::exe::IOTask::OP_OUTPUT);   
-                                  
+  */
+  
   // Add task dependencies
   //taskManager.AddDependency("__AGENT__outputdata", "__IO__output_Circle_radius");
   //taskManager.AddDependency("__AGENT__outputdata", "__IO__output_Circle_id");
@@ -114,11 +131,12 @@ int main(int argc, const char* argv[]) {
   task_mgr.AddDependency("__AGENT__inputdata", "__MB__sync_location");
   task_mgr.AddDependency("__MB__clear_location", "__AGENT__inputdata");
   task_mgr.AddDependency("__AGENT__move", "__AGENT__inputdata");
+  /*
   task_mgr.AddDependency("__IO__output_Circle_fx", "__AGENT__inputdata");
   task_mgr.AddDependency("__IO__output_Circle_fy", "__AGENT__inputdata");
   task_mgr.AddDependency("__IO__output_Circle_x", "__AGENT__move");
   task_mgr.AddDependency("__IO__output_Circle_y", "__AGENT__move");
-
+  */
   
   // Initialise scheduler
   flame::exe::Scheduler s;
@@ -130,6 +148,7 @@ int main(int argc, const char* argv[]) {
   
   // Run iterations
   for (size_t i = 0; i < num_iters; ++i) {
+    std::cout << "Iteration " << i << std::endl;
     s.RunIteration();
   }
   
