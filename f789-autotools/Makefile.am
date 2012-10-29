@@ -40,7 +40,9 @@ libflame2_la_LIBADD  = \
   flame2/compat/C/lib_flame_compat_c.la
 
 # C API header
-include_HEADERS = flame2/compat/C/flame2.h flame2/config.hpp
+include_HEADERS = flame2/compat/C/flame2.h
+# flame2 config header
+nobase_include_HEADERS = flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
