@@ -29,7 +29,7 @@ lib_LTLIBRARIES = libflame2.la
 
 # Flags to build that library
 libflame2_la_SOURCES =
-libflame2_la_LDFLAGS = @LIBFLAME_LDFLAGS@
+libflame2_la_LDFLAGS = @COMMON_LDFLAGS@
 libflame2_la_LIBADD  = \
   flame2/exe/lib_flame_exe.la \
   flame2/io/lib_flame_io.la  \

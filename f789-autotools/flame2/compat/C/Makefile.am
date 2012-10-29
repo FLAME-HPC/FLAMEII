@@ -28,8 +28,6 @@ library_includedir = $(pkgincludedir)/compat/C
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_compat_c_la_LIBS     = @COMMON_LIBS@
-lib_flame_compat_c_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_compat_c_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 lib_flame_compat_c_la_SOURCES  = $(module_headers) $(module_sources)
   

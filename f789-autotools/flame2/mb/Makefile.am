@@ -40,8 +40,6 @@ library_includedir = $(pkgincludedir)/mb
 # Install all headers
 library_include_HEADERS = $(module_headers)
   
-lib_flame_mb_la_LIBS     = @COMMON_LIBS@
-lib_flame_mb_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_mb_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 lib_flame_mb_la_SOURCES  = $(module_headers) $(module_sources)
 

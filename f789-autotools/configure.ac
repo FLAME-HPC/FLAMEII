@@ -64,8 +64,6 @@ AC_PROG_LIBTOOL
 COMMON_LIBS=""
 COMMON_LDFLAGS=""
 COMMON_CPPFLAGS=""
-# Initialise flags used only when linking main library
-LIBFLAME_LDFLAGS=""
 
 # Assign include path relative to Makefile
 AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)'])
@@ -192,13 +190,12 @@ FLAME_CHECK_LIBXML2
 
 #### UPDATE FLAGS BASED ON DEPENDENCIES
 
-LIBFLAME_LDFLAGS+="${BOOST_LDFLAGS} ${BOOST_THREAD_LIB} ${BOOST_FILESYSTEM_LIB} "
 COMMON_CPPFLAGS+="${BOOST_CPPFLAGS} ${LIBXML2_CPPFLAGS} "
-COMMON_LDFLAGS+="${BOOST_SYSTEM_LIB} " # needs to be linked against user code if static lib used
-# TODO: Separate out USER_LDFLAGS
+COMMON_LDFLAGS+="${BOOST_LDFLAGS} ${BOOST_THREAD_LIB} "
+COMMON_LDFLAGS+="${BOOST_SYSTEM_LIB} ${BOOST_FILESYSTEM_LIB} "
 
 # For now, we're hard-coded to require libxml2 ($XML_CPPFLAGS)
-LIBFLAME_LDFLAGS+="${LIBXML2_LIBS} "
+COMMON_LDFLAGS+="${LIBXML2_LIBS} "
 
 #### SET DEFAULT CPPFLAGS (Can be overridden by users) ####
 
@@ -247,7 +244,6 @@ dnl Remove trailing and leading spaces, and suppress repeated spaces
   $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g'`
 ])
 
-CLEAN_VAR(LIBFLAME_LDFLAGS)
 CLEAN_VAR(COMMON_CPPFLAGS)
 CLEAN_VAR(COMMON_LDFLAGS)
 CLEAN_VAR(COMMON_LIBS)
@@ -258,7 +254,6 @@ CLEAN_VAR(LIBS)
 
 ########### Substitute vars into Makefiles ################
 
-AC_SUBST(LIBFLAME_LDFLAGS)
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)

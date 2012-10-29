@@ -24,8 +24,6 @@ library_includedir = $(pkgincludedir)/sim
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_sim_la_LIBS     = @COMMON_LIBS@
-lib_flame_sim_la_LDFLAGS  = @COMMON_LDFLAGS@
 lib_flame_sim_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 lib_flame_sim_la_SOURCES  = $(module_headers) $(module_sources)
 

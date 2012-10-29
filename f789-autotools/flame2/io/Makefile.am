@@ -26,8 +26,6 @@ library_includedir = $(pkgincludedir)/io
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_io_la_LIBS     = @COMMON_LIBS@
-lib_flame_io_la_LDFLAGS  = @COMMON_LDFLAGS@ -lxml2
 lib_flame_io_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 lib_flame_io_la_SOURCES  = $(module_headers) $(module_sources)
 
