@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task_interface.hpp
+ * \file flame2/exe/task_interface.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,10 +11,10 @@
 #define EXE__RUNNABLE_TASK_HPP_
 #include <limits>
 #include <string>
-#include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
-#include "mem/memory_iterator.hpp"
-#include "mb/proxy.hpp"
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include "flame2/mem/memory_iterator.hpp"
+#include "flame2/mb/proxy.hpp"
 
 namespace flame { namespace exe {
 

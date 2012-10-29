@@ -1,5 +1,5 @@
 /*!
- * \file FILENAME
+ * \file flame2/mem/memory_iterator.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,9 +12,9 @@
 #include <string>
 #include <utility>
 #include <map>
+#include "flame2/exceptions/mem.hpp"
 #include "agent_shadow.hpp"
 #include "vector_wrapper.hpp"
-#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 

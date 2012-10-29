@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/tests/test_task_access_to_mb.cpp
+ * \file tests/exe/test_task_access_to_mb.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_xml_pop.hpp
+ * \file flame2/io/io_xml_pop.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "mem/memory_manager.hpp"
-#include "model/xmodel.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/model/xmodel.hpp"
 
 namespace model = flame::model;
 

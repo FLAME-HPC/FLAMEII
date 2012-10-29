@@ -1,5 +1,5 @@
 /*!
- * \file src/sim/tests/test_simulation.cpp
+ * \file tests/sim/test_simulation.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

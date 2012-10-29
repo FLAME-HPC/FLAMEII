@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/tests/test_execution_module.cpp
+ * \file tests/exe/test_execution_module.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

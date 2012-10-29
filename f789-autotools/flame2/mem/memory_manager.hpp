@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/memory_manager.hpp
+ * \file flame2/mem/memory_manager.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,8 +12,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "boost/ptr_container/ptr_map.hpp"
-#include "boost/shared_ptr.hpp"
+#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/shared_ptr.hpp>
 #include "agent_memory.hpp"
 #include "agent_shadow.hpp"
 

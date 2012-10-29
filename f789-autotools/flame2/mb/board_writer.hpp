@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/board_writer.hpp
+ * \file flame2/mb/board_writer.hpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,8 +10,8 @@
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
 #include <string>
-#include "boost/ptr_container/ptr_map.hpp"
-#include "mem/vector_wrapper.hpp"
+#include <boost/ptr_container/ptr_map.hpp>
+#include "flame2/mem/vector_wrapper.hpp"
 #include "message_board.hpp"
 #include "message.hpp"
 

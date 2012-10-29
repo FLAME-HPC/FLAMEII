@@ -1,5 +1,5 @@
 /*!
- * \file src/model/task.cpp
+ * \file flame2/model/task.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <set>
-#include "./task.hpp"
+#include "task.hpp"
 
 namespace flame { namespace model {
 

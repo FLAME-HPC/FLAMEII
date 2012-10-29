@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmachine.hpp
+ * \file flame2/model/xmachine.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,10 +12,11 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "./xvariable.hpp"
-#include "./xfunction.hpp"
-#include "./xgraph.hpp"
-#include "../exe/task_interface.hpp"
+#include "flame2/exe/task_interface.hpp"
+#include "xvariable.hpp"
+#include "xfunction.hpp"
+#include "xgraph.hpp"
+
 
 namespace flame { namespace model {
 

@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_iterator.cpp
+ * \file flame2/mb/message_iterator.cpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

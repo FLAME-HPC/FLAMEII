@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xfunction.hpp
+ * \file flame2/model/xfunction.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,9 +11,9 @@
 #define MODEL__XFUNCTION_HPP_
 #include <string>
 #include <vector>
-#include "./xioput.hpp"
-#include "./xcondition.hpp"
-#include "./xvariable.hpp"
+#include "xioput.hpp"
+#include "xcondition.hpp"
+#include "xvariable.hpp"
 
 namespace flame { namespace model {
 

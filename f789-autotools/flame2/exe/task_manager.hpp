@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task_manager.cpp
+ * \file flame2/exe/task_manager.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -16,9 +16,9 @@
 #include <string>
 #include <set>
 #include <map>
-#include "boost/ptr_container/ptr_vector.hpp"
-#include "boost/ptr_container/ptr_map.hpp"
-#include "boost/thread/mutex.hpp"
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/thread/mutex.hpp>
 #include "message_board_task.hpp"
 #include "io_task.hpp"
 #include "task_interface.hpp"

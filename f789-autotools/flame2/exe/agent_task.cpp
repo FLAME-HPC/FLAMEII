@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task.cpp
+ * \file flame2/exe/task.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,9 +9,9 @@
  */
 #include <utility>
 #include <string>
+#include "flame2/exceptions/all.hpp"
+#include "flame2/mem/memory_manager.hpp"
 #include "agent_task.hpp"
-#include "exceptions/all.hpp"
-#include "mem/memory_manager.hpp"
 #include "task_splitter.hpp"
 
 namespace flame { namespace exe {

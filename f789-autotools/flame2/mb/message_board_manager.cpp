@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_board_manager.cpp
+ * \file flame2/mb/message_board_manager.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,7 +9,7 @@
  */
 #include <string>
 #include <utility>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "message_board_manager.hpp"
 
 namespace flame { namespace mb {

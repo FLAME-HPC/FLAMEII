@@ -1,5 +1,5 @@
 /*!
- * \file src/model/model.cpp
+ * \file flame2/model/model.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,8 +9,8 @@
  */
 #include <cstdio>
 #include <string>
+#include "flame2/io/io_manager.hpp"
 #include "model.hpp"
-#include "io/io_manager.hpp"
 
 namespace flame {
 namespace model {

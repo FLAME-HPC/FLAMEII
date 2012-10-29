@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/memory_manager.cpp
+ * \file flame2/mem/memory_manager.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,9 +9,9 @@
  */
 #include <utility>
 #include <string>
+#include "flame2/exceptions/mem.hpp"
 #include "memory_manager.hpp"
 #include "agent_shadow.hpp"
-#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 

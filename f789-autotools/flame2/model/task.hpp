@@ -1,5 +1,5 @@
 /*!
- * \file src/model/task.hpp
+ * \file flame2/model/task.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

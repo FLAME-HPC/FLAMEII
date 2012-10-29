@@ -1,11 +1,11 @@
 /*!
- * \file FILENAME
+ * \file flame2/mem/vector_wrapper.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Wrapper for vectors to allow type-agnostic access and storage
  */
 #ifndef MEM__MEMORY_VECTOR_HPP
 #define MEM__MEMORY_VECTOR_HPP
@@ -13,8 +13,8 @@
 #include <vector>
 #include <ostream>
 #include <typeinfo>
-#include "boost/any.hpp"
-#include "exceptions/all.hpp"
+#include <boost/any.hpp>
+#include "flame2/exceptions/all.hpp"
 
 namespace flame { namespace mem {
 

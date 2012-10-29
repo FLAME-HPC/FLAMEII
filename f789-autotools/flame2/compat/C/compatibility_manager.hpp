@@ -1,5 +1,5 @@
 /*!
- * \file src/compat/c/compatibility_manager.hpp
+ * \file flame2/compat/c/compatibility_manager.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,9 +11,9 @@
 #define COMPAT__C__COMPATIBILITY_MANAGER_HPP_
 #include <string>
 #include <utility>
-#include "exceptions/all.hpp"
-#include "boost/ptr_container/ptr_map.hpp"
-#include "mb/message_board_manager.hpp"
+#include <boost/ptr_container/ptr_map.hpp>
+#include "flame2/exceptions/all.hpp"
+#include "flame2/mb/message_board_manager.hpp"
 #include "message_board_wrapper.hpp"
 
 namespace flame { namespace compat { namespace c {

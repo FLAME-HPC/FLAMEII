@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xgraph.hpp
+ * \file flame2/model/xgraph.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,17 +9,17 @@
  */
 #ifndef MODEL__XGRAPH_HPP_
 #define MODEL__XGRAPH_HPP_
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/property_map/property_map.hpp>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
-#include "./dependency.hpp"
-#include "./task.hpp"
-#include "./xfunction.hpp"
-#include "./xvariable.hpp"
-#include "../exe/task_manager.hpp"
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/property_map/property_map.hpp>
+#include "flame2/exe/task_manager.hpp"
+#include "dependency.hpp"
+#include "task.hpp"
+#include "xfunction.hpp"
+#include "xvariable.hpp"
 
 namespace flame { namespace model {
 

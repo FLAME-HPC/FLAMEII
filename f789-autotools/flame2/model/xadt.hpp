@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xadt.hpp
+ * \file flame2/model/xadt.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #define MODEL__XADT_HPP_
 #include <string>
 #include <vector>
-#include "./xvariable.hpp"
+#include "xvariable.hpp"
 
 namespace flame { namespace model {
 

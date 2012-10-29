@@ -1,5 +1,5 @@
 /*!
- * \file src/compat/C/flame_compat_c.hpp
+ * \file flame2/compat/C/flame_compat_c.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef COMPAT__C__FLAME_COMPAT_C_HPP_
 #define COMPAT__C__FLAME_COMPAT_C_HPP_
 #include <string>
-#include "mem/memory_iterator.hpp"
+#include "flame2/mem/memory_iterator.hpp"
 
 namespace flame { namespace compat { namespace c {
 

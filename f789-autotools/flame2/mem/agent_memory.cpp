@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/agent_memory.cpp
+ * \file flame2/mem/agent_memory.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,8 +8,8 @@
  * \brief AgentMemory: management and storage class for per-agent memory vectors
  */
 #include <string>
+#include "flame2/exceptions/mem.hpp"
 #include "agent_memory.hpp"
-#include "exceptions/mem.hpp"
 
 namespace flame { namespace mem {
 

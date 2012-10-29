@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xcondition.cpp
+ * \file flame2/model/xcondition.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,15 +7,15 @@
  * \copyright GNU Lesser General Public License
  * \brief XCondition: holds condition/filter information
  */
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 #include <cstdio>
 #include <string>
 #include <set>
-#include "./xcondition.hpp"
-#include "./xmachine.hpp"
-#include "./xmessage.hpp"
-#include "./xmodel.hpp"
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
+#include "xcondition.hpp"
+#include "xmachine.hpp"
+#include "xmessage.hpp"
+#include "xmodel.hpp"
 
 void printErr(std::string message);
 

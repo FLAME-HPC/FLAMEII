@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/type_validator.hpp
+ * \file flame2/mb/type_validator.hpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 #include <typeinfo>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 
 namespace flame { namespace mb {
 

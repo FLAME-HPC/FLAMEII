@@ -1,5 +1,5 @@
 # ============================================================================
-# Desc    : automake for src/sim
+# Desc    : automake for flame2/sim
 # Author  : Shawn Chin
 # Date    : October 2012
 # License : GNU Lesser General Public License

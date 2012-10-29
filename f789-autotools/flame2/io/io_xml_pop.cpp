@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_xml_pop.cpp
+ * \file flame2/io/io_xml_pop.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -16,9 +16,9 @@
 #include <vector>
 #include <cstdio>
 #include <utility>
-#include "./io_xml_pop.hpp"
-#include "../mem/vector_wrapper.hpp"
-#include "exceptions/io.hpp"
+#include "flame2/mem/vector_wrapper.hpp"
+#include "flame2/exceptions/io.hpp"
+#include "io_xml_pop.hpp"
 
 void printErr(std::string message);
 

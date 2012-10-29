@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/message_board_task.hpp
+ * \file flame2/exe/message_board_task.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef EXE__MESSAGE_BOARD_TASK_HPP_
 #define EXE__MESSAGE_BOARD_TASK_HPP_
 #include <string>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {

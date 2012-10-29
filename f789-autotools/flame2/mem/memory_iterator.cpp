@@ -1,5 +1,5 @@
 /*!
- * \file FILENAME
+ * \file flame2/mem/memory_iterator.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,7 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
 #include "memory_iterator.hpp"
 
 namespace flame { namespace mem {

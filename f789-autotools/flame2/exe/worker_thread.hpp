@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/worker_thread.hpp
+ * \file flame2/exe/worker_thread.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,7 +9,7 @@
  */
 #ifndef EXE__WORKER_THREAD_HPP_
 #define EXE__WORKER_THREAD_HPP_
-#include "boost/thread.hpp"
+#include <boost/thread.hpp>
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {

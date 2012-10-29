@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_xml_model.cpp
+ * \file flame2/io/io_xml_model.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/worker_thread.cpp
+ * \file flame2/exe/worker_thread.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,7 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Basic worker thread
  */
-#include "boost/thread/mutex.hpp"
+#include <boost/thread/mutex.hpp>
 #include "task_queue_interface.hpp"
 #include "worker_thread.hpp"
 namespace flame { namespace exe {

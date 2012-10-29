@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xioput.cpp
+ * \file flame2/model/xioput.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "./xioput.hpp"
+#include "xioput.hpp"
 
 namespace flame { namespace model {
 

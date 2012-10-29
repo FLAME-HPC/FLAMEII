@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/mb_common.hpp
+ * \file flame2/mb/mb_common.hpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,10 +9,10 @@
  */
 #include <map>
 #include <string>
-#include "boost/shared_ptr.hpp"
-#include "boost/function.hpp"
-#include "boost/ptr_container/ptr_map.hpp"
-#include "mem/vector_wrapper.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
+#include "flame2/mem/vector_wrapper.hpp"
 
 #ifndef MB__MB_COMMON_HPP
 #define MB__MB_COMMON_HPP

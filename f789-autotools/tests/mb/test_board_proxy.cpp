@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/tests/test_board_proxy.cpp
+ * \file tests/mb/test_board_proxy.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

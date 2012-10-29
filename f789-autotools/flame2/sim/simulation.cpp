@@ -1,5 +1,5 @@
 /*!
- * \file src/sim/simulation.cpp
+ * \file flame2/sim/simulation.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,10 +9,10 @@
  */
 #include <string>
 #include <cstdio>
-#include "./simulation.hpp"
-#include "io/io_manager.hpp"
-#include "exe/fifo_task_queue.hpp"
-#include "exe/scheduler.hpp"
+#include "flame2/io/io_manager.hpp"
+#include "flame2/exe/fifo_task_queue.hpp"
+#include "flame2/exe/scheduler.hpp"
+#include "simulation.hpp"
 
 namespace flame { namespace sim {
 

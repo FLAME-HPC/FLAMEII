@@ -1,5 +1,5 @@
 /*!
- * \file src/model/dependency.cpp
+ * \file flame2/model/dependency.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "./dependency.hpp"
+#include "dependency.hpp"
 
 namespace flame { namespace model {
 

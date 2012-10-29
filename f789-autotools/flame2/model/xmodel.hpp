@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmodel.hpp
+ * \file flame2/model/xmodel.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,12 +12,12 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "./xmachine.hpp"
-#include "./xvariable.hpp"
-#include "./xadt.hpp"
-#include "./xtimeunit.hpp"
-#include "./xmessage.hpp"
-#include "./xmodel_validate.hpp"
+#include "xmachine.hpp"
+#include "xvariable.hpp"
+#include "xadt.hpp"
+#include "xtimeunit.hpp"
+#include "xmessage.hpp"
+#include "xmodel_validate.hpp"
 
 namespace flame { namespace model {
 

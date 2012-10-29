@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_iterator.hpp
+ * \file flame2/mb/message_iterator.hpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef MB__MESSAGE_ITERATOR_HPP_
 #define MB__MESSAGE_ITERATOR_HPP_
 #include <string>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "type_validator.hpp"
 #include "mb_common.hpp"
 #include "message.hpp"

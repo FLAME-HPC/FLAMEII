@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_iterator_backend.hpp
+ * \file flame2/mb/message_iterator_backend.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,8 +10,8 @@
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #include <string>
-#include "boost/shared_ptr.hpp"
-#include "boost/any.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/any.hpp>
 #include "mb_common.hpp"
 
 namespace flame { namespace mb {

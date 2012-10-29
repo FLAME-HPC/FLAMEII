@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task_queue_interface.hpp
+ * \file flame2/exe/task_queue_interface.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,8 +9,8 @@
  */
 #ifndef EXE__TASK_QUEUE_INTERFACE_HPP_
 #define EXE__TASK_QUEUE_INTERFACE_HPP_
-#include "boost/thread/mutex.hpp"
-#include "boost/thread/condition_variable.hpp"
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include "task_manager.hpp"
 #include "task_interface.hpp"
 

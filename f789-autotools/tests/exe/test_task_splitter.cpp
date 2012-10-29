@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/tests/test_task_splitter.cpp
+ * \file tests/exe/test_task_splitter.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

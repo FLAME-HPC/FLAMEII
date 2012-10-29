@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xfunction.cpp
+ * \file flame2/model/xfunction.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "./xfunction.hpp"
-#include "./task.hpp"
+#include "xfunction.hpp"
+#include "task.hpp"
 
 namespace flame { namespace model {
 

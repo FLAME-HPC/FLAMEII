@@ -1,5 +1,5 @@
 /*!
- * \file src/model/tests/test_xgraph.cpp
+ * \file tests/model/test_xgraph.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

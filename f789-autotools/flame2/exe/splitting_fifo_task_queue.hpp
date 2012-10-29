@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/splitting_fifo_task_queue.cpp
+ * \file flame2/exe/splitting_fifo_task_queue.cpp
  * \author Shawn Chin
  * \date Oct 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,7 +12,7 @@
 #include <map>
 #include <set>
 #include <queue>
-#include "boost/ptr_container/ptr_vector.hpp"
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "task_queue_interface.hpp"
 #include "worker_thread.hpp"
 #include "task_splitter.hpp"

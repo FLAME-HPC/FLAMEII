@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/fifo_task_queue.hpp
+ * \file flame2/exe/fifo_task_queue.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

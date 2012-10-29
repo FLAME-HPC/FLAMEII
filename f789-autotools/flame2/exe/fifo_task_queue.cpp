@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/fifo_task_queue.cpp
+ * \file flame2/exe/fifo_task_queue.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,9 +7,9 @@
  * \copyright GNU Lesser General Public License
  * \brief Basic Task Queue that uses FIFO scheduling
  */
-#include "boost/thread/mutex.hpp"
-#include "boost/foreach.hpp"
-#include "exceptions/all.hpp"
+#include <boost/thread/mutex.hpp>
+#include <boost/foreach.hpp>
+#include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "task_interface.hpp"
 #include "fifo_task_queue.hpp"

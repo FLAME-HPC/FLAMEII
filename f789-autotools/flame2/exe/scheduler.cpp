@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/scheduler.cpp
+ * \file flame2/exe/scheduler.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,11 +12,11 @@
 // ignore.
 // See: http://stackoverflow.com/questions/6321602/boost-thread-leakage-c
 #include <stdexcept>
-#include "boost/thread/mutex.hpp"
-#include "boost/thread/condition_variable.hpp"
-#include "boost/foreach.hpp"
-#include "io/io_manager.hpp"
-#include "exceptions/all.hpp"
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
+#include <boost/foreach.hpp>
+#include "flame2/io/io_manager.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "scheduler.hpp"
 

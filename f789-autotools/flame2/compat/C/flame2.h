@@ -1,5 +1,5 @@
 /*!
- * \file include/flame.h
+ * \file flame2/compat/C/flame2.h
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,7 +9,7 @@
  */
 #ifndef HEADERS_INCLUDE_FLAME_H_
 #define HEADERS_INCLUDE_FLAME_H_
-#include "compat/C/flame_compat_c.hpp"
+#include "flame2/compat/C/flame_compat_c.hpp"
 
 #ifdef __cplusplus
 extern "C" {

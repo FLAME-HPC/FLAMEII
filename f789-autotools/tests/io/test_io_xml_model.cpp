@@ -1,5 +1,5 @@
 /*!
- * \file src/io/tests/test_io_xml_model.cpp
+ * \file tests/io/test_io_xml_model.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

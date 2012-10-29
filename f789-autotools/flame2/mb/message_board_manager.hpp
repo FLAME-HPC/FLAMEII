@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_board_manager.hpp
+ * \file flame2/mb/message_board_manager.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,8 +12,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "boost/thread/mutex.hpp"
-#include "boost/ptr_container/ptr_map.hpp"
+#include <boost/thread/mutex.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
 #include "message_board.hpp"
 
 namespace flame { namespace mb {

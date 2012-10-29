@@ -1,5 +1,5 @@
 /*!
- * \file src/model/model.hpp
+ * \file flame2/model/model.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,9 +11,10 @@
 #ifndef MODEL__MODEL_HPP_
 #define MODEL__MODEL_HPP_
 #include <string>
-#include "model/xmodel.hpp"
-#include "include/flame.h"
-#include "compat/C/compatibility_manager.hpp"
+#include "flame2/model/xmodel.hpp"
+#include "flame2/compat/C/compatibility_manager.hpp"
+#include "flame2/compat/C/flame2.h"
+
 namespace flame {
 namespace model {
 

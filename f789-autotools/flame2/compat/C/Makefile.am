@@ -1,5 +1,5 @@
 # ============================================================================
-# Desc    : automake for src/compat/C
+# Desc    : automake for flame2/compat/C
 # Author  : Shawn Chin
 # Date    : October 2012
 # License : GNU Lesser General Public License

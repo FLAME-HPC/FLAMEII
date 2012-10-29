@@ -1,5 +1,5 @@
 # ============================================================================
-# Desc    : automake for src/model
+# Desc    : automake for flame2/model
 # Author  : Shawn Chin
 # Date    : October 2012
 # License : GNU Lesser General Public License

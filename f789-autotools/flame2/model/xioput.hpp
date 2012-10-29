@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xioput.hpp
+ * \file flame2/model/xioput.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef MODEL__XIOPUT_HPP_
 #define MODEL__XIOPUT_HPP_
 #include <string>
-#include "./xcondition.hpp"
+#include "xcondition.hpp"
 
 namespace flame { namespace model {
 

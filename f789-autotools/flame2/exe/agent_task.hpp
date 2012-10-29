@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/agent_task.hpp
+ * \file flame2/exe/agent_task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,8 +13,8 @@
 #include <utility>
 #include <map>
 #include <set>
-#include "mem/memory_manager.hpp"
-#include "mem/memory_iterator.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/mem/memory_iterator.hpp"
 #include "task_interface.hpp"
 
 namespace flame { namespace exe {

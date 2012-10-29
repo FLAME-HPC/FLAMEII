@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/scheduler.hpp
+ * \file flame2/exe/scheduler.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,8 +12,8 @@
 #include <map>
 #include <queue>
 #include <vector>
-#include "boost/bind.hpp"
-#include "boost/ptr_container/ptr_vector.hpp"
+#include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "task_interface.hpp"
 #include "task_queue_interface.hpp"
 

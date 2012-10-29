@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/tests/test_agent_memory.cpp
+ * \file tests/mem/test_agent_memory.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

@@ -1,5 +1,5 @@
 /*!
- * \file src/compat/C/message_iterator_wrapper.hpp
+ * \file flame2/compat/C/message_iterator_wrapper.hpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef COMPAT__C__MESSAGE_ITERATOR_WRAPPER_HPP_
 #define COMPAT__C__MESSAGE_ITERATOR_WRAPPER_HPP_
 #include <string>
-#include "mb/message_iterator.hpp"
+#include "flame2/mb/message_iterator.hpp"
 #include "flame_compat_c.hpp"
 
 namespace flame { namespace compat { namespace c {

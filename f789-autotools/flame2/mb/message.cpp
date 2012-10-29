@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message.cpp
+ * \file flame2/mb/message.cpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,7 +8,7 @@
  * \brief Implementation of class Message
  */
 #include <string>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 
 namespace flame { namespace mb {

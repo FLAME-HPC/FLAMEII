@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_manager.hpp
+ * \file flame2/io/io_manager.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,10 +11,10 @@
 #define IO__IO_MANAGER_HPP_
 #include <string>
 #include <vector>
-#include "./io_xml_model.hpp"
-#include "./io_xml_pop.hpp"
-#include "model/xmodel.hpp"
-#include "exceptions/io.hpp"
+#include "flame2/model/xmodel.hpp"
+#include "flame2/exceptions/io.hpp"
+#include "io_xml_model.hpp"
+#include "io_xml_pop.hpp"
 
 namespace flame { namespace io {
 

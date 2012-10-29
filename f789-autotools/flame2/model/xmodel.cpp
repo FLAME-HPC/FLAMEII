@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmodel.cpp
+ * \file flame2/model/xmodel.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,9 +12,9 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "./xmodel.hpp"
-#include "../mb/message_board_manager.hpp"
-#include "../../headers/include/flame.h"
+#include "xmodel.hpp"
+#include "flame2/mb/message_board_manager.hpp"
+#include "flame2/compat/C/flame2.h"
 
 namespace flame { namespace model {
 

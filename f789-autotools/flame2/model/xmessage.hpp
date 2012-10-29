@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmessage.hpp
+ * \file flame2/model/xmessage.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,8 +11,8 @@
 #define MODEL__XMESSAGE_HPP_
 #include <string>
 #include <vector>
-#include "./xvariable.hpp"
-#include "./task.hpp"
+#include "xvariable.hpp"
+#include "task.hpp"
 
 namespace flame { namespace model {
 

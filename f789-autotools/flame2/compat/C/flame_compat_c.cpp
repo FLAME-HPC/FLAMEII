@@ -1,5 +1,5 @@
 /*!
- * \file src/compat/C/flame_compat_c.cpp
+ * \file flame2/compat/C/flame_compat_c.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,7 +8,7 @@
  * \brief C compatibility routines
  */
 #include <string>
-#include "mb/client.hpp"
+#include "flame2/mb/client.hpp"
 #include "compatibility_manager.hpp"
 #include "flame_compat_c.hpp"
 namespace flame { namespace compat { namespace c {

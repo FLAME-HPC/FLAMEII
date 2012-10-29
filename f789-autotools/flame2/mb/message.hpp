@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message.hpp
+ * \file flame2/mb/message.hpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 #include <typeinfo>
-#include "boost/any.hpp"
+#include <boost/any.hpp>
 #include "board_writer.hpp"
 
 namespace flame { namespace mb {

@@ -1,5 +1,5 @@
 /*!
- * \file FILENAME
+ * \file flame2/mb/message_iterator_backend_raw.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,7 +8,7 @@
  * \brief DESCRIPTION
  */
 #include <string>
-#include "exceptions/all.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 #include "message_iterator_backend_raw.hpp"
 

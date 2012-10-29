@@ -1,5 +1,5 @@
 # ============================================================================
-# Desc    : automake for src/io
+# Desc    : automake for flame2/io
 # Author  : Shawn Chin
 # Date    : October 2012
 # License : GNU Lesser General Public License

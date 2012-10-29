@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xtimeunit.cpp
+ * \file flame2/model/xtimeunit.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,7 +9,7 @@
  */
 #include <cstdio>
 #include <string>
-#include "./xtimeunit.hpp"
+#include "xtimeunit.hpp"
 
 namespace flame { namespace model {
 

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_xml_model.hpp
+ * \file flame2/io/io_xml_model.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,7 +13,7 @@
 #include <libxml/tree.h>
 #include <string>
 #include <vector>
-#include "model/xmodel.hpp"
+#include "flame2/model/xmodel.hpp"
 
 namespace model = flame::model;
 

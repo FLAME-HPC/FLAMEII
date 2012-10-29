@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/splitting_fifo_task_queue.cpp
+ * \file flame2/exe/splitting_fifo_task_queue.cpp
  * \author Shawn Chin
  * \date Oct 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of SplittingFIFOTaskQueue
  */
-#include "boost/thread/mutex.hpp"
-#include "boost/foreach.hpp"
+#include <boost/thread/mutex.hpp>
+#include <boost/foreach.hpp>
 #include "task_manager.hpp"
 #include "splitting_fifo_task_queue.hpp"
 

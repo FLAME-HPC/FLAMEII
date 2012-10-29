@@ -1,5 +1,5 @@
 # ============================================================================
-# Desc    : automake for src/mem
+# Desc    : automake for flame2/mem
 # Author  : Shawn Chin
 # Date    : October 2012
 # License : GNU Lesser General Public License

@@ -1,5 +1,5 @@
 /*!
- * \file src/io/io_manager.cpp
+ * \file flame2/io/io_manager.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,7 +8,7 @@
  * \brief IOManager: management for I/O Backend
  */
 #include <string>
-#include "./io_manager.hpp"
+#include "io_manager.hpp"
 
 void printErr(std::string message);
 

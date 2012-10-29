@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xvariable.cpp
+ * \file flame2/model/xvariable.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,7 +9,7 @@
  */
 #include <string>
 #include <cstdio>
-#include "./xvariable.hpp"
+#include "xvariable.hpp"
 
 namespace flame { namespace model {
 

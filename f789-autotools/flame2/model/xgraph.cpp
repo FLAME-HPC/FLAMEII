@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xgraph.cpp
+ * \file flame2/model/xgraph.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,12 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief XGraph: holds graph information
  */
-#include <boost/graph/topological_sort.hpp>
-#include <boost/graph/graphviz.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/transitive_reduction.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/lexical_cast.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -21,12 +15,18 @@
 #include <exception>
 #include <functional>  // For greater<>
 #include <algorithm>   // For sort
-#include "./xgraph.hpp"
-#include "./xcondition.hpp"
-#include "./xfunction.hpp"
-#include "./task.hpp"
-#include "exe/task_manager.hpp"
-#include "include/flame.h"
+#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/transitive_reduction.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/lexical_cast.hpp>
+#include "xgraph.hpp"
+#include "xcondition.hpp"
+#include "xfunction.hpp"
+#include "task.hpp"
+#include "flame2/exe/task_manager.hpp"
+#include "flame2/compat/C/flame2.h"
 
 void printErr(std::string message);
 

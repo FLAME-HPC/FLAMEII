@@ -1,5 +1,5 @@
 /*!
- * \file src/sim/sim_manager.hpp
+ * \file flame2/sim/sim_manager.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef SIM__SIM_MANAGER_HPP_
 #define SIM__SIM_MANAGER_HPP_
 
-#include "./simulation.hpp"
+#include "simulation.hpp"
 
 namespace flame { namespace sim {
 

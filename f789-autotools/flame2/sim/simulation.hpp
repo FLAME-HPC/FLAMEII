@@ -1,5 +1,5 @@
 /*!
- * \file src/sim/simulation.hpp
+ * \file flame2/sim/simulation.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,7 +10,7 @@
 #ifndef SIM__SIMULATION_HPP_
 #define SIM__SIMULATION_HPP_
 #include <string>
-#include "model/model.hpp"
+#include "flame2/model/model.hpp"
 
 namespace flame { namespace sim {
 

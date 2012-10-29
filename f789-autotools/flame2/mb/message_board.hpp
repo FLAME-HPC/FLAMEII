@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_board.cpp
+ * \file flame2/mb/message_board.cpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 #include <typeinfo>
-#include "exceptions/mem.hpp"
+#include "flame2/exceptions/mem.hpp"
 #include "type_validator.hpp"
 #include "mb_common.hpp"
 #include "message_iterator_backend.hpp"

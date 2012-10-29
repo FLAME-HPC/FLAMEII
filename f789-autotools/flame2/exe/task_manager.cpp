@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/task_manager.cpp
+ * \file flame2/exe/task_manager.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,10 +11,10 @@
 #include <stack>
 #include <string>
 #include <stdexcept>
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
+#include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "agent_task.hpp"
-#include "exceptions/all.hpp"
 
 //! Internal routine which asserts that the manager is not finalised
 static inline void check_not_finalised(bool finalised) {

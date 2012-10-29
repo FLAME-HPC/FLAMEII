@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmodel_check.cpp
+ * \file flame2/model/xmodel_check.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -7,15 +7,15 @@
  * \copyright GNU Lesser General Public License
  * \brief Checks and validates a loaded model
  */
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <set>
 #include <algorithm>
-#include "./xmodel_validate.hpp"
-#include "model/xmodel.hpp"
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include "flame2/model/xmodel.hpp"
+#include "xmodel_validate.hpp"
 
 void printErr(std::string message) {
     // Print message to stderr

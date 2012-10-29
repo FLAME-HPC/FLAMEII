@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/board_writer.cpp
+ * \file flame2/mb/board_writer.cpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -10,9 +10,9 @@
 #include <string>
 #include <utility>  // std::pair
 #include <cassert>
-#include "boost/bind.hpp"
-#include "boost/foreach.hpp"
-#include "exceptions/all.hpp"
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+#include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 #include "board_writer.hpp"
 namespace flame { namespace mb {

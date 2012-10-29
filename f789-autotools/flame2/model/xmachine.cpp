@@ -1,5 +1,5 @@
 /*!
- * \file src/model/xmachine.cpp
+ * \file flame2/model/xmachine.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "./xmachine.hpp"
-#include "mem/memory_manager.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "xmachine.hpp"
 
 void printErr(std::string message);
 

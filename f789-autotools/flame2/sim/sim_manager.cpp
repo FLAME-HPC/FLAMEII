@@ -1,5 +1,5 @@
 /*!
- * \file src/sim/sim_manager.cpp
+ * \file flame2/sim/sim_manager.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,7 +8,7 @@
  * \brief SimManager: simulation manager
  */
 #include <cstdio>
-#include "./sim_manager.hpp"
+#include "sim_manager.hpp"
 
 namespace flame { namespace sim {
 

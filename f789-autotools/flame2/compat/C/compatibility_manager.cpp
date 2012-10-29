@@ -1,5 +1,5 @@
 /*!
- * \file src/compat/c/compatibility_manager.cpp
+ * \file flame2/compat/c/compatibility_manager.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

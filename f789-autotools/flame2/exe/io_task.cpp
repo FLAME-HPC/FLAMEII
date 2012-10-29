@@ -1,5 +1,5 @@
 /*!
- * \file src/exe/io_task.hpp
+ * \file flame2/exe/io_task.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -8,8 +8,8 @@
  * \brief Task that performs IO operations
  */
 #include <string>
-#include "mem/memory_manager.hpp"
-#include "io/io_manager.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/io/io_manager.hpp"
 #include "io_task.hpp"
 
 namespace flame { namespace exe {

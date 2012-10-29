@@ -1,5 +1,5 @@
 /*!
- * \file src/mb/message_board.cpp
+ * \file flame2/mb/message_board.cpp
  * \author Shawn Chin
  * \date September 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -9,9 +9,9 @@
  */
 #include <cassert>
 #include <string>
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
+#include "flame2/mem/vector_wrapper.hpp"
 #include "message_board.hpp"
-#include "mem/vector_wrapper.hpp"
 #include "message_iterator.hpp"
 #include "board_writer.hpp"
 

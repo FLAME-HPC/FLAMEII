@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/agent_shadow.hpp
+ * \file flame2/mem/agent_shadow.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 #include <utility>
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace flame { namespace mem {
 

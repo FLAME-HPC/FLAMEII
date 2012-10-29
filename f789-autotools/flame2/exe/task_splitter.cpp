@@ -1,5 +1,5 @@
 /*!
- * \file FILENAME
+ * \file flame2/exe/task_splitter.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

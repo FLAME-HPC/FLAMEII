@@ -1,5 +1,5 @@
 /*!
- * \file FILENAME
+ * \file flame2/mb/message_iterator_backend_raw.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -22,6 +22,7 @@
 #include <string>
 #include "mb_common.hpp"
 #include "message_iterator_backend.hpp"
+
 namespace flame { namespace mb {
 
 class MessageIteratorBackendRaw : public MessageIteratorBackend {

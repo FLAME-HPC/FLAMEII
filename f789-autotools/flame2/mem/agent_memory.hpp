@@ -1,5 +1,5 @@
 /*!
- * \file src/mem/agent_memory.hpp
+ * \file flame2/mem/agent_memory.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,8 +13,8 @@
 #include <utility>  // for std::pair
 #include <vector>
 #include <typeinfo>
-#include "boost/ptr_container/ptr_map.hpp"
-#include "exceptions/mem.hpp"
+#include <boost/ptr_container/ptr_map.hpp>
+#include "flame2/exceptions/mem.hpp"
 #include "vector_wrapper.hpp"
 
 // TODO(lsc): review usage of AgentMemory::registration_closed_
