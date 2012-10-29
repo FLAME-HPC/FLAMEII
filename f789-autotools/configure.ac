@@ -117,14 +117,15 @@ AM_CONDITIONAL(BUILD_TESTS, test $WANT_TEST_BUILD = 1)
 # Update CPPFLAGS_COMMON based on build type
 if test $WANT_PROD_BUILD -eq 1; then
   COMMON_CPPFLAGS+="${CPPFLAGS_PROD} "
-  AC_DEFINE([BUILD_TYPE], ["production"], [Library build type])
+  BUILD_TYPE="production"
 elif test $WANT_TEST_BUILD -eq 1; then
   COMMON_CPPFLAGS+="${CPPFLAGS_TEST} "
-  AC_DEFINE([BUILD_TYPE], ["test"], [Library build type])
+  BUILD_TYPE="test"
 else
   COMMON_CPPFLAGS+="${CPPFLAGS_DEV} "
-  AC_DEFINE([BUILD_TYPE], ["development"], [Library build type])
+  BUILD_TYPE="development"
 fi
+AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
 
 ##### CHECK BOOST #####
 
@@ -239,13 +240,32 @@ case "$CXX" in
     ;;
 esac
 
+######### Clean vars (for aesthetic reasons only) ############
+
+AC_DEFUN([CLEAN_VAR], [
+dnl Remove trailing and leading spaces, and suppress repeated spaces
+  $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g'`
+])
+
+CLEAN_VAR(LIBFLAME_LDFLAGS)
+CLEAN_VAR(COMMON_CPPFLAGS)
+CLEAN_VAR(COMMON_LDFLAGS)
+CLEAN_VAR(COMMON_LIBS)
+CLEAN_VAR(CPPFLAGS)
+CLEAN_VAR(CXXFLAGS)
+CLEAN_VAR(LDFLAGS)
+CLEAN_VAR(LIBS)
+
 ########### Substitute vars into Makefiles ################
+
 AC_SUBST(LIBFLAME_LDFLAGS)
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)
 AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
                    [extra CPPFLAGS applied by ./configure options])
+AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
+                   [extra LDFLAGS applied by ./configure options])
 
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
@@ -267,3 +287,27 @@ flame2/model/Makefile
 flame2/compat/C/Makefile
 flame2/exceptions/Makefile
 ])
+
+############# Output upon successfule configuration ######################
+
+echo ""
+echo "------------------- Configuration successful --------------------------"
+echo ""
+echo "Build type       : $BUILD_TYPE"
+echo ""
+echo "Default compiler : $CXX"
+echo "Default CXXFLAGS : $CXXFLAGS"
+echo "Default CPPFLAGS : $CPPFLAGS"
+echo "Default LDFLAGS  : $LDFLAGS"
+echo "Default LIBS     : $LIBS"
+echo ""
+echo "Additional CPPFLAGS : $COMMON_CPPFLAGS"
+echo "Additional LDFLAGS  : $LIBFLAME_LDFLAGS $COMMON_LDFLAGS"
+echo "Additional LIBS     : $COMMON_LIBS"
+echo ""
+echo "-----------------------------------------------------------------------"
+echo ""
+echo "If you wish to use a different compiler and/or FLAGS, you can "
+echo "override those variables during the invocation of 'make'. For example:"
+echo '# make CXX="xlC_r" CPPFLAGS="-qinfo=all -qflag=w:u -qcheck=all "'
+echo ""
