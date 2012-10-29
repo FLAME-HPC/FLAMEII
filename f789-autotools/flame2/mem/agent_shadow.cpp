@@ -9,6 +9,7 @@
  */
 #include <utility>
 #include <string>
+#include "flame2/config.hpp"
 #include "vector_wrapper.hpp"
 #include "memory_iterator.hpp"
 #include "agent_memory.hpp"

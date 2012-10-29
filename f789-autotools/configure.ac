@@ -17,6 +17,8 @@
 # make cpplint
 # make cccc
 # make coverage
+# (more for buildbot) ensure that all .cpp files include flame2/config.hpp
+#   -- find flame2/ -name "*.cpp" | xargs grep flame2/config.hpp -L
 
 # Note: first 3 segments of the version number should contain only digits
 # Note: package name (1st arg) must match the src directory name
@@ -43,7 +45,7 @@ LT_INIT([disable-shared])
 AC_CONFIG_SRCDIR([flame2/mem/agent_memory.cpp])
 
 # Path to generated config header file
-AC_CONFIG_HEADER([flame2/flame2_config.h])
+AC_CONFIG_HEADER([flame2/cfg.h])
 
 # Path to custom m4 commands
 AC_CONFIG_MACRO_DIR([m4])

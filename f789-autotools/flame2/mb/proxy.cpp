@@ -8,6 +8,7 @@
  * \brief Implementation of Proxy
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message_board_manager.hpp"
 #include "board_writer.hpp"

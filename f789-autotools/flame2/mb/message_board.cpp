@@ -10,6 +10,7 @@
 #include <cassert>
 #include <string>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 #include "message_board.hpp"
 #include "message_iterator.hpp"

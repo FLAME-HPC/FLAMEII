@@ -21,12 +21,14 @@
 #include <boost/graph/transitive_reduction.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/lexical_cast.hpp>
+#include "flame2/config.hpp"
+#include "flame2/exe/task_manager.hpp"
+#include "flame2/compat/C/flame2.h"
 #include "xgraph.hpp"
 #include "xcondition.hpp"
 #include "xfunction.hpp"
 #include "task.hpp"
-#include "flame2/exe/task_manager.hpp"
-#include "flame2/compat/C/flame2.h"
+
 
 void printErr(std::string message);
 

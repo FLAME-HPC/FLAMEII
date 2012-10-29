@@ -9,6 +9,7 @@
  */
 #include <cstdio>
 #include <string>
+#include "flame2/config.hpp"
 #include "xtimeunit.hpp"
 
 namespace flame { namespace model {

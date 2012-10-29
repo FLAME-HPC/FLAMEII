@@ -9,6 +9,7 @@
  */
 #include <boost/thread/mutex.hpp>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "task_interface.hpp"

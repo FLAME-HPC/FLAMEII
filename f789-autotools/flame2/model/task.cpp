@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <set>
+#include "flame2/config.hpp"
 #include "task.hpp"
 
 namespace flame { namespace model {

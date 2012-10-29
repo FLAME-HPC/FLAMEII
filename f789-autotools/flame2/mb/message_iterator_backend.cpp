@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of the Abstract base class for MessageIteratorBackend
  */
+#include "flame2/config.hpp"
 #include "message.hpp"
 #include "message_iterator_backend.hpp"
 

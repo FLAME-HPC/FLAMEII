@@ -12,6 +12,7 @@
 #include <set>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
+#include "flame2/config.hpp"
 #include "xcondition.hpp"
 #include "xmachine.hpp"
 #include "xmessage.hpp"

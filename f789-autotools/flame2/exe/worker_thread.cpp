@@ -8,6 +8,7 @@
  * \brief Basic worker thread
  */
 #include <boost/thread/mutex.hpp>
+#include "flame2/config.hpp"
 #include "task_queue_interface.hpp"
 #include "worker_thread.hpp"
 namespace flame { namespace exe {

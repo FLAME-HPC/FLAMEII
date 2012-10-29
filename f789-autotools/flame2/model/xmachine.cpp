@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "xmachine.hpp"
 

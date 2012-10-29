@@ -8,6 +8,7 @@
  * \brief C compatibility routines
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/mb/client.hpp"
 #include "compatibility_manager.hpp"
 #include "flame_compat_c.hpp"

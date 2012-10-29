@@ -12,6 +12,7 @@
 #include <cassert>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 #include "board_writer.hpp"

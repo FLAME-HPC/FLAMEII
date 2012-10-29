@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include "flame2/config.hpp"
 #include "xioput.hpp"
 
 namespace flame { namespace model {

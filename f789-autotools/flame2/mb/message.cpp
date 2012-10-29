@@ -8,6 +8,7 @@
  * \brief Implementation of class Message
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 

@@ -8,6 +8,7 @@
  * \brief IOManager: management for I/O Backend
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "io_manager.hpp"
 
 void printErr(std::string message);

@@ -8,6 +8,7 @@
  * \brief Task that runs message board functions
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message_board_task.hpp"

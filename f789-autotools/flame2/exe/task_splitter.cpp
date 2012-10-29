@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief DESCRIPTION
  */
+#include "flame2/config.hpp"
 #include "task_splitter.hpp"
 
 namespace flame { namespace exe {

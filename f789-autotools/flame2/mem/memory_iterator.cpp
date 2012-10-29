@@ -8,6 +8,7 @@
  * \brief DESCRIPTION
  */
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "memory_iterator.hpp"
 
 namespace flame { namespace mem {

@@ -8,6 +8,7 @@
  * \brief Task that performs IO operations
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "io_task.hpp"

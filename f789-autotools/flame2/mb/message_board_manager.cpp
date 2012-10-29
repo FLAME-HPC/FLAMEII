@@ -9,6 +9,7 @@
  */
 #include <string>
 #include <utility>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message_board_manager.hpp"
 

@@ -12,9 +12,10 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "xmodel.hpp"
+#include "flame2/config.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 #include "flame2/compat/C/flame2.h"
+#include "xmodel.hpp"
 
 namespace flame { namespace model {
 

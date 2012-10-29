@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include "flame2/config.hpp"
 #include "xadt.hpp"
 
 namespace flame { namespace model {

@@ -9,6 +9,7 @@
  */
 #include <string>
 #include <cstdio>
+#include "flame2/config.hpp"
 #include "xvariable.hpp"
 
 namespace flame { namespace model {

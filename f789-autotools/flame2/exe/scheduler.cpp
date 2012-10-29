@@ -15,6 +15,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"

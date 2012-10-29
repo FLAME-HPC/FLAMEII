@@ -9,6 +9,7 @@
  */
 #include <cstdio>
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "model.hpp"
 

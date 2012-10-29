@@ -12,6 +12,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "agent_task.hpp"

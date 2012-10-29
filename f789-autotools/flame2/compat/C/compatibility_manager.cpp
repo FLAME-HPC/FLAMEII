@@ -8,6 +8,7 @@
  * \brief Container to handle type mappings and conversions for the C API
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "compatibility_manager.hpp"
 
 namespace flame { namespace compat { namespace c {

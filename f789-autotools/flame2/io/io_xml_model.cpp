@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include "flame2/config.hpp"
 #include "io_xml_model.hpp"
 
 void printErr(std::string message);

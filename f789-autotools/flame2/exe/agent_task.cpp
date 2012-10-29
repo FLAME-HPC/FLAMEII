@@ -9,6 +9,7 @@
  */
 #include <utility>
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "agent_task.hpp"

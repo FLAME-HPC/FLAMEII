@@ -40,7 +40,7 @@ libflame2_la_LIBADD  = \
   flame2/compat/C/lib_flame_compat_c.la
 
 # C API header
-include_HEADERS = flame2/compat/C/flame2.h flame2/flame2_config.h
+include_HEADERS = flame2/compat/C/flame2.h flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
@@ -54,6 +54,25 @@ dist-hook:
 if BUILD_TESTS
 
 test:
+	@( \
+		find flame2 -name "*.cpp" | xargs grep flame2/config.hpp -L > test_cfg_incl ;\
+		if test -s test_cfg_incl; then \
+			echo "---------------------------------------------------------------" ;\
+			echo "" ;\
+			echo "OOppps. The following cpp files do no include flame2/config.hpp" ;\
+			while read line; do echo "- $$line"; done < test_cfg_incl ;\
+			echo "" ;\
+			echo "Please add the following include statement to those files to " ;\
+			echo "ensure that they are properly rebuilt when required:" ;\
+			echo "#include \"flame2/config.hpp\"" ;\
+			echo "" ;\
+			echo "---------------------------------------------------------------" ;\
+			rm test_cfg_incl ;\
+			exit 1 ;\
+		else \
+			rm test_cfg_incl ;\
+		fi \
+	)
 	@(make && cd tests && make && ./run_tests --report_level=short --show_progress)
 
 else

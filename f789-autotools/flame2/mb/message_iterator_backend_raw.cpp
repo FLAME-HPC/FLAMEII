@@ -8,6 +8,7 @@
  * \brief DESCRIPTION
  */
 #include <string>
+#include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message.hpp"
 #include "message_iterator_backend_raw.hpp"

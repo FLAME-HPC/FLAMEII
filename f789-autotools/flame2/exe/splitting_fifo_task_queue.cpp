@@ -9,6 +9,7 @@
  */
 #include <boost/thread/mutex.hpp>
 #include <boost/foreach.hpp>
+#include "flame2/config.hpp"
 #include "task_manager.hpp"
 #include "splitting_fifo_task_queue.hpp"
 

@@ -16,6 +16,7 @@
 #include <vector>
 #include <cstdio>
 #include <utility>
+#include "flame2/config.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_pop.hpp"
