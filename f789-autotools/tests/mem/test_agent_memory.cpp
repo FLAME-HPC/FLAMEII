@@ -10,8 +10,8 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <vector>
-#include "mem/agent_memory.hpp"
-#include "exceptions/mem.hpp"
+#include "flame2/mem/agent_memory.hpp"
+#include "flame2/exceptions/mem.hpp"
 
 namespace m = flame::mem;
 namespace e = flame::exceptions;

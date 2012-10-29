@@ -14,9 +14,9 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "io/io_xml_model.hpp"
-#include "io/io_xml_pop.hpp"
-#include "mem/memory_manager.hpp"
+#include "flame2/io/io_xml_model.hpp"
+#include "flame2/io/io_xml_pop.hpp"
+#include "flame2/mem/memory_manager.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;

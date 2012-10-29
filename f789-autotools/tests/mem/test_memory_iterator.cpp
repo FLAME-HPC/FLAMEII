@@ -10,9 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <vector>
-#include "mem/memory_manager.hpp"
-#include "mem/memory_iterator.hpp"
-#include "exceptions/all.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/mem/memory_iterator.hpp"
+#include "flame2/exceptions/all.hpp"
 
 BOOST_AUTO_TEST_SUITE(MemModule)
 

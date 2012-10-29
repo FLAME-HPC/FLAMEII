@@ -14,15 +14,15 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "include/flame.h"
-#include "sim/sim_manager.hpp"
-#include "io/io_manager.hpp"
-#include "model/model.hpp"
+#include "flame2/compat/C/flame2.h"
+#include "flame2/sim/sim_manager.hpp"
+#include "flame2/io/io_manager.hpp"
+#include "flame2/model/model.hpp"
 
-#include "mb/client.hpp"
-#include "mb/message.hpp"
-#include "mb/message_iterator.hpp"
-#include "mb/message_board_manager.hpp"
+#include "flame2/mb/client.hpp"
+#include "flame2/mb/message.hpp"
+#include "flame2/mb/message_iterator.hpp"
+#include "flame2/mb/message_board_manager.hpp"
 
 namespace sim = flame::sim;
 namespace io = flame::io;

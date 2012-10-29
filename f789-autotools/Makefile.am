@@ -13,14 +13,14 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Directories to search and build
 SUBDIRS = \
-  src/io \
-  src/mb \
-  src/mem \
-  src/exe \
-  src/sim \
-  src/model \
-  src/compat/C \
-  headers/exceptions
+  flame2/io \
+  flame2/mb \
+  flame2/mem \
+  flame2/exe \
+  flame2/sim \
+  flame2/model \
+  flame2/compat/C \
+  flame2/exceptions
 
 DIST_SUBDIRS = $(SUBDIRS) tests
 
@@ -31,16 +31,16 @@ lib_LTLIBRARIES = libflame2.la
 libflame2_la_SOURCES =
 libflame2_la_LDFLAGS = @LIBFLAME_LDFLAGS@
 libflame2_la_LIBADD  = \
-  src/exe/lib_flame_exe.la \
-  src/io/lib_flame_io.la  \
-  src/mb/lib_flame_mb.la  \
-  src/mem/lib_flame_mem.la  \
-  src/sim/lib_flame_sim.la  \
-  src/model/lib_flame_model.la \
-  src/compat/C/lib_flame_compat_c.la
+  flame2/exe/lib_flame_exe.la \
+  flame2/io/lib_flame_io.la  \
+  flame2/mb/lib_flame_mb.la  \
+  flame2/mem/lib_flame_mem.la  \
+  flame2/sim/lib_flame_sim.la  \
+  flame2/model/lib_flame_model.la \
+  flame2/compat/C/lib_flame_compat_c.la
 
 # C API header
-include_HEADERS = headers/include/flame.h src/flame2_config.h
+include_HEADERS = flame2/compat/C/flame2.h flame2/flame2_config.h
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \

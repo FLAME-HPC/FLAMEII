@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 #include <cstdio>
-#include "io/io_manager.hpp"
+#include "flame2/io/io_manager.hpp"
 
 namespace io = flame::io;
 namespace model = flame::model;

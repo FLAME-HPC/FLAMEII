@@ -15,7 +15,9 @@ module_headers = \
   flame_compat_c.hpp \
   message_board_wrapper.hpp \
   message_iterator_wrapper.hpp
-  
+
+# Note: flame2.h is installed by the master Makefile.am
+
 module_sources = \
   compatibility_manager.cpp \
   flame_compat_c.cpp

@@ -9,9 +9,9 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include "mb/message_board.hpp"
-#include "mb/message_iterator.hpp"
-#include "mb/message.hpp"
+#include "flame2/mb/message_board.hpp"
+#include "flame2/mb/message_iterator.hpp"
+#include "flame2/mb/message.hpp"
 
 BOOST_AUTO_TEST_SUITE(MBModule)
 

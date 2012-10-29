@@ -14,9 +14,9 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "model/xgraph.hpp"
-#include "model/model.hpp"
-#include "io/io_manager.hpp"
+#include "flame2/model/xgraph.hpp"
+#include "flame2/model/model.hpp"
+#include "flame2/io/io_manager.hpp"
 
 namespace model = flame::model;
 namespace io = flame::io;

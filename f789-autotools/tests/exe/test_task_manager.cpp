@@ -10,10 +10,10 @@
 #define BOOST_TEST_DYN_LINK
 #include <vector>
 #include <string>
-#include "boost/test/unit_test.hpp"
-#include "include/flame.h"
-#include "mem/memory_manager.hpp"
-#include "exe/task_manager.hpp"
+#include <boost/test/unit_test.hpp>
+#include "flame2/compat/C/flame2.h"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/exe/task_manager.hpp"
 
 BOOST_AUTO_TEST_SUITE(TaskManager)
 

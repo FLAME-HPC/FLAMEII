@@ -19,6 +19,7 @@
 # make coverage
 
 # Note: first 3 segments of the version number should contain only digits
+# Note: package name (1st arg) must match the src directory name
 AC_INIT(flame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
 
 # Automake
@@ -39,10 +40,10 @@ LT_INIT([disable-shared])
 
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
-AC_CONFIG_SRCDIR([src/mem/agent_memory.cpp])
+AC_CONFIG_SRCDIR([flame2/mem/agent_memory.cpp])
 
 # Path to generated config header file
-AC_CONFIG_HEADER([src/flame2_config.h])
+AC_CONFIG_HEADER([flame2/flame2_config.h])
 
 # Path to custom m4 commands
 AC_CONFIG_MACRO_DIR([m4])
@@ -65,7 +66,7 @@ COMMON_CPPFLAGS=""
 LIBFLAME_LDFLAGS=""
 
 # Assign include path relative to Makefile
-AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)/src -I$(top_builddir)/headers'])
+AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)'])
 
 # Build specific flags
 CPPFLAGS_DEV="-DDEBUG -g"
@@ -255,12 +256,12 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT([
 README
 tests/Makefile
-src/io/Makefile
-src/mb/Makefile
-src/exe/Makefile
-src/mem/Makefile
-src/sim/Makefile
-src/model/Makefile
-src/compat/C/Makefile
-headers/exceptions/Makefile
+flame2/io/Makefile
+flame2/mb/Makefile
+flame2/exe/Makefile
+flame2/mem/Makefile
+flame2/sim/Makefile
+flame2/model/Makefile
+flame2/compat/C/Makefile
+flame2/exceptions/Makefile
 ])

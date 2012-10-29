@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include "mem/memory_manager.hpp"
+#include "flame2/mem/memory_manager.hpp"
 
 namespace m = flame::mem;
 namespace e = flame::exceptions;

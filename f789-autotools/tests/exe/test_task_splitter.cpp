@@ -9,12 +9,12 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
-#include "boost/test/unit_test.hpp"
-#include "exceptions/all.hpp"
-#include "mem/memory_manager.hpp"
-#include "exe/task_manager.hpp"
-#include "exe/task_splitter.hpp"
-#include "include/flame.h"
+#include <boost/test/unit_test.hpp>
+#include "flame2/exceptions/all.hpp"
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/exe/task_manager.hpp"
+#include "flame2/exe/task_splitter.hpp"
+#include "flame2/compat/C/flame2.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 

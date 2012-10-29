@@ -9,14 +9,14 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <vector>
-#include "boost/test/unit_test.hpp"
-#include "mem/memory_manager.hpp"
-#include "exe/task_manager.hpp"
-#include "exe/task_interface.hpp"
-#include "exe/fifo_task_queue.hpp"
-#include "exe/splitting_fifo_task_queue.hpp"
-#include "exe/scheduler.hpp"
-#include "include/flame.h"
+#include <boost/test/unit_test.hpp>
+#include "flame2/mem/memory_manager.hpp"
+#include "flame2/exe/task_manager.hpp"
+#include "flame2/exe/task_interface.hpp"
+#include "flame2/exe/fifo_task_queue.hpp"
+#include "flame2/exe/splitting_fifo_task_queue.hpp"
+#include "flame2/exe/scheduler.hpp"
+#include "flame2/compat/C/flame2.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 

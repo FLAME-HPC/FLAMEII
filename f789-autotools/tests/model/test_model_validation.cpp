@@ -12,8 +12,8 @@
 #   define BOOST_TEST_MODULE XGraph
 #endif
 #include <boost/test/unit_test.hpp>
-#include "model/xmodel_validate.hpp"
-#include "io/io_manager.hpp"
+#include "flame2/model/xmodel_validate.hpp"
+#include "flame2/io/io_manager.hpp"
 
 namespace model = flame::model;
 namespace xml = flame::io::xml;

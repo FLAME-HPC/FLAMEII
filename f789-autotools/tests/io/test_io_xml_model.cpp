@@ -13,7 +13,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <vector>
-#include "io/io_xml_model.hpp"
+#include "flame2/io/io_xml_model.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
