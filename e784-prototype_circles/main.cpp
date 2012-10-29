@@ -1,10 +1,10 @@
 #include <iostream>
-#include "compat/C/compatibility_manager.hpp"
-#include "exe/task_manager.hpp"
-#include "exe/scheduler.hpp"
-#include "exe/splitting_fifo_task_queue.hpp"
-#include "io/io_manager.hpp"
-#include "model/xmodel.hpp"
+#include "flame2/compat/C/compatibility_manager.hpp"
+#include "flame2/exe/task_manager.hpp"
+#include "flame2/exe/scheduler.hpp"
+#include "flame2/exe/splitting_fifo_task_queue.hpp"
+#include "flame2/io/io_manager.hpp"
+#include "flame2/model/xmodel.hpp"
 
 #include "agent_functions.h"
 #include "message_datatypes.h"

@@ -1,5 +1,5 @@
 #include <math.h>
-#include "flame.h"
+#include "flame2.h"
 #include "message_datatypes.h"
 
 #define kr 0.1 /* Stiffness variable for repulsion */

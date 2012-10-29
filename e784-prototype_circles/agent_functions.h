@@ -1,4 +1,4 @@
-#include "flame.h"
+#include "flame2.h"
 
 FLAME_AGENT_FUNCTION(outputdata);
 FLAME_AGENT_FUNCTION(inputdata);
