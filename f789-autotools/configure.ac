@@ -276,6 +276,20 @@ AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
 AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
 AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
 
+if test "x${enable_shared}" = "xyes"; then
+  BUILD_SHARED="yes"
+else
+  BUILD_SHARED="no"
+fi
+AC_SUBST(BUILD_SHARED)
+
+if test "x${enable_static}" = "xyes"; then
+  BUILD_STATIC="yes"
+else
+  BUILD_STATIC="no"
+fi
+AC_SUBST(BUILD_STATIC)
+
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
 
@@ -321,3 +335,4 @@ echo "If you wish to use a different compiler and/or FLAGS, you can "
 echo "override those variables during the invocation of 'make'. For example:"
 echo '# make CXX="xlC_r" CPPFLAGS="-qinfo=all -qflag=w:u -qcheck=all "'
 echo ""
+

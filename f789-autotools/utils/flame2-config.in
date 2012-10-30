@@ -44,6 +44,15 @@ INSTALL_BINDIR=`echo "@FLAME2_INSTALL_BINDIR@" | tr -s '/'`
 INSTALL_LIBDIR=`echo "@FLAME2_INSTALL_LIBDIR@" | tr -s '/'`
 INSTALL_INCLUDEDIR=`echo "@FLAME2_INSTALL_INCLUDEDIR@" | tr -s '/'`
 
+BUILD_SHARED="@BUILD_SHARED@"
+BUILD_STATIC="@BUILD_STATIC@"
+
+# This should not happen, but just in case
+if [ "$BUILD_SHARED" != "yes" ] && [ "$BUILD_STATIC" != "yes" ]; then
+  BUILD_SHARED="?"
+  BUILD_STATIC="?"
+fi
+
 ###--- Functions ------------------------------------------------------------
 
 # print brief usage info. 
@@ -120,6 +129,9 @@ Name              : FLAME2
 Version           : $BUILD_VERSION (Rev: $BUILD_REVISION)
 Build type        : $BUILD_TYPE
 
+Dynamic linking   : $BUILD_SHARED
+Static linking    : $BUILD_STATIC
+
 Config user       : $FLAME2_CONFIG_USER
 Config date       : $FLAME2_CONFIG_DATE
 Config directory  : $FLAME2_CONFIG_DIR
@@ -148,11 +160,15 @@ function print_requested_flags {
 
   if test $A_libs -eq 1; then
     echo -n "$USER_LIBS "
-    if test $A_static -eq 1; then
+    
+    # if shared library is not built, static linking is implied
+    if [ $A_static -eq 1 ] || [ "$BUILD_SHARED" != "yes" ]; then
       echo -n "$USER_STATIC_LIBS "
     fi
   fi
   echo ""
+
+  
 }
 
 # Convert long option names to associated short option
@@ -246,7 +262,7 @@ function parse_input_arguments {
   until [ -z $1 ]; do
     case "$1" in
       -u|--usage)      print_usage;; # function will call exit 0
-      -h|--help)    print_usage;; # function will call exit 0
+      -h|--help)       print_usage;; # function will call exit 0
       -v|-V|--version) A_version=1 ;;
       -l|--libs)       A_libs=1;;
       -s|--static)     A_static=1;;
@@ -340,6 +356,12 @@ if [ $# -eq 0 ]; then rtfm ; fi
 # parse input args
 parse_input_arguments $@
 
+# if static library not built, warn when --static is used
+if [ $A_static -eq 1 ] && [ "$BUILD_STATIC" != "yes" ]; then
+  echo "WARNING: FLAME2 built without static library. --static option ignored." >&2
+  A_static=0
+fi
+      
 # Handle requests
 if [ $A_query -eq 1 ] || [ $A_version -eq 1 ] # --query or --version
 then
