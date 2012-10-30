@@ -28,7 +28,7 @@ BUILD_VERSION="@PACKAGE_VERSION@"
 
 USER_CFLAGS="@COMMON_CPPFLAGS@ -I@FLAME2_INSTALL_INCLUDEDIR@"
 USER_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2"
-USER_STATIC_LIBS="@COMMON_LDFLAGS@"
+USER_STATIC_LIBS="@COMMON_LDFLAGS@ --static"
 
 DEFAULT_COMPILER="@CXX@"
 DEFAULT_CFLAGS="@CPPFLAGS@ @CXXFLAGS@ @COMMON_CPPFLAGS@"
@@ -154,9 +154,6 @@ EOF
 
 # prints flags depending on what options were requested
 function print_requested_flags {
-  if test $A_cflags -eq 1; then
-    echo -n "$USER_CFLAGS "
-  fi
 
   if test $A_libs -eq 1; then
     echo -n "$USER_LIBS "
@@ -166,9 +163,12 @@ function print_requested_flags {
       echo -n "$USER_STATIC_LIBS "
     fi
   fi
-  echo ""
-
   
+  if test $A_cflags -eq 1; then
+    echo -n "$USER_CFLAGS "
+  fi
+
+  echo ""
 }
 
 # Convert long option names to associated short option

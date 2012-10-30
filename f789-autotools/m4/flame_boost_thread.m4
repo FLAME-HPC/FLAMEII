@@ -112,10 +112,13 @@ AC_DEFUN([FLAME_BOOST_THREAD],
     
       if test "x$host_os" = "xsolaris" ; then
         BOOST_CPPFLAGS="-pthreads $BOOST_CPPFLAGS"
+        BOOST_LDFLAGS="-pthreads $BOOST_LDFLAGS"
       elif test "x$host_os" = "xmingw32" ; then
         BOOST_CPPFLAGS="-mthreads $BOOST_CPPFLAGS"
+        BOOST_LDFLAGS="-mthreads $BOOST_LDFLAGS"
       else
         BOOST_CPPFLAGS="-pthread $BOOST_CPPFLAGS"
+        BOOST_LDFLAGS="-pthread $BOOST_LDFLAGS"
       fi
 
       AC_SUBST(BOOST_CPPFLAGS)

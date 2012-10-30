@@ -109,6 +109,11 @@ AC_DEFUN([FLAME_CHECK_LIBXML2], [
   LIBS="$STORE_LIBS"
   AC_LANG_POP([C])
 
+  dnl ==== hack
+  # Note: libxml2 requires -lz for static linking but it is not exposed
+  #       by xml2-config --libs
+  LIBXML2_LIBS="${LIBXML2_LIBS} -lz "
+  
   dnl ==== Success. Apply side-effects.
   AC_DEFINE(HAVE_LIBXML2,,[define if the libxml2 is available])
   AC_SUBST(LIBXML2_CPPFLAGS)
