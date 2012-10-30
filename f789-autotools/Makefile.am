@@ -20,7 +20,8 @@ SUBDIRS = \
   flame2/sim \
   flame2/model \
   flame2/compat/C \
-  flame2/exceptions 
+  flame2/exceptions \
+  utils
 
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests

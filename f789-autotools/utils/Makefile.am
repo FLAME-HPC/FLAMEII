@@ -8,4 +8,4 @@
 # ============================================================================
 # $Id$
 
-dist_bin_SCRIPTS = flame2-config
+bin_SCRIPTS = flame2-config

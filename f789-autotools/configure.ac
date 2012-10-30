@@ -287,6 +287,7 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT([
 README
 utils/flame2-config
+utils/Makefile
 flame2/io/Makefile
 flame2/mb/Makefile
 flame2/exe/Makefile
