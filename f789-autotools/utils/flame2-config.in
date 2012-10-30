@@ -22,6 +22,7 @@ ERR_USAGE=1
 PROG_NAME=`basename $0`
 
 # Installation-specific parameters
+BUILD_REVISION=`echo "\$Id$" | cut -d' ' -f3`
 BUILD_TYPE="@BUILD_TYPE@"
 BUILD_VERSION="@PACKAGE_VERSION@"
 
@@ -116,7 +117,7 @@ function print_query {
 
 ---- [ General Info ] -------------------------------------------------------
 Name              : FLAME2
-Version           : $BUILD_VERSION
+Version           : $BUILD_VERSION (Rev: $BUILD_REVISION)
 
 Config user       : $FLAME2_CONFIG_USER
 Config date       : $FLAME2_CONFIG_DATE
