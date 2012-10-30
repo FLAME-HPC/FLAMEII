@@ -118,6 +118,7 @@ function print_query {
 ---- [ General Info ] -------------------------------------------------------
 Name              : FLAME2
 Version           : $BUILD_VERSION (Rev: $BUILD_REVISION)
+Build type        : $BUILD_TYPE
 
 Config user       : $FLAME2_CONFIG_USER
 Config date       : $FLAME2_CONFIG_DATE
