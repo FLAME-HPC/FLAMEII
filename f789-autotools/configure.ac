@@ -124,6 +124,7 @@ else
   BUILD_TYPE="development"
 fi
 AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
+AC_SUBST(BUILD_TYPE)
 
 ##### CHECK BOOST #####
 
@@ -262,6 +263,19 @@ AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
 AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
                    [extra LDFLAGS applied by ./configure options])
 
+FLAME2_CONFIG_DIR=`pwd`
+FLAME2_CONFIG_DATE=`date`
+FLAME2_CONFIG_USER=`whoami`
+FLAME2_CONFIG_ARGS=$ac_configure_args
+AC_SUBST(FLAME2_CONFIG_DIR)
+AC_SUBST(FLAME2_CONFIG_DATE)
+AC_SUBST(FLAME2_CONFIG_USER)
+AC_SUBST(FLAME2_CONFIG_ARGS)
+
+AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
+AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
+AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+
 ############# CHECKS ####################
 AC_TYPE_SIZE_T  # we use size_t
 
@@ -272,7 +286,7 @@ AC_CONFIG_FILES([Makefile])
 # convert *.in files
 AC_OUTPUT([
 README
-tests/Makefile
+utils/flame2-config
 flame2/io/Makefile
 flame2/mb/Makefile
 flame2/exe/Makefile
@@ -297,7 +311,7 @@ echo "Default LDFLAGS  : $LDFLAGS"
 echo "Default LIBS     : $LIBS"
 echo ""
 echo "Additional CPPFLAGS : $COMMON_CPPFLAGS"
-echo "Additional LDFLAGS  : $LIBFLAME_LDFLAGS $COMMON_LDFLAGS"
+echo "Additional LDFLAGS  : $COMMON_LDFLAGS"
 echo "Additional LIBS     : $COMMON_LIBS"
 echo ""
 echo "-----------------------------------------------------------------------"

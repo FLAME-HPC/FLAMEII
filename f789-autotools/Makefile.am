@@ -20,8 +20,9 @@ SUBDIRS = \
   flame2/sim \
   flame2/model \
   flame2/compat/C \
-  flame2/exceptions
+  flame2/exceptions 
 
+# Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests
 
 # Library to install
@@ -50,6 +51,7 @@ EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
   tests/sim/models \
   tests/model/models
 
+# Commands to run before packing up the distribution
 dist-hook:
 	@find $(distdir) -name ".svn" -print0 | xargs -0 rm -rf
 
