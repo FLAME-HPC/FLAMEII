@@ -302,6 +302,7 @@ AC_OUTPUT([
 README
 utils/flame2-config
 utils/Makefile
+tests/Makefile
 flame2/io/Makefile
 flame2/mb/Makefile
 flame2/exe/Makefile
