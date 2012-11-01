@@ -226,7 +226,7 @@ if test "x$want_boost" = "xyes"; then
                     stage_version_shorten=`expr $stage_version : '\([[0-9]]*\.[[0-9]]*\)'`
                     V_CHECK=`expr $stage_version_shorten \>\= $_version`
                     if test "$V_CHECK" = "1" -a "$ac_boost_lib_path" = "" ; then
-                        AC_MSG_NOTICE(We will use a staged boost library from $BOOST_ROOT)
+                        # AC_MSG_NOTICE(We will use a staged boost library from $BOOST_ROOT)
                         BOOST_CPPFLAGS="-I$BOOST_ROOT"
                         BOOST_LDFLAGS="-L$BOOST_ROOT/stage/$libsubdir"
                     fi
