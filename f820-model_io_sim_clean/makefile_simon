@@ -10,87 +10,126 @@ LIBS       = -lboost_unit_test_framework$(BOOSTLIB) \
              -lboost_filesystem$(BOOSTLIB) \
              -lboost_thread$(BOOSTLIB) \
              $(shell xml2-config --libs)
-INCLUDE    = -I./headers -I./src $(shell xml2-config --cflags) -I$(BOOSTDIR)
-IO_SRC     = src/io/io_manager.cpp \
-             src/io/io_xml_model.cpp \
-             src/io/io_xml_pop.cpp
-IO_TEST_MAN   = src/io/tests/test_io_manager.cpp
-IO_TEST_POP   = src/io/tests/test_io_xml_pop.cpp
-IO_TEST_MODEL = src/io/tests/test_io_xml_model.cpp
-MODEL_SRC  = src/model/xvariable.cpp \
-             src/model/xadt.cpp \
-             src/model/xtimeunit.cpp \
-             src/model/xfunction.cpp \
-             src/model/xmachine.cpp \
-             src/model/xmessage.cpp \
-             src/model/xmodel.cpp \
-             src/model/xioput.cpp \
-             src/model/xcondition.cpp \
-             src/model/xmodel_validate.cpp \
-             src/model/model_manager.cpp \
-             src/model/generate_task_list.cpp \
-             src/model/task.cpp \
-             src/model/dependency.cpp \
-             src/model/xgraph.cpp
-MODEL_TEST = src/model/tests/test_model_manager.cpp \
-			 src/model/tests/test_xgraph.cpp
-MEM_SRC    = src/mem/memory_manager.cpp \
-             src/mem/agent_memory.cpp \
-             src/mem/agent_shadow.cpp \
-             src/mem/memory_iterator.cpp
-MEM_TEST   = src/mem/tests/test_agent_memory.cpp \
-             src/mem/tests/test_memory_iterator.cpp \
-             src/mem/tests/test_memory_manager.cpp \
-             src/mem/tests/test_vector_wrapper.cpp
-EXE_SRC    = src/exe/agent_task.cpp \
-             src/exe/fifo_task_queue.cpp \
-             src/exe/scheduler.cpp \
-             src/exe/task_manager.cpp \
-             src/exe/worker_thread.cpp
-SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) run_tests.cpp \
-			 $(MODEL_TEST)
+INCLUDE    = -I./ $(shell xml2-config --cflags) -I$(BOOSTDIR)
+IO_SRC     = flame2/io/io_manager.cpp \
+             flame2/io/io_xml_model.cpp \
+             flame2/io/io_xml_pop.cpp
+IO_TEST_MAN   = tests/io/test_io_manager.cpp
+IO_TEST_POP   = tests/io/test_io_xml_pop.cpp
+IO_TEST_MODEL = tests/io/test_io_xml_model.cpp
+MODEL_SRC  = flame2/model/xvariable.cpp \
+             flame2/model/xadt.cpp \
+             flame2/model/xtimeunit.cpp \
+             flame2/model/xfunction.cpp \
+             flame2/model/xmachine.cpp \
+             flame2/model/xmessage.cpp \
+             flame2/model/xmodel.cpp \
+             flame2/model/xioput.cpp \
+             flame2/model/xcondition.cpp \
+             flame2/model/xmodel_validate.cpp \
+             flame2/model/task.cpp \
+             flame2/model/dependency.cpp \
+             flame2/model/model.cpp \
+             flame2/model/xgraph.cpp
+MODEL_TEST = tests/model/test_xgraph.cpp \
+             tests/model/test_model_validation.cpp
+MEM_SRC    = flame2/mem/memory_manager.cpp \
+             flame2/mem/agent_memory.cpp \
+             flame2/mem/agent_shadow.cpp \
+             flame2/mem/memory_iterator.cpp
+MEM_TEST   = tests/mem/test_agent_memory.cpp \
+             tests/mem/test_memory_iterator.cpp \
+             tests/mem/test_memory_manager.cpp \
+             tests/mem/test_vector_wrapper.cpp
+EXE_SRC    = flame2/exe/agent_task.cpp \
+             flame2/exe/fifo_task_queue.cpp \
+             flame2/exe/io_task.cpp \
+             flame2/exe/message_board_task.cpp \
+             flame2/exe/scheduler.cpp \
+             flame2/exe/splitting_fifo_task_queue.cpp \
+             flame2/exe/task_manager.cpp \
+             flame2/exe/task_splitter.cpp \
+             flame2/exe/worker_thread.cpp
+EXE_TEST   = tests/exe/test_execution_module.cpp \
+             tests/exe/test_task_access_to_mb.cpp \
+             tests/exe/test_task_manager.cpp \
+             tests/exe/test_task_splitter.cpp
+SIM_SRC    = flame2/sim/sim_manager.cpp \
+             flame2/sim/simulation.cpp
+SIM_TEST   = tests/sim/test_sim_manager.cpp \
+             tests/sim/test_simulation.cpp
+MB_SRC     = flame2/mb/board_writer.cpp \
+             flame2/mb/client.cpp \
+             flame2/mb/message_board_manager.cpp \
+             flame2/mb/message_board.cpp \
+             flame2/mb/message_iterator_backend_raw.cpp \
+             flame2/mb/message_iterator_backend.cpp \
+             flame2/mb/message_iterator.cpp \
+             flame2/mb/message.cpp \
+             flame2/mb/proxy.cpp
+MB_TEST    = tests/mb/test_board_iteration.cpp \
+             tests/mb/test_board_manager.cpp \
+             tests/mb/test_board_proxy.cpp \
+             tests/mb/test_board_writer.cpp
+COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
+             flame2/compat/C/flame_compat_c.cpp
+SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
+             $(MB_SRC) $(SIM_SRC) $(COMPAT_SRC) tests/run_tests.cpp \
+             $(MODEL_TEST)
 #             $(MEM_TEST) \
+             $(EXE_TEST) \
+             $(MB_TEST) \
+             $(SIM_TEST) \
              $(IO_TEST_MAN) \
              $(IO_TEST_POP) \
-             $(IO_TEST_MODEL)        
+             $(IO_TEST_MODEL)
 OBJECTS    = $(SOURCES:.cpp=.o)
-HEADERS    = src/io/io_xml_model.hpp \
-			 src/io/io_xml_pop.hpp \
-			 src/io/io_manager.hpp \
-             src/model/xmachine.hpp \
-             src/model/xmodel.hpp \
-             src/model/xmodel_validate.hpp \
-             src/model/xvariable.hpp \
-             src/model/xadt.hpp \
-             src/model/xtimeunit.hpp \
-             src/model/xfunction.hpp \
-             src/model/xmessage.hpp \
-             src/model/xioput.hpp \
-             src/model/xcondition.hpp \
-             src/model/model_manager.hpp \
-             src/model/task.hpp \
-             src/model/dependency.hpp \
-             src/model/xgraph.hpp \
-             src/mem/memory_manager.hpp \
-             src/mem/agent_memory.hpp \
-             src/mem/agent_shadow.hpp \
-             src/mem/memory_iterator.hpp \
-             src/mem/vector_wrapper.hpp \
-             src/exe/agent_task.hpp \
-             src/exe/fifo_task_queue.hpp \
-             src/exe/scheduler.hpp \
-             src/exe/task_interface.hpp \
-             src/exe/task_manager.hpp \
-             src/exe/task_queue_interface.hpp \
-             src/exe/worker_thread.hpp \
-             headers/exceptions/io.hpp \
-             headers/exceptions/base.hpp \
-             headers/exceptions/mem.hpp \
-             headers/exceptions/exe.hpp \
-             headers/exceptions/all.hpp \
-             headers/include/flame.h
-DEPS       = Makefile $(HEADERS)
-EXECUTABLE = run_tests
+HEADERS    = flame2/config.hpp \
+             flame2/io/io_xml_model.hpp \
+             flame2/io/io_xml_pop.hpp \
+             flame2/io/io_manager.hpp \
+             flame2/model/xmachine.hpp \
+             flame2/model/xmodel.hpp \
+             flame2/model/xmodel_validate.hpp \
+             flame2/model/xvariable.hpp \
+             flame2/model/xadt.hpp \
+             flame2/model/xtimeunit.hpp \
+             flame2/model/xfunction.hpp \
+             flame2/model/xmessage.hpp \
+             flame2/model/xioput.hpp \
+             flame2/model/xcondition.hpp \
+             flame2/model/task.hpp \
+             flame2/model/dependency.hpp \
+             flame2/model/model.hpp \
+             flame2/model/xgraph.hpp \
+             flame2/mem/memory_manager.hpp \
+             flame2/mem/agent_memory.hpp \
+             flame2/mem/agent_shadow.hpp \
+             flame2/mem/memory_iterator.hpp \
+             flame2/mem/vector_wrapper.hpp \
+             flame2/exe/agent_task.hpp \
+             flame2/exe/fifo_task_queue.hpp \
+             flame2/exe/io_task.hpp \
+             flame2/exe/message_board_task.hpp \
+             flame2/exe/scheduler.hpp \
+             flame2/exe/splitting_fifo_task_queue.hpp \
+             flame2/exe/task_interface.hpp \
+             flame2/exe/task_manager.hpp \
+             flame2/exe/task_queue_interface.hpp \
+             flame2/exe/task_splitter.hpp \
+             flame2/exe/worker_thread.hpp \
+             flame2/exceptions/io.hpp \
+             flame2/exceptions/base.hpp \
+             flame2/exceptions/mem.hpp \
+             flame2/exceptions/exe.hpp \
+             flame2/exceptions/all.hpp \
+             flame2/compat/C/flame2.h \
+             flame2/compat/C/compatibility_manager.hpp \
+             flame2/compat/C/flame_compat_c.hpp \
+             flame2/compat/C/message_board_wrapper.hpp \
+             flame2/compat/C/message_iterator_wrapper.hpp
+DEPS       = makefile_simon $(HEADERS)
+EXECUTABLE = tests/run_tests
 RM         = rm -f
 
 all: $(SOURCES) $(EXECUTABLE)
@@ -106,6 +145,11 @@ $(OBJECTS): $(DEPS)
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE); \
 	$(RM) -r cccc
+
+run: all
+	cd tests; \
+	./run_tests --log_level=test_suite --catch_system_error=no; \
+	cd ..
 
 doc:
 	doxygen

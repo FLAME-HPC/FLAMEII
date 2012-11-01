@@ -13,7 +13,6 @@
 #include <stdexcept>
 #include "flame2/config.hpp"
 #include "xfunction.hpp"
-#include "task.hpp"
 
 namespace flame { namespace model {
 
@@ -125,14 +124,6 @@ XCondition * XFunction::addCondition() {
 
 XCondition * XFunction::getCondition() {
     return condition_;
-}
-
-void XFunction::setTask(Task * task) {
-    task_ = task;
-}
-
-Task * XFunction::getTask() {
-    return task_;
 }
 
 void XFunction::setMemoryAccessInfoAvailable(bool b) {

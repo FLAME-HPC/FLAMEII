@@ -37,8 +37,6 @@ class XFunction {
     std::vector<XIOput*> * getOutputs();
     XCondition * addCondition();
     XCondition * getCondition();
-    void setTask(Task * task);
-    Task * getTask();
     void setMemoryAccessInfoAvailable(bool b);
     bool getMemoryAccessInfoAvailable();
     void addReadOnlyVariable(std::string name);
@@ -53,7 +51,6 @@ class XFunction {
     std::vector<XIOput*> inputs_;
     std::vector<XIOput*> outputs_;
     XCondition * condition_;
-    Task * task_;
     /* Information on memory access */
     bool memoryAccessInfoAvailable_;
     std::vector<std::string> readOnlyVariables_;
