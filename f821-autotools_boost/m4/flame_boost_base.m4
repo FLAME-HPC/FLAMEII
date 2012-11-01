@@ -219,9 +219,11 @@ if test "x$want_boost" = "xyes"; then
                     if ls "$BOOST_ROOT/stage/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
                 done
                 if test -d "$BOOST_ROOT" && test -r "$BOOST_ROOT" && test -d "$BOOST_ROOT/stage/$libsubdir" && test -r "$BOOST_ROOT/stage/$libsubdir"; then
-                    version_dir=`expr //$BOOST_ROOT : '.*/\(.*\)'`
+                    # LSC: strip trailing slash from BOOST_ROOT
+                    boost_root=`expr //$BOOST_ROOT : '\(.*[[^/]]\)/*'`
+                    version_dir=`expr $boost_root : '.*/\(.*\)'`
                     stage_version=`echo $version_dir | sed 's/boost_//' | sed 's/_/./g'`
-                        stage_version_shorten=`expr $stage_version : '\([[0-9]]*\.[[0-9]]*\)'`
+                    stage_version_shorten=`expr $stage_version : '\([[0-9]]*\.[[0-9]]*\)'`
                     V_CHECK=`expr $stage_version_shorten \>\= $_version`
                     if test "$V_CHECK" = "1" -a "$ac_boost_lib_path" = "" ; then
                         AC_MSG_NOTICE(We will use a staged boost library from $BOOST_ROOT)
