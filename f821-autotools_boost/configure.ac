@@ -138,6 +138,8 @@ FLAME_BOOST_LIB_SUFFIX
 
 # Header files we need (do we really need to test these?)
 AC_LANG_PUSH([C++])  # build tests using C++
+STORE_CPPFLAGS="${CPPFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
 AC_CHECK_HEADER([boost/graph/adjacency_list.hpp], [],
                 [AC_MSG_FAILURE([Boost Graph Library headers missing])])
 AC_CHECK_HEADER([boost/any.hpp], [],
@@ -151,7 +153,8 @@ AC_CHECK_HEADER([boost/shared_ptr.hpp], [],
 AC_CHECK_HEADER([boost/ptr_container/ptr_map.hpp], [],
                 [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_map.hpp])])
 AC_CHECK_HEADER([boost/ptr_container/ptr_vector.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_vector.hpp])]) 
+                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_vector.hpp])])
+CPPFLAGS="${STORE_CPPFLAGS}"
 AC_LANG_POP([C++])
 
 # ----------- non-header-only libs ----------------------
