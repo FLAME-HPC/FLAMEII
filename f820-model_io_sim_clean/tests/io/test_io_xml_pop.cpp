@@ -23,6 +23,36 @@ namespace model = flame::model;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
 
+BOOST_AUTO_TEST_CASE(test_read_same_dir) {
+    xml::IOXMLModel ioxmlmodel;
+    xml::IOXMLPop ioxmlpop;
+    model::XModel model;
+    int rc;
+
+    /* Read model xml */
+    ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
+
+    // Create 0.xml in program dir
+    FILE *file;
+    file = fopen("0.xml", "w");
+    if (file == NULL) {
+        BOOST_FAIL("Error: Could not create 0.xml for test");
+    } else {
+        fprintf(file, "<states></states>");
+        fclose(file);
+
+        rc = ioxmlpop.readPop("0.xml", &model);
+        BOOST_CHECK(rc == 0);
+
+        rc = ioxmlpop.readPop("./0.xml", &model);
+        BOOST_CHECK(rc == 0);
+
+        if (remove("0.xml") != 0)
+            fprintf(stderr,
+                    "Warning: Could not delete the generated file: 0.xml\n");
+    }
+}
+
 /* Test creation of data schema */
 BOOST_AUTO_TEST_CASE(test_data_schema) {
     xml::IOXMLPop ioxmlpop;
