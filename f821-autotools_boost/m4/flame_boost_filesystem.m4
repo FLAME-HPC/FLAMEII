@@ -102,14 +102,16 @@ AC_DEFUN([FLAME_BOOST_FILESYSTEM],
         AC_DEFINE(HAVE_BOOST_FILESYSTEM,,[define if the Boost::Filesystem library is available])
         BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
         if test "x$ax_boost_user_filesystem_lib" = "x"; then
-            for libextension in `ls $BOOSTLIBDIR/libboost_filesystem*.so* $BOOSTLIBDIR/libboost_filesystem*.dylib* $BOOSTLIBDIR/libboost_filesystem*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_filesystem.*\)\.\(dylib\|a\|so\).*$;\1;' | sed -e '1!G;h;$!d'` ; do
+            for libextension in `find $BOOSTLIBDIR -maxdepth 1 -name "libboost_filesystem*" \( -type f -o -type l \) | awk -F. '/libboost_filesystem\.(a|so|dylib)(\.|$)/{sub(/.*\/lib/, ""); print $[1]}' | sort -u`; do
+            #for libextension in `ls $BOOSTLIBDIR/libboost_filesystem*.so* $BOOSTLIBDIR/libboost_filesystem*.dylib* $BOOSTLIBDIR/libboost_filesystem*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_filesystem.*\)\.\(dylib\|a\|so\).*$;\1;' | sed -e '1!G;h;$!d'` ; do
                 ax_lib=${libextension}
                 AC_CHECK_LIB($ax_lib, exit,
                               [BOOST_FILESYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_FILESYSTEM_LIB) link_filesystem="yes"; break],
                               [link_filesystem="no"])
             done
             if test "x$link_filesystem" != "xyes"; then
-                for libextension in `ls $BOOSTLIBDIR/boost_filesystem*.dll* $BOOSTLIBDIR/boost_filesystem*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_filesystem.*\)\.\(dll\|a\).*$;\1;' | sed -e '1!G;h;$!d'` ; do
+                for libextension in `find $BOOSTLIBDIR -maxdepth 1 -name "boost_filesystem*" \( -type f -o -type l \) | awk -F. '/libboost_filesystem\.(a|so|dylib)(\.|$)/{print $[1]}' | sort -u`; do
+                #for libextension in `ls $BOOSTLIBDIR/boost_filesystem*.dll* $BOOSTLIBDIR/boost_filesystem*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_filesystem.*\)\.\(dll\|a\).*$;\1;' | sed -e '1!G;h;$!d'` ; do
                     ax_lib=${libextension}
                     AC_CHECK_LIB($ax_lib, exit,
                               [BOOST_FILESYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_FILESYSTEM_LIB) link_filesystem="yes"; break],
