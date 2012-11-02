@@ -9,8 +9,8 @@
  */
 #ifndef MODEL__XTIMEUNIT_HPP_
 #define MODEL__XTIMEUNIT_HPP_
-#include <string>
 #include <boost/cstdint.hpp>
+#include <string>
 
 namespace flame { namespace model {
 

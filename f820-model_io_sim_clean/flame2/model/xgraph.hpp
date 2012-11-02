@@ -9,12 +9,12 @@
  */
 #ifndef MODEL__XGRAPH_HPP_
 #define MODEL__XGRAPH_HPP_
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/property_map/property_map.hpp>
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
 #include "task.hpp"

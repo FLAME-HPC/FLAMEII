@@ -7,6 +7,12 @@
  * \copyright GNU Lesser General Public License
  * \brief XGraph: holds graph information
  */
+#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/transitive_reduction.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -15,12 +21,6 @@
 #include <exception>
 #include <functional>  // For greater<>
 #include <algorithm>   // For sort
-#include <boost/graph/topological_sort.hpp>
-#include <boost/graph/graphviz.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/transitive_reduction.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/lexical_cast.hpp>
 #include "flame2/config.hpp"
 #include "flame2/exe/task_manager.hpp"
 #include "flame2/compat/C/flame2.h"

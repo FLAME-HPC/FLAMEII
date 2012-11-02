@@ -7,13 +7,13 @@
  * \copyright GNU Lesser General Public License
  * \brief Checks and validates a loaded model
  */
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include "flame2/config.hpp"
 #include "flame2/model/xmodel.hpp"
 #include "xmodel_validate.hpp"
@@ -100,27 +100,26 @@ int XModelValidate::validateTimeUnits(
         std::vector<XTimeUnit*> timeUnits, XModel * model) {
     int errors = 0;
     unsigned int ii;
-    int rc;
 
     // Process time unit (unit and period)
-    for (ii = 0; ii < timeUnits.size(); ii++) {
-        rc = processTimeUnit(timeUnits.at(ii));
-        if (rc != 0) {
+    for (ii = 0; ii < timeUnits.size(); ++ii) {
+        if (processTimeUnit(timeUnits.at(ii)) != 0) {
             printErr(std::string("       from time unit: ") +
                 timeUnits.at(ii)->getName());
             errors++;
         }
     }
 
-    for (ii = 0; ii < timeUnits.size(); ii++) {
-        rc = validateTimeUnit(timeUnits.at(ii), model);
-        if (rc != 0) {
+    // Validate time unit
+    for (ii = 0; ii < timeUnits.size(); ++ii) {
+        if (validateTimeUnit(timeUnits.at(ii), model) != 0) {
             printErr(std::string("       from time unit: ") +
                 timeUnits.at(ii)->getName());
             errors++;
         }
     }
 
+    // Return number of errors
     return errors;
 }
 
@@ -449,9 +448,7 @@ void XModelValidate::validateVariableType(XVariable * v, int * errors,
     if (!foundValidDataType) {
         printErr(std::string(
             "Error: Data type: '%s' not valid for variable name: ") +
-            v->getType() +
-            std::string(" ") +
-            v->getName());
+            v->getType() + std::string(" ") + v->getName());
         (*errors)++;
     }
 
@@ -461,15 +458,11 @@ void XModelValidate::validateVariableType(XVariable * v, int * errors,
         if (v->isDynamicArray())
             printErr(std::string(
                 "Error: Dynamic array not allowed: ") +
-                    v->getType() +
-                    std::string("_array ") +
-                    v->getName());
+                    v->getType() + std::string("_array ") + v->getName());
         else
             printErr(std::string(
         "Error: Dynamic array (in data type) not allowed: ") +
-                v->getType() +
-                std::string(" ") +
-                v->getName());
+                v->getType() + std::string(" ") + v->getName());
         (*errors)++;
     }
 }
@@ -556,50 +549,39 @@ int XModelValidate::processTimeUnitUnit(XTimeUnit * timeUnit, XModel * model) {
     return errors;
 }
 
-int XModelValidate::validateTimeUnit(XTimeUnit * timeUnit, XModel * model) {
+int XModelValidate::validateTimeUnit(XTimeUnit * tU, XModel * model) {
     std::vector<XTimeUnit*>::iterator it;
+    int errors = 0;
 
     /* Check name is valid */
-    if (!name_is_allowed(timeUnit->getName())) {
+    if (!name_is_allowed(tU->getName()) || tU->getName() == "iteration") {
         printErr(std::string(
-            "Error: Time unit name is not valid: ") +
-            timeUnit->getName());
-        return 1;
+            "Error: Time unit name is not valid: ") + tU->getName());
+        ++errors;
     }
 
-    /* Check that name is not iteration */
-    if (timeUnit->getName() == "iteration") {
-        printErr(std::string("Error: Time unit name cannot be 'iteration'"));
-        return 1;
-    }
-
-    /* Check for
-     * duplicate names */
+    /* Check for duplicate names */
     for (it = model->getTimeUnits()->begin();
-            it != model->getTimeUnits()->end(); it++) {
+            it != model->getTimeUnits()->end(); ++it) {
         // If time units are not the same check names
-        if (timeUnit != (*it) &&
-            timeUnit->getName() == (*it)->getName()) {
+        if (tU != (*it) && tU->getName() == (*it)->getName()) {
             // If the time unit is an exact duplicate then delete
-            if (timeUnit->getPeriod() ==
-                    (*it)->getPeriod() &&
-                    timeUnit->getUnit() == (*it)->getUnit()) {
+            if (tU->getPeriod() == (*it)->getPeriod() &&
+                    tU->getUnit() == (*it)->getUnit()) {
                 // Remove exact duplicate
                 std::vector<XTimeUnit*>::iterator tit =
-                    std::find(model->getTimeUnits()->begin(),
-                        model->getTimeUnits()->end(), timeUnit);
+std::find(model->getTimeUnits()->begin(), model->getTimeUnits()->end(), tU);
                 delete (*tit);
                 model->getTimeUnits()->erase(tit);
                 return 0;
             } else {
-                printErr(std::string("Error: Duplicate time unit name: ") +
-                    timeUnit->getName());
-                return 1;
+printErr(std::string("Error: Duplicate time unit name: ") + tU->getName());
+                return ++errors;
             }
         }
     }
 
-    return 0;
+    return errors;
 }
 
 int XModelValidate::processTimeUnit(XTimeUnit * timeUnit) {

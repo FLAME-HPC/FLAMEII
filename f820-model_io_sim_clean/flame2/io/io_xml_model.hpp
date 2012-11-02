@@ -31,10 +31,10 @@ class IOXMLModel {
     std::string getElementValue(xmlNode * node);
     int validateXMLModelRootElement(
             xmlNode *root_element, std::string file_name);
-    int readModelElements(xmlNode *root_element, model::XModel * model,
+    void readModelElements(xmlNode *root_element, model::XModel * model,
             std::string directory);
-    int readUnknownElement(xmlNode * node);
-    int readIncludedModels(xmlNode * node,
+    void readUnknownElement(xmlNode * node);
+    void readIncludedModels(xmlNode * node,
             std::string directory, model::XModel * model);
     int readIncludedModel(xmlNode * node,
             std::string directory, model::XModel * model);
@@ -52,8 +52,8 @@ class IOXMLModel {
             std::vector<model::XVariable*> * variables);
     int readAgents(xmlNode * node, model::XModel * model);
     int readAgent(xmlNode * node, model::XModel * model);
-    int readTransitions(xmlNode * node, model::XMachine * machine);
-    int readTransition(xmlNode * node, model::XMachine * machine);
+    void readTransitions(xmlNode * node, model::XMachine * machine);
+    void readTransition(xmlNode * node, model::XMachine * machine);
     int readInputs(xmlNode * node, model::XFunction * xfunction);
     int readInput(xmlNode * node, model::XFunction * xfunction);
     int readOutputs(xmlNode * node, model::XFunction * xfunction);
@@ -61,13 +61,13 @@ class IOXMLModel {
     int readMessages(xmlNode * node, model::XModel * model);
     int readMessage(xmlNode * node, model::XModel * model);
     int readSort(xmlNode * node, model::XIOput * xioput);
-    int readCondition(xmlNode * node, model::XCondition * xcondition);
-    int readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
-    int readConditionSide(model::XCondition * xcondition,
+    void readCondition(xmlNode * node, model::XCondition * xcondition);
+    void readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
+    void readConditionSide(model::XCondition * xcondition,
         model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
         bool * hsIsCondition, xmlNode *cur_node);
-    int readMemoryAccess(xmlNode * node, model::XFunction * xfunction);
-    int readMemoryAccessVariables(xmlNode * node,
+    void readMemoryAccess(xmlNode * node, model::XFunction * xfunction);
+    void readMemoryAccessVariables(xmlNode * node,
         std::vector<std::string> * variables);
 };
 }}}  // namespace flame::io::xml

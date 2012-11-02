@@ -28,7 +28,6 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
     flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-    int rc;
 
     /* Read model xml */
     ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
@@ -81,6 +80,7 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 /* Test the reading of XML population files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     int rc;
+    unsigned int ii;
     xml::IOXMLPop ioxmlpop;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
@@ -90,29 +90,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     /* Read model xml */
     ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
     /* Register agents with memory manager */
-    unsigned int ii, jj;
-    size_t pop_size_hint = 3;
-    for (ii = 0; ii < model.getAgents()->size(); ii++) {
-        model::XMachine * agent = model.getAgents()->at(ii);
-        /* Register agent */
-        memoryManager.RegisterAgent(agent->getName());
-        /* Register agent memory variables */
-        for (jj = 0; jj < agent->getVariables()->size(); jj++) {
-            model::XVariable * var =
-                    agent->getVariables()->at(jj);
-            if (var->getType() == "int") {
-                /* Register int variable */
-                memoryManager.RegisterAgentVar<int>
-                    (agent->getName(), var->getName());
-            } else if (var->getType() == "double") {
-                /* Register double variable */
-                memoryManager.RegisterAgentVar<double>
-                    (agent->getName(), var->getName());
-            }
-        }
-        /* Population Size hint */
-        memoryManager.HintPopulationSize(agent->getName(), pop_size_hint);
-    }
+    model.registerWithMemoryManager();
 
     rc = ioxmlpop.readPop(
             "io/models/all_data_its/0_missing.xml",

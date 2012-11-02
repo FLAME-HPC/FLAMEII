@@ -7,11 +7,11 @@
  * \copyright GNU Lesser General Public License
  * \brief XCondition: holds condition/filter information
  */
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <cstdio>
 #include <string>
 #include <set>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 #include "flame2/config.hpp"
 #include "xcondition.hpp"
 #include "xmachine.hpp"

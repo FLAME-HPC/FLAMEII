@@ -75,7 +75,7 @@ COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
              flame2/compat/C/flame_compat_c.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
              $(MB_SRC) $(SIM_SRC) $(COMPAT_SRC) tests/run_tests.cpp \
-             $(MODEL_TEST)
+             $(MODEL_TEST) $(IO_TEST_POP) $(IO_TEST_MODEL) $(IO_TEST_MAN)
 #             $(MEM_TEST) \
              $(EXE_TEST) \
              $(MB_TEST) \
@@ -84,8 +84,7 @@ SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
              $(IO_TEST_POP) \
              $(IO_TEST_MODEL)
 OBJECTS    = $(SOURCES:.cpp=.o)
-HEADERS    = flame2/config.hpp \
-             flame2/io/io_xml_model.hpp \
+MODEL_IO_SIM_HEADERS = flame2/io/io_xml_model.hpp \
              flame2/io/io_xml_pop.hpp \
              flame2/io/io_manager.hpp \
              flame2/model/xmachine.hpp \
@@ -101,7 +100,8 @@ HEADERS    = flame2/config.hpp \
              flame2/model/task.hpp \
              flame2/model/dependency.hpp \
              flame2/model/model.hpp \
-             flame2/model/xgraph.hpp \
+             flame2/model/xgraph.hpp
+HEADERS    = $(MODEL_IO_SIM_HEADERS) flame2/config.hpp \
              flame2/mem/memory_manager.hpp \
              flame2/mem/agent_memory.hpp \
              flame2/mem/agent_shadow.hpp \
@@ -156,7 +156,14 @@ doc:
 
 CPPLINT   = /Users/stc/workspace/flame/scripts/cpplint.py
 lint:
-	$(CPPLINT) $(SOURCES) $(HEADERS)
+	$(CPPLINT) $(IO_SRC) $(MODEL_SRC)  \
+             $(SIM_SRC)  tests/run_tests.cpp \
+             $(MODEL_TEST) $(IO_TEST_POP) \
+             $(SIM_TEST) \
+             $(IO_TEST_MAN) \
+             $(IO_TEST_POP) \
+             $(IO_TEST_MODEL) \
+             $(MODEL_IO_SIM_HEADERS)
 
 CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
 cccc:
