@@ -8,8 +8,6 @@
 # ============================================================================
 # $Id$
 
-noinst_LTLIBRARIES = lib_flame_compat_c.la
-
 module_headers = \
   compatibility_manager.hpp \
   flame_compat_c.hpp \
@@ -28,6 +26,24 @@ library_includedir = $(pkgincludedir)/compat/C
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_compat_c_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_compat_c_la_SOURCES  = $(module_headers) $(module_sources)
-  
+noinst_LTLIBRARIES =
+common_flags = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
+
+if BUILD_DEBUG
+noinst_LTLIBRARIES += lib_flame_compat_c-dbg.la
+lib_flame_compat_c_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
+lib_flame_compat_c_dbg_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_PROD
+noinst_LTLIBRARIES += lib_flame_compat_c-prod.la
+lib_flame_compat_c_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
+lib_flame_compat_c_prod_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_TEST
+noinst_LTLIBRARIES += lib_flame_compat_c-test.la
+lib_flame_compat_c_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
+lib_flame_compat_c_test_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+

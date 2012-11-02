@@ -69,26 +69,14 @@ COMMON_CPPFLAGS=""
 AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)'])
 
 # Build specific flags
-CPPFLAGS_DEV="-DDEBUG -g"
-CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
-CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
+CPPFLAGS_DBG="-DDEBUG -DDBGBUILD -g"
+CPPFLAGS_TEST="-DDEBUG -DTESTBUILD -g"
+CPPFLAGS_PROD="-DNDEBUG -DPRODBUILD -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
 
 ############ CHOOSE BUILD TYPES ############################
+BUILDS=""
 
-# Build production library but removing checks and debug symbols
-# (default: disabled)
-WANT_PROD_BUILD=0
-AC_ARG_ENABLE([production-build],
-              [AC_HELP_STRING(
-                  [--enable-production-build],
-                  [Build a production version of the libraryy]
-              )])
-AS_IF([test "x$enable_production_build" = "xyes"], [
-  WANT_PROD_BUILD=1
-])
-AC_SUBST(WANT_PROD_BUILD)
-
-# Include tests and build test code into library
+# Conditionally include tests and build test code into library
 # (default: disabled)
 WANT_TEST_BUILD=0
 AC_ARG_ENABLE([test-build],
@@ -96,35 +84,51 @@ AC_ARG_ENABLE([test-build],
                   [--enable-test-build],
                   [Build tests and a test version of the library]
               )])
-AS_IF([test "x${enable_test_build}" = "xyes"], [
-  if test $WANT_PROD_BUILD -eq 1; then
-    AC_MSG_ERROR([
-** CONFLICTING OPTIONS.
-   Tests cannot be built using production code. You can use only ONE of
-   the following options:
-     --enable-production-build
-     --enable-test-build
-    ])
-    exit 1
-  fi
-  WANT_TEST_BUILD=1
-])
-AC_SUBST(WANT_TEST_BUILD)
-AM_CONDITIONAL(BUILD_TESTS, test $WANT_TEST_BUILD = 1)
+AS_IF([test "x$enable_test_build" = "xyes"], [WANT_TEST_BUILD=1])
+AM_CONDITIONAL(BUILD_TEST, test $WANT_TEST_BUILD = 1)
+if test $WANT_TEST_BUILD = 1; then BUILDS="test $BUILDS"; fi
+
+# Conditionally build production libraries
+# (default: enable)
+WANT_PROD_BUILD=1
+AC_ARG_ENABLE([prod-build],
+              [AC_HELP_STRING(
+                  [--disable-prod-build],
+                  [Do not build and install production library]
+              )])
+AS_IF([test "x$enable_prod_build" = "xno"], [WANT_PROD_BUILD=0])
+AM_CONDITIONAL(BUILD_PROD, test $WANT_PROD_BUILD = 1)
+if test $WANT_PROD_BUILD = 1; then BUILDS="production $BUILDS"; fi
+
+# Conditionally build debug libraries
+# (default: enable)
+WANT_DBG_BUILD=1
+AC_ARG_ENABLE([debug-build],
+              [AC_HELP_STRING(
+                  [--disable-debug-build],
+                  [Do not build and install debug library]
+              )])
+AS_IF([test "x$enable_debug_build" = "xno"], [WANT_DBG_BUILD=0])
+AM_CONDITIONAL(BUILD_DEBUG, test $WANT_DBG_BUILD = 1)
+if test $WANT_DBG_BUILD = 1; then BUILDS="debug $BUILDS"; fi
+
+if test "x${BUILDS}" = "x"; then
+  AC_MSG_ERROR([All build types disabled. Nothing left to do.])
+fi
 
 # Update CPPFLAGS_COMMON based on build type
-if test $WANT_PROD_BUILD -eq 1; then
-  COMMON_CPPFLAGS+="${CPPFLAGS_PROD} "
-  BUILD_TYPE="production"
-elif test $WANT_TEST_BUILD -eq 1; then
-  COMMON_CPPFLAGS+="${CPPFLAGS_TEST} "
-  BUILD_TYPE="test"
-else
-  COMMON_CPPFLAGS+="${CPPFLAGS_DEV} "
-  BUILD_TYPE="development"
-fi
-AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
-AC_SUBST(BUILD_TYPE)
+#if test $WANT_PROD_BUILD -eq 1; then
+#  COMMON_CPPFLAGS+="${CPPFLAGS_PROD} "
+#  BUILD_TYPE="production"
+#elif test $WANT_TEST_BUILD -eq 1; then
+#  COMMON_CPPFLAGS+="${CPPFLAGS_TEST} "
+#  BUILD_TYPE="test"
+#else
+#  COMMON_CPPFLAGS+="${CPPFLAGS_DBG} "
+#  BUILD_TYPE="development"
+#fi
+#AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
+#AC_SUBST(BUILD_TYPE)
 
 ##### CHECK BOOST #####
 
@@ -258,6 +262,10 @@ CLEAN_VAR(LIBS)
 
 ########### Substitute vars into Makefiles ################
 
+AC_SUBST(CPPFLAGS_DBG)
+AC_SUBST(CPPFLAGS_PROD)
+AC_SUBST(CPPFLAGS_TEST)
+
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)
@@ -321,13 +329,14 @@ flame2/exceptions/Makefile
 echo ""
 echo "------------------- Configuration successful --------------------------"
 echo ""
-echo "Build type       : $BUILD_TYPE"
+echo "Build type       : $BUILDS"
 echo ""
 echo "Default compiler : $CXX"
 echo "Default CXXFLAGS : $CXXFLAGS"
 echo "Default CPPFLAGS : $CPPFLAGS"
 echo "Default LDFLAGS  : $LDFLAGS"
 echo "Default LIBS     : $LIBS"
+echo ""
 echo ""
 echo "Additional CPPFLAGS : $COMMON_CPPFLAGS"
 echo "Additional LDFLAGS  : $COMMON_LDFLAGS"

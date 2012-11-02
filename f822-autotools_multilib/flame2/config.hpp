@@ -13,5 +13,19 @@
  */
 #ifndef CONFIG_HPP_
 #define CONFIG_HPP_
+/*
 #include "flame2/cfg.h"
+
+#ifdef DBGBUILD
+#include "flame2/cfg-dbg.h"
+#endif
+
+#ifdef PRODBUILD
+#include "flame2/cfg-prod.h"
+#endif
+
+#ifdef PRODBUILD
+#include "flame2/cfg-test.h"
+#endif
+*/
 #endif  // CONFIG_HPP_

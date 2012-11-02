@@ -7,14 +7,14 @@
 # Copyright (c) 2012 University of Sheffield
 # ============================================================================
 # $Id$
-if BUILD_TESTS
+if BUILD_TEST
 
 noinst_PROGRAMS = run_tests
 run_tests_LIBS = @COMMON_LIBS@
 run_tests_LDFLAGS = @BOOST_UNIT_TEST_FRAMEWORK_LIB@ @COMMON_LDFLAGS@ 
 run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-run_tests_LDADD = $(top_srcdir)/libflame2.la
-run_tests_SOURCES = ./run_tests.cpp
+run_tests_LDADD = $(top_srcdir)/libflame2-test.la
+run_tests_SOURCES = run_tests.cpp
 
 #### Note: ####
 #

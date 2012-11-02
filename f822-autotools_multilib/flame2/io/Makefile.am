@@ -8,8 +8,6 @@
 # ============================================================================
 # $Id$
 
-noinst_LTLIBRARIES = lib_flame_io.la
-
 module_headers = \
   io_manager.hpp \
   io_xml_model.hpp \
@@ -26,7 +24,26 @@ library_includedir = $(pkgincludedir)/io
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_io_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_io_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES =
+common_flags = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
+
+if BUILD_DEBUG
+noinst_LTLIBRARIES += lib_flame_io-dbg.la
+lib_flame_io_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
+lib_flame_io_dbg_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_PROD
+noinst_LTLIBRARIES += lib_flame_io-prod.la
+lib_flame_io_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
+lib_flame_io_prod_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_TEST
+noinst_LTLIBRARIES += lib_flame_io-test.la
+lib_flame_io_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
+lib_flame_io_test_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
 
 
