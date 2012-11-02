@@ -147,7 +147,7 @@ int main(int argc, const char* argv[]) {
   s.SetSplittable(flame::exe::Task::AGENT_FUNCTION);  // Agent tasks can be split up
   
   // Run iterations
-  for (size_t i = 0; i < num_iters; ++i) {
+  for (size_t i = 1; i <= num_iters; ++i) {
     std::cout << "Iteration " << i << std::endl;
     s.RunIteration();
   }
