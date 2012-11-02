@@ -38,5 +38,11 @@ class unparseable_file : public flame_io_exception {
         : flame_io_exception(msg) {}
 };
 
+class invalid_model_file : public flame_io_exception {
+  public:
+    explicit invalid_model_file(const std::string& msg)
+        : flame_io_exception(msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__IO_HPP_

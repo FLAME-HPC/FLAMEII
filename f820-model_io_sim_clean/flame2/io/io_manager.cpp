@@ -19,11 +19,7 @@ namespace exc = flame::exceptions;
 
 void IOManager::loadModel(std::string const& file,
         flame::model::XModel * model) {
-    int rc;
-
-    /* Read model */
-    rc = ioxmlmodel.readXMLModel(file, model);
-    if (rc != 0) throw exc::flame_io_exception("Model file cannot be loaded");
+    ioxmlmodel.readXMLModel(file, model);
 }
 
 int removeFile(std::string file) {

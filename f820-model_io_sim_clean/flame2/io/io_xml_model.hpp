@@ -23,13 +23,13 @@ class IOXMLModel {
   public:
     IOXMLModel() {}
 
-    int readXMLModel(std::string file_name, model::XModel * model);
+    void readXMLModel(std::string file_name, model::XModel * model);
 
   private:
     void print_element_names(xmlNode * a_node);
     std::string getElementName(xmlNode * node);
     std::string getElementValue(xmlNode * node);
-    int validateXMLModelRootElement(
+    void validateXMLModelRootElement(
             xmlNode *root_element, std::string file_name);
     void readModelElements(xmlNode *root_element, model::XModel * model,
             std::string directory);

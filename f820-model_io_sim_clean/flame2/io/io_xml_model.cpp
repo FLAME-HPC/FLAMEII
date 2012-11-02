@@ -46,36 +46,27 @@ std::string IOXMLModel::getElementValue(xmlNode * node) {
     return s;
 }
 
-int IOXMLModel::validateXMLModelRootElement(
+void IOXMLModel::validateXMLModelRootElement(
         xmlNode *root_element, std::string file_name) {
     /* Catch error if no root called xmodel */
-    if (getElementName(root_element) != "xmodel") {
-        printErr(std::string(
-                "Error: Model file does not have root called 'xmodel': ") +
+    if (getElementName(root_element) != "xmodel")
+        throw exc::invalid_model_file(std::string(
+                "Model file does not have root called 'xmodel': ") +
                 file_name);
-        return 3;
-    }
 
     /* Catch error if version is not 2 */
     xmlChar * version_ptr = xmlGetProp(root_element, (const xmlChar*)"version");
     std::string version = reinterpret_cast<const char*>(version_ptr);
     xmlFree(version_ptr);
-    if (version != "2") {
-        printErr(std::string("Error: Model file is not 'xmodel' version 2: ") +
-                file_name);
-        return 4;
-    }
-
-    return 0;
+    if (version != "2") throw exc::invalid_model_file(std::string(
+            "Model file is not 'xmodel' version 2: ") + file_name);
 }
 
 void err2(void *ctx, const char *msg, ...) {
     // Don't output error
 }
 
-int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
-    /* Used for return codes */
-    int rc;
+void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Directory of the model file */
     std::string directory;
     xmlDoc *doc = NULL;
@@ -110,11 +101,10 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
-    rc = validateXMLModelRootElement(root_element, file_name);
+    validateXMLModelRootElement(root_element, file_name);
     readModelElements(root_element, model, directory);
 
     xmlFreeDoc(doc);
-    return rc;
 }
 
 void IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
@@ -176,7 +166,6 @@ void IOXMLModel::readIncludedModels(xmlNode * node,
 
 int IOXMLModel::readIncludedModelValidate(std::string directory,
         std::string fileName, model::XModel * model, bool enable) {
-    int rc;
     /* If included model is enabled */
     if (enable) {
         /* Check file name ends in '.xml' or '.XML' */
@@ -196,12 +185,7 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
                 fileName);
 
         /* Read model file... */
-        rc = readXMLModel(fileName, model);
-        if (rc != 0) {
-            printErr(std::string(
-                "       from included model ") + fileName);
-            return 8;
-        }
+        readXMLModel(fileName, model);
     }
 
     return 0;
