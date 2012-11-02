@@ -123,6 +123,10 @@ int main(int argc, const char* argv[]) {
   //task_mgr.CreateIOTask("__IO__output_Model_env", "Circles", "env" 
   //                                flame::exe::IOTask::OP_OUTPUT);   
   */
+  //taskManager.CreateIOTask("__IO__output_Model_initialise", "", "",
+  //                        flame::exe::IOTask::OP_INIT);
+  task_mgr.CreateIOTask("__IO__output_Model_finalise", "", "",
+                          flame::exe::IOTask::OP_FIN);
   
   // Add task dependencies
   //taskManager.AddDependency("__AGENT__outputdata", "__IO__output_Circle_radius");
@@ -137,6 +141,7 @@ int main(int argc, const char* argv[]) {
   task_mgr.AddDependency("__IO__output_Circle_x", "__AGENT__move");
   task_mgr.AddDependency("__IO__output_Circle_y", "__AGENT__move");
   */
+  task_mgr.AddDependency("__IO__output_Model_finalise", "__AGENT__move");
   
   // Initialise scheduler
   flame::exe::Scheduler s;
