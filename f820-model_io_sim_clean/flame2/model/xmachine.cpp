@@ -176,41 +176,25 @@ int XMachine::checkFunctionConditions() {
     return functionDependencyGraph_.checkFunctionConditions();
 }
 
-int XMachine::registerWithMemoryManager() {
+void XMachine::registerWithMemoryManager() {
     std::vector<XVariable*>::iterator vit;
     flame::mem::MemoryManager& memoryManager =
         flame::mem::MemoryManager::GetInstance();
 
     /* Register agent with memory manager */
-    try { memoryManager.RegisterAgent(name_); }
-    catch(const flame::exceptions::logic_error& E) {
-        std::fprintf(stderr,
-            "Error: %s\nWhen registering '%s' agent with the memory manager\n",
-            E.what(), name_.c_str());
-        return 1;
-    }
+    memoryManager.RegisterAgent(name_);
     /* Register agent memory variables */
     for (vit = variables_.begin(); vit != variables_.end(); vit++) {
         if ((*vit)->getType() == "int") {
             /* Register int variable */
-    try { memoryManager.RegisterAgentVar<int>(name_, (*vit)->getName()); }
-            catch(const flame::exceptions::logic_error& E) {
-                std::fprintf(stderr, "Error: %s\n", E.what());
-                return 1;
-            }
+            memoryManager.RegisterAgentVar<int>(name_, (*vit)->getName());
         } else if ((*vit)->getType() == "double") {
             /* Register double variable */
-    try { memoryManager.RegisterAgentVar<double>(name_, (*vit)->getName()); }
-            catch(const flame::exceptions::logic_error& E) {
-                std::fprintf(stderr, "Error: %s\n", E.what());
-                return 1;
-            }
+            memoryManager.RegisterAgentVar<double>(name_, (*vit)->getName());
         }
     }
     /* Population Size hint */
     memoryManager.HintPopulationSize(name_, 100);
-
-    return 0;
 }
 
 void XMachine::addToModelGraph(XGraph * modelGraph) {

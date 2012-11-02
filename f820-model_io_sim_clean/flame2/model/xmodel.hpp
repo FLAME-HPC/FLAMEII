@@ -25,14 +25,14 @@ class XModel {
   public:
     XModel();
     ~XModel();
-    int clear();
+    void clear();
     void setup();
     void print();
     int validate();
-    int registerWithMemoryManager();
-    int registerWithMessageBoardManager();
-    int registerWithTaskManager();
-    int registerAgentFunction(std::string, flame::exe::TaskFunction);
+    void registerWithMemoryManager();
+    void registerWithMessageBoardManager();
+    void registerWithTaskManager();
+    void registerAgentFunction(std::string, flame::exe::TaskFunction);
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);

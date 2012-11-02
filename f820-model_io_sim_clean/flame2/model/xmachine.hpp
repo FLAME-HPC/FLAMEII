@@ -41,7 +41,7 @@ class XMachine {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     int generateDependencyGraph();
-    int registerWithMemoryManager();
+    void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);
 
   private:

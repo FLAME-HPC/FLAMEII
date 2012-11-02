@@ -51,9 +51,9 @@ flame::model::XModel * Model::getXModel() {
     return &model_;
 }
 
-int Model::registerAgentFunction(std::string name,
+void Model::registerAgentFunction(std::string name,
         flame::exe::TaskFunction f_ptr) {
-    return model_.registerAgentFunction(name, f_ptr);
+    model_.registerAgentFunction(name, f_ptr);
 }
 
 }}  // namespace flame::model

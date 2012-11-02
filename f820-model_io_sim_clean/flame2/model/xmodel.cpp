@@ -36,7 +36,7 @@ void XModel::setup() {
     addAllowedDataType("char"); /* Allow? */
 }
 
-int XModel::clear() {
+void XModel::clear() {
     name_ = "";
     /* Delete function files */
     functionFiles_.clear();
@@ -68,8 +68,6 @@ int XModel::clear() {
         delete messages_.back();
         messages_.pop_back();
     }
-
-    return 0;
 }
 
 /*!
@@ -111,50 +109,26 @@ int XModel::validate() {
     return validator.validate();
 }
 
-int XModel::registerAgentFunction(std::string name,
+void XModel::registerAgentFunction(std::string name,
         flame::exe::TaskFunction f_ptr) {
     funcMap_.insert(std::make_pair(name, f_ptr));
-
-    return 0;
 }
 
-int XModel::registerWithMemoryManager() {
-    int rc;
+void XModel::registerWithMemoryManager() {
     std::vector<XMachine*>::iterator agent;
 
-    // For each agent
-    for (agent = getAgents()->begin();
-         agent != getAgents()->end(); ++agent) {
-        // Register with memory manager
-        rc = (*agent)->registerWithMemoryManager();
-        if (rc != 0) {
-std::fprintf(stderr, "When registering '%s' agent with the memory manager\n",
-                    (*agent)->getName().c_str());
-            return 1;
-        }
-    }
-
-    return 0;
+    // For each agent register with memory manager
+    for (agent = getAgents()->begin(); agent != getAgents()->end(); ++agent)
+        (*agent)->registerWithMemoryManager();
 }
 
-int XModel::registerWithMessageBoardManager() {
+void XModel::registerWithMessageBoardManager() {
     mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
-    std::vector<XMachine*>::iterator agent;
     std::vector<XMessage*>::iterator m;
-    std::vector<XVariable*>::iterator v;
 
     // For each message
-    for (m = messages_.begin(); m != messages_.end(); m++) {
-        try { mgr.RegisterMessage((*m)->getName()); }
-        catch(const flame::exceptions::logic_error& E) {
-            std::fprintf(stderr,
-        "Error: %s\nWhen registering '%s' message with the message manager\n",
-                E.what(), (*m)->getName().c_str());
-            return 1;
-        }
-    }
-
-    return 0;
+    for (m = messages_.begin(); m != messages_.end(); m++)
+        mgr.RegisterMessage((*m)->getName());
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {
@@ -180,14 +154,12 @@ void XModel::generateGraph(XGraph * modelGraph) {
 #endif
 }
 
-int XModel::registerWithTaskManager() {
+void XModel::registerWithTaskManager() {
     XGraph modelGraph;
 
     generateGraph(&modelGraph);
 
     modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
-
-    return 0;
 }
 
 void XModel::setPath(std::string path) {

@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include "flame2/io/io_manager.hpp"
 #include "flame2/io/io_xml_model.hpp"
 #include "flame2/io/io_xml_pop.hpp"
 #include "flame2/mem/memory_manager.hpp"
@@ -25,8 +26,8 @@ BOOST_AUTO_TEST_SUITE(IOPop)
 
 BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     xml::IOXMLModel ioxmlmodel;
-    xml::IOXMLPop ioxmlpop;
     model::XModel model;
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
     int rc;
 
     /* Read model xml */
@@ -41,11 +42,11 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
         fprintf(file, "<states></states>");
         fclose(file);
 
-        rc = ioxmlpop.readPop("0.xml", &model);
-        BOOST_CHECK(rc == 0);
+        BOOST_CHECK_NO_THROW(
+        iomanager.readPop("0.xml", &model, flame::io::IOManager::xml));
 
-        rc = ioxmlpop.readPop("./0.xml", &model);
-        BOOST_CHECK(rc == 0);
+        BOOST_CHECK_NO_THROW(
+        iomanager.readPop("./0.xml", &model, flame::io::IOManager::xml));
 
         if (remove("0.xml") != 0)
             fprintf(stderr,

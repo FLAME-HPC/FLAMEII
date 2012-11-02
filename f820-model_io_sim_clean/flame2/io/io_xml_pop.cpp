@@ -206,7 +206,8 @@ void IOXMLPop::setXmlPopPath(std::string path) {
     boost::filesystem::path p(path);
     boost::filesystem::path dir = p.parent_path();
     xml_pop_path = dir.string();
-    xml_pop_path.append("/");
+    if (xml_pop_path != "")
+        xml_pop_path.append("/");
     xml_pop_path_is_set = true;
 }
 

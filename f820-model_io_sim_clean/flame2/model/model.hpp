@@ -22,7 +22,7 @@ class Model {
   public:
     explicit Model(std::string model);
     ~Model();
-    int registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr);
+    void registerAgentFunction(std::string name, flame::exe::TaskFunction f_ptr);
     template <typename T>
     void registerMessageType(std::string name) {
         flame::compat::c::CompatibilityManager& compat_mgr =
