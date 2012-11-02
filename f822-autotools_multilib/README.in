@@ -1,0 +1,22 @@
+    FLAME2 (@PACKAGE_NAME@ Release @PACKAGE_VERSION@)
+
+[description here .....]
+
+------------------------------------------------------------------------------
+ 
+   Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+   Copyright (c) 2012 University of Sheffield
+   
+   This produce is released under the GNU Lesser General Public License
+
+   If you have any problems or enquiries, you can contact the
+   library maintainer at http://www.flame.ac.uk/contact/
+
+===============================================================================
+
+[ Installation details etc... ]
+
+
+
+-------------------------------------------------------------------------------
+$Id$
