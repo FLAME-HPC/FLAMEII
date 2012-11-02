@@ -37,8 +37,8 @@ AC_COPYRIGHT([
 # Initiliase libtool
 # - Turn off shared libraries during beta-testing, since they
 #   make the build process take too long.
-#LT_INIT
-LT_INIT([disable-shared])
+#LT_INIT([disable-shared])
+LT_INIT
 
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
