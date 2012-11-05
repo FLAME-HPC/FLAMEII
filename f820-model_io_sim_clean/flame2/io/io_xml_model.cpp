@@ -210,7 +210,8 @@ int IOXMLModel::readIncludedModel(xmlNode * node,
                 if (enabledString == "true") { enable = true;
                 } else if (enabledString == "false") { enable = false;
                 } else {
-                    throw exc::flame_io_exception(std::string("Error: Included model has invalid enabled value ") +
+                    throw exc::flame_io_exception(
+            std::string("Error: Included model has invalid enabled value ") +
                         enabledString);
                 }
             } else {
