@@ -14,7 +14,7 @@
 
 namespace flame { namespace model {
 
-XTimeUnit::XTimeUnit() {
+XTimeUnit::XTimeUnit() : period_(0) {
 }
 
 XTimeUnit::~XTimeUnit() {
