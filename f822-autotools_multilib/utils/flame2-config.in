@@ -26,9 +26,12 @@ BUILD_REVISION=`echo "\$Id$" | cut -d' ' -f3`
 BUILD_TYPE="@BUILD_TYPE@"
 BUILD_VERSION="@PACKAGE_VERSION@"
 
-USER_CFLAGS="@COMMON_CPPFLAGS@ -I@FLAME2_INSTALL_INCLUDEDIR@"
-USER_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2"
-USER_STATIC_LIBS="@COMMON_LIBS@"
+USER_CFLAGS="-I@FLAME2_INSTALL_INCLUDEDIR@ @CPPFLAGS_DBG@"
+USER_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2-dbg"
+USER_STATIC_LIBS="@COMMON_LIBS@"  # used for PROD as well
+
+PROD_CFLAGS="-I@FLAME2_INSTALL_INCLUDEDIR@ @CPPFLAGS_PROD@"
+PROD_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2-prod"
 
 DEFAULT_COMPILER="@CXX@"
 DEFAULT_CFLAGS="@CPPFLAGS@ @CXXFLAGS@ @COMMON_CPPFLAGS@"
@@ -99,7 +102,6 @@ $PROG_NAME --version  # Show FLAME2 version
 $PROG_NAME --query    # Show options used to configure and build FLAME2
 $PROG_NAME --cflags   # Output preprocessor and compiler flags
 $PROG_NAME --libs     # Output linker flags
-$PROG_NAME --libs --static # Output linker flags for static compilation
 
 Example:
 g++ program.cpp \$($PROG_NAME --cflags --ldflags)
@@ -112,6 +114,10 @@ All Options:
   -c, --cflags   Output preprocessor and compiler flags to compile FLAME2 model
   -l, --libs     Output linker flags to link FLAME2 model
   -s, --static   Allow static linking (used with --libs)
+
+  -p, --production   Output flags to build production version of a model. Only
+                     use this once the model is fully tested as this will
+                     disable most run-time checks in exchange for performance.
 
   -h, --help     Print this help message
   
@@ -156,7 +162,11 @@ EOF
 function print_requested_flags {
 
   if test $A_libs -eq 1; then
-    echo -n "$USER_LIBS "
+    if test $A_production -eq 1; then
+      echo -n "$PROD_LIBS "
+    else
+      echo -n "$USER_LIBS "
+    fi
     
     # if shared library is not built, static linking is implied
     if [ $A_static -eq 1 ] || [ "$BUILD_SHARED" != "yes" ]; then
@@ -165,7 +175,11 @@ function print_requested_flags {
   fi
   
   if test $A_cflags -eq 1; then
-    echo -n "$USER_CFLAGS "
+    if test $A_production -eq 1; then
+      echo -n "$PROD_CFLAGS "
+    else
+      echo -n "$USER_CFLAGS "
+    fi
   fi
 
   echo ""
@@ -247,8 +261,8 @@ function is_acceptable_short_option {
 # * is_acceptable_option
 # * is_acceptable_short_option
 # * parse_long_options
-acceptable_long_options="usage cflags libs static version query help"
-acceptable_short_options="uhvVlscq"
+acceptable_long_options="usage cflags libs static production version query help"
+acceptable_short_options="uhvVlspcq"
 
 
 # parse input arguments
@@ -268,6 +282,7 @@ function parse_input_arguments {
       -s|--static)     A_static=1;;
       -c|--cflags)     A_cflags=1;;
       -q|--query)      A_query=1;;
+      -p|--production) A_production=1;;
       
       # capture unmatched options
       *) unmatched="$1 $unmatched";;
@@ -349,6 +364,7 @@ A_cflags=0   # --cflags
 A_static=0   # --static
 A_query=0    # --query
 A_libs=0     # --libs
+A_production=0  # --production
 
 # calling script without any parameters will print usage info
 if [ $# -eq 0 ]; then rtfm ; fi

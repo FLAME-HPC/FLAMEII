@@ -65,7 +65,8 @@ endif
 # C API header
 include_HEADERS = flame2/compat/C/flame2.h
 # flame2 config header
-nobase_include_HEADERS = flame2/config.hpp
+# Should not need to be installed since it is only used by cpp files.
+# nobase_include_HEADERS = flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
