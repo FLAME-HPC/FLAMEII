@@ -43,20 +43,23 @@ LIBADD_LIST = \
   
 if BUILD_DEBUG
 lib_LTLIBRARIES += libflame2-dbg.la
+libflame2_dbg_la_SOURCES = 
 libflame2_dbg_la_LDFLAGSS = @COMMON_LDFLAGS@
 libflame2_dbg_la_LIBADD = $(LIBADD_LIST:=-dbg.la)
 endif
 
 if BUILD_PROD
 lib_LTLIBRARIES += libflame2-prod.la
+libflame2_prod_la_SOURCES = 
 libflame2_prod_la_LDFLAGSS = @COMMON_LDFLAGS@
 libflame2_prod_la_LIBADD = $(LIBADD_LIST:=-prod.la)
 endif
 
 if BUILD_TEST
 lib_LTLIBRARIES += libflame2-test.la
+libflame2_test_la_SOURCES = 
 libflame2_test_la_LDFLAGSS = @COMMON_LDFLAGS@
-libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la)
+libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la) 
 endif
 
 # C API header
@@ -92,9 +95,23 @@ test:
 			echo "---------------------------------------------------------------" ;\
 			rm test_cfg_incl ;\
 			exit 1 ;\
-		else \
+		fi ;\
+		find flame2 -name "*.hpp" | xargs grep flame2/config.hpp -l > test_cfg_incl ;\
+		if test -s test_cfg_incl; then \
+			echo "---------------------------------------------------------------" ;\
+			echo "" ;\
+			echo "OOppps. The following hpp files include flame2/config.hpp" ;\
+			while read line; do echo "- $$line"; done < test_cfg_incl ;\
+			echo "" ;\
+			echo "Please do not include config.hpp in header files as it contains " ;\
+			echo "platform-specific definitions and is not installed along with" ;\
+			echo "other header files." ;\
+			echo "" ;\
+			echo "---------------------------------------------------------------" ;\
 			rm test_cfg_incl ;\
-		fi \
+			exit 1 ;\
+		fi ;\
+		rm test_cfg_incl ;\
 	)
 	@(make && cd tests && make && ./run_tests --report_level=short --show_progress)
 

@@ -61,7 +61,6 @@ AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
 
 # Initialse flags that will be applied to all compilations/linking
-COMMON_LIBS=""
 COMMON_LDFLAGS=""
 COMMON_CPPFLAGS=""
 
@@ -245,6 +244,12 @@ case "$CXX" in
     ;;
 esac
 
+######### extract -l* flags from COMMON_LDFLAGS to COMMON_LIBS #########
+
+X_LDFLAGS="${COMMON_LDFLAGS}"
+COMMON_LDFLAGS=`for f in ${X_LDFLAGS}; do echo $f | awk '!/^-l/{printf "%s ", $0};'; done`
+COMMON_LIBS=`for f in ${X_LDFLAGS}; do echo $f | awk '/^-l/{printf "%s ", $0};'; done`
+
 ######### Clean vars (for aesthetic reasons only) ############
 
 AC_DEFUN([CLEAN_VAR], [
@@ -269,10 +274,13 @@ AC_SUBST(CPPFLAGS_TEST)
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)
-AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
-                   [extra CPPFLAGS applied by ./configure options])
-AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
-                   [extra LDFLAGS applied by ./configure options])
+#AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
+#                   [extra CPPFLAGS applied by ./configure options])
+#AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
+#                   [extra LDFLAGS applied by ./configure options])
+
+# TODO: extract -l.. from LDFLAGS and provide as COMMON_LIBS
+#       insert those under LDADD in makefiles
 
 FLAME2_CONFIG_DIR=`pwd`
 FLAME2_CONFIG_DATE=`date`
