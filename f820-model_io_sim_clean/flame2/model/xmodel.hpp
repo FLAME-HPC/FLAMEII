@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XMODEL_HPP_
 #define MODEL__XMODEL_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -40,7 +41,7 @@ class XModel {
     bool addIncludedModel(std::string name);
     std::vector<std::string> * getIncludedModels();
     XVariable * addConstant();
-    std::vector<XVariable*> * getConstants();
+    boost::ptr_vector<XVariable> * getConstants();
     XADT * addADT();
     XADT * getADT(std::string name);
     std::vector<XADT*> * getADTs();
@@ -69,7 +70,7 @@ class XModel {
     /*! \brief The absolute path to the model file */
     std::string path_;
     std::vector<std::string> includedModels_;
-    std::vector<XVariable*> constants_;
+    boost::ptr_vector<XVariable> constants_;
     std::vector<XADT*> adts_;
     std::vector<XTimeUnit*> timeUnits_;
     std::vector<std::string> functionFiles_;

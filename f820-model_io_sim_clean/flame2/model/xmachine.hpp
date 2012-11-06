@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XMACHINE_HPP_
 #define MODEL__XMACHINE_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -16,7 +17,6 @@
 #include "xvariable.hpp"
 #include "xfunction.hpp"
 #include "xgraph.hpp"
-
 
 namespace flame { namespace model {
 
@@ -28,7 +28,7 @@ class XMachine {
     void setName(std::string name);
     const std::string getName();
     XVariable * addVariable();
-    std::vector<XVariable*> * getVariables();
+    boost::ptr_vector<XVariable> * getVariables();
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
     std::vector<XFunction*> * getFunctions();
@@ -46,7 +46,7 @@ class XMachine {
 
   private:
     std::string name_;
-    std::vector<XVariable*> variables_;
+    boost::ptr_vector<XVariable> variables_;
     std::vector<XFunction*> functions_;
     std::string startState_;
     std::set<std::string> endStates_;

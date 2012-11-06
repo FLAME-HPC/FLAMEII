@@ -129,7 +129,7 @@ void IOXMLPop::finaliseData() {
 void IOXMLPop::saveAgentVariableData(model::XModel * model) {
     agentVarMap_.clear();
     std::vector<model::XMachine*>::iterator agent_it;
-    std::vector<model::XVariable*>::iterator var_it;
+    boost::ptr_vector<model::XVariable>::iterator var_it;
     std::pair<agentVarMap::iterator, bool> avm;
     for (agent_it = model->getAgents()->begin();
             agent_it != model->getAgents()->end(); ++agent_it) {
@@ -138,7 +138,7 @@ void IOXMLPop::saveAgentVariableData(model::XModel * model) {
                 std::vector<std::string>()));
         for (var_it = (*agent_it)->getVariables()->begin();
                 var_it != (*agent_it)->getVariables()->end(); ++var_it) {
-            (*avm.first).second.push_back((*var_it)->getName());
+            (*avm.first).second.push_back((*var_it).getName());
         }
     }
 }
@@ -265,14 +265,14 @@ void IOXMLPop::createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
 }
 
 void IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
-        std::vector<model::XVariable*>::iterator variable) {
+        boost::ptr_vector<model::XVariable>::iterator variable) {
     std::string type;
     // Write tag
     writeXMLTagAndAttribute(writer, "xs:element", "name",
-            (*variable)->getName());
+            (*variable).getName());
     // Select correct schema data type
-    if ((*variable)->getType() == "int") type = "xs:integer";
-    else if ((*variable)->getType() == "double") type = "xs:double";
+    if ((*variable).getType() == "int") type = "xs:integer";
+    else if ((*variable).getType() == "double") type = "xs:double";
     else
         type = "xs:string";
     // Write schema data type attribute
@@ -284,7 +284,7 @@ void IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
 void IOXMLPop::createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model) {
     std::vector<model::XMachine*>::iterator agent;
-    std::vector<model::XVariable*>::iterator variable;
+    boost::ptr_vector<model::XVariable>::iterator variable;
     // For each agent type
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end(); ++agent) {

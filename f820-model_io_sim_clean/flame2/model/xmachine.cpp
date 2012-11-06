@@ -28,11 +28,6 @@ XMachine::XMachine() {
  * Cleans up XMachine by deleting variable list and functions list.
  */
 XMachine::~XMachine() {
-    /* Delete variables */
-    while (!variables_.empty()) {
-        delete variables_.back();
-        variables_.pop_back();
-    }
     /* Delete functions */
     while (!functions_.empty()) {
         delete functions_.back();
@@ -46,10 +41,11 @@ XMachine::~XMachine() {
  * Prints XMachine to standard out.
  */
 void XMachine::print() {
+    boost::ptr_vector<XVariable>::iterator it;
     unsigned int ii;
     std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ++ii)
-        getVariables()->at(ii)->print();
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        (*it).print();
     for (ii = 0; ii < functions_.size(); ++ii)
         functions_.at(ii)->print();
 }
@@ -69,14 +65,14 @@ XVariable * XMachine::addVariable() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XMachine::getVariables() {
+boost::ptr_vector<XVariable> * XMachine::getVariables() {
     return &variables_;
 }
 
 XVariable * XMachine::getVariable(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ++ii)
-        if (variables_.at(ii)->getName() == name) return variables_.at(ii);
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if ((*it).getName() == name) return &(*it);
     return 0;
 }
 
@@ -91,9 +87,9 @@ std::vector<XFunction*> * XMachine::getFunctions() {
 }
 
 bool XMachine::validateVariableName(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ++ii)
-        if (name == variables_.at(ii)->getName()) return true;
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if (name == (*it).getName()) return true;
     return false;
 }
 
@@ -166,22 +162,20 @@ int XMachine::checkFunctionConditions() {
 }
 
 void XMachine::registerWithMemoryManager() {
-    std::vector<XVariable*>::iterator vit;
+    boost::ptr_vector<XVariable>::iterator vit;
     flame::mem::MemoryManager& memoryManager =
         flame::mem::MemoryManager::GetInstance();
 
     /* Register agent with memory manager */
     memoryManager.RegisterAgent(name_);
     /* Register agent memory variables */
-    for (vit = variables_.begin(); vit != variables_.end(); ++vit) {
-        if ((*vit)->getType() == "int") {
-            /* Register int variable */
-            memoryManager.RegisterAgentVar<int>(name_, (*vit)->getName());
-        } else if ((*vit)->getType() == "double") {
-            /* Register double variable */
-            memoryManager.RegisterAgentVar<double>(name_, (*vit)->getName());
-        }
-    }
+    for (vit = variables_.begin(); vit != variables_.end(); ++vit)
+        /* Register int variable */
+        if ((*vit).getType() == "int")
+            memoryManager.RegisterAgentVar<int>(name_, (*vit).getName());
+        /* Register double variable */
+        else if ((*vit).getType() == "double")
+            memoryManager.RegisterAgentVar<double>(name_, (*vit).getName());
     /* Population Size hint */
     memoryManager.HintPopulationSize(name_, 100);
 }

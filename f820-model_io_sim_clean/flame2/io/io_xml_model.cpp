@@ -10,6 +10,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <cstdio>
@@ -347,7 +348,7 @@ int IOXMLModel::readTimeUnit(xmlNode * node,
 }
 
 int IOXMLModel::readVariables(xmlNode * node,
-        std::vector<model::XVariable*> * variables) {
+        boost::ptr_vector<model::XVariable> * variables) {
     int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
@@ -369,7 +370,7 @@ int IOXMLModel::readVariables(xmlNode * node,
 }
 
 int IOXMLModel::readVariable(xmlNode * node,
-        std::vector<model::XVariable*> * variables) {
+        boost::ptr_vector<model::XVariable> * variables) {
     int rc; /* Return code */
     xmlNode *cur_node = NULL;
     model::XVariable * xvariable = new model::XVariable;

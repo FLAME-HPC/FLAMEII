@@ -21,28 +21,15 @@ XMessage::XMessage() {
 }
 
 /*!
- * \brief Cleans up XMessage
- *
- * Cleans up XMessage by deleting the variables list.
- */
-XMessage::~XMessage() {
-    /* Delete variables */
-    while (!variables_.empty()) {
-        delete variables_.back();
-        variables_.pop_back();
-    }
-}
-
-/*!
  * \brief Prints XMessage
  *
  * Prints XMessage to standard out.
  */
 void XMessage::print() {
-    unsigned int ii;
+    boost::ptr_vector<XVariable>::iterator it;
     std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ++ii)
-        getVariables()->at(ii)->print();
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        (*it).print();
 }
 
 void XMessage::setName(std::string name) {
@@ -59,14 +46,14 @@ XVariable * XMessage::addVariable() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XMessage::getVariables() {
+boost::ptr_vector<XVariable> * XMessage::getVariables() {
     return &variables_;
 }
 
 bool XMessage::validateVariableName(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ++ii)
-        if (name == variables_.at(ii)->getName()) return true;
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if (name == (*it).getName()) return true;
     return false;
 }
 

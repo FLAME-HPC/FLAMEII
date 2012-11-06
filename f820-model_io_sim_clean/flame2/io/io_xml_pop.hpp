@@ -54,7 +54,7 @@ class IOXMLPop {
     void createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model);
     void createDataSchemaAgentVar(xmlTextWriterPtr writer,
-        std::vector<model::XVariable*>::iterator variable);
+            boost::ptr_vector<model::XVariable>::iterator variable);
     void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
     void createDataSchemaDefineTags(xmlTextWriterPtr writer);
     void writeXMLEndTag(xmlTextWriterPtr writer);

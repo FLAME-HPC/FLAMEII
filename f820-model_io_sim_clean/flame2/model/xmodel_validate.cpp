@@ -28,13 +28,6 @@ void printErr(const char *format, ...) {
 #endif
 }
 
-void printErr(std::string message) {
-    // Print message to stderr
-#ifdef TESTBUILD
-    std::fprintf(stderr, "%s\n", message.c_str());
-#endif
-}
-
 namespace flame { namespace model {
 
 XModelValidate::XModelValidate(XModel * m) {
@@ -306,16 +299,16 @@ int XModelValidate::processVariable(XVariable * variable,
     return errors;
 }
 
-int XModelValidate::processVariables(std::vector<XVariable*> * variables,
+int XModelValidate::processVariables(boost::ptr_vector<XVariable> * variables,
         XModel * model) {
     int rc, errors = 0;
-    std::vector<XVariable*>::iterator it;
+    boost::ptr_vector<XVariable>::iterator it;
 
     /* Handle dynamic arrays in variable type */
     for (it = variables->begin(); it != variables->end(); ++it) {
-        rc = processVariable(*it, model);
+        rc = processVariable(&(*it), model);
         if (rc != 0) printErr("\tfrom variable: %s %s\n",
-                (*it)->getType().c_str(), (*it)->getName().c_str());
+                (*it).getType().c_str(), (*it).getName().c_str());
         errors += rc;
     }
 
@@ -323,16 +316,16 @@ int XModelValidate::processVariables(std::vector<XVariable*> * variables,
 }
 
 bool XModelValidate::variableExists(std::string name,
-        std::vector<XVariable*> * variables) {
-    std::vector<XVariable*>::iterator vit;
+        boost::ptr_vector<XVariable> * variables) {
+    boost::ptr_vector<XVariable>::iterator vit;
 
     for (vit = variables->begin(); vit != variables->end(); ++vit)
-            if (name == (*vit)->getName()) return true;
+            if (name == (*vit).getName()) return true;
     return false;
 }
 
 int XModelValidate::processMemoryAccessVariable(std::string name,
-        std::vector<XVariable*> * variables,
+        boost::ptr_vector<XVariable> * variables,
         std::set<std::string> * usedVariables) {
     int errors = 0;
 
@@ -362,9 +355,9 @@ int XModelValidate::processMemoryAccessVariable(std::string name,
 }
 
 int XModelValidate::processAgentFunction(XFunction * function,
-        std::vector<XVariable*> * variables) {
+        boost::ptr_vector<XVariable> * variables) {
     std::vector<std::string>::iterator variable;
-    std::vector<XVariable*>::iterator variable2;
+    boost::ptr_vector<XVariable>::iterator variable2;
     std::set<std::string> usedVariables;
     int errors = 0;
 
@@ -373,7 +366,7 @@ int XModelValidate::processAgentFunction(XFunction * function,
     if (!function->getMemoryAccessInfoAvailable()) {
         for (variable2 = variables->begin();
                 variable2 != variables->end(); ++variable2) {
-            function->addReadWriteVariable((*variable2)->getName());
+            function->addReadWriteVariable((*variable2).getName());
         }
     // Else check memory access variables are valid
     } else {
@@ -394,20 +387,19 @@ int XModelValidate::processAgentFunction(XFunction * function,
 }
 
 void XModelValidate::validateVariableName(XVariable * v, int * errors,
-        std::vector<XVariable*> * variables) {
-    std::vector<XVariable*>::iterator it;
+        boost::ptr_vector<XVariable> * variables) {
+    boost::ptr_vector<XVariable>::iterator it;
     /* Check names are valid */
     if (!name_is_allowed(v->getName())) {
-        printErr(std::string(
-            "Error: Variable name is not valid: ") +
-            v->getName());
+        printErr("Error: Variable name is not valid: %s\n",
+            v->getName().c_str());
         ++(*errors);
     }
     /* Check for duplicate names */
     for (it = variables->begin(); it != variables->end(); ++it) {
         /* Check names are equal and not same variable */
-        if (v != (*it) &&
-            v->getName() == (*it)->getName()) {
+        if (v != &(*it) &&
+            v->getName() == (*it).getName()) {
             printErr("Error: Duplicate variable name: %s\n",
                 v->getName().c_str());
             ++(*errors);
@@ -441,10 +433,10 @@ void XModelValidate::validateVariableType(XVariable * v, int * errors,
     }
 }
 
-int XModelValidate::validateVariables(std::vector<XVariable*> * variables,
+int XModelValidate::validateVariables(boost::ptr_vector<XVariable> * variables,
         XModel * model, bool allowDyamicArrays) {
     int errors = 0;
-    std::vector<XVariable*>::iterator it;
+    boost::ptr_vector<XVariable>::iterator it;
 
     /* Process variables first */
     errors += processVariables(variables, model);
@@ -452,9 +444,9 @@ int XModelValidate::validateVariables(std::vector<XVariable*> * variables,
     /* For each variable */
     for (it = variables->begin(); it != variables->end(); ++it) {
         /* Validate variable name */
-        validateVariableName(*it, &errors, variables);
+        validateVariableName(&(*it), &errors, variables);
         /* Validate variable type */
-        validateVariableType(*it, &errors, model, allowDyamicArrays);
+        validateVariableType(&(*it), &errors, model, allowDyamicArrays);
     }
 
     return errors;
@@ -564,18 +556,18 @@ int XModelValidate::processTimeUnit(XTimeUnit * timeUnit) {
 int XModelValidate::validateADT(XADT * adt, XModel * model) {
     int errors = 0;
     std::vector<std::string>::iterator dit;
-    std::vector<XVariable*>::iterator vit;
+    boost::ptr_vector<XVariable>::iterator vit;
     bool dataTypeNameIsValid;
 
-    /* Check name is valid */
+    // Check name is valid
     dataTypeNameIsValid = name_is_allowed(adt->getName());
-    if (!dataTypeNameIsValid) { printErr(std::string(
-            "Error: Data type name is not valid: ") +
-            adt->getName());
+    if (!dataTypeNameIsValid) {
+        printErr("Error: Data type name is not valid: %s\n",
+            adt->getName().c_str());
         ++errors;
     }
 
-    /* Check ADT name is not already a valid data type */
+    // Check ADT name is not already a valid data type
     for (dit = model->getAllowedDataTypes()->begin();
             dit != model->getAllowedDataTypes()->end(); ++dit)
         if (adt->getName() == (*dit)) {
@@ -585,16 +577,17 @@ int XModelValidate::validateADT(XADT * adt, XModel * model) {
             ++errors;
         }
 
+    // If ADT name is valid
     if (dataTypeNameIsValid) {
-        /* Add data type to list of model allowed data types */
+        // Add data type to list of model allowed data types
         model->addAllowedDataType(adt->getName());
 
         errors += validateVariables(adt->getVariables(), model, true);
 
-        /* Check if adt contains dynamic arrays */
+        // Check if adt contains dynamic arrays
         for (vit = adt->getVariables()->begin();
                 vit != adt->getVariables()->end(); ++vit)
-            if ((*vit)->holdsDynamicArray()) adt->setHoldsDynamicArray(true);
+            if ((*vit).holdsDynamicArray()) adt->setHoldsDynamicArray(true);
     }
 
     return errors;

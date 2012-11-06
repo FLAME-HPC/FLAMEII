@@ -47,9 +47,9 @@ class IOXMLModel {
     int readTimeUnits(xmlNode * node, model::XModel * model);
     int readTimeUnit(xmlNode * node, model::XModel * model);
     int readVariables(xmlNode * node,
-            std::vector<model::XVariable*> * variables);
+            boost::ptr_vector<model::XVariable> * variables);
     int readVariable(xmlNode * node,
-            std::vector<model::XVariable*> * variables);
+            boost::ptr_vector<model::XVariable> * variables);
     int readAgents(xmlNode * node, model::XModel * model);
     int readAgent(xmlNode * node, model::XModel * model);
     void readTransitions(xmlNode * node, model::XMachine * machine);

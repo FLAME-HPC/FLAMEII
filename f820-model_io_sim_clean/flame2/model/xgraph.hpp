@@ -48,7 +48,7 @@ class XGraph {
     ~XGraph();
     int generateStateGraph(std::vector<XFunction*> functions,
             std::string startState, std::set<std::string> endStates);
-    int generateDependencyGraph(std::vector<XVariable*> * variables);
+    int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     int checkCyclicDependencies();
     int checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
@@ -93,23 +93,23 @@ class XGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
-    void addStartTask(std::vector<XVariable*> * variables);
+    void addStartTask(boost::ptr_vector<XVariable> * variables);
     void addEndTask();
     void copyWritingAndReadingVerticesFromInEdges(Vertex v, Task * t);
     void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
     void addWriteDependencies(Vertex v, Task * t);
     void addReadDependencies(Vertex v, Task * t);
     void addWritingVerticesToList(Vertex v, Task * t);
-    void addDataDependencies(std::vector<XVariable*> * variables);
+    void addDataDependencies(boost::ptr_vector<XVariable> * variables);
     void setStartTask(Task * task);
     void transformConditionalStatesToConditions(
-            std::vector<XVariable*> * variables);
+            boost::ptr_vector<XVariable> * variables);
     void contractStateVertices();
     void contractVariableVertices();
     void removeRedundantDependencies();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
-    void AddVariableOutput(std::vector<XVariable*> * variables);
+    void AddVariableOutput(boost::ptr_vector<XVariable> * variables);
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Vertex getVertex(Task * t);

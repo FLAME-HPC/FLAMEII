@@ -32,19 +32,20 @@ class XModelValidate {
     int processVariableStaticArray(XVariable * variable);
     int processVariable(XVariable * variable,
             XModel * model);
-    int processVariables(std::vector<XVariable*> * variables_,
+    int processVariables(boost::ptr_vector<XVariable> * variables_,
             XModel * model);
-    bool variableExists(std::string name, std::vector<XVariable*> * variables);
+    bool variableExists(std::string name,
+            boost::ptr_vector<XVariable> * variables);
     int processMemoryAccessVariable(std::string name,
-            std::vector<XVariable*> * variables,
+            boost::ptr_vector<XVariable> * variables,
             std::set<std::string> * usedVariables);
     int processAgentFunction(XFunction * function,
-            std::vector<XVariable*> * variables);
+            boost::ptr_vector<XVariable> * variables);
     void validateVariableName(XVariable * v, int * errors,
-            std::vector<XVariable*> * variables);
+            boost::ptr_vector<XVariable> * variables);
     void validateVariableType(XVariable * v, int * errors,
             XModel * model, bool allowDyamicArrays);
-    int validateVariables(std::vector<XVariable*> * variables_,
+    int validateVariables(boost::ptr_vector<XVariable> * variables_,
             XModel * model, bool allowDyamicArrays);
     int validateFunctionFile(std::string name);
     int validateTimeUnit(XTimeUnit * timeUnit, XModel * model);

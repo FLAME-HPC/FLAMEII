@@ -43,11 +43,6 @@ void XModel::clear() {
     /* Reset allowed datatypes */
     allowedDataTypes_.clear();
     setup();
-    /* Delete environment variables */
-    while (!constants_.empty()) {
-        delete constants_.back();
-        constants_.pop_back();
-    }
     /* Clear adts vector */
     while (!adts_.empty()) {
         delete adts_.back();
@@ -80,7 +75,7 @@ void XModel::print() {
     unsigned int ii;
     std::fprintf(stdout, "Constants:\n");
     for (ii = 0; ii < getConstants()->size(); ++ii) {
-            getConstants()->at(ii)->print();
+            getConstants()->at(ii).print();
     }
     std::fprintf(stdout, "Data types:\n");
     for (ii = 0; ii < adts_.size(); ++ii) {
@@ -208,7 +203,7 @@ XVariable * XModel::addConstant() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XModel::getConstants() {
+boost::ptr_vector<XVariable> * XModel::getConstants() {
     return &constants_;
 }
 
