@@ -17,8 +17,7 @@
 # make cpplint
 # make cccc
 # make coverage
-# (more for buildbot) ensure that all .cpp files include flame2/config.hpp
-#   -- find flame2/ -name "*.cpp" | xargs grep flame2/config.hpp -L
+# libtool versioning. See http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 
 # Note: first 3 segments of the version number should contain only digits
 # Note: package name (1st arg) must match the src directory name
