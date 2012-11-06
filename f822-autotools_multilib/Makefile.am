@@ -74,6 +74,16 @@ EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
   tests/sim/models \
   tests/model/models
 
+# Install custom libtool along with distribution
+bin_SCRIPTS = libtool
+
+# Commands to run after installation complete
+install-exec-hook:
+	@mv $(DESTDIR)$(bindir)/libtool $(DESTDIR)$(bindir)/flame2-libtool
+
+uninstall-hook:
+	@rm $(DESTDIR)$(bindir)/flame2-libtool
+
 # Commands to run before packing up the distribution
 dist-hook:
 	@find $(distdir) -name ".svn" -print0 | xargs -0 rm -rf

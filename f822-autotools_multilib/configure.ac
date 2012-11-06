@@ -181,6 +181,7 @@ if test $WANT_TEST_BUILD -eq 1; then
   FLAME_BOOST_UNIT_TEST_FRAMEWORK
 fi
 
+
 ###### CHECK OTHER DEPENDENCIES ###################
 
 # Check for libxml2
