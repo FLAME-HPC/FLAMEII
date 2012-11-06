@@ -17,8 +17,7 @@
 # make cpplint
 # make cccc
 # make coverage
-# (more for buildbot) ensure that all .cpp files include flame2/config.hpp
-#   -- find flame2/ -name "*.cpp" | xargs grep flame2/config.hpp -L
+# libtool versioning. See http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 
 # Note: first 3 segments of the version number should contain only digits
 # Note: package name (1st arg) must match the src directory name
@@ -33,12 +32,6 @@ AC_COPYRIGHT([
   Copyright (c) 2012 STFC Rutherford Appleton Laboratory
   Copyright (c) 2012 University of Sheffield
 ])
-
-# Initiliase libtool
-# - Turn off shared libraries during beta-testing, since they
-#   make the build process take too long.
-#LT_INIT([disable-shared])
-LT_INIT
 
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
@@ -57,11 +50,9 @@ fi
 
 # Check for programs
 AC_PROG_CXX([g++ pgCC icc, xlC])
-AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
 
 # Initialse flags that will be applied to all compilations/linking
-COMMON_LIBS=""
 COMMON_LDFLAGS=""
 COMMON_CPPFLAGS=""
 
@@ -69,67 +60,71 @@ COMMON_CPPFLAGS=""
 AC_SUBST(AM_CPPFLAGS,['-I$(top_srcdir)'])
 
 # Build specific flags
-CPPFLAGS_DEV="-DDEBUG -g"
-CPPFLAGS_TEST="${CPPFLAGS_DEV} -DTESTBUILD"
-CPPFLAGS_PROD="-DNDEBUG -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
+CPPFLAGS_DBG="-DDEBUG -DDBGBUILD -g"
+CPPFLAGS_TEST="-DDEBUG -DTESTBUILD -g"
+CPPFLAGS_PROD="-DNDEBUG -DPRODBUILD -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
 
 ############ CHOOSE BUILD TYPES ############################
-
-# Build production library but removing checks and debug symbols
-# (default: disabled)
-WANT_PROD_BUILD=0
-AC_ARG_ENABLE([production-build],
-              [AC_HELP_STRING(
-                  [--enable-production-build],
-                  [Build a production version of the libraryy]
-              )])
-AS_IF([test "x$enable_production_build" = "xyes"], [
-  WANT_PROD_BUILD=1
-])
-AC_SUBST(WANT_PROD_BUILD)
-
-# Include tests and build test code into library
-# (default: disabled)
+BUILDS=""
 WANT_TEST_BUILD=0
+WANT_PROD_BUILD=1
+WANT_DBG_BUILD=1
+
+AC_ARG_ENABLE([dev-mode],
+              [AC_HELP_STRING(
+                  [--enable-dev-mode],
+                  [Change default build to test-build only and disable static libraries to speed up builds]
+              )])
+AS_IF([test "x$enable_dev_mode" = "xyes"], [
+  WANT_TEST_BUILD=1
+  WANT_PROD_BUILD=0
+  WANT_DBG_BUILD=0
+  enable_static=no
+])
+
+# Conditionally include tests and build test code into library
+# (default: disabled)
 AC_ARG_ENABLE([test-build],
               [AC_HELP_STRING(
                   [--enable-test-build],
                   [Build tests and a test version of the library]
               )])
-AS_IF([test "x${enable_test_build}" = "xyes"], [
-  if test $WANT_PROD_BUILD -eq 1; then
-    AC_MSG_ERROR([
-** CONFLICTING OPTIONS.
-   Tests cannot be built using production code. You can use only ONE of
-   the following options:
-     --enable-production-build
-     --enable-test-build
-    ])
-    exit 1
-  fi
-  WANT_TEST_BUILD=1
-])
-AC_SUBST(WANT_TEST_BUILD)
-AM_CONDITIONAL(BUILD_TESTS, test $WANT_TEST_BUILD = 1)
+AS_IF([test "x$enable_test_build" = "xyes"], [WANT_TEST_BUILD=1])
+AM_CONDITIONAL(BUILD_TEST, test $WANT_TEST_BUILD = 1)
+if test $WANT_TEST_BUILD = 1; then BUILDS="test $BUILDS"; fi
 
-# Update CPPFLAGS_COMMON based on build type
-if test $WANT_PROD_BUILD -eq 1; then
-  COMMON_CPPFLAGS+="${CPPFLAGS_PROD} "
-  BUILD_TYPE="production"
-elif test $WANT_TEST_BUILD -eq 1; then
-  COMMON_CPPFLAGS+="${CPPFLAGS_TEST} "
-  BUILD_TYPE="test"
-else
-  COMMON_CPPFLAGS+="${CPPFLAGS_DEV} "
-  BUILD_TYPE="development"
+# Conditionally build production libraries
+# (default: enable)
+
+AC_ARG_ENABLE([prod-build],
+              [AC_HELP_STRING(
+                  [--disable-prod-build],
+                  [Do not build and install production library]
+              )])
+AS_IF([test "x$enable_prod_build" = "xno"], [WANT_PROD_BUILD=0])
+AM_CONDITIONAL(BUILD_PROD, test $WANT_PROD_BUILD = 1)
+if test $WANT_PROD_BUILD = 1; then BUILDS="production $BUILDS"; fi
+
+# Conditionally build debug libraries
+# (default: enable)
+
+AC_ARG_ENABLE([debug-build],
+              [AC_HELP_STRING(
+                  [--disable-debug-build],
+                  [Do not build and install debug library]
+              )])
+AS_IF([test "x$enable_debug_build" = "xno"], [WANT_DBG_BUILD=0])
+AM_CONDITIONAL(BUILD_DEBUG, test $WANT_DBG_BUILD = 1)
+if test $WANT_DBG_BUILD = 1; then BUILDS="debug $BUILDS"; fi
+
+if test "x${BUILDS}" = "x"; then
+  AC_MSG_ERROR([All build types disabled. Nothing left to do.])
 fi
-AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
-AC_SUBST(BUILD_TYPE)
 
 ##### CHECK BOOST #####
 
 # Check boost version
-#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
+#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS) / AC_SUBST(BOOST_LIBDIR)
 FLAME_BOOST_BASE([1.46])
 
 # Allows user to change boost library suffix
@@ -177,6 +172,7 @@ if test $WANT_TEST_BUILD -eq 1; then
   # - calls : AC_SUBST(BOOST_UNIT_TEST_FRAMEWORK_LIB)
   FLAME_BOOST_UNIT_TEST_FRAMEWORK
 fi
+
 
 ###### CHECK OTHER DEPENDENCIES ###################
 
@@ -241,13 +237,23 @@ case "$CXX" in
     ;;
 esac
 
+########### initialise libtool ################
+LT_INIT()
+
+######### extract -l* flags from COMMON_LDFLAGS to COMMON_LIBS #########
+
+X_LDFLAGS="${COMMON_LDFLAGS}"
+COMMON_LDFLAGS=`for f in ${X_LDFLAGS}; do echo $f | awk '!/^-l/{printf "%s ", $0};'; done`
+COMMON_LIBS=`for f in ${X_LDFLAGS}; do echo $f | awk '/^-l/{printf "%s ", $0};'; done`
+
 ######### Clean vars (for aesthetic reasons only) ############
 
 AC_DEFUN([CLEAN_VAR], [
-dnl Remove trailing and leading spaces, and suppress repeated spaces
-  $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g'`
+dnl Remove trailing and leading spaces, and suppress repeated spaces and slashes
+  $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g' | tr -s '/'`
 ])
 
+CLEAN_VAR(BOOST_LIBDIR)
 CLEAN_VAR(COMMON_CPPFLAGS)
 CLEAN_VAR(COMMON_LDFLAGS)
 CLEAN_VAR(COMMON_LIBS)
@@ -256,15 +262,26 @@ CLEAN_VAR(CXXFLAGS)
 CLEAN_VAR(LDFLAGS)
 CLEAN_VAR(LIBS)
 
+
+############# CHECKS ####################
+AC_TYPE_SIZE_T  # we use size_t
+
 ########### Substitute vars into Makefiles ################
+
+AC_SUBST(CPPFLAGS_DBG)
+AC_SUBST(CPPFLAGS_PROD)
+AC_SUBST(CPPFLAGS_TEST)
 
 AC_SUBST(COMMON_CPPFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 AC_SUBST(COMMON_LIBS)
-AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
-                   [extra CPPFLAGS applied by ./configure options])
-AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
-                   [extra LDFLAGS applied by ./configure options])
+#AC_DEFINE_UNQUOTED([COMMON_CPPFLAGS], ["$COMMON_CPPFLAGS"],
+#                   [extra CPPFLAGS applied by ./configure options])
+#AC_DEFINE_UNQUOTED([COMMON_LDFLAGS], ["$COMMON_LDFLAGS"],
+#                   [extra LDFLAGS applied by ./configure options])
+
+# TODO: extract -l.. from LDFLAGS and provide as COMMON_LIBS
+#       insert those under LDADD in makefiles
 
 FLAME2_CONFIG_DIR=`pwd`
 FLAME2_CONFIG_DATE=`date`
@@ -293,8 +310,6 @@ else
 fi
 AC_SUBST(BUILD_STATIC)
 
-############# CHECKS ####################
-AC_TYPE_SIZE_T  # we use size_t
 
 ############# Create Output ##############
 
@@ -321,13 +336,14 @@ flame2/exceptions/Makefile
 echo ""
 echo "------------------- Configuration successful --------------------------"
 echo ""
-echo "Build type       : $BUILD_TYPE"
+echo "Build type       : $BUILDS"
 echo ""
 echo "Default compiler : $CXX"
 echo "Default CXXFLAGS : $CXXFLAGS"
 echo "Default CPPFLAGS : $CPPFLAGS"
 echo "Default LDFLAGS  : $LDFLAGS"
 echo "Default LIBS     : $LIBS"
+echo ""
 echo ""
 echo "Additional CPPFLAGS : $COMMON_CPPFLAGS"
 echo "Additional LDFLAGS  : $COMMON_LDFLAGS"

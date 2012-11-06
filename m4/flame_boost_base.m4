@@ -1,7 +1,7 @@
 # =============================================================================
 # SYNOPSIS
 #
-#   FLAME_BOOST_BASE([MINIMUM-VERSION], [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+#   FLAME_BOOST_BASE([MINIMUM-VERSION], [ACTION-IF-FOUND])
 #
 # NOTE
 #
@@ -18,7 +18,7 @@
 #
 #   This macro calls:
 #
-#     AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
+#     AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS) / AC_SUBST(BOOST_LIBDIR)
 #
 #   And sets:
 #
@@ -123,6 +123,7 @@ if test "x$want_boost" = "xyes"; then
         for ac_boost_path_tmp in $libsubdirs; do
                 if test -d "$ac_boost_path"/"$ac_boost_path_tmp" ; then
                         BOOST_LDFLAGS="-L$ac_boost_path/$ac_boost_path_tmp"
+                        BOOST_LIBDIR="$ac_boost_path/$ac_boost_path_tmp"
                         break
                 fi
         done
@@ -134,6 +135,7 @@ if test "x$want_boost" = "xyes"; then
                 done
                 BOOST_LDFLAGS="-L$ac_boost_path_tmp/$libsubdir"
                 BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
+                BOOST_LIBDIR="$ac_boost_path_tmp/$libsubdir"
                 break;
             fi
         done
@@ -143,6 +145,7 @@ if test "x$want_boost" = "xyes"; then
     dnl --with-boost-libdir parameter
     if test "$ac_boost_lib_path" != ""; then
        BOOST_LDFLAGS="-L$ac_boost_lib_path"
+       BOOST_LIBDIR="$ac_boost_lib_path"
     fi
 
     CPPFLAGS_SAVED="$CPPFLAGS"
@@ -211,6 +214,7 @@ if test "x$want_boost" = "xyes"; then
                         if ls "$best_path/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
                     done
                     BOOST_LDFLAGS="-L$best_path/$libsubdir"
+                    BOOST_LIBDIR="$best_path/$libsubdir"
                 fi
             fi
 
@@ -229,6 +233,7 @@ if test "x$want_boost" = "xyes"; then
                         # AC_MSG_NOTICE(We will use a staged boost library from $BOOST_ROOT)
                         BOOST_CPPFLAGS="-I$BOOST_ROOT"
                         BOOST_LDFLAGS="-L$BOOST_ROOT/stage/$libsubdir"
+                        BOOST_LIBDIR="$BOOST_ROOT/stage/$libsubdir"
                     fi
                 fi
             fi
@@ -264,8 +269,10 @@ if test "x$want_boost" = "xyes"; then
             AC_MSG_ERROR([Your boost libraries seems to old (version $_version).])
         fi
         # execute ACTION-IF-NOT-FOUND (if present):
-        ifelse([$3], , :, [$3])
+        #ifelse([$3], , :, [$3])
     else
+        AC_SUBST(BOOST_LIBDIR)
+        AC_SUBST(BOOST_RPATH)
         AC_SUBST(BOOST_CPPFLAGS)
         AC_SUBST(BOOST_LDFLAGS)
         AC_DEFINE(HAVE_BOOST,,[define if the Boost library is available])

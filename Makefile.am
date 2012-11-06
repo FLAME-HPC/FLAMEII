@@ -26,25 +26,47 @@ SUBDIRS = \
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests
 
-# Library to install
-lib_LTLIBRARIES = libflame2.la
+# Libraries to link and install (populated by conditional block below)
+lib_LTLIBRARIES =
 
-# Flags to build that library
-libflame2_la_SOURCES =
-libflame2_la_LDFLAGS = @COMMON_LDFLAGS@
-libflame2_la_LIBADD  = \
-  flame2/exe/lib_flame_exe.la \
-  flame2/io/lib_flame_io.la  \
-  flame2/mb/lib_flame_mb.la  \
-  flame2/mem/lib_flame_mem.la  \
-  flame2/sim/lib_flame_sim.la  \
-  flame2/model/lib_flame_model.la \
-  flame2/compat/C/lib_flame_compat_c.la
+# List of convenience libraries to link to form the final library.
+# Note that the build type and file extensions are automatically appended
+# depending on the build type
+LIBADD_LIST = \
+  flame2/exe/lib_flame_exe \
+  flame2/io/lib_flame_io  \
+  flame2/mb/lib_flame_mb  \
+  flame2/mem/lib_flame_mem  \
+  flame2/sim/lib_flame_sim  \
+  flame2/model/lib_flame_model \
+  flame2/compat/C/lib_flame_compat_c
+  
+if BUILD_DEBUG
+lib_LTLIBRARIES += libflame2-dbg.la
+libflame2_dbg_la_SOURCES = 
+libflame2_dbg_la_LDFLAGSS = @COMMON_LDFLAGS@
+libflame2_dbg_la_LIBADD = $(LIBADD_LIST:=-dbg.la) 
+endif
+
+if BUILD_PROD
+lib_LTLIBRARIES += libflame2-prod.la
+libflame2_prod_la_SOURCES = 
+libflame2_prod_la_LDFLAGSS = @COMMON_LDFLAGS@
+libflame2_prod_la_LIBADD = $(LIBADD_LIST:=-prod.la) 
+endif
+
+if BUILD_TEST
+lib_LTLIBRARIES += libflame2-test.la
+libflame2_test_la_SOURCES = 
+libflame2_test_la_LDFLAGSS = @COMMON_LDFLAGS@
+libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la) 
+endif
 
 # C API header
 include_HEADERS = flame2/compat/C/flame2.h
 # flame2 config header
-nobase_include_HEADERS = flame2/config.hpp
+# Should not need to be installed since it is only used by cpp files.
+# nobase_include_HEADERS = flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
@@ -52,11 +74,21 @@ EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
   tests/sim/models \
   tests/model/models
 
+# Install custom libtool along with distribution
+bin_SCRIPTS = libtool
+
+# Commands to run after installation complete
+install-exec-hook:
+	@mv $(DESTDIR)$(bindir)/libtool $(DESTDIR)$(bindir)/flame2-libtool
+
+uninstall-hook:
+	@rm $(DESTDIR)$(bindir)/flame2-libtool
+
 # Commands to run before packing up the distribution
 dist-hook:
 	@find $(distdir) -name ".svn" -print0 | xargs -0 rm -rf
 
-if BUILD_TESTS
+if BUILD_TEST
 
 test:
 	@( \
@@ -74,9 +106,23 @@ test:
 			echo "---------------------------------------------------------------" ;\
 			rm test_cfg_incl ;\
 			exit 1 ;\
-		else \
+		fi ;\
+		find flame2 -name "*.hpp" | xargs grep flame2/config.hpp -l > test_cfg_incl ;\
+		if test -s test_cfg_incl; then \
+			echo "---------------------------------------------------------------" ;\
+			echo "" ;\
+			echo "OOppps. The following hpp files include flame2/config.hpp" ;\
+			while read line; do echo "- $$line"; done < test_cfg_incl ;\
+			echo "" ;\
+			echo "Please do not include config.hpp in header files as it contains " ;\
+			echo "platform-specific definitions and is not installed along with" ;\
+			echo "other header files." ;\
+			echo "" ;\
+			echo "---------------------------------------------------------------" ;\
 			rm test_cfg_incl ;\
-		fi \
+			exit 1 ;\
+		fi ;\
+		rm test_cfg_incl ;\
 	)
 	@(make && cd tests && make && ./run_tests --report_level=short --show_progress)
 

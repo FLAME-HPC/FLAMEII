@@ -26,13 +26,17 @@ BUILD_REVISION=`echo "\$Id$" | cut -d' ' -f3`
 BUILD_TYPE="@BUILD_TYPE@"
 BUILD_VERSION="@PACKAGE_VERSION@"
 
-USER_CFLAGS="@COMMON_CPPFLAGS@ -I@FLAME2_INSTALL_INCLUDEDIR@"
-USER_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2"
-USER_STATIC_LIBS="@COMMON_LDFLAGS@ --static"
+USER_CFLAGS="-I@FLAME2_INSTALL_INCLUDEDIR@ @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@"
+USER_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2-dbg @COMMON_LDFLAGS@ @COMMON_LIBS@ "
+USER_STATIC="-all-static"  # used for PROD as well
+USER_RPATH="-rpath @FLAME2_INSTALL_LIBDIR@ -rpath @BOOST_LIBDIR@"
+
+PROD_CFLAGS="-I@FLAME2_INSTALL_INCLUDEDIR@ @COMMON_CPPFLAGS@ @CPPFLAGS_PROD@"
+PROD_LIBS="-L@FLAME2_INSTALL_LIBDIR@ -lflame2-prod @COMMON_LDFLAGS@ @COMMON_LIBS@"
 
 DEFAULT_COMPILER="@CXX@"
 DEFAULT_CFLAGS="@CPPFLAGS@ @CXXFLAGS@ @COMMON_CPPFLAGS@"
-DEFAULT_LDFLAGS="@COMMON_LDFLAGS@"
+DEFAULT_LDFLAGS="@COMMON_LDFLAGS@ @COMMON_LIBS@"
 
 FLAME2_CONFIG_DIR="@FLAME2_CONFIG_DIR@"
 FLAME2_CONFIG_DATE="@FLAME2_CONFIG_DATE@"
@@ -59,7 +63,8 @@ fi
 # If arg provided, use $1 as exit code, else exit with $SUCCESS
 function rtfm {
   cat << EOF
-Usage: $PROG_NAME [--cflags] [--libs] [--static] [--version] [--query] [--help]
+Usage: $PROG_NAME [--cflags] [--libs] [--rpath] [--static] [--version]
+                  [--query] [--help]
 
 Try '$PROG_NAME --help' for more information.
 EOF
@@ -73,14 +78,7 @@ EOF
 
 # print package version
 function print_version {
-  cat <<EOF
-FLAME2 (Version $BUILD_VERSION) [$BUILD_TYPE build]
-  
-Copyright (c) 2012 STFC Rutherford Appleton Laboratory
-Copyright (c) 2012 University of Sheffield
-
-For info on package configuration, run $PROG_NAME --query
-EOF
+  echo "FLAME2 (Version $BUILD_VERSION)"
 }
 
 # print full usage info and exit successfully
@@ -99,7 +97,6 @@ $PROG_NAME --version  # Show FLAME2 version
 $PROG_NAME --query    # Show options used to configure and build FLAME2
 $PROG_NAME --cflags   # Output preprocessor and compiler flags
 $PROG_NAME --libs     # Output linker flags
-$PROG_NAME --libs --static # Output linker flags for static compilation
 
 Example:
 g++ program.cpp \$($PROG_NAME --cflags --ldflags)
@@ -111,9 +108,18 @@ All Options:
 
   -c, --cflags   Output preprocessor and compiler flags to compile FLAME2 model
   -l, --libs     Output linker flags to link FLAME2 model
-  -s, --static   Allow static linking (used with --libs)
+  
+  -r, --rpath    Output libtool options to embed run-time search paths
+  -s, --static   OUtput libtool options to force static linking
+
+  -p, --production   Output flags to build production version of a model. Only
+                     use this once the model is fully tested as this will
+                     disable most run-time checks in exchange for performance.
 
   -h, --help     Print this help message
+
+Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+Copyright (c) 2012 University of Sheffield
   
 EOF
   
@@ -127,7 +133,6 @@ function print_query {
 ---- [ General Info ] -------------------------------------------------------
 Name              : FLAME2
 Version           : $BUILD_VERSION (Rev: $BUILD_REVISION)
-Build type        : $BUILD_TYPE
 
 Dynamic linking   : $BUILD_SHARED
 Static linking    : $BUILD_STATIC
@@ -156,18 +161,34 @@ EOF
 function print_requested_flags {
 
   if test $A_libs -eq 1; then
-    echo -n "$USER_LIBS "
+    if test $A_production -eq 1; then
+      echo -n "$PROD_LIBS "
+    else
+      echo -n "$USER_LIBS "
+    fi
     
     # if shared library is not built, static linking is implied
-    if [ $A_static -eq 1 ] || [ "$BUILD_SHARED" != "yes" ]; then
-      echo -n "$USER_STATIC_LIBS "
-    fi
+    #if [ $A_static -eq 1 ] || [ "$BUILD_SHARED" != "yes" ]; then
+    #  echo -n "$USER_STATIC_LIBS "
+    #fi
   fi
   
   if test $A_cflags -eq 1; then
-    echo -n "$USER_CFLAGS "
+    if test $A_production -eq 1; then
+      echo -n "$PROD_CFLAGS "
+    else
+      echo -n "$USER_CFLAGS "
+    fi
   fi
 
+  if test $A_rpath -eq 1 ; then
+    echo -n "$USER_RPATH "
+  fi
+
+  if test $A_static -eq 1; then
+    echo -n "$USER_STATIC"
+  fi
+  
   echo ""
 }
 
@@ -247,8 +268,8 @@ function is_acceptable_short_option {
 # * is_acceptable_option
 # * is_acceptable_short_option
 # * parse_long_options
-acceptable_long_options="usage cflags libs static version query help"
-acceptable_short_options="uhvVlscq"
+acceptable_long_options="usage cflags libs static production rpath version query help"
+acceptable_short_options="uhvVlsprcq"
 
 
 # parse input arguments
@@ -267,7 +288,9 @@ function parse_input_arguments {
       -l|--libs)       A_libs=1;;
       -s|--static)     A_static=1;;
       -c|--cflags)     A_cflags=1;;
+      -r|--rpath)      A_rpath=1;;
       -q|--query)      A_query=1;;
+      -p|--production) A_production=1;;
       
       # capture unmatched options
       *) unmatched="$1 $unmatched";;
@@ -347,8 +370,10 @@ function parse_input_arguments {
 A_version=0  # --version
 A_cflags=0   # --cflags
 A_static=0   # --static
+A_rpath=0    # --rpath
 A_query=0    # --query
 A_libs=0     # --libs
+A_production=0  # --production
 
 # calling script without any parameters will print usage info
 if [ $# -eq 0 ]; then rtfm ; fi
@@ -370,6 +395,7 @@ then
   ignore_option "cflags"
   ignore_option "static"
   ignore_option "libs"
+  ignore_option "rpath"
 
   if [ $A_query -eq 1 ]; then 
     print_query
@@ -378,14 +404,25 @@ then
   else
     print_version
   fi
-    
+  
 else
 
   # if neither --cflags nor --libs were specified, print usage msg
-  if [ $A_cflags -eq 0 ] && [ $A_libs -eq 0 ]; then
+  if [ $A_cflags -eq 0 ] && [ $A_libs -eq 0 ] && [ $A_rpath -eq 0 ] && [ $A_static -eq 0 ]; then
     rtfm $ERR_USAGE
   fi
-    
+
+  if [ $A_rpath -eq 1 ]; then
+    if [ $A_cflags -eq 1 ]; then
+      echo "--rpath cannot be used with --cflags" >&2
+      exit $ERR_USAGE
+    fi
+    if [ $A_static -eq 1 ]; then
+      echo "--rpath is not required when statically linked" >&2
+      ignore_option "rpath"
+    fi
+  fi
+  
   print_requested_flags
 fi
 

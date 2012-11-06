@@ -8,8 +8,6 @@
 # ============================================================================
 # $Id$
 
-noinst_LTLIBRARIES = lib_flame_mem.la
-
 module_headers = \
   agent_memory.hpp \
   agent_shadow.hpp \
@@ -29,5 +27,23 @@ library_includedir = $(pkgincludedir)/mem
 # Headers to install
 library_include_HEADERS = $(module_headers)
 
-lib_flame_mem_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_mem_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES =
+common_flags = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
+
+if BUILD_DEBUG
+noinst_LTLIBRARIES += lib_flame_mem-dbg.la
+lib_flame_mem_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
+lib_flame_mem_dbg_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_PROD
+noinst_LTLIBRARIES += lib_flame_mem-prod.la
+lib_flame_mem_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
+lib_flame_mem_prod_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_TEST
+noinst_LTLIBRARIES += lib_flame_mem-test.la
+lib_flame_mem_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
+lib_flame_mem_test_la_SOURCES  = $(module_headers) $(module_sources)
+endif
