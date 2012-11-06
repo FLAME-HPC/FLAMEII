@@ -2,33 +2,40 @@ CPP_SOURCES = main.cpp
 C_SOURCES   = agent_functions.c
 HEADERS     = agent_functions.h message_datatypes.h
 
-FLAME2_DIR = /home/lsc/work/build/flame2
-FLAME2_CONFIG = $(FLAME2_DIR)/bin/flame2-config
-FLAME2_CPPFLAGS = `$(FLAME2_CONFIG) --cflags`
-FLAME2_LDFLAGS = `$(FLAME2_CONFIG) --libs`
+FLAME2_CONFIG = flame2-config
 
-COV_FLAGS = -fprofile-arcs -ftest-coverage
-CPPFLAGS  = -Wall $(FLAME2_CPPFLAGS)
-LDFLAGS   = $(FLAME2_LDFLAGS) -lm
+COMPILE_FLAGS = $(shell $(FLAME2_CONFIG) --cflags)
+LINK_COMMAND = libtool --tag=CXX --mode=link --silent $(CXX)
+LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --rpath)
+#LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --rpath --static)  # force static linking
 
 EXECUTABLE = run
 
 DEPS      = $(HEADERS) Makefile
 OBJECTS   = $(C_SOURCES:.c=.o) $(CPP_SOURCES:.cpp=.o)
 
-all: $(EXECUTABLE)
+.PHONY: f2config
+
+all: f2config $(EXECUTABLE)
+
+# make sure flame2-config tool can be run
+f2config:
+	@$(FLAME2_CONFIG) --version > /dev/null
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX)  $(OBJECTS) $(LDFLAGS) -o $@
+	@echo "Linking executable '$@'"
+	@$(LINK_COMMAND)  $(OBJECTS) -o $@ $(LINK_FLAGS)
 
 $(OBJECTS): $(DEPS)
 
 # Use C++ compiler, even for C code
 .c.o:
-	$(CXX) -c $(CPPFLAGS) $< -o $@
+	@echo "Compiling $<"
+	@$(CXX) -c $(COMPILE_FLAGS) $< -o $@
 
 .cpp.o:
-	$(CXX) -c $(CPPFLAGS) $< -o $@
+	@echo "Compiling $<"
+	@$(CXX) -c $(COMPILE_FLAGS) $< -o $@
 	
 clean:
 	rm -f $(EXECUTABLE) $(OBJECTS)
