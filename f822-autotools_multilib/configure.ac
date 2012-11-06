@@ -132,7 +132,7 @@ fi
 ##### CHECK BOOST #####
 
 # Check boost version
-#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS)
+#  - calls : AC_SUBST(BOOST_CPPFLAGS) / AC_SUBST(BOOST_LDFLAGS) / AC_SUBST(BOOST_LIBDIR)
 FLAME_BOOST_BASE([1.46])
 
 # Allows user to change boost library suffix
@@ -253,10 +253,11 @@ COMMON_LIBS=`for f in ${X_LDFLAGS}; do echo $f | awk '/^-l/{printf "%s ", $0};';
 ######### Clean vars (for aesthetic reasons only) ############
 
 AC_DEFUN([CLEAN_VAR], [
-dnl Remove trailing and leading spaces, and suppress repeated spaces
-  $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g'`
+dnl Remove trailing and leading spaces, and suppress repeated spaces and slashes
+  $1=`echo [$]$1 | sed 's/^ *//g; s/ *$//g; s/  */ /g' | tr -s '/'`
 ])
 
+CLEAN_VAR(BOOST_LIBDIR)
 CLEAN_VAR(COMMON_CPPFLAGS)
 CLEAN_VAR(COMMON_LDFLAGS)
 CLEAN_VAR(COMMON_LIBS)

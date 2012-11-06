@@ -45,14 +45,14 @@ if BUILD_DEBUG
 lib_LTLIBRARIES += libflame2-dbg.la
 libflame2_dbg_la_SOURCES = 
 libflame2_dbg_la_LDFLAGSS = @COMMON_LDFLAGS@
-libflame2_dbg_la_LIBADD = $(LIBADD_LIST:=-dbg.la)
+libflame2_dbg_la_LIBADD = $(LIBADD_LIST:=-dbg.la) 
 endif
 
 if BUILD_PROD
 lib_LTLIBRARIES += libflame2-prod.la
 libflame2_prod_la_SOURCES = 
 libflame2_prod_la_LDFLAGSS = @COMMON_LDFLAGS@
-libflame2_prod_la_LIBADD = $(LIBADD_LIST:=-prod.la)
+libflame2_prod_la_LIBADD = $(LIBADD_LIST:=-prod.la) 
 endif
 
 if BUILD_TEST
