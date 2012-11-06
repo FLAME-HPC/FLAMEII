@@ -15,8 +15,6 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "xmachine.hpp"
 
-void printErr(std::string message);
-
 namespace flame { namespace model {
 
 XMachine::XMachine() {
@@ -50,9 +48,9 @@ XMachine::~XMachine() {
 void XMachine::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
+    for (ii = 0; ii < getVariables()->size(); ++ii)
         getVariables()->at(ii)->print();
-    for (ii = 0; ii < functions_.size(); ii++)
+    for (ii = 0; ii < functions_.size(); ++ii)
         functions_.at(ii)->print();
 }
 
@@ -77,7 +75,7 @@ std::vector<XVariable*> * XMachine::getVariables() {
 
 XVariable * XMachine::getVariable(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
+    for (ii = 0; ii < variables_.size(); ++ii)
         if (variables_.at(ii)->getName() == name) return variables_.at(ii);
     return 0;
 }
@@ -94,7 +92,7 @@ std::vector<XFunction*> * XMachine::getFunctions() {
 
 bool XMachine::validateVariableName(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
+    for (ii = 0; ii < variables_.size(); ++ii)
         if (name == variables_.at(ii)->getName()) return true;
     return false;
 }
@@ -124,19 +122,10 @@ int XMachine::findStartEndStates() {
         s = endStates_.find((*f)->getCurrentState());
         if (s != endStates_.end()) endStates_.erase(s);
     }
-    if (startStates.size() == 0) {
-        // No start states found
-        printErr(std::string("Error: ") +
-                name_ + std::string("agent doesn't have a start state"));
-        return 1;
-    } else if (startStates.size() > 1) {
-        // Multiple start states found
-        printErr(std::string("Error: ") +
-            name_ + std::string(" agent has multiple possible start states:"));
-        for (s = startStates.begin(); s != startStates.end(); s++)
-            printErr(std::string("\t") + *s);
-        return 2;
-    }
+    // No start states found
+    if (startStates.size() == 0) return 1;
+    // Multiple start states found
+    else if (startStates.size() > 1) return 2;
     // One start state
     startState_ = (*startStates.begin());
 
@@ -184,7 +173,7 @@ void XMachine::registerWithMemoryManager() {
     /* Register agent with memory manager */
     memoryManager.RegisterAgent(name_);
     /* Register agent memory variables */
-    for (vit = variables_.begin(); vit != variables_.end(); vit++) {
+    for (vit = variables_.begin(); vit != variables_.end(); ++vit) {
         if ((*vit)->getType() == "int") {
             /* Register int variable */
             memoryManager.RegisterAgentVar<int>(name_, (*vit)->getName());

@@ -40,7 +40,7 @@ XADT::~XADT() {
 void XADT::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tADT Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
+    for (ii = 0; ii < getVariables()->size(); ++ii)
         getVariables()->at(ii)->print();
 }
 

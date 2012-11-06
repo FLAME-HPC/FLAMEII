@@ -21,6 +21,7 @@
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
 
@@ -79,7 +80,6 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 
 /* Test the reading of XML population files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
-    int rc;
     unsigned int ii;
     xml::IOXMLPop ioxmlpop;
     xml::IOXMLModel ioxmlmodel;
@@ -92,44 +92,36 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     /* Register agents with memory manager */
     model.registerWithMemoryManager();
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_missing.xml",
-            &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_missing.xml", &model),
+            e::inaccessable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_malformed.xml",
-            &model);
-    BOOST_CHECK(rc == 2);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_malformed.xml", &model),
+            e::unparseable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_tag.xml",
-            &model);
-    BOOST_CHECK(rc == 3);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_unknown_tag.xml", &model),
+            e::unparseable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_agent.xml",
-            &model);
-    BOOST_CHECK(rc == 4);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_unknown_agent.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_variable.xml",
-            &model);
-    BOOST_CHECK(rc == 5);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_unknown_variable.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_var_not_int.xml",
-            &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_var_not_int.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_var_not_double.xml",
-            &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_var_not_double.xml", &model),
+            e::invalid_pop_file);
 
     std::string zeroxml = "io/models/all_data_its/0.xml";
-    rc = ioxmlpop.readPop(zeroxml, &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, &model));
 
     /* Test pop data read in */
     /* Test ints data */

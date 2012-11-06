@@ -29,9 +29,6 @@
 #include "xfunction.hpp"
 #include "task.hpp"
 
-
-void printErr(std::string message);
-
 namespace flame { namespace model {
 
 XGraph::XGraph() {
@@ -340,19 +337,8 @@ int XGraph::registerAllowAccess(flame::exe::Task * task,
     std::set<std::string>::iterator sit;
 
     // For each variable name
-    for (sit = vars->begin();
-            sit != vars->end(); sit++) {
-        try {
-            // Allow access for variable name
-            task->AllowAccess((*sit), writeable);
-        }
-        catch(const flame::exceptions::logic_error& E) {
-            printErr(std::string("Error: ") + E.what());
-            printErr(std::string("When allowing access for variable ") +
-                    (*sit));
-            return 1;
-        }
-    }
+    for (sit = vars->begin(); sit != vars->end(); sit++)
+        task->AllowAccess((*sit), writeable);
 
     return 0;
 }
@@ -365,19 +351,11 @@ int XGraph::registerAllowMessage(flame::exe::Task * task,
     for (sit = messages->begin();
             sit != messages->end(); sit++) {
         // Update task with appropriate access
-        try {
-            // If output message then allow post
-            if (post) task->AllowMessagePost((*sit));
-            // If input message then allow read
-            else
-                task->AllowMessageRead((*sit));
-        }
-        catch(const flame::exceptions::logic_error& E) {
-            printErr(std::string("Error: ") + E.what());
-            printErr(std::string("When allowing access for message ") +
-                    (*sit));
-            return 1;
-        }
+        // If output message then allow post
+        if (post) task->AllowMessagePost((*sit));
+        // If input message then allow read
+        else
+            task->AllowMessageRead((*sit));
     }
 
     return 0;
@@ -392,31 +370,24 @@ int XGraph::registerAgentTask(Task * t,
     // Try and find function pointer from map
     it = funcMap.find(t->getName());
     if (it == funcMap.end()) {
-        printErr(std::string("Error: function '%s' has not be registered ") +
-    t->getTaskName() + std::string("and therefore a task cannot be created"));
+        fprintf(stderr, "Error: function '%s' has not be registered and %s\n",
+                t->getTaskName().c_str(),
+                "therefore a task cannot be created");
         return 3;
     }
 
-    try {
-        // Create agent task
-        flame::exe::Task& task = taskManager.CreateAgentTask(
-                t->getTaskName(), t->getParentName(), ((*it).second));
-        // Allow access to read only variables
-        rc += registerAllowAccess(&task, t->getReadOnlyVariables(), false);
-        // Allow access to read write variables
-        rc += registerAllowAccess(&task, t->getWriteVariables(), true);
-        // Add access to output messages
-        rc += registerAllowMessage(&task, t->getOutputMessages(), true);
-        // Add access to input messages
-        rc += registerAllowMessage(&task, t->getInputMessages(), false);
-        if (rc != 0) return 1;
-    }
-    catch(const flame::exceptions::flame_exception& E) {
-        printErr(std::string("Error: ") + E.what());
-        printErr(std::string("When creating a task for function ") +
-            t->getTaskName());
-        return 2;
-    }
+    // Create agent task
+    flame::exe::Task& task = taskManager.CreateAgentTask(
+            t->getTaskName(), t->getParentName(), ((*it).second));
+    // Allow access to read only variables
+    rc += registerAllowAccess(&task, t->getReadOnlyVariables(), false);
+    // Allow access to read write variables
+    rc += registerAllowAccess(&task, t->getWriteVariables(), true);
+    // Add access to output messages
+    rc += registerAllowMessage(&task, t->getOutputMessages(), true);
+    // Add access to input messages
+    rc += registerAllowMessage(&task, t->getInputMessages(), false);
+    if (rc != 0) return 1;
 
     return 0;
 }
@@ -454,22 +425,14 @@ void XGraph::registerDataTask(Task * t) {
 int XGraph::registerMessageTask(Task * t) {
     flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
-    try {
-        // If sync task then create sync task
-        if (t->getTaskType() == Task::xmessage_sync)
-            taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
-                exe::MessageBoardTask::OP_SYNC);
-        // If clear task then create clear task
-        if (t->getTaskType() == Task::xmessage_clear)
-            taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
-                exe::MessageBoardTask::OP_CLEAR);
-    }
-    catch(const flame::exceptions::logic_error& E) {
-        printErr(std::string("Error: ") + E.what());
-        printErr(std::string("When creating a sync task for message ") +
-            t->getName());
-        return 2;
-    }
+    // If sync task then create sync task
+    if (t->getTaskType() == Task::xmessage_sync)
+        taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
+            exe::MessageBoardTask::OP_SYNC);
+    // If clear task then create clear task
+    if (t->getTaskType() == Task::xmessage_clear)
+        taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
+            exe::MessageBoardTask::OP_CLEAR);
 
     return 0;
 }
@@ -794,7 +757,7 @@ void XGraph::AddVariableOutput(std::vector<XVariable*> * variables) {
                 task->getWriteVariables()->insert((*vwit).first);
                 lws->erase(vwit++);
             } else {
-                vwit++;
+                ++vwit;
             }
         }
         // Add edges from each writing vector to task
@@ -1126,7 +1089,7 @@ int XGraph::checkCyclicDependencies() {
         error.append(d->getName());
         error.append(" -> ");
         error.append(t2->getName());
-        printErr(error);
+        fprintf(stderr, "%s\n", error.c_str());
         return 1;
     }
 
@@ -1149,10 +1112,10 @@ int XGraph::checkFunctionConditions() {
                     Task * t = getTask(boost::target((Edge)*oei, *graph_));
                     // If condition is null then return an error
                     if (!t->hasCondition()) {
-                        printErr(std::string(
-            "Error: Function '%s' from a state with more than one ") +
-                        t->getName() +
-                std::string("out going function does not have a condition."));
+                        fprintf(stderr,
+                "Error: Function '%s' from a state with more than one %s\n",
+                            t->getName().c_str(),
+                            "out going function does not have a condition.");
                         return 1;
                     }
                 }

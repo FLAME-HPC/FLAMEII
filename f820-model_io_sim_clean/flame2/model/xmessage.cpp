@@ -41,7 +41,7 @@ XMessage::~XMessage() {
 void XMessage::print() {
     unsigned int ii;
     std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
+    for (ii = 0; ii < getVariables()->size(); ++ii)
         getVariables()->at(ii)->print();
 }
 
@@ -65,7 +65,7 @@ std::vector<XVariable*> * XMessage::getVariables() {
 
 bool XMessage::validateVariableName(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
+    for (ii = 0; ii < variables_.size(); ++ii)
         if (name == variables_.at(ii)->getName()) return true;
     return false;
 }

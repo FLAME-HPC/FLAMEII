@@ -65,9 +65,9 @@ void XFunction::print() {
         condition_->print();
     }
     std::fprintf(stdout, "\t\tInputs:\n");
-    for (ii = 0; ii < inputs_.size(); ii++) inputs_.at(ii)->print();
+    for (ii = 0; ii < inputs_.size(); ++ii) inputs_.at(ii)->print();
     std::fprintf(stdout, "\t\tOutputs:\n");
-    for (ii = 0; ii < outputs_.size(); ii++) outputs_.at(ii)->print();
+    for (ii = 0; ii < outputs_.size(); ++ii) outputs_.at(ii)->print();
 }
 
 void XFunction::setName(std::string name) {

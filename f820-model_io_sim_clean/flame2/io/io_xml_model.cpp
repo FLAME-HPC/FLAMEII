@@ -17,8 +17,6 @@
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 
-void printErr(std::string message);
-
 namespace model = flame::model;
 namespace exc = flame::exceptions;
 
@@ -142,7 +140,7 @@ void IOXMLModel::readUnknownElement(xmlNode * node) {
     error.append(boost::lexical_cast<std::string>(node->name));
     error.append("' on line ");
     error.append(boost::lexical_cast<std::string>(node->line));
-    printErr(error);
+    fprintf(stderr, "%s\n", error.c_str());
 }
 
 void IOXMLModel::readIncludedModels(xmlNode * node,

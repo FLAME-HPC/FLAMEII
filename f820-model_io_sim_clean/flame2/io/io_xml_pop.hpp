@@ -29,7 +29,7 @@ typedef std::map<std::string, std::vector<std::string> > agentVarMap;
 class IOXMLPop {
   public:
     IOXMLPop();
-    int readPop(std::string file_name,
+    void readPop(std::string file_name,
         model::XModel * model);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
@@ -80,7 +80,7 @@ class IOXMLPop {
     int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
         xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
-    int processStartNode(std::vector<std::string> * tags, std::string name);
+    void processStartNode(std::vector<std::string> * tags, std::string name);
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,

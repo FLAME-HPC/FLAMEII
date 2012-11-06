@@ -11,8 +11,6 @@
 #include "flame2/config.hpp"
 #include "io_manager.hpp"
 
-void printErr(std::string message);
-
 namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
@@ -24,13 +22,13 @@ void IOManager::loadModel(std::string const& file,
 
 int removeFile(std::string file) {
     if (remove(file.c_str()) != 0) {
-        printErr(std::string("Warning: Could not delete the file: ") +
-                file);
+    fprintf(stderr, "Warning: Could not delete the file: %s\n", file.c_str());
         return 1;
-    }
+    } else {
 #ifndef TESTBUILD
-    printf("Removing file: %s\n", file.c_str());
+        printf("Removing file: %s\n", file.c_str());
 #endif
+    }
 
     return 0;
 }
@@ -38,7 +36,6 @@ int removeFile(std::string file) {
 void IOManager::readPop(std::string file_name,
             model::XModel * model,
             FileType fileType) {
-    int rc;
     std::string xmlpopxsd;
 
     if (fileType == xml) {
@@ -52,9 +49,7 @@ void IOManager::readPop(std::string file_name,
         ioxmlpop.validateData(file_name, xmlpopxsd);
         removeFile(xmlpopxsd);
         /* Read validated pop xml */
-        rc = ioxmlpop.readPop(file_name, model);
-        if (rc != 0)
-            throw exc::flame_io_exception("Could not read pop file");
+        ioxmlpop.readPop(file_name, model);
     } else {
         throw exc::flame_io_exception("unknown file type");
     }

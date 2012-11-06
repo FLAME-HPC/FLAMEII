@@ -79,27 +79,27 @@ void XModel::print() {
     std::fprintf(stdout, "Model Name: %s\n", name_.c_str());
     unsigned int ii;
     std::fprintf(stdout, "Constants:\n");
-    for (ii = 0; ii < getConstants()->size(); ii++) {
+    for (ii = 0; ii < getConstants()->size(); ++ii) {
             getConstants()->at(ii)->print();
     }
     std::fprintf(stdout, "Data types:\n");
-    for (ii = 0; ii < adts_.size(); ii++) {
+    for (ii = 0; ii < adts_.size(); ++ii) {
         adts_[ii]->print();
     }
     std::fprintf(stdout, "Time units:\n");
-    for (ii = 0; ii < timeUnits_.size(); ii++) {
+    for (ii = 0; ii < timeUnits_.size(); ++ii) {
         timeUnits_[ii]->print();
     }
     std::fprintf(stdout, "Function files:\n");
-    for (ii = 0; ii < functionFiles_.size(); ii++) {
+    for (ii = 0; ii < functionFiles_.size(); ++ii) {
         std::fprintf(stdout, "\t%s\n", functionFiles_[ii].c_str());
     }
     std::fprintf(stdout, "Agents:\n");
-    for (ii = 0; ii < agents_.size(); ii++) {
+    for (ii = 0; ii < agents_.size(); ++ii) {
         agents_[ii]->print();
     }
     std::fprintf(stdout, "Messages:\n");
-    for (ii = 0; ii < messages_.size(); ii++) {
+    for (ii = 0; ii < messages_.size(); ++ii) {
         messages_[ii]->print();
     }
 }
@@ -127,7 +127,7 @@ void XModel::registerWithMessageBoardManager() {
     std::vector<XMessage*>::iterator m;
 
     // For each message
-    for (m = messages_.begin(); m != messages_.end(); m++)
+    for (m = messages_.begin(); m != messages_.end(); ++m)
         mgr.RegisterMessage((*m)->getName());
 }
 
@@ -139,7 +139,7 @@ void XModel::generateGraph(XGraph * modelGraph) {
 
     // Consolidate agent graphs into a model graph
     for (agent = agents_.begin();
-            agent != agents_.end(); agent++) {
+            agent != agents_.end(); ++agent) {
         // Generate agent graph
         (*agent)->generateDependencyGraph();
         // Add to model graph
@@ -190,7 +190,7 @@ std::string XModel::getName() {
 bool XModel::addIncludedModel(std::string path) {
     unsigned int ii;
 
-    for (ii = 0; ii < includedModels_.size(); ii++) {
+    for (ii = 0; ii < includedModels_.size(); ++ii) {
         if (includedModels_.at(ii) == path) return false;
     }
 
@@ -227,7 +227,7 @@ XADT * XModel::addADT() {
  */
 XADT * XModel::getADT(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < adts_.size(); ii++)
+    for (ii = 0; ii < adts_.size(); ++ii)
         if (name == adts_.at(ii)->getName()) return adts_.at(ii);
     return 0;
 }
@@ -273,7 +273,7 @@ std::vector<XMachine*> * XModel::getAgents() {
 
 XMachine * XModel::getAgent(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < agents_.size(); ii++)
+    for (ii = 0; ii < agents_.size(); ++ii)
         if (name == agents_.at(ii)->getName()) return agents_.at(ii);
     return 0;
 }
@@ -293,7 +293,7 @@ XMessage * XModel::addMessage() {
  */
 XMessage * XModel::getMessage(std::string name) {
     unsigned int ii;
-    for (ii = 0; ii < messages_.size(); ii++)
+    for (ii = 0; ii < messages_.size(); ++ii)
         if (name == messages_.at(ii)->getName()) return messages_.at(ii);
     return 0;
 }
