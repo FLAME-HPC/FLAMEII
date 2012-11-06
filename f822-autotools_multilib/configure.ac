@@ -34,12 +34,6 @@ AC_COPYRIGHT([
   Copyright (c) 2012 University of Sheffield
 ])
 
-# Initiliase libtool
-# - Turn off shared libraries during beta-testing, since they
-#   make the build process take too long.
-#LT_INIT([disable-shared])
-LT_INIT
-
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
 AC_CONFIG_SRCDIR([flame2/mem/agent_memory.cpp])
@@ -57,7 +51,6 @@ fi
 
 # Check for programs
 AC_PROG_CXX([g++ pgCC icc, xlC])
-AC_PROG_LIBTOOL
 #AC_PROG_MAKE_SET
 
 # Initialse flags that will be applied to all compilations/linking
@@ -74,10 +67,24 @@ CPPFLAGS_PROD="-DNDEBUG -DPRODBUILD -DDISABLE_RUNTIME_TYPE_CHECKING -O2"
 
 ############ CHOOSE BUILD TYPES ############################
 BUILDS=""
+WANT_TEST_BUILD=0
+WANT_PROD_BUILD=1
+WANT_DBG_BUILD=1
+
+AC_ARG_ENABLE([dev-mode],
+              [AC_HELP_STRING(
+                  [--enable-dev-mode],
+                  [Change default build to test-build only and disable static libraries to speed up builds]
+              )])
+AS_IF([test "x$enable_dev_mode" = "xyes"], [
+  WANT_TEST_BUILD=1
+  WANT_PROD_BUILD=0
+  WANT_DBG_BUILD=0
+  enable_static=no
+])
 
 # Conditionally include tests and build test code into library
 # (default: disabled)
-WANT_TEST_BUILD=0
 AC_ARG_ENABLE([test-build],
               [AC_HELP_STRING(
                   [--enable-test-build],
@@ -89,7 +96,7 @@ if test $WANT_TEST_BUILD = 1; then BUILDS="test $BUILDS"; fi
 
 # Conditionally build production libraries
 # (default: enable)
-WANT_PROD_BUILD=1
+
 AC_ARG_ENABLE([prod-build],
               [AC_HELP_STRING(
                   [--disable-prod-build],
@@ -101,7 +108,7 @@ if test $WANT_PROD_BUILD = 1; then BUILDS="production $BUILDS"; fi
 
 # Conditionally build debug libraries
 # (default: enable)
-WANT_DBG_BUILD=1
+
 AC_ARG_ENABLE([debug-build],
               [AC_HELP_STRING(
                   [--disable-debug-build],
@@ -114,20 +121,6 @@ if test $WANT_DBG_BUILD = 1; then BUILDS="debug $BUILDS"; fi
 if test "x${BUILDS}" = "x"; then
   AC_MSG_ERROR([All build types disabled. Nothing left to do.])
 fi
-
-# Update CPPFLAGS_COMMON based on build type
-#if test $WANT_PROD_BUILD -eq 1; then
-#  COMMON_CPPFLAGS+="${CPPFLAGS_PROD} "
-#  BUILD_TYPE="production"
-#elif test $WANT_TEST_BUILD -eq 1; then
-#  COMMON_CPPFLAGS+="${CPPFLAGS_TEST} "
-#  BUILD_TYPE="test"
-#else
-#  COMMON_CPPFLAGS+="${CPPFLAGS_DBG} "
-#  BUILD_TYPE="development"
-#fi
-#AC_DEFINE_UNQUOTED([BUILD_TYPE], ["$BUILD_TYPE"], [Library build type])
-#AC_SUBST(BUILD_TYPE)
 
 ##### CHECK BOOST #####
 
@@ -245,6 +238,9 @@ case "$CXX" in
     ;;
 esac
 
+########### initialise libtool ################
+LT_INIT()
+
 ######### extract -l* flags from COMMON_LDFLAGS to COMMON_LIBS #########
 
 X_LDFLAGS="${COMMON_LDFLAGS}"
@@ -266,6 +262,10 @@ CLEAN_VAR(CPPFLAGS)
 CLEAN_VAR(CXXFLAGS)
 CLEAN_VAR(LDFLAGS)
 CLEAN_VAR(LIBS)
+
+
+############# CHECKS ####################
+AC_TYPE_SIZE_T  # we use size_t
 
 ########### Substitute vars into Makefiles ################
 
@@ -311,8 +311,6 @@ else
 fi
 AC_SUBST(BUILD_STATIC)
 
-############# CHECKS ####################
-AC_TYPE_SIZE_T  # we use size_t
 
 ############# Create Output ##############
 
