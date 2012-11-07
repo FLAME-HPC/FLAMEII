@@ -36,31 +36,31 @@ class IOXMLModel {
     void readUnknownElement(xmlNode * node);
     void readIncludedModels(xmlNode * node,
             std::string directory, model::XModel * model);
-    int readIncludedModel(xmlNode * node,
+    void readIncludedModel(xmlNode * node,
             std::string directory, model::XModel * model);
-    int readIncludedModelValidate(std::string directory,
+    void readIncludedModelValidate(std::string directory,
             std::string fileName, model::XModel * model, bool enable);
-    int readEnvironment(xmlNode * node, model::XModel * model);
-    int readFunctionFiles(xmlNode * node, model::XModel * model);
-    int readDataTypes(xmlNode * node, model::XModel * model);
-    int readDataType(xmlNode * node, model::XModel * model);
-    int readTimeUnits(xmlNode * node, model::XModel * model);
-    int readTimeUnit(xmlNode * node, model::XModel * model);
-    int readVariables(xmlNode * node,
+    void readEnvironment(xmlNode * node, model::XModel * model);
+    void readFunctionFiles(xmlNode * node, model::XModel * model);
+    void readDataTypes(xmlNode * node, model::XModel * model);
+    void readDataType(xmlNode * node, model::XModel * model);
+    void readTimeUnits(xmlNode * node, model::XModel * model);
+    void readTimeUnit(xmlNode * node, model::XModel * model);
+    void readVariables(xmlNode * node,
             boost::ptr_vector<model::XVariable> * variables);
-    int readVariable(xmlNode * node,
+    void readVariable(xmlNode * node,
             boost::ptr_vector<model::XVariable> * variables);
-    int readAgents(xmlNode * node, model::XModel * model);
-    int readAgent(xmlNode * node, model::XModel * model);
+    void readAgents(xmlNode * node, model::XModel * model);
+    void readAgent(xmlNode * node, model::XModel * model);
     void readTransitions(xmlNode * node, model::XMachine * machine);
     void readTransition(xmlNode * node, model::XMachine * machine);
-    int readInputs(xmlNode * node, model::XFunction * xfunction);
-    int readInput(xmlNode * node, model::XFunction * xfunction);
-    int readOutputs(xmlNode * node, model::XFunction * xfunction);
-    int readOutput(xmlNode * node, model::XFunction * xfunction);
-    int readMessages(xmlNode * node, model::XModel * model);
-    int readMessage(xmlNode * node, model::XModel * model);
-    int readSort(xmlNode * node, model::XIOput * xioput);
+    void readInputs(xmlNode * node, model::XFunction * xfunction);
+    void readInput(xmlNode * node, model::XFunction * xfunction);
+    void readOutputs(xmlNode * node, model::XFunction * xfunction);
+    void readOutput(xmlNode * node, model::XFunction * xfunction);
+    void readMessages(xmlNode * node, model::XModel * model);
+    void readMessage(xmlNode * node, model::XModel * model);
+    void readSort(xmlNode * node, model::XIOput * xioput);
     void readCondition(xmlNode * node, model::XCondition * xcondition);
     void readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
     void readConditionSide(model::XCondition * xcondition,
