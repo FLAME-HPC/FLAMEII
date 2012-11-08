@@ -20,7 +20,7 @@
 
 void printErr(const char *format, ...) {
     // Print message to stderr
-#ifdef TESTBUILD
+#ifndef TESTBUILD
     va_list arg;
     va_start(arg, format);
     std::vfprintf(stderr, format, arg);
@@ -77,7 +77,8 @@ int XModelValidate::validateFunctionFiles(std::vector<std::string> * names) {
     return errors;
 }
 
-int XModelValidate::validateDataTypes(boost::ptr_vector<XADT> * adts, XModel * model) {
+int XModelValidate::validateDataTypes(
+        boost::ptr_vector<XADT> * adts, XModel * model) {
     int errors = 0, rc;
     boost::ptr_vector<XADT>::iterator it;
     for (it = adts->begin(); it != adts->end(); ++it) {

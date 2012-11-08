@@ -198,7 +198,7 @@ void XModel::addTimeUnit(XTimeUnit * tU) {
 
     // Check time unit does not already exist
     for (it = timeUnits_.begin(); it != timeUnits_.end(); ++it)
-        if(tU->getName() == (*it).getName() &&
+        if (tU->getName() == (*it).getName() &&
                 tU->getUnit() == (*it).getUnit() &&
                 tU->getPeriodString() == (*it).getPeriodString()) {
             // Free time unit

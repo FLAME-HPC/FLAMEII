@@ -61,11 +61,6 @@ void XFunction::print() {
     std::fprintf(stdout, "\t\tCurrent State: %s\n", getCurrentState().c_str());
     std::fprintf(stdout, "\t\tNext State: %s\n", getNextState().c_str());
     if (condition_) {
-
-        printf("%s\n\t%p %p\n", getName().c_str(),
-                                    getCondition()->lhsCondition,
-                                    getCondition()->rhsCondition);
-
         std::fprintf(stdout, "\t\tCondition:\n");
         condition_->print();
     }

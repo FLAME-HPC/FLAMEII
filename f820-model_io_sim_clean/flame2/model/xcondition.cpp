@@ -378,24 +378,26 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
         XModel * model, XCondition * rootCondition) {
     int rc, errors = 0;
 
+    // Based upon lhs and rhs define condition type
     if (lhsIsCondition && rhsIsCondition) isConditions = true;
     else if (lhsIsValue && rhsIsValue) isValues = true;
 
-    if(!isTime && !isValues && !isConditions) {
-        printErr("Error: condition is not valid\n");
-        return 1;
-    }
-
     if (isTime) {
+        // Validate time
         errors += validateTime(agent, model, rootCondition);
     } else if (isValues) {
+        // Validate values
         errors += validateValues(agent, xmessage, rootCondition);
     } else if (isConditions) {
-        /* If nested conditions validate them */
+        // If nested conditions validate them
         rc = lhsCondition->validate(agent, xmessage, model, rootCondition);
         errors += rc;
         rc = rhsCondition->validate(agent, xmessage, model, rootCondition);
         errors += rc;
+    } else {
+        // If not proper type then give error
+        printErr("Error: condition is not valid\n");
+        ++errors;
     }
 
     return errors;
