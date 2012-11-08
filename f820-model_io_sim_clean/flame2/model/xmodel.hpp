@@ -54,7 +54,7 @@ class XModel {
     XMachine * getAgent(std::string name);
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
-    std::vector<XMessage*> * getMessages();
+    boost::ptr_vector<XMessage> * getMessages();
     void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
     std::map<std::string, flame::exe::TaskFunction> getFuncMap();
@@ -75,7 +75,7 @@ class XModel {
     boost::ptr_vector<XTimeUnit> timeUnits_;
     std::vector<std::string> functionFiles_;
     std::vector<XMachine*> agents_;
-    std::vector<XMessage*> messages_;
+    boost::ptr_vector<XMessage> messages_;
     /*! \brief A list of allowed data types to check variables */
     std::vector<std::string> allowedDataTypes_;
     /*! \brief A map from function name to function pointer */

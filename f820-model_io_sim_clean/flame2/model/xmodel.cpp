@@ -48,11 +48,6 @@ void XModel::clear() {
         delete agents_.back();
         agents_.pop_back();
     }
-    /* Clear messages vector */
-    while (!messages_.empty()) {
-        delete messages_.back();
-        messages_.pop_back();
-    }
 }
 
 /*!
@@ -63,27 +58,28 @@ void XModel::clear() {
 void XModel::print() {
     boost::ptr_vector<XTimeUnit>::iterator tu_it;
     boost::ptr_vector<XADT>::iterator adt_it;
+    boost::ptr_vector<XMessage>::iterator m_it;
     unsigned int ii;
 
-    std::fprintf(stdout, "Model Name: %s\n", name_.c_str());
-    std::fprintf(stdout, "Constants:\n");
+    std::printf("Model Name: %s\n", name_.c_str());
+    std::printf("Constants:\n");
     for (ii = 0; ii < getConstants()->size(); ++ii)
             getConstants()->at(ii).print();
-    std::fprintf(stdout, "Data types:\n");
+    std::printf("Data types:\n");
     for (adt_it = adts_.begin(); adt_it != adts_.end(); ++adt_it)
         (*adt_it).print();
-    std::fprintf(stdout, "Time units:\n");
+    std::printf("Time units:\n");
     for (tu_it = timeUnits_.begin(); tu_it != timeUnits_.end(); ++tu_it)
         (*tu_it).print();
-    std::fprintf(stdout, "Function files:\n");
+    std::printf("Function files:\n");
     for (ii = 0; ii < functionFiles_.size(); ++ii)
-        std::fprintf(stdout, "\t%s\n", functionFiles_[ii].c_str());
-    std::fprintf(stdout, "Agents:\n");
+        std::printf("\t%s\n", functionFiles_[ii].c_str());
+    std::printf("Agents:\n");
     for (ii = 0; ii < agents_.size(); ++ii)
         agents_[ii]->print();
-    std::fprintf(stdout, "Messages:\n");
-    for (ii = 0; ii < messages_.size(); ++ii)
-        messages_[ii]->print();
+    std::printf("Messages:\n");
+    for (m_it = messages_.begin(); m_it != messages_.end(); ++m_it)
+        (*m_it).print();
 }
 
 int XModel::validate() {
@@ -106,11 +102,11 @@ void XModel::registerWithMemoryManager() {
 
 void XModel::registerWithMessageBoardManager() {
     mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
-    std::vector<XMessage*>::iterator m;
+    boost::ptr_vector<XMessage>::iterator m;
 
     // For each message
     for (m = messages_.begin(); m != messages_.end(); ++m)
-        mgr.RegisterMessage((*m)->getName());
+        mgr.RegisterMessage((*m).getName());
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {
@@ -276,6 +272,7 @@ XMachine * XModel::getAgent(std::string name) {
 
 XMessage * XModel::addMessage() {
     XMessage * xmessage = new XMessage;
+    xmessage->setID(messages_.size());
     messages_.push_back(xmessage);
     return xmessage;
 }
@@ -288,13 +285,13 @@ XMessage * XModel::addMessage() {
  * pointer to the object if valid.
  */
 XMessage * XModel::getMessage(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < messages_.size(); ++ii)
-        if (name == messages_.at(ii)->getName()) return messages_.at(ii);
+    boost::ptr_vector<XMessage>::iterator it;
+    for (it =  messages_.begin(); it != messages_.end(); ++it)
+        if (name == (*it).getName()) return &(*it);
     return 0;
 }
 
-std::vector<XMessage*> * XModel::getMessages() {
+boost::ptr_vector<XMessage> * XModel::getMessages() {
     return &messages_;
 }
 

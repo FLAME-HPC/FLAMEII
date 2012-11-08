@@ -30,8 +30,11 @@ class XMessage {
     Task * getSyncStartTask();
     void setSyncFinishTask(Task * task);
     Task * getSyncFinishTask();
+    void setID(int id);
+    int getID();
 
   private:
+    int id_;
     std::string name_;
     boost::ptr_vector<XVariable> variables_;
     Task * syncStartTask_;

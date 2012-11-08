@@ -123,13 +123,13 @@ int XModelValidate::validateAgents(std::vector<XMachine*> agents,
     return errors;
 }
 
-int XModelValidate::validateMessages(std::vector<XMessage*> messages,
+int XModelValidate::validateMessages(boost::ptr_vector<XMessage> messages,
         XModel * model) {
     int errors = 0, rc;
-    std::vector<XMessage*>::iterator it;
+    boost::ptr_vector<XMessage>::iterator it;
     for (it = messages.begin(); it != messages.end(); ++it) {
-        rc = validateMessage(*it, model);
-    if (rc != 0) printErr("\tfrom message: %s\n", (*it)->getName().c_str());
+        rc = validateMessage(&(*it), model);
+    if (rc != 0) printErr("\tfrom message: %s\n", (*it).getName().c_str());
         errors += rc;
     }
     return errors;
@@ -746,7 +746,7 @@ int XModelValidate::validateSort(XIOput * xioput, XMessage * xmessage) {
 
 int XModelValidate::validateMessage(XMessage * xmessage, XModel * model) {
     int errors = 0;
-    std::vector<XMessage*>::iterator it;
+    boost::ptr_vector<XMessage>::iterator it;
 
     /* Check name is valid */
     if (!name_is_allowed(xmessage->getName())) {
@@ -758,7 +758,8 @@ int XModelValidate::validateMessage(XMessage * xmessage, XModel * model) {
     /* Check for duplicate names */
     for (it = model->getMessages()->begin();
             it != model->getMessages()->end(); ++it)
-        if (xmessage != (*it) && xmessage->getName() == (*it)->getName()) {
+        if (xmessage->getID() != (*it).getID() &&
+                xmessage->getName() == (*it).getName()) {
             printErr("Error: Duplicate message name: %s\n",
                 xmessage->getName().c_str());
             ++errors;

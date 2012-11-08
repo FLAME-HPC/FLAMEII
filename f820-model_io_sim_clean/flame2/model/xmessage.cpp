@@ -15,10 +15,7 @@
 
 namespace flame { namespace model {
 
-XMessage::XMessage() {
-    syncFinishTask_ = 0;
-    syncStartTask_ = 0;
-}
+XMessage::XMessage() : id_(0), syncFinishTask_(0), syncStartTask_(0) {}
 
 /*!
  * \brief Prints XMessage
@@ -71,6 +68,14 @@ void XMessage::setSyncFinishTask(Task * task) {
 
 Task * XMessage::getSyncFinishTask() {
     return syncFinishTask_;
+}
+
+void XMessage::setID(int id) {
+    id_ = id;
+}
+
+int XMessage::getID() {
+    return id_;
 }
 
 }}  // namespace flame::model

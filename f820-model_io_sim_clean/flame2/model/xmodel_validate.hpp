@@ -71,7 +71,7 @@ class XModelValidate {
     int validateDataTypes(boost::ptr_vector<XADT> adts, XModel * model);
     int validateTimeUnits(boost::ptr_vector<XTimeUnit> timeUnits, XModel * model);
     int validateAgents(std::vector<XMachine*> agents, XModel * model);
-    int validateMessages(std::vector<XMessage*> messages, XModel * model);
+    int validateMessages(boost::ptr_vector<XMessage> messages, XModel * model);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_VALIDATE_HPP_
