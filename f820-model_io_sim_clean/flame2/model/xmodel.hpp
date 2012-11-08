@@ -45,8 +45,8 @@ class XModel {
     XADT * addADT();
     XADT * getADT(std::string name);
     std::vector<XADT*> * getADTs();
-    XTimeUnit * addTimeUnit();
-    std::vector<XTimeUnit*> * getTimeUnits();
+    void addTimeUnit(XTimeUnit * timeUnit);
+    boost::ptr_vector<XTimeUnit> * getTimeUnits();
     void addFunctionFile(std::string file);
     std::vector<std::string> * getFunctionFiles();
     XMachine * addAgent(std::string name);
@@ -72,7 +72,7 @@ class XModel {
     std::vector<std::string> includedModels_;
     boost::ptr_vector<XVariable> constants_;
     std::vector<XADT*> adts_;
-    std::vector<XTimeUnit*> timeUnits_;
+    boost::ptr_vector<XTimeUnit> timeUnits_;
     std::vector<std::string> functionFiles_;
     std::vector<XMachine*> agents_;
     std::vector<XMessage*> messages_;

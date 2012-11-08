@@ -14,7 +14,7 @@
 
 namespace flame { namespace model {
 
-XTimeUnit::XTimeUnit() : period_(0) {
+XTimeUnit::XTimeUnit() : period_(0), id_(0) {
 }
 
 XTimeUnit::~XTimeUnit() {
@@ -64,6 +64,14 @@ void XTimeUnit::setPeriod(int period) {
 
 int XTimeUnit::getPeriod() {
     return period_;
+}
+
+void XTimeUnit::setID(int id) {
+    id_ = id;
+}
+
+int XTimeUnit::getID() {
+    return id_;
 }
 
 }}  // namespace flame::model

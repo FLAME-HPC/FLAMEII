@@ -304,7 +304,7 @@ void IOXMLModel::readTimeUnits(xmlNode * node,
 void IOXMLModel::readTimeUnit(xmlNode * node,
         model::XModel * model) {
     xmlNode *cur_node = NULL;
-    model::XTimeUnit * xtimeunit = model->addTimeUnit();
+    model::XTimeUnit * xtimeunit = new model::XTimeUnit;
 
     /* Loop through each child of timeUnit */
     for (cur_node = node->children;
@@ -323,6 +323,8 @@ void IOXMLModel::readTimeUnit(xmlNode * node,
                 readUnknownElement(cur_node);
         }
     }
+
+    model->addTimeUnit(xtimeunit);
 }
 
 void IOXMLModel::readVariables(xmlNode * node,

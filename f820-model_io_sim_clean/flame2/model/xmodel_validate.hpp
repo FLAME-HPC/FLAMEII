@@ -69,7 +69,7 @@ class XModelValidate {
     bool name_is_allowed(std::string name);
     int validateFunctionFiles(std::vector<std::string> names);
     int validateDataTypes(std::vector<XADT*> adts, XModel * model);
-    int validateTimeUnits(std::vector<XTimeUnit*> timeUnits, XModel * model);
+    int validateTimeUnits(boost::ptr_vector<XTimeUnit> timeUnits, XModel * model);
     int validateAgents(std::vector<XMachine*> agents, XModel * model);
     int validateMessages(std::vector<XMessage*> messages, XModel * model);
 };

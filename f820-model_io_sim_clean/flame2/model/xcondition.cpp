@@ -297,11 +297,12 @@ printErr("Error: lhs and rhs are not both values or both nested conditions\n");
 int XCondition::validateTime(XMachine * agent, XModel * model,
         XCondition * rootCondition) {
     int errors = 0;
-    unsigned int ii;
+    boost::ptr_vector<XTimeUnit>::iterator it;
     /* Check time period is valid time unit */
     bool validPeriod = false;
-    for (ii = 0; ii < model->getTimeUnits()->size(); ++ii) {
-        if (timePeriod == model->getTimeUnits()->at(ii)->getName())
+    for (it = model->getTimeUnits()->begin();
+            it != model->getTimeUnits()->end(); ++it) {
+        if (timePeriod == (*it).getName())
             validPeriod = true;
     }
     /* Handle invalid time period */

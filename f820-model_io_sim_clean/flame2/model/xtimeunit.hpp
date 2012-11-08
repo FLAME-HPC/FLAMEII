@@ -27,12 +27,15 @@ class XTimeUnit {
     std::string getPeriodString();
     void setPeriod(int period);
     int getPeriod();
+    void setID(int id);
+    int getID();
 
   private:
     std::string name_;
     std::string unit_;
     std::string periodString_;
     int period_;
+    int id_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XTIMEUNIT_HPP_
