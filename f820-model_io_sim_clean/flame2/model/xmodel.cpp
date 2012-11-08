@@ -43,11 +43,6 @@ void XModel::clear() {
     /* Reset allowed datatypes */
     allowedDataTypes_.clear();
     setup();
-    /* Clear adts vector */
-    while (!adts_.empty()) {
-        delete adts_.back();
-        adts_.pop_back();
-    }
     /* Clear agents vector */
     while (!agents_.empty()) {
         delete agents_.back();
@@ -67,6 +62,7 @@ void XModel::clear() {
  */
 void XModel::print() {
     boost::ptr_vector<XTimeUnit>::iterator tu_it;
+    boost::ptr_vector<XADT>::iterator adt_it;
     unsigned int ii;
 
     std::fprintf(stdout, "Model Name: %s\n", name_.c_str());
@@ -74,8 +70,8 @@ void XModel::print() {
     for (ii = 0; ii < getConstants()->size(); ++ii)
             getConstants()->at(ii).print();
     std::fprintf(stdout, "Data types:\n");
-    for (ii = 0; ii < adts_.size(); ++ii)
-        adts_[ii]->print();
+    for (adt_it = adts_.begin(); adt_it != adts_.end(); ++adt_it)
+        (*adt_it).print();
     std::fprintf(stdout, "Time units:\n");
     for (tu_it = timeUnits_.begin(); tu_it != timeUnits_.end(); ++tu_it)
         (*tu_it).print();
@@ -212,13 +208,13 @@ XADT * XModel::addADT() {
  * pointer to the object if valid.
  */
 XADT * XModel::getADT(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < adts_.size(); ++ii)
-        if (name == adts_.at(ii)->getName()) return adts_.at(ii);
+    boost::ptr_vector<XADT>::iterator it;
+    for (it = adts_.begin(); it != adts_.end(); ++it)
+        if (name == (*it).getName()) return &(*it);
     return 0;
 }
 
-std::vector<XADT*> * XModel::getADTs() {
+boost::ptr_vector<XADT> * XModel::getADTs() {
     return &adts_;
 }
 

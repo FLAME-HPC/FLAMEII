@@ -20,7 +20,7 @@
 
 void printErr(const char *format, ...) {
     // Print message to stderr
-#ifndef TESTBUILD
+#ifdef TESTBUILD
     va_list arg;
     va_start(arg, format);
     std::vfprintf(stderr, format, arg);
@@ -77,12 +77,12 @@ int XModelValidate::validateFunctionFiles(std::vector<std::string> names) {
     return errors;
 }
 
-int XModelValidate::validateDataTypes(std::vector<XADT*> adts, XModel * model) {
+int XModelValidate::validateDataTypes(boost::ptr_vector<XADT> adts, XModel * model) {
     int errors = 0, rc;
-    std::vector<XADT*>::iterator it;
+    boost::ptr_vector<XADT>::iterator it;
     for (it = adts.begin(); it != adts.end(); ++it) {
-        rc = validateADT(*it, model);
-    if (rc != 0) printErr("\tfrom data type: %s\n", (*it)->getName().c_str());
+        rc = validateADT(&(*it), model);
+    if (rc != 0) printErr("\tfrom data type: %s\n", (*it).getName().c_str());
         errors += rc;
     }
     return errors;
@@ -267,7 +267,7 @@ int XModelValidate::processVariableStaticArray(XVariable * variable) {
 int XModelValidate::processVariable(XVariable * variable,
         XModel * model) {
     int errors = 0;
-    std::vector<XADT*>::iterator it;
+    boost::ptr_vector<XADT>::iterator it;
 
     /* Process variables for any arrays defined */
     processVariableDynamicArray(variable);
@@ -275,10 +275,10 @@ int XModelValidate::processVariable(XVariable * variable,
 
     /* Check if data type is a user defined data type */
     for (it = model->getADTs()->begin(); it != model->getADTs()->end(); ++it) {
-        if (variable->getType() == (*it)->getName()) {
+        if (variable->getType() == (*it).getName()) {
             variable->setHasADTType(true);
             /* If the ADT holds dynamic arrays then set this variable */
-        if ((*it)->holdsDynamicArray()) variable->setHoldsDynamicArray(true);
+        if ((*it).holdsDynamicArray()) variable->setHoldsDynamicArray(true);
         }
     }
 
