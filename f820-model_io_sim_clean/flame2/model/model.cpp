@@ -11,37 +11,19 @@
 #include <string>
 #include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
+#include "flame2/exceptions/model.hpp"
 #include "model.hpp"
 
 namespace flame {
 namespace model {
 
-Model::Model(std::string path_to_model)
-    : modelLoaded_(false) {
-    flame::io::IOManager& ioManager = flame::io::IOManager::GetInstance();
-    int rc = 0;
-
+Model::Model(std::string path_to_model) {
     // Load model
-    try {
-        // Call ioManager to load model
-        ioManager.loadModel(path_to_model, &model_);
-    }
-    // Catch exception
-    catch(const flame::exceptions::flame_io_exception& E) {
-        std::fprintf(stderr, "Error: %s\n", E.what());
-        model_.clear();
-        return;
-    }
+    flame::io::IOManager::GetInstance().loadModel(path_to_model, &model_);
 
     // Validate model
-    rc = model_.validate();
-    if (rc != 0) {
-std::fprintf(stderr, "Error: Model from XML file could not be validated.\n");
-        model_.clear();
-        return;
-    }
-
-    modelLoaded_ = true;
+    if (model_.validate() != 0) throw flame::exceptions::flame_model_exception(
+            "Model could not be validated");
 }
 
 Model::~Model() {

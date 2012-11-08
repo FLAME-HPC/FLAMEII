@@ -20,29 +20,11 @@
 namespace flame { namespace model {
 
 XModel::XModel() {
-    setup();
-}
-
-XModel::~XModel() {
-    clear();
-}
-
-void XModel::setup() {
-    name_ = "";
     /* Initialise list of data types */
     addAllowedDataType("int");
     addAllowedDataType("float");
     addAllowedDataType("double");
     addAllowedDataType("char"); /* Allow? */
-}
-
-void XModel::clear() {
-    name_ = "";
-    /* Delete function files */
-    functionFiles_.clear();
-    /* Reset allowed datatypes */
-    allowedDataTypes_.clear();
-    setup();
 }
 
 /*!

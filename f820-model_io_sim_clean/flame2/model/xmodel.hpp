@@ -25,9 +25,6 @@ namespace flame { namespace model {
 class XModel {
   public:
     XModel();
-    ~XModel();
-    void clear();
-    void setup();
     void print();
     int validate();
     void registerWithMemoryManager();
