@@ -37,15 +37,15 @@ XFunction::XFunction(std::string name)
  */
 XFunction::~XFunction() {
     /* Delete inputs */
-    while (!inputs_.empty()) {
+/*    while (!inputs_.empty()) {
         delete inputs_.back();
         inputs_.pop_back();
     }
-    /* Delete outputs */
+    // Delete outputs
     while (!outputs_.empty()) {
         delete outputs_.back();
         outputs_.pop_back();
-    }
+    }*/
     /* Delete any condition */
     delete condition_;
 }
@@ -60,7 +60,12 @@ void XFunction::print() {
     std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\t\tCurrent State: %s\n", getCurrentState().c_str());
     std::fprintf(stdout, "\t\tNext State: %s\n", getNextState().c_str());
-    if (condition_ != 0) {
+    if (condition_) {
+
+        printf("%s\n\t%p %p\n", getName().c_str(),
+                                    getCondition()->lhsCondition,
+                                    getCondition()->rhsCondition);
+
         std::fprintf(stdout, "\t\tCondition:\n");
         condition_->print();
     }

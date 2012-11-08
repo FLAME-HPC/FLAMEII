@@ -46,7 +46,7 @@ class XGraph {
   public:
     XGraph();
     ~XGraph();
-    int generateStateGraph(std::vector<XFunction*> functions,
+    int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     int checkCyclicDependencies();

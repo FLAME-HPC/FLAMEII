@@ -296,25 +296,25 @@ void XGraph::generateStateGraphMessages(XFunction * function, Task * task) {
     }
 }
 
-int XGraph::generateStateGraph(std::vector<XFunction*> functions,
+int XGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
         std::string startState, std::set<std::string> endStates) {
-    std::vector<XFunction*>::iterator fit;
+    boost::ptr_vector<XFunction>::iterator fit;
 
     // For each transition function
-    for (fit = functions.begin(); fit != functions.end(); ++fit) {
+    for (fit = functions->begin(); fit != functions->end(); ++fit) {
         // Add function as a task to the task list
         Task * functionTask = new Task(agentName_,
-                (*fit)->getName(), Task::xfunction);
+                (*fit).getName(), Task::xfunction);
         // Add vertex for task
         addVertex(functionTask);
         // Add states
-        generateStateGraphStates(*fit, functionTask, startState);
+        generateStateGraphStates(&(*fit), functionTask, startState);
         // Add variable read writes
-        generateStateGraphVariables(*fit, functionTask);
+        generateStateGraphVariables(&(*fit), functionTask);
         // Add communication
-        generateStateGraphMessages(*fit, functionTask);
+        generateStateGraphMessages(&(*fit), functionTask);
         // If function next state is an end state
-        if (endStates.find((*fit)->getNextState()) != endStates.end())
+        if (endStates.find((*fit).getNextState()) != endStates.end())
             // Add function task to end tasks list
             endTasks_.insert(functionTask);
     }

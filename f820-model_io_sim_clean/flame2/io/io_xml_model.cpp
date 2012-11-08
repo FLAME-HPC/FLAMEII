@@ -715,12 +715,12 @@ void IOXMLModel::readCondition(xmlNode * node,
             } else if (name == "time") {
                 readConditionTime(xc, cur_node);
             } else if (name == "lhs") {
-                readConditionSide(xc, &xc->lhsCondition, &xc->lhs,
-                        &xc->lhsIsValue, &xc->lhsIsCondition, cur_node);
+                readConditionSide(xc, &(xc->lhsCondition), &(xc->lhs),
+                        &(xc->lhsIsValue), &(xc->lhsIsCondition), cur_node);
             } else if (name == "op") { xc->op = getElementValue(cur_node);
             } else if (name == "rhs") {
-                readConditionSide(xc, &xc->rhsCondition, &xc->rhs,
-                        &xc->rhsIsValue, &xc->rhsIsCondition, cur_node);
+                readConditionSide(xc, &(xc->rhsCondition), &(xc->rhs),
+                        &(xc->rhsIsValue), &(xc->rhsIsCondition), cur_node);
             } else if (name == "value") {
                 xc->tempValue = getElementValue(cur_node);
             } else {

@@ -17,23 +17,7 @@
 
 namespace flame { namespace model {
 
-XMachine::XMachine() : id_(0) {
-    name_ = "";
-    startState_ = "";
-}
-
-/*!
- * \brief Cleans up XMachine
- *
- * Cleans up XMachine by deleting variable list and functions list.
- */
-XMachine::~XMachine() {
-    /* Delete functions */
-    while (!functions_.empty()) {
-        delete functions_.back();
-        functions_.pop_back();
-    }
-}
+XMachine::XMachine() : id_(0) {}
 
 /*!
  * \brief Prints XMachine
@@ -42,12 +26,13 @@ XMachine::~XMachine() {
  */
 void XMachine::print() {
     boost::ptr_vector<XVariable>::iterator it;
-    unsigned int ii;
+    boost::ptr_vector<XFunction>::iterator f_it;
+
     std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
     for (it = variables_.begin(); it != variables_.end(); it++)
         (*it).print();
-    for (ii = 0; ii < functions_.size(); ++ii)
-        functions_.at(ii)->print();
+    for (f_it = functions_.begin(); f_it != functions_.end(); ++f_it)
+        (*f_it).print();
 }
 
 void XMachine::setName(std::string name) {
@@ -82,7 +67,7 @@ XFunction * XMachine::addFunction() {
     return xfunction;
 }
 
-std::vector<XFunction*> * XMachine::getFunctions() {
+boost::ptr_vector<XFunction> * XMachine::getFunctions() {
     return &functions_;
 }
 
@@ -97,7 +82,7 @@ int XMachine::findStartEndStates() {
     // Map of state names and boolean for valid start state
     std::set<std::string> startStates;
     std::set<std::string>::iterator s;
-    std::vector<XFunction*>::iterator f;
+    boost::ptr_vector<XFunction>::iterator f;
 
     // Reset end states list
     endStates_.clear();
@@ -105,17 +90,17 @@ int XMachine::findStartEndStates() {
     // For each function
     for (f = functions_.begin(); f != functions_.end(); ++f) {
         // Add current state to possible end states list
-        endStates_.insert((*f)->getNextState());
+        endStates_.insert((*f).getNextState());
         // Add current state to possible start states list
-        startStates.insert((*f)->getCurrentState());
+        startStates.insert((*f).getCurrentState());
     }
     // For each function
     for (f = functions_.begin(); f != functions_.end(); ++f) {
         // If start states contain a next state then remove
-        s = startStates.find((*f)->getNextState());
+        s = startStates.find((*f).getNextState());
         if (s != startStates.end()) startStates.erase(s);
         // If end states contain a current state then remove
-        s = endStates_.find((*f)->getCurrentState());
+        s = endStates_.find((*f).getCurrentState());
         if (s != endStates_.end()) endStates_.erase(s);
     }
     // No start states found
@@ -146,7 +131,7 @@ int XMachine::generateDependencyGraph() {
  */
 int XMachine::generateStateGraph() {
     return functionDependencyGraph_.generateStateGraph(
-            functions_, startState_, endStates_);
+            &functions_, startState_, endStates_);
 }
 
 XGraph * XMachine::getFunctionDependencyGraph() {

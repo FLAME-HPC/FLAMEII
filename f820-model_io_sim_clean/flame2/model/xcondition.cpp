@@ -64,8 +64,8 @@ XCondition::XCondition() {
  */
 XCondition::~XCondition() {
     /* Delete any nested conditions */
-    if (lhsCondition != 0) delete lhsCondition;
-    if (rhsCondition != 0) delete rhsCondition;
+    delete lhsCondition;
+    delete rhsCondition;
 }
 
 std::set<std::string> * XCondition::getReadOnlyVariables() {
@@ -377,6 +377,14 @@ int XCondition::validateValues(XMachine * agent, XMessage * xmessage,
 int XCondition::validate(XMachine * agent, XMessage * xmessage,
         XModel * model, XCondition * rootCondition) {
     int rc, errors = 0;
+
+    if (lhsIsCondition && rhsIsCondition) isConditions = true;
+    else if (lhsIsValue && rhsIsValue) isValues = true;
+
+    if(!isTime && !isValues && !isConditions) {
+        printErr("Error: condition is not valid\n");
+        return 1;
+    }
 
     if (isTime) {
         errors += validateTime(agent, model, rootCondition);

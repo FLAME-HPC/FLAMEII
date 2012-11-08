@@ -20,7 +20,7 @@
 
 void printErr(const char *format, ...) {
     // Print message to stderr
-#ifndef TESTBUILD
+#ifdef TESTBUILD
     va_list arg;
     va_start(arg, format);
     std::vfprintf(stderr, format, arg);
@@ -163,7 +163,7 @@ int XModelValidate::validateAgentStateGraph(XMachine * agent) {
 int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     int rc, errors = 0;
     boost::ptr_vector<XMachine>::iterator mit;
-    std::vector<XFunction*>::iterator fit;
+    boost::ptr_vector<XFunction>::iterator fit;
 
     /* Check name is valid */
     if (!name_is_allowed(agent->getName())) {
@@ -187,8 +187,8 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     /* Validate agent functions */
     for (fit = agent->getFunctions()->begin();
             fit != agent->getFunctions()->end(); ++fit) {
-        rc = validateAgentFunction(*fit, agent, model);
-    if (rc != 0) printErr("\tfrom function: %s\n", (*fit)->getName().c_str());
+        rc = validateAgentFunction(&(*fit), agent, model);
+    if (rc != 0) printErr("\tfrom function: %s\n", (*fit).getName().c_str());
         errors += rc;
     }
 
@@ -649,7 +649,7 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
     }
 
     /* If condition then process and validate */
-    if (xfunction->getCondition() != 0)
+    if (xfunction->getCondition())
         errors += validateAgentConditionOrFilter(xfunction->getCondition(),
                 agent, 0, model);
 

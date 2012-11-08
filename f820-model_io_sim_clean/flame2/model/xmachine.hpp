@@ -23,7 +23,6 @@ namespace flame { namespace model {
 class XMachine {
   public:
     XMachine();
-    ~XMachine();
     void print();
     void setName(std::string name);
     const std::string getName();
@@ -31,7 +30,7 @@ class XMachine {
     boost::ptr_vector<XVariable> * getVariables();
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
-    std::vector<XFunction*> * getFunctions();
+    boost::ptr_vector<XFunction> * getFunctions();
     bool validateVariableName(std::string name);
     int findStartEndStates();
     std::string getStartState();
@@ -50,7 +49,7 @@ class XMachine {
     int id_;
     std::string name_;
     boost::ptr_vector<XVariable> variables_;
-    std::vector<XFunction*> functions_;
+    boost::ptr_vector<XFunction> functions_;
     std::string startState_;
     std::set<std::string> endStates_;
     XGraph functionDependencyGraph_;
