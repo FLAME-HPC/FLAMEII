@@ -20,7 +20,7 @@
 
 void printErr(const char *format, ...) {
     // Print message to stderr
-#ifdef TESTBUILD
+#ifndef TESTBUILD
     va_list arg;
     va_start(arg, format);
     std::vfprintf(stderr, format, arg);
@@ -48,19 +48,19 @@ int XModelValidate::validate() {
     int errors = 0, rc;
 
     /* Validate function files */
-    errors += validateFunctionFiles(*model->getFunctionFiles());
+    errors += validateFunctionFiles(model->getFunctionFiles());
     /* Validate data types */
-    errors += validateDataTypes(*model->getADTs(), model);
+    errors += validateDataTypes(model->getADTs(), model);
     /* Validate model constants */
     rc = validateVariables(model->getConstants(), model, false);
     if (rc != 0) printErr("\tfrom environment constants.\n");
     errors += rc;
     /* Validate time units */
-    errors += validateTimeUnits(*model->getTimeUnits(), model);
+    errors += validateTimeUnits(model->getTimeUnits(), model);
     /* Validate agents */
-    errors += validateAgents(*model->getAgents(), model);
+    errors += validateAgents(model->getAgents(), model);
     /* Validate messages */
-    errors += validateMessages(*model->getMessages(), model);
+    errors += validateMessages(model->getMessages(), model);
 
     /* If errors print out information */
     if (errors > 0) printErr("%d error(s) found.\n", errors);
@@ -69,18 +69,18 @@ int XModelValidate::validate() {
     return errors;
 }
 
-int XModelValidate::validateFunctionFiles(std::vector<std::string> names) {
+int XModelValidate::validateFunctionFiles(std::vector<std::string> * names) {
     int errors = 0;
     std::vector<std::string>::iterator it;
-    for (it = names.begin(); it != names.end(); ++it)
+    for (it = names->begin(); it != names->end(); ++it)
         errors += validateFunctionFile(*it);
     return errors;
 }
 
-int XModelValidate::validateDataTypes(boost::ptr_vector<XADT> adts, XModel * model) {
+int XModelValidate::validateDataTypes(boost::ptr_vector<XADT> * adts, XModel * model) {
     int errors = 0, rc;
     boost::ptr_vector<XADT>::iterator it;
-    for (it = adts.begin(); it != adts.end(); ++it) {
+    for (it = adts->begin(); it != adts->end(); ++it) {
         rc = validateADT(&(*it), model);
     if (rc != 0) printErr("\tfrom data type: %s\n", (*it).getName().c_str());
         errors += rc;
@@ -89,19 +89,19 @@ int XModelValidate::validateDataTypes(boost::ptr_vector<XADT> adts, XModel * mod
 }
 
 int XModelValidate::validateTimeUnits(
-        boost::ptr_vector<XTimeUnit> timeUnits, XModel * model) {
+        boost::ptr_vector<XTimeUnit> * timeUnits, XModel * model) {
     int errors = 0, rc;
     boost::ptr_vector<XTimeUnit>::iterator it;
 
     // Process time unit (unit and period)
-    for (it = timeUnits.begin(); it != timeUnits.end(); ++it) {
+    for (it = timeUnits->begin(); it != timeUnits->end(); ++it) {
         rc = processTimeUnit(&(*it));
     if (rc != 0) printErr("\tfrom time unit: %s\n", (*it).getName().c_str());
         errors += rc;
     }
 
     // Validate time unit
-    for (it = timeUnits.begin(); it != timeUnits.end(); ++it) {
+    for (it = timeUnits->begin(); it != timeUnits->end(); ++it) {
         rc = validateTimeUnit(&(*it), model);
     if (rc != 0) printErr("\tfrom time unit: %s\n", (*it).getName().c_str());
         errors += rc;
@@ -111,23 +111,23 @@ int XModelValidate::validateTimeUnits(
     return errors;
 }
 
-int XModelValidate::validateAgents(std::vector<XMachine*> agents,
+int XModelValidate::validateAgents(boost::ptr_vector<XMachine> * agents,
         XModel * model) {
     int errors = 0, rc;
-    std::vector<XMachine*>::iterator it;
-    for (it = agents.begin(); it != agents.end(); ++it) {
-        rc = validateAgent(*it, model);
-        if (rc != 0)  printErr("\tfrom agent: %s\n", (*it)->getName().c_str());
+    boost::ptr_vector<XMachine>::iterator it;
+    for (it = agents->begin(); it != agents->end(); ++it) {
+        rc = validateAgent(&(*it), model);
+        if (rc != 0)  printErr("\tfrom agent: %s\n", (*it).getName().c_str());
         errors += rc;
     }
     return errors;
 }
 
-int XModelValidate::validateMessages(boost::ptr_vector<XMessage> messages,
+int XModelValidate::validateMessages(boost::ptr_vector<XMessage> * messages,
         XModel * model) {
     int errors = 0, rc;
     boost::ptr_vector<XMessage>::iterator it;
-    for (it = messages.begin(); it != messages.end(); ++it) {
+    for (it = messages->begin(); it != messages->end(); ++it) {
         rc = validateMessage(&(*it), model);
     if (rc != 0) printErr("\tfrom message: %s\n", (*it).getName().c_str());
         errors += rc;
@@ -137,6 +137,7 @@ int XModelValidate::validateMessages(boost::ptr_vector<XMessage> messages,
 
 int XModelValidate::validateAgentStateGraph(XMachine * agent) {
     int rc, errors = 0;
+
     // Validate single start state
     rc = agent->findStartEndStates();
     if (rc == 1) {
@@ -161,7 +162,7 @@ int XModelValidate::validateAgentStateGraph(XMachine * agent) {
 
 int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     int rc, errors = 0;
-    std::vector<XMachine*>::iterator mit;
+    boost::ptr_vector<XMachine>::iterator mit;
     std::vector<XFunction*>::iterator fit;
 
     /* Check name is valid */
@@ -173,8 +174,10 @@ int XModelValidate::validateAgent(XMachine * agent, XModel * model) {
     /* Check for duplicate names */
     for (mit = model->getAgents()->begin();
             mit != model->getAgents()->end(); ++mit)
-        if (agent != (*mit) && agent->getName() == (*mit)->getName()) {
-    printErr("Error: Duplicate agent name: %s\n", agent->getName().c_str());
+        if (agent->getID() != (*mit).getID()
+                && agent->getName() == (*mit).getName()) {
+            printErr("Error: Duplicate agent name: %s\n",
+                    agent->getName().c_str());
             ++errors;
         }
 

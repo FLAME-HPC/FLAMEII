@@ -128,16 +128,16 @@ void IOXMLPop::finaliseData() {
 
 void IOXMLPop::saveAgentVariableData(model::XModel * model) {
     agentVarMap_.clear();
-    std::vector<model::XMachine*>::iterator agent_it;
+    boost::ptr_vector<model::XMachine>::iterator agent_it;
     boost::ptr_vector<model::XVariable>::iterator var_it;
     std::pair<agentVarMap::iterator, bool> avm;
     for (agent_it = model->getAgents()->begin();
             agent_it != model->getAgents()->end(); ++agent_it) {
         // Add agent to agent var map for use when writing
-        avm = agentVarMap_.insert(std::make_pair((*agent_it)->getName(),
+        avm = agentVarMap_.insert(std::make_pair((*agent_it).getName(),
                 std::vector<std::string>()));
-        for (var_it = (*agent_it)->getVariables()->begin();
-                var_it != (*agent_it)->getVariables()->end(); ++var_it) {
+        for (var_it = (*agent_it).getVariables()->begin();
+                var_it != (*agent_it).getVariables()->end(); ++var_it) {
             (*avm.first).second.push_back((*var_it).getName());
         }
     }
@@ -215,7 +215,7 @@ void IOXMLPop::createDataSchemaHead(xmlTextWriterPtr writer) {
 
 void IOXMLPop::createDataSchemaAgentNameType(xmlTextWriterPtr writer,
         flame::model::XModel * model) {
-    std::vector<model::XMachine*>::iterator agent;
+    boost::ptr_vector<model::XMachine>::iterator agent;
     // Define agent name type
     writeXMLTagAndAttribute(writer, "xs:simpleType",
             "name", "agentType");
@@ -227,7 +227,7 @@ void IOXMLPop::createDataSchemaAgentNameType(xmlTextWriterPtr writer,
             ++agent) {
         writeXMLTag(writer, "xs:enumeration");
         writeXMLTagAttribute(writer, "value",
-                (*agent)->getName());
+                (*agent).getName());
         // Close the element named xs:enumeration
         writeXMLEndTag(writer);
     }
@@ -240,7 +240,7 @@ void IOXMLPop::createDataSchemaAgentNameType(xmlTextWriterPtr writer,
 
 void IOXMLPop::createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
         flame::model::XModel * model) {
-    std::vector<model::XMachine*>::iterator agent;
+    boost::ptr_vector<model::XMachine>::iterator agent;
     // Define agent variables
     writeXMLTagAndAttribute(writer, "xs:group",
             "name", "agent_vars");
@@ -251,7 +251,7 @@ void IOXMLPop::createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
             ++agent) {
         writeXMLTag(writer, "xs:group");
         std::string ref = "agent_";
-        ref.append((*agent)->getName());
+        ref.append((*agent).getName());
         ref.append("_vars");
         writeXMLTagAttribute(writer, "ref", ref);
         // Close the element named xs:group
@@ -283,19 +283,19 @@ void IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
 
 void IOXMLPop::createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model) {
-    std::vector<model::XMachine*>::iterator agent;
+    boost::ptr_vector<model::XMachine>::iterator agent;
     boost::ptr_vector<model::XVariable>::iterator variable;
     // For each agent type
     for (agent = model->getAgents()->begin();
             agent != model->getAgents()->end(); ++agent) {
         std::string name = "agent_";
-        name.append((*agent)->getName());
+        name.append((*agent).getName());
         name.append("_vars");
         // Create a group element for the agent type
         writeXMLTagAndAttribute(writer, "xs:group", "name", name);
         writeXMLTag(writer, "xs:sequence");
-        for (variable = (*agent)->getVariables()->begin();
-                variable != (*agent)->getVariables()->end(); ++variable)
+        for (variable = (*agent).getVariables()->begin();
+                variable != (*agent).getVariables()->end(); ++variable)
             createDataSchemaAgentVar(writer, variable);
         // Close the element named xs:sequence
         writeXMLEndTag(writer);

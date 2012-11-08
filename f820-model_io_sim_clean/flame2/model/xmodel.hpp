@@ -50,7 +50,7 @@ class XModel {
     void addFunctionFile(std::string file);
     std::vector<std::string> * getFunctionFiles();
     XMachine * addAgent(std::string name);
-    std::vector<XMachine*> * getAgents();
+    boost::ptr_vector<XMachine> * getAgents();
     XMachine * getAgent(std::string name);
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
@@ -70,14 +70,14 @@ class XModel {
     /*! \brief The absolute path to the model file */
     std::string path_;
     std::vector<std::string> includedModels_;
+    std::vector<std::string> functionFiles_;
+    /*! \brief A list of allowed data types to check variables */
+    std::vector<std::string> allowedDataTypes_;
     boost::ptr_vector<XVariable> constants_;
     boost::ptr_vector<XADT> adts_;
     boost::ptr_vector<XTimeUnit> timeUnits_;
-    std::vector<std::string> functionFiles_;
-    std::vector<XMachine*> agents_;
+    boost::ptr_vector<XMachine> agents_;
     boost::ptr_vector<XMessage> messages_;
-    /*! \brief A list of allowed data types to check variables */
-    std::vector<std::string> allowedDataTypes_;
     /*! \brief A map from function name to function pointer */
     std::map<std::string, flame::exe::TaskFunction> funcMap_;
 };

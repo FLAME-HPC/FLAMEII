@@ -43,8 +43,11 @@ class XMachine {
     int generateDependencyGraph();
     void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);
+    void setID(int id);
+    int getID();
 
   private:
+    int id_;
     std::string name_;
     boost::ptr_vector<XVariable> variables_;
     std::vector<XFunction*> functions_;

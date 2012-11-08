@@ -17,7 +17,7 @@
 
 namespace flame { namespace model {
 
-XMachine::XMachine() {
+XMachine::XMachine() : id_(0) {
     name_ = "";
     startState_ = "";
 }
@@ -182,6 +182,14 @@ void XMachine::registerWithMemoryManager() {
 
 void XMachine::addToModelGraph(XGraph * modelGraph) {
     modelGraph->import(&functionDependencyGraph_);
+}
+
+void XMachine::setID(int id) {
+    id_ = id;
+}
+
+int XMachine::getID() {
+    return id_;
 }
 
 }}  // namespace flame::model

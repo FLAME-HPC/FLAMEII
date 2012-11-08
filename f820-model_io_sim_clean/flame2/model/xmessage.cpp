@@ -15,7 +15,7 @@
 
 namespace flame { namespace model {
 
-XMessage::XMessage() : id_(0), syncFinishTask_(0), syncStartTask_(0) {}
+XMessage::XMessage() : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
 
 /*!
  * \brief Prints XMessage
