@@ -591,17 +591,17 @@ int XModelValidate::validateADT(XADT * adt, XModel * model) {
 
 int XModelValidate::validateAgentFunctionIOput(XFunction * xfunction,
         XMachine * agent, XModel * model) {
-    std::vector<XIOput*>::iterator it;
+    boost::ptr_vector<XIOput>::iterator it;
     int rc, errors = 0;
 
     /* For each input */
     for (it = xfunction->getInputs()->begin();
             it != xfunction->getInputs()->end(); ++it) {
         /* Validate the communication */
-        rc = validateAgentCommunication(*it, agent, model);
+        rc = validateAgentCommunication(&(*it), agent, model);
         if (rc != 0) {
             printErr("\tfrom input of message: %s\n",
-                (*it)->getMessageName().c_str());
+                (*it).getMessageName().c_str());
             errors += rc;
         }
     }
@@ -610,10 +610,10 @@ int XModelValidate::validateAgentFunctionIOput(XFunction * xfunction,
     for (it = xfunction->getOutputs()->begin();
             it != xfunction->getOutputs()->end(); ++it) {
         /* Validate the communication */
-        rc = validateAgentCommunication(*it, agent, model);
+        rc = validateAgentCommunication(&(*it), agent, model);
         if (rc != 0) {
             printErr("\tfrom output of message: %s\n",
-                (*it)->getMessageName().c_str());
+                (*it).getMessageName().c_str());
             errors += rc;
         }
     }

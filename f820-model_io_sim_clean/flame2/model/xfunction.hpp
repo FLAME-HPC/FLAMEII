@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XFUNCTION_HPP_
 #define MODEL__XFUNCTION_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include "xioput.hpp"
@@ -32,9 +33,9 @@ class XFunction {
     void setNextState(std::string name);
     std::string getNextState();
     XIOput * addInput();
-    std::vector<XIOput*> * getInputs();
+    boost::ptr_vector<XIOput> * getInputs();
     XIOput * addOutput();
-    std::vector<XIOput*> * getOutputs();
+    boost::ptr_vector<XIOput> * getOutputs();
     XCondition * addCondition();
     XCondition * getCondition();
     void setMemoryAccessInfoAvailable(bool b);
@@ -48,8 +49,8 @@ class XFunction {
     std::string name_;
     std::string currentState_;
     std::string nextState_;
-    std::vector<XIOput*> inputs_;
-    std::vector<XIOput*> outputs_;
+    boost::ptr_vector<XIOput> inputs_;
+    boost::ptr_vector<XIOput> outputs_;
     XCondition * condition_;
     /* Information on memory access */
     bool memoryAccessInfoAvailable_;

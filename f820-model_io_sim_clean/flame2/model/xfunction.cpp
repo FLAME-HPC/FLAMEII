@@ -36,16 +36,6 @@ XFunction::XFunction(std::string name)
  * Cleans up XFunction by deleting condition and ioputs.
  */
 XFunction::~XFunction() {
-    /* Delete inputs */
-/*    while (!inputs_.empty()) {
-        delete inputs_.back();
-        inputs_.pop_back();
-    }
-    // Delete outputs
-    while (!outputs_.empty()) {
-        delete outputs_.back();
-        outputs_.pop_back();
-    }*/
     /* Delete any condition */
     delete condition_;
 }
@@ -56,7 +46,7 @@ XFunction::~XFunction() {
  * Prints the XFunction to standard out.
  */
 void XFunction::print() {
-    unsigned int ii;
+    boost::ptr_vector<XIOput>::iterator it;
     std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\t\tCurrent State: %s\n", getCurrentState().c_str());
     std::fprintf(stdout, "\t\tNext State: %s\n", getNextState().c_str());
@@ -65,9 +55,9 @@ void XFunction::print() {
         condition_->print();
     }
     std::fprintf(stdout, "\t\tInputs:\n");
-    for (ii = 0; ii < inputs_.size(); ++ii) inputs_.at(ii)->print();
+    for (it = inputs_.begin(); it != inputs_.end(); ++it) (*it).print();
     std::fprintf(stdout, "\t\tOutputs:\n");
-    for (ii = 0; ii < outputs_.size(); ++ii) outputs_.at(ii)->print();
+    for (it = outputs_.begin(); it != outputs_.end(); ++it) (*it).print();
 }
 
 void XFunction::setName(std::string name) {
@@ -100,7 +90,7 @@ XIOput * XFunction::addInput() {
     return xinput;
 }
 
-std::vector<XIOput*> * XFunction::getInputs() {
+boost::ptr_vector<XIOput> * XFunction::getInputs() {
     return &inputs_;
 }
 
@@ -110,7 +100,7 @@ XIOput * XFunction::addOutput() {
     return xoutput;
 }
 
-std::vector<XIOput*> * XFunction::getOutputs() {
+boost::ptr_vector<XIOput> * XFunction::getOutputs() {
     return &outputs_;
 }
 

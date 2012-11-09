@@ -271,28 +271,28 @@ Task * XGraph::generateStateGraphMessagesAddMessageToGraph(std::string name) {
 }
 
 void XGraph::generateStateGraphMessages(XFunction * function, Task * task) {
-    std::vector<XIOput*>::iterator ioput;
+    boost::ptr_vector<XIOput>::iterator ioput;
     // Find outputting functions
     for (ioput = function->getOutputs()->begin();
          ioput != function->getOutputs()->end(); ++ioput) {
         // Add output message to function task
-        task->addOutputMessage((*ioput)->getMessageName());
+        task->addOutputMessage((*ioput).getMessageName());
         // Add edge from function vertex to message vertex
         addEdge(getVertex(task),
                 getVertex(generateStateGraphMessagesAddMessageToGraph(
-                    (*ioput)->getMessageName())),
-                (*ioput)->getMessageName(), Dependency::communication);
+                    (*ioput).getMessageName())),
+                (*ioput).getMessageName(), Dependency::communication);
     }
     // Find inputting functions
     for (ioput = function->getInputs()->begin();
          ioput != function->getInputs()->end(); ++ioput) {
         // Add input message to function task
-        task->addInputMessage((*ioput)->getMessageName());
+        task->addInputMessage((*ioput).getMessageName());
         // Add egde from message vertex to function vertex
         addEdge(getVertex(generateStateGraphMessagesAddMessageToGraph(
-                    (*ioput)->getMessageName())),
+                    (*ioput).getMessageName())),
                     getVertex(task),
-                (*ioput)->getMessageName(), Dependency::communication);
+                (*ioput).getMessageName(), Dependency::communication);
     }
 }
 
