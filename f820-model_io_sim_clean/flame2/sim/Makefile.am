@@ -8,8 +8,6 @@
 # ============================================================================
 # $Id$
 
-noinst_LTLIBRARIES = lib_flame_sim.la
-
 module_headers = \
   sim_manager.hpp \
   simulation.hpp
@@ -24,7 +22,23 @@ library_includedir = $(pkgincludedir)/sim
 # Install all headers
 library_include_HEADERS = $(module_headers)
 
-lib_flame_sim_la_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
-lib_flame_sim_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES =
+common_flags = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 
+if BUILD_DEBUG
+noinst_LTLIBRARIES += lib_flame_sim-dbg.la
+lib_flame_sim_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
+lib_flame_sim_dbg_la_SOURCES  = $(module_headers) $(module_sources)
+endif
 
+if BUILD_PROD
+noinst_LTLIBRARIES += lib_flame_sim-prod.la
+lib_flame_sim_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
+lib_flame_sim_prod_la_SOURCES  = $(module_headers) $(module_sources)
+endif
+
+if BUILD_TEST
+noinst_LTLIBRARIES += lib_flame_sim-test.la
+lib_flame_sim_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
+lib_flame_sim_test_la_SOURCES  = $(module_headers) $(module_sources)
+endif
