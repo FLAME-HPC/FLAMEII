@@ -195,11 +195,8 @@ void IOXMLModel::readIncludedModelValidate(std::string directory,
             }
 
         /* Read model file... */
-        try {
-            readXMLModel(fileName, model);
-        }
-        catch (exc::inaccessable_file e)
-        {
+        try { readXMLModel(fileName, model); }
+        catch(const exc::inaccessable_file& E) {
             xmlFreeDoc(doc);
             throw exc::inaccessable_file(std::string(
                 "Error: Submodel file cannot be opened: ") + fileName);

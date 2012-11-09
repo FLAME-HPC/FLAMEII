@@ -439,8 +439,9 @@ void IOXMLPop::processStartNode(std::vector<std::string> * tags,
     if ((tags->size() == 0 && name == "states") ||
         (tags->size() == 1 &&
         (name == "itno" || name == "environment" || name == "xagent")) ||
-        tags->size() == 2) tags->push_back(name);
-    else {
+        tags->size() == 2) {
+        tags->push_back(name);
+    } else {
         xmlFreeTextReader(reader);
         throw exc::unparseable_file(
                 std::string("Unknown xml tag: ").append(name));

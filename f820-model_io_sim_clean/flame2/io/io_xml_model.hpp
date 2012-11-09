@@ -38,8 +38,8 @@ class IOXMLModel {
             std::string directory, model::XModel * model, xmlDoc *doc);
     void readIncludedModel(xmlNode * node,
             std::string directory, model::XModel * model, xmlDoc *doc);
-    void readIncludedModelValidate(std::string directory,
-            std::string fileName, model::XModel * model, bool enable, xmlDoc *doc);
+    void readIncludedModelValidate(std::string directory, std::string fileName,
+            model::XModel * model, bool enable, xmlDoc *doc);
     void readEnvironment(xmlNode * node, model::XModel * model);
     void readFunctionFiles(xmlNode * node, model::XModel * model);
     void readDataTypes(xmlNode * node, model::XModel * model);
