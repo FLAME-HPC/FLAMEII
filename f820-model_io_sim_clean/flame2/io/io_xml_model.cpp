@@ -46,19 +46,24 @@ std::string IOXMLModel::getElementValue(xmlNode * node) {
 }
 
 void IOXMLModel::validateXMLModelRootElement(
-        xmlNode *root_element, std::string file_name) {
+        xmlNode *root_element, std::string file_name, xmlDoc *doc) {
     /* Catch error if no root called xmodel */
-    if (getElementName(root_element) != "xmodel")
+    if (getElementName(root_element) != "xmodel") {
+        xmlFreeDoc(doc);
         throw exc::invalid_model_file(std::string(
                 "Model file does not have root called 'xmodel': ") +
                 file_name);
+    }
 
     /* Catch error if version is not 2 */
     xmlChar * version_ptr = xmlGetProp(root_element, (const xmlChar*)"version");
     std::string version = reinterpret_cast<const char*>(version_ptr);
     xmlFree(version_ptr);
-    if (version != "2") throw exc::invalid_model_file(std::string(
+    if (version != "2") {
+        xmlFreeDoc(doc);
+        throw exc::invalid_model_file(std::string(
             "Model file is not 'xmodel' version 2: ") + file_name);
+    }
 }
 
 void err2(void *ctx, const char *msg, ...) {
@@ -84,9 +89,11 @@ void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     model->setPath(boost::filesystem::absolute(filePath).string());
 
     // Check if file exists
-    if (!boost::filesystem::exists(file_name))
+    if (!boost::filesystem::exists(file_name)) {
+        xmlFreeDoc(doc);
         throw exc::inaccessable_file(std::string(
                 "Error: Model file cannot be opened: ") + file_name);
+    }
 
     /* Parse the file and get the DOM */
     doc = xmlReadFile(file_name.c_str(), NULL, 0);
@@ -100,14 +107,14 @@ void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
-    validateXMLModelRootElement(root_element, file_name);
-    readModelElements(root_element, model, directory);
+    validateXMLModelRootElement(root_element, file_name, doc);
+    readModelElements(root_element, model, directory, doc);
 
     xmlFreeDoc(doc);
 }
 
 void IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
-        std::string directory) {
+        std::string directory, xmlDoc *doc) {
     /* Loop through each child of xmodel */
     xmlNode *cur_node = NULL;
     for (cur_node = root_element->children;
@@ -123,7 +130,7 @@ void IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
             else if (name == "author") {}
             else if (name == "description") {}
             else if (name == "models")
-                readIncludedModels(cur_node, directory, model);
+                readIncludedModels(cur_node, directory, model, doc);
             else if (name == "environment")
                 readEnvironment(cur_node, model);
             else if (name == "agents")
@@ -145,7 +152,7 @@ void IOXMLModel::readUnknownElement(xmlNode * node) {
 }
 
 void IOXMLModel::readIncludedModels(xmlNode * node,
-        std::string directory, model::XModel * model) {
+        std::string directory, model::XModel * model, xmlDoc *doc) {
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of models */
@@ -156,7 +163,7 @@ void IOXMLModel::readIncludedModels(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "model")
-                readIncludedModel(cur_node, directory, model);
+                readIncludedModel(cur_node, directory, model, doc);
             else
                 readUnknownElement(cur_node);
         }
@@ -164,32 +171,44 @@ void IOXMLModel::readIncludedModels(xmlNode * node,
 }
 
 void IOXMLModel::readIncludedModelValidate(std::string directory,
-        std::string fileName, model::XModel * model, bool enable) {
+        std::string fileName, model::XModel * model, bool enable, xmlDoc *doc) {
     /* If included model is enabled */
     if (enable) {
         /* Check file name ends in '.xml' or '.XML' */
         if (!boost::algorithm::ends_with(fileName, ".xml") &&
-                !boost::algorithm::ends_with(fileName, ".XML"))
+                !boost::algorithm::ends_with(fileName, ".XML")) {
+                    xmlFreeDoc(doc);
             throw exc::flame_io_exception(
     std::string("Included model file does not end in '.xml': ") + fileName);
+        }
 
         /* Append file name to current model file directory */
         fileName = directory.append(fileName);
 
         /* Check sub model is not a duplicate */
         if (!model->addIncludedModel(
-            boost::filesystem::absolute(fileName).string()))
-            throw exc::flame_io_exception(std::string(
-                "Error: Included model is a duplicate: ") +
-                fileName);
+            boost::filesystem::absolute(fileName).string())) {
+                xmlFreeDoc(doc);
+                throw exc::flame_io_exception(std::string(
+                    "Error: Included model is a duplicate: ") +
+                    fileName);
+            }
 
         /* Read model file... */
-        readXMLModel(fileName, model);
+        try {
+            readXMLModel(fileName, model);
+        }
+        catch (exc::inaccessable_file e)
+        {
+            xmlFreeDoc(doc);
+            throw exc::inaccessable_file(std::string(
+                "Error: Submodel file cannot be opened: ") + fileName);
+        }
     }
 }
 
 void IOXMLModel::readIncludedModel(xmlNode * node,
-        std::string directory, model::XModel * model) {
+        std::string directory, model::XModel * model, xmlDoc *doc) {
     xmlNode *cur_node = NULL;
     std::string fileName;
     bool enable;
@@ -206,6 +225,7 @@ void IOXMLModel::readIncludedModel(xmlNode * node,
                 if (enabledString == "true") { enable = true;
                 } else if (enabledString == "false") { enable = false;
                 } else {
+                    xmlFreeDoc(doc);
                     throw exc::flame_io_exception(
             std::string("Error: Included model has invalid enabled value ") +
                         enabledString);
@@ -217,7 +237,7 @@ void IOXMLModel::readIncludedModel(xmlNode * node,
     }
 
     /* Handle enabled models */
-    readIncludedModelValidate(directory, fileName, model, enable);
+    readIncludedModelValidate(directory, fileName, model, enable, doc);
 }
 
 
