@@ -16,14 +16,17 @@
 namespace flame { namespace model {
 
 /*!
- * \brief Initialises XADT
+ * \brief Constructs XADT
  *
- * Initialises XADT with not holding dynamic arrays.
+ * Initialises holding dynamic arrays to be false.
  */
-XADT::XADT() {
-    holdsDynamicArray_ = false;
-}
+XADT::XADT() : holdsDynamicArray_(false) {}
 
+/*!
+ * \brief Prints XADT
+ *
+ * Prints out XADT name and variables.
+ */
 void XADT::print() {
     boost::ptr_vector<XVariable>::iterator it;
     std::printf("\tADT Name: %s\n", getName().c_str());

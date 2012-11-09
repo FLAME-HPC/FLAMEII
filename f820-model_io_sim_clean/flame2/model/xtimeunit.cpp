@@ -14,11 +14,12 @@
 
 namespace flame { namespace model {
 
-XTimeUnit::XTimeUnit() : period_(0), id_(0) {
-}
-
-XTimeUnit::~XTimeUnit() {
-}
+/*!
+ * \brief Constructs XTimeUnit
+ *
+ * Initialises period and id to be zero
+ */
+XTimeUnit::XTimeUnit() : period_(0), id_(0) {}
 
 /*!
  * \brief Prints XTimeUnit

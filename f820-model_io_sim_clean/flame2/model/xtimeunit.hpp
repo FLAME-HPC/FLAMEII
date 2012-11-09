@@ -17,7 +17,6 @@ namespace flame { namespace model {
 class XTimeUnit {
   public:
     XTimeUnit();
-    ~XTimeUnit();
     void print();
     void setName(std::string name);
     std::string getName();
