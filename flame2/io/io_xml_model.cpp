@@ -10,15 +10,16 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <cstdio>
 #include "flame2/config.hpp"
+#include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 
-void printErr(std::string message);
-
 namespace model = flame::model;
+namespace exc = flame::exceptions;
 
 namespace flame { namespace io { namespace xml {
 
@@ -44,14 +45,14 @@ std::string IOXMLModel::getElementValue(xmlNode * node) {
     return s;
 }
 
-int IOXMLModel::validateXMLModelRootElement(
-        xmlNode *root_element, std::string file_name) {
+void IOXMLModel::validateXMLModelRootElement(
+        xmlNode *root_element, std::string file_name, xmlDoc *doc) {
     /* Catch error if no root called xmodel */
     if (getElementName(root_element) != "xmodel") {
-        printErr(std::string(
-                "Error: Model file does not have root called 'xmodel': ") +
+        xmlFreeDoc(doc);
+        throw exc::invalid_model_file(std::string(
+                "Model file does not have root called 'xmodel': ") +
                 file_name);
-        return 3;
     }
 
     /* Catch error if version is not 2 */
@@ -59,21 +60,17 @@ int IOXMLModel::validateXMLModelRootElement(
     std::string version = reinterpret_cast<const char*>(version_ptr);
     xmlFree(version_ptr);
     if (version != "2") {
-        printErr(std::string("Error: Model file is not 'xmodel' version 2: ") +
-                file_name);
-        return 4;
+        xmlFreeDoc(doc);
+        throw exc::invalid_model_file(std::string(
+            "Model file is not 'xmodel' version 2: ") + file_name);
     }
-
-    return 0;
 }
 
 void err2(void *ctx, const char *msg, ...) {
     // Don't output error
 }
 
-int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
-    /* Used for return codes */
-    int rc;
+void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Directory of the model file */
     std::string directory;
     xmlDoc *doc = NULL;
@@ -91,30 +88,33 @@ int IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
     /* Save absolute path to check the file is not read again */
     model->setPath(boost::filesystem::absolute(filePath).string());
 
+    // Check if file exists
+    if (!boost::filesystem::exists(file_name)) {
+        xmlFreeDoc(doc);
+        throw exc::inaccessable_file(std::string(
+                "Error: Model file cannot be opened: ") + file_name);
+    }
+
     /* Parse the file and get the DOM */
     doc = xmlReadFile(file_name.c_str(), NULL, 0);
 
     /* Check if file opened successfully */
-    if (doc == NULL) {
+    if (doc == NULL)
         /* Return error if the file was not successfully parsed */
-        printErr(std::string("Error: Model file cannot be opened/parsed: ") +
-                file_name);
-        return 1;
-    }
+        throw exc::unparseable_file(std::string(
+                "Error: Model file cannot be parsed: ") + file_name);
 
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
-    rc = validateXMLModelRootElement(root_element, file_name);
-    if (rc == 0) rc = readModelElements(root_element, model, directory);
+    validateXMLModelRootElement(root_element, file_name, doc);
+    readModelElements(root_element, model, directory, doc);
 
     xmlFreeDoc(doc);
-    return rc;
 }
 
-int IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
-        std::string directory) {
-    int rc = 0;
+void IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
+        std::string directory, xmlDoc *doc) {
     /* Loop through each child of xmodel */
     xmlNode *cur_node = NULL;
     for (cur_node = root_element->children;
@@ -130,36 +130,29 @@ int IOXMLModel::readModelElements(xmlNode *root_element, model::XModel * model,
             else if (name == "author") {}
             else if (name == "description") {}
             else if (name == "models")
-                rc = readIncludedModels(cur_node, directory, model);
+                readIncludedModels(cur_node, directory, model, doc);
             else if (name == "environment")
-                rc = readEnvironment(cur_node, model);
+                readEnvironment(cur_node, model);
             else if (name == "agents")
-                rc = readAgents(cur_node, model);
+                readAgents(cur_node, model);
             else if (name == "messages")
-                rc = readMessages(cur_node, model);
+                readMessages(cur_node, model);
             else
-                rc = readUnknownElement(cur_node);
-            /* Return if any errors */
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readUnknownElement(xmlNode * node) {
+void IOXMLModel::readUnknownElement(xmlNode * node) {
     std::string error = "Warning: Model file has unknown element '";
     error.append(boost::lexical_cast<std::string>(node->name));
     error.append("' on line ");
     error.append(boost::lexical_cast<std::string>(node->line));
-    printErr(error);
-
-    /* Return zero to carry on as normal */
-    return 0;
+    fprintf(stderr, "%s\n", error.c_str());
 }
 
-int IOXMLModel::readIncludedModels(xmlNode * node,
-        std::string directory, model::XModel * model) {
-    int rc = 0; /* Return code */
+void IOXMLModel::readIncludedModels(xmlNode * node,
+        std::string directory, model::XModel * model, xmlDoc *doc) {
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of models */
@@ -170,26 +163,23 @@ int IOXMLModel::readIncludedModels(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "model")
-                rc = readIncludedModel(cur_node, directory, model);
+                readIncludedModel(cur_node, directory, model, doc);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readIncludedModelValidate(std::string directory,
-        std::string fileName, model::XModel * model, bool enable) {
-    int rc;
+void IOXMLModel::readIncludedModelValidate(std::string directory,
+        std::string fileName, model::XModel * model, bool enable, xmlDoc *doc) {
     /* If included model is enabled */
     if (enable) {
         /* Check file name ends in '.xml' or '.XML' */
         if (!boost::algorithm::ends_with(fileName, ".xml") &&
                 !boost::algorithm::ends_with(fileName, ".XML")) {
-        printErr(std::string("Included model file does not end in '.xml': ") +
-                fileName);
-            return 6;
+                    xmlFreeDoc(doc);
+            throw exc::flame_io_exception(
+    std::string("Included model file does not end in '.xml': ") + fileName);
         }
 
         /* Append file name to current model file directory */
@@ -198,27 +188,24 @@ int IOXMLModel::readIncludedModelValidate(std::string directory,
         /* Check sub model is not a duplicate */
         if (!model->addIncludedModel(
             boost::filesystem::absolute(fileName).string())) {
-            printErr(std::string(
-                "Error: Included model is a duplicate: ") +
-                fileName);
-            return 7;
-        }
+                xmlFreeDoc(doc);
+                throw exc::flame_io_exception(std::string(
+                    "Error: Included model is a duplicate: ") +
+                    fileName);
+            }
 
         /* Read model file... */
-        rc = readXMLModel(fileName, model);
-        if (rc != 0) {
-            printErr(std::string(
-                "       from included model ") + fileName);
-            return 8;
+        try { readXMLModel(fileName, model); }
+        catch(const exc::inaccessable_file& E) {
+            xmlFreeDoc(doc);
+            throw exc::inaccessable_file(std::string(
+                "Error: Submodel file cannot be opened: ") + fileName);
         }
     }
-
-    return 0;
 }
 
-int IOXMLModel::readIncludedModel(xmlNode * node,
-        std::string directory, model::XModel * model) {
-    int rc = 0; /* Return code */
+void IOXMLModel::readIncludedModel(xmlNode * node,
+        std::string directory, model::XModel * model, xmlDoc *doc) {
     xmlNode *cur_node = NULL;
     std::string fileName;
     bool enable;
@@ -235,27 +222,24 @@ int IOXMLModel::readIncludedModel(xmlNode * node,
                 if (enabledString == "true") { enable = true;
                 } else if (enabledString == "false") { enable = false;
                 } else {
-printErr(std::string("Error: Included model has invalid enabled value ") +
+                    xmlFreeDoc(doc);
+                    throw exc::flame_io_exception(
+            std::string("Error: Included model has invalid enabled value ") +
                         enabledString);
-                    return 5;
                 }
             } else {
-                rc = readUnknownElement(cur_node);
-                if (rc != 0) return rc;
+                readUnknownElement(cur_node);
             }
         }
     }
 
     /* Handle enabled models */
-    rc = readIncludedModelValidate(directory, fileName, model, enable);
-
-    return rc;
+    readIncludedModelValidate(directory, fileName, model, enable, doc);
 }
 
 
-int IOXMLModel::readFunctionFiles(xmlNode * node,
+void IOXMLModel::readFunctionFiles(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of functionFiles */
@@ -268,16 +252,13 @@ int IOXMLModel::readFunctionFiles(xmlNode * node,
             if (name == "file")
                 model->addFunctionFile(getElementValue(cur_node));
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readDataTypes(xmlNode * node,
+void IOXMLModel::readDataTypes(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of dataTypes */
@@ -288,18 +269,15 @@ int IOXMLModel::readDataTypes(xmlNode * node,
             std::string name = getElementName(cur_node);
         /* Handle each child */
         if (name == "dataType")
-            rc = readDataType(cur_node, model);
+            readDataType(cur_node, model);
         else
-            rc = readUnknownElement(cur_node);
-        if (rc != 0) return rc;
+            readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readDataType(xmlNode * node,
+void IOXMLModel::readDataType(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XADT * xadt = model->addADT();
 
@@ -314,18 +292,15 @@ int IOXMLModel::readDataType(xmlNode * node,
                 xadt->setName(getElementValue(cur_node));
             else if (name == "description") {}
             else if (name == "variables")
-                rc = readVariables(cur_node, xadt->getVariables());
+                readVariables(cur_node, xadt->getVariables());
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readTimeUnits(xmlNode * node,
+void IOXMLModel::readTimeUnits(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of timeUnits */
@@ -336,20 +311,17 @@ int IOXMLModel::readTimeUnits(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "timeUnit")
-                rc = readTimeUnit(cur_node, model);
+                readTimeUnit(cur_node, model);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readTimeUnit(xmlNode * node,
+void IOXMLModel::readTimeUnit(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
-    model::XTimeUnit * xtimeunit = model->addTimeUnit();
+    model::XTimeUnit * xtimeunit = new model::XTimeUnit;
 
     /* Loop through each child of timeUnit */
     for (cur_node = node->children;
@@ -365,17 +337,15 @@ int IOXMLModel::readTimeUnit(xmlNode * node,
             else if (name == "period")
                 xtimeunit->setPeriodString(getElementValue(cur_node));
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
 
-    return 0;
+    model->addTimeUnit(xtimeunit);
 }
 
-int IOXMLModel::readVariables(xmlNode * node,
-        std::vector<model::XVariable*> * variables) {
-    int rc = 0; /* Return code */
+void IOXMLModel::readVariables(xmlNode * node,
+        boost::ptr_vector<model::XVariable> * variables) {
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of variables */
@@ -386,18 +356,15 @@ int IOXMLModel::readVariables(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "variable")
-                rc = readVariable(cur_node, variables);
+                readVariable(cur_node, variables);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readVariable(xmlNode * node,
-        std::vector<model::XVariable*> * variables) {
-    int rc; /* Return code */
+void IOXMLModel::readVariable(xmlNode * node,
+        boost::ptr_vector<model::XVariable> * variables) {
     xmlNode *cur_node = NULL;
     model::XVariable * xvariable = new model::XVariable;
     variables->push_back(xvariable);
@@ -421,17 +388,14 @@ int IOXMLModel::readVariable(xmlNode * node,
                 xvariable->setConstantString(
                         getElementValue(cur_node));
             } else {
-                rc = readUnknownElement(cur_node);
-                if (rc != 0) return rc;
+                readUnknownElement(cur_node);
             }
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readEnvironment(xmlNode * node,
+void IOXMLModel::readEnvironment(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of environment */
@@ -442,25 +406,22 @@ int IOXMLModel::readEnvironment(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "constants")
-                rc = readVariables(cur_node, model->getConstants());
+                readVariables(cur_node, model->getConstants());
             else if (name == "dataTypes")
-                rc = readDataTypes(cur_node, model);
+                readDataTypes(cur_node, model);
             else if (name == "timeUnits")
-                rc = readTimeUnits(cur_node, model);
+                readTimeUnits(cur_node, model);
             else if (name == "functionFiles")
-                rc = readFunctionFiles(cur_node, model);
+                readFunctionFiles(cur_node, model);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
 
-int IOXMLModel::readAgents(xmlNode * node,
+void IOXMLModel::readAgents(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of xagents */
@@ -471,18 +432,15 @@ int IOXMLModel::readAgents(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "xagent")
-                rc = readAgent(cur_node, model);
+                readAgent(cur_node, model);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readAgent(xmlNode * node,
+void IOXMLModel::readAgent(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XMachine * xm = 0;
 
@@ -497,20 +455,17 @@ int IOXMLModel::readAgent(xmlNode * node,
                 xm = model->addAgent(getElementValue(cur_node));
             else if (name == "description") {}
             else if (name == "memory")
-                rc = readVariables(cur_node, xm->getVariables());
+                readVariables(cur_node, xm->getVariables());
             else if (name == "functions")
-                rc = readTransitions(cur_node, xm);
+                readTransitions(cur_node, xm);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readInputs(xmlNode * node,
+void IOXMLModel::readInputs(xmlNode * node,
         model::XFunction * xfunction) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of inputs */
@@ -521,18 +476,15 @@ int IOXMLModel::readInputs(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "input")
-                rc = readInput(cur_node, xfunction);
+                readInput(cur_node, xfunction);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readInput(xmlNode * node,
+void IOXMLModel::readInput(xmlNode * node,
         model::XFunction * xfunction) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XIOput * input = xfunction->addInput();
 
@@ -546,26 +498,23 @@ int IOXMLModel::readInput(xmlNode * node,
             if (name == "messageName") {
                 input->setMessageName(getElementValue(cur_node));
             } else if (name == "filter") {
-                rc = readCondition(cur_node, input->addFilter());
+                readCondition(cur_node, input->addFilter());
             } else if (name == "sort") {
-                rc = readSort(cur_node, input);
+                readSort(cur_node, input);
             } else if (name == "random") {
                 /* Indicate that random is set */
                 input->setRandomSet(true);
                 /* Read the string ready to be validated later */
                 input->setRandomString(getElementValue(cur_node));
             } else {
-                rc = readUnknownElement(cur_node);
+                readUnknownElement(cur_node);
             }
-            if (rc != 0) return rc;
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readOutputs(xmlNode * node,
+void IOXMLModel::readOutputs(xmlNode * node,
         model::XFunction * xfunction) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of outputs */
@@ -576,18 +525,15 @@ int IOXMLModel::readOutputs(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "output")
-                rc = readOutput(cur_node, xfunction);
+                readOutput(cur_node, xfunction);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readOutput(xmlNode * node,
+void IOXMLModel::readOutput(xmlNode * node,
         model::XFunction * xfunction) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XIOput * output = xfunction->addOutput();
 
@@ -601,16 +547,13 @@ int IOXMLModel::readOutput(xmlNode * node,
             if (name == "messageName")
                 output->setMessageName(getElementValue(cur_node));
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readTransition(xmlNode * node,
+void IOXMLModel::readTransition(xmlNode * node,
         model::XMachine * machine) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XFunction * xfunction = machine->addFunction();
 
@@ -630,22 +573,19 @@ int IOXMLModel::readTransition(xmlNode * node,
                 xfunction->setNextState(getElementValue(cur_node));
             else if (name == "condition")
                 /* Create condition from function */
-                rc = readCondition(cur_node, xfunction->addCondition());
-            else if (name == "outputs") rc = readOutputs(cur_node, xfunction);
-            else if (name == "inputs") rc = readInputs(cur_node, xfunction);
+                readCondition(cur_node, xfunction->addCondition());
+            else if (name == "outputs") readOutputs(cur_node, xfunction);
+            else if (name == "inputs") readInputs(cur_node, xfunction);
             else if (name == "memoryAccess")
-                rc = readMemoryAccess(cur_node, xfunction);
+                readMemoryAccess(cur_node, xfunction);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readTransitions(xmlNode * node,
+void IOXMLModel::readTransitions(xmlNode * node,
         model::XMachine * machine) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of transitions */
@@ -656,18 +596,15 @@ int IOXMLModel::readTransitions(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "function")
-                rc = readTransition(cur_node, machine);
+                readTransition(cur_node, machine);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readMessages(xmlNode * node,
+void IOXMLModel::readMessages(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of messages */
@@ -678,18 +615,15 @@ int IOXMLModel::readMessages(xmlNode * node,
             std::string name = getElementName(cur_node);
             /* Handle each child */
             if (name == "message")
-                rc = readMessage(cur_node, model);
+                readMessage(cur_node, model);
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readMessage(xmlNode * node,
+void IOXMLModel::readMessage(xmlNode * node,
         model::XModel * model) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     model::XMessage * xmessage = model->addMessage();
 
@@ -704,18 +638,15 @@ int IOXMLModel::readMessage(xmlNode * node,
                 xmessage->setName(getElementValue(cur_node));
             else if (name == "description") {}
             else if (name == "variables")
-                rc = readVariables(cur_node, xmessage->getVariables());
+                readVariables(cur_node, xmessage->getVariables());
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readSort(xmlNode * node,
+void IOXMLModel::readSort(xmlNode * node,
         model::XIOput * xioput) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
     xioput->setSort(true);
 
@@ -731,16 +662,13 @@ int IOXMLModel::readSort(xmlNode * node,
             else if (name == "order")
                 xioput->setSortOrder(getElementValue(cur_node));
             else
-                rc = readUnknownElement(cur_node);
-            if (rc != 0) return rc;
+                readUnknownElement(cur_node);
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readConditionTime(model::XCondition * xcondition,
+void IOXMLModel::readConditionTime(model::XCondition * xcondition,
         xmlNode *cur_node) {
-    int rc;
     /* Update condition to indicate this
      * is a time condition not anything else */
     xcondition->isTime = true;
@@ -761,24 +689,19 @@ int IOXMLModel::readConditionTime(model::XCondition * xcondition,
                 xcondition->foundTimeDuration = true;
                 xcondition->timeDurationString = getElementValue(cur_node_2);
             } else {
-                rc = readUnknownElement(cur_node_2);
-                if (rc != 0) return rc;
+                readUnknownElement(cur_node_2);
             }
         }
     }
-
-    return 0;
 }
 
-int IOXMLModel::readConditionSide(model::XCondition * xcondition,
+void IOXMLModel::readConditionSide(model::XCondition * xcondition,
         model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
         bool * hsIsCondition, xmlNode *cur_node) {
-    int rc;
     /* Set up and read lhs */
     *hsCondition = new model::XCondition;
     xcondition->tempValue = "";
-    rc = readCondition(cur_node, *hsCondition);
-    if (rc != 0) return rc;
+    readCondition(cur_node, *hsCondition);
     /* Handle if lhs is a value or a condition */
     if ((*hsCondition)->tempValue != "") {
         /* lhs is a value */
@@ -790,13 +713,10 @@ int IOXMLModel::readConditionSide(model::XCondition * xcondition,
         /* lhs is a nested condition */
         *hsIsCondition = true;
     }
-
-    return 0;
 }
 
-int IOXMLModel::readCondition(xmlNode * node,
+void IOXMLModel::readCondition(xmlNode * node,
         model::XCondition * xc) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of message */
@@ -808,30 +728,27 @@ int IOXMLModel::readCondition(xmlNode * node,
             /* Handle each child and call appropriate
              * processing function */
             if (name == "not") { xc->isNot = true;
-                rc = readCondition(cur_node, xc);
+                readCondition(cur_node, xc);
             } else if (name == "time") {
-                rc = readConditionTime(xc, cur_node);
+                readConditionTime(xc, cur_node);
             } else if (name == "lhs") {
-        rc = readConditionSide(xc, &xc->lhsCondition, &xc->lhs, &xc->lhsIsValue,
-                        &xc->lhsIsCondition, cur_node);
+                readConditionSide(xc, &(xc->lhsCondition), &(xc->lhs),
+                        &(xc->lhsIsValue), &(xc->lhsIsCondition), cur_node);
             } else if (name == "op") { xc->op = getElementValue(cur_node);
             } else if (name == "rhs") {
-        rc = readConditionSide(xc, &xc->rhsCondition, &xc->rhs, &xc->rhsIsValue,
-                        &xc->rhsIsCondition, cur_node);
+                readConditionSide(xc, &(xc->rhsCondition), &(xc->rhs),
+                        &(xc->rhsIsValue), &(xc->rhsIsCondition), cur_node);
             } else if (name == "value") {
                 xc->tempValue = getElementValue(cur_node);
             } else {
-                rc = readUnknownElement(cur_node);
+                readUnknownElement(cur_node);
             }
-            if (rc != 0) return rc;
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
+void IOXMLModel::readMemoryAccessVariables(xmlNode * node,
         std::vector<std::string> * variables) {
-    int rc = 0; /* Return code */
     xmlNode *cur_node = NULL;
 
     /* Loop through each child of message */
@@ -845,16 +762,14 @@ int IOXMLModel::readMemoryAccessVariables(xmlNode * node,
             if (name == "variableName") {
                 variables->push_back(getElementValue(cur_node));
             } else {
-                rc = readUnknownElement(cur_node);
+                readUnknownElement(cur_node);
             }
-            if (rc != 0) return rc;
         }
     }
-    return 0;
 }
 
-int IOXMLModel::readMemoryAccess(xmlNode * node, model::XFunction * xfunction) {
-    int rc = 0; /* Return code */
+void IOXMLModel::readMemoryAccess(
+        xmlNode * node, model::XFunction * xfunction) {
     xmlNode *cur_node = NULL;
 
     // Set memory access information to be available
@@ -869,18 +784,16 @@ int IOXMLModel::readMemoryAccess(xmlNode * node, model::XFunction * xfunction) {
             /* Handle each child and call appropriate
              * processing function */
             if (name == "readOnly") {
-                rc = readMemoryAccessVariables(cur_node,
+                readMemoryAccessVariables(cur_node,
                         xfunction->getReadOnlyVariables());
             } else if (name == "readWrite") {
-                rc = readMemoryAccessVariables(cur_node,
+                readMemoryAccessVariables(cur_node,
                         xfunction->getReadWriteVariables());
             } else {
-                rc = readUnknownElement(cur_node);
+                readUnknownElement(cur_node);
             }
-            if (rc != 0) return rc;
         }
     }
-    return 0;
 }
 
 }}}  // namespace flame::io::xml

@@ -13,54 +13,54 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <vector>
+#include "flame2/exceptions/io.hpp"
 #include "flame2/io/io_xml_model.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(IOModel)
 
 /* Test the reading of XML model files and sub model files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_model) {
-    int rc;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/missing.xml", &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/missing.xml", &model),
+            e::inaccessable_file);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/malformed_xml.xml", &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/malformed_xml.xml", &model),
+            e::unparseable_file);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/not_xmodel.xml", &model);
-    BOOST_CHECK(rc == 3);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/not_xmodel.xml", &model),
+                    e::invalid_model_file);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/xmodelv1.xml", &model);
-    BOOST_CHECK(rc == 4);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/xmodelv1.xml", &model),
+                    e::invalid_model_file);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/submodel_enable_error.xml", &model);
-    BOOST_CHECK(rc == 5);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/submodel_enable_error.xml", &model),
+            e::flame_io_exception);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/submodel_end_not_xml.xml", &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/submodel_end_not_xml.xml", &model),
+            e::flame_io_exception);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/submodel_duplicate.xml", &model);
-    BOOST_CHECK(rc == 7);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/submodel_duplicate.xml", &model),
+            e::flame_io_exception);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/submodel_missing.xml", &model);
-    BOOST_CHECK(rc == 8);
+    BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
+            "io/models/submodel_missing.xml", &model),
+            e::inaccessable_file);
 
-    rc = ioxmlmodel.readXMLModel(
-            "io/models/all_not_valid.xml", &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(ioxmlmodel.readXMLModel(
+            "io/models/all_not_valid.xml", &model));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

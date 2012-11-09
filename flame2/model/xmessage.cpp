@@ -15,23 +15,12 @@
 
 namespace flame { namespace model {
 
-XMessage::XMessage() {
-    syncFinishTask_ = 0;
-    syncStartTask_ = 0;
-}
-
 /*!
- * \brief Cleans up XMessage
+ * \brief Constructs XMessage
  *
- * Cleans up XMessage by deleting the variables list.
+ * Initialises id to be zero and start and finish tasks to be null.
  */
-XMessage::~XMessage() {
-    /* Delete variables */
-    while (!variables_.empty()) {
-        delete variables_.back();
-        variables_.pop_back();
-    }
-}
+XMessage::XMessage() : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
 
 /*!
  * \brief Prints XMessage
@@ -39,10 +28,10 @@ XMessage::~XMessage() {
  * Prints XMessage to standard out.
  */
 void XMessage::print() {
-    unsigned int ii;
+    boost::ptr_vector<XVariable>::iterator it;
     std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
-        getVariables()->at(ii)->print();
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        (*it).print();
 }
 
 void XMessage::setName(std::string name) {
@@ -59,14 +48,17 @@ XVariable * XMessage::addVariable() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XMessage::getVariables() {
+boost::ptr_vector<XVariable> * XMessage::getVariables() {
     return &variables_;
 }
 
+/*!
+ * \brief Finds a variable name in the message memory
+ */
 bool XMessage::validateVariableName(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
-        if (name == variables_.at(ii)->getName()) return true;
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if (name == (*it).getName()) return true;
     return false;
 }
 
@@ -84,6 +76,14 @@ void XMessage::setSyncFinishTask(Task * task) {
 
 Task * XMessage::getSyncFinishTask() {
     return syncFinishTask_;
+}
+
+void XMessage::setID(int id) {
+    id_ = id;
+}
+
+int XMessage::getID() {
+    return id_;
 }
 
 }}  // namespace flame::model

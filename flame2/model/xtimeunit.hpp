@@ -9,15 +9,14 @@
  */
 #ifndef MODEL__XTIMEUNIT_HPP_
 #define MODEL__XTIMEUNIT_HPP_
-#include <string>
 #include <boost/cstdint.hpp>
+#include <string>
 
 namespace flame { namespace model {
 
 class XTimeUnit {
   public:
     XTimeUnit();
-    ~XTimeUnit();
     void print();
     void setName(std::string name);
     std::string getName();
@@ -27,12 +26,15 @@ class XTimeUnit {
     std::string getPeriodString();
     void setPeriod(int period);
     int getPeriod();
+    void setID(int id);
+    int getID();
 
   private:
     std::string name_;
     std::string unit_;
     std::string periodString_;
     int period_;
+    int id_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XTIMEUNIT_HPP_

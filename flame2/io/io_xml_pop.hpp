@@ -29,7 +29,7 @@ typedef std::map<std::string, std::vector<std::string> > agentVarMap;
 class IOXMLPop {
   public:
     IOXMLPop();
-    int readPop(std::string file_name,
+    void readPop(std::string file_name,
         model::XModel * model);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
@@ -54,7 +54,7 @@ class IOXMLPop {
     void createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model);
     void createDataSchemaAgentVar(xmlTextWriterPtr writer,
-        std::vector<model::XVariable*>::iterator variable);
+            boost::ptr_vector<model::XVariable>::iterator variable);
     void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
     void createDataSchemaDefineTags(xmlTextWriterPtr writer);
     void writeXMLEndTag(xmlTextWriterPtr writer);
@@ -80,13 +80,14 @@ class IOXMLPop {
     int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
         xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
-    int processStartNode(std::vector<std::string> * tags, std::string name);
+    void processStartNode(std::vector<std::string> * tags, std::string name,
+            xmlTextReaderPtr reader);
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,
-        model::XMachine ** agent);
+        model::XMachine ** agent, xmlTextReaderPtr reader);
     int processTextVariable(std::string value, std::vector<std::string> * tags,
-        model::XMachine ** agent);
+        model::XMachine ** agent, xmlTextReaderPtr reader);
     int processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
         model::XMachine ** agent, model::XModel * model);

@@ -13,12 +13,11 @@
 #include <stdexcept>
 #include "flame2/config.hpp"
 #include "xfunction.hpp"
-#include "task.hpp"
 
 namespace flame { namespace model {
 
 /*!
- * \brief Initialises XFunction
+ * \brief Constructs XFunction
  *
  * Initialises XFunction with no condition and no memory access info.
  */
@@ -26,6 +25,12 @@ XFunction::XFunction()
     : condition_(0),
     memoryAccessInfoAvailable_(false) {}
 
+/*!
+ * \brief Constructs XFunction
+ *
+ * Initialises XFunction with a name and no condition and
+ * no memory access info.
+ */
 XFunction::XFunction(std::string name)
     : name_(name),
     condition_(0),
@@ -37,16 +42,6 @@ XFunction::XFunction(std::string name)
  * Cleans up XFunction by deleting condition and ioputs.
  */
 XFunction::~XFunction() {
-    /* Delete inputs */
-    while (!inputs_.empty()) {
-        delete inputs_.back();
-        inputs_.pop_back();
-    }
-    /* Delete outputs */
-    while (!outputs_.empty()) {
-        delete outputs_.back();
-        outputs_.pop_back();
-    }
     /* Delete any condition */
     delete condition_;
 }
@@ -57,18 +52,18 @@ XFunction::~XFunction() {
  * Prints the XFunction to standard out.
  */
 void XFunction::print() {
-    unsigned int ii;
+    boost::ptr_vector<XIOput>::iterator it;
     std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());
     std::fprintf(stdout, "\t\tCurrent State: %s\n", getCurrentState().c_str());
     std::fprintf(stdout, "\t\tNext State: %s\n", getNextState().c_str());
-    if (condition_ != 0) {
+    if (condition_) {
         std::fprintf(stdout, "\t\tCondition:\n");
         condition_->print();
     }
     std::fprintf(stdout, "\t\tInputs:\n");
-    for (ii = 0; ii < inputs_.size(); ii++) inputs_.at(ii)->print();
+    for (it = inputs_.begin(); it != inputs_.end(); ++it) (*it).print();
     std::fprintf(stdout, "\t\tOutputs:\n");
-    for (ii = 0; ii < outputs_.size(); ii++) outputs_.at(ii)->print();
+    for (it = outputs_.begin(); it != outputs_.end(); ++it) (*it).print();
 }
 
 void XFunction::setName(std::string name) {
@@ -101,7 +96,7 @@ XIOput * XFunction::addInput() {
     return xinput;
 }
 
-std::vector<XIOput*> * XFunction::getInputs() {
+boost::ptr_vector<XIOput> * XFunction::getInputs() {
     return &inputs_;
 }
 
@@ -111,7 +106,7 @@ XIOput * XFunction::addOutput() {
     return xoutput;
 }
 
-std::vector<XIOput*> * XFunction::getOutputs() {
+boost::ptr_vector<XIOput> * XFunction::getOutputs() {
     return &outputs_;
 }
 
@@ -125,14 +120,6 @@ XCondition * XFunction::addCondition() {
 
 XCondition * XFunction::getCondition() {
     return condition_;
-}
-
-void XFunction::setTask(Task * task) {
-    task_ = task;
-}
-
-Task * XFunction::getTask() {
-    return task_;
 }
 
 void XFunction::setMemoryAccessInfoAvailable(bool b) {

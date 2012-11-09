@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XADT_HPP_
 #define MODEL__XADT_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include "xvariable.hpp"
@@ -18,18 +19,17 @@ namespace flame { namespace model {
 class XADT {
   public:
     XADT();
-    ~XADT();
     void print();
     void setName(std::string name);
     std::string getName();
     XVariable * addVariable();
-    std::vector<XVariable*> * getVariables();
+    boost::ptr_vector<XVariable> * getVariables();
     void setHoldsDynamicArray(bool b);
     bool holdsDynamicArray();
 
   private:
     std::string name_;
-    std::vector<XVariable*> variables_;
+    boost::ptr_vector<XVariable> variables_;
     bool holdsDynamicArray_;
 };
 }}  // namespace flame::model

@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XMODEL_HPP_
 #define MODEL__XMODEL_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -24,15 +25,12 @@ namespace flame { namespace model {
 class XModel {
   public:
     XModel();
-    ~XModel();
-    int clear();
-    void setup();
     void print();
     int validate();
-    int registerWithMemoryManager();
-    int registerWithMessageBoardManager();
-    int registerWithTaskManager();
-    int registerAgentFunction(std::string, flame::exe::TaskFunction);
+    void registerWithMemoryManager();
+    void registerWithMessageBoardManager();
+    void registerWithTaskManager();
+    void registerAgentFunction(std::string, flame::exe::TaskFunction);
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);
@@ -40,20 +38,20 @@ class XModel {
     bool addIncludedModel(std::string name);
     std::vector<std::string> * getIncludedModels();
     XVariable * addConstant();
-    std::vector<XVariable*> * getConstants();
+    boost::ptr_vector<XVariable> * getConstants();
     XADT * addADT();
     XADT * getADT(std::string name);
-    std::vector<XADT*> * getADTs();
-    XTimeUnit * addTimeUnit();
-    std::vector<XTimeUnit*> * getTimeUnits();
+    boost::ptr_vector<XADT> * getADTs();
+    void addTimeUnit(XTimeUnit * timeUnit);
+    boost::ptr_vector<XTimeUnit> * getTimeUnits();
     void addFunctionFile(std::string file);
     std::vector<std::string> * getFunctionFiles();
     XMachine * addAgent(std::string name);
-    std::vector<XMachine*> * getAgents();
+    boost::ptr_vector<XMachine> * getAgents();
     XMachine * getAgent(std::string name);
     XMessage * addMessage();
     XMessage * getMessage(std::string name);
-    std::vector<XMessage*> * getMessages();
+    boost::ptr_vector<XMessage> * getMessages();
     void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
     std::map<std::string, flame::exe::TaskFunction> getFuncMap();
@@ -69,14 +67,14 @@ class XModel {
     /*! \brief The absolute path to the model file */
     std::string path_;
     std::vector<std::string> includedModels_;
-    std::vector<XVariable*> constants_;
-    std::vector<XADT*> adts_;
-    std::vector<XTimeUnit*> timeUnits_;
     std::vector<std::string> functionFiles_;
-    std::vector<XMachine*> agents_;
-    std::vector<XMessage*> messages_;
     /*! \brief A list of allowed data types to check variables */
     std::vector<std::string> allowedDataTypes_;
+    boost::ptr_vector<XVariable> constants_;
+    boost::ptr_vector<XADT> adts_;
+    boost::ptr_vector<XTimeUnit> timeUnits_;
+    boost::ptr_vector<XMachine> agents_;
+    boost::ptr_vector<XMessage> messages_;
     /*! \brief A map from function name to function pointer */
     std::map<std::string, flame::exe::TaskFunction> funcMap_;
 };

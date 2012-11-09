@@ -44,9 +44,8 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
     graph.addTestEdge(v1, v2, "", model::Dependency::state);
     graph.addTestEdge(v2, v3, "", model::Dependency::state);
     // Set up graph for processing
-    std::vector<model::XVariable*> variables;
-    model::XVariable a("a");
-    variables.push_back(&a);
+    boost::ptr_vector<model::XVariable> variables;
+    variables.push_back(new model::XVariable("a"));
     graph.setTestStartTask(&f0);
     graph.addTestEndTask(&f3);
     graph.setTasksImported(true);

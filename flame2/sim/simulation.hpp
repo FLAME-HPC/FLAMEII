@@ -21,8 +21,6 @@ class Simulation {
 
   private:
     flame::model::XModel * model_;
-    bool modelLoaded_;
-    bool popLoaded_;
 };
 }}  // namespace flame::sim
 #endif  // SIM__SIMULATION_HPP_

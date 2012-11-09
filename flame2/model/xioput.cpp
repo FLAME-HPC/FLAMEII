@@ -36,7 +36,7 @@ XIOput::XIOput() {
  */
 XIOput::~XIOput() {
     /* Delete any filter */
-    if (filter_ != 0) delete filter_;
+    delete filter_;
 }
 
 /*!

@@ -15,32 +15,9 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "xmachine.hpp"
 
-void printErr(std::string message);
-
 namespace flame { namespace model {
 
-XMachine::XMachine() {
-    name_ = "";
-    startState_ = "";
-}
-
-/*!
- * \brief Cleans up XMachine
- *
- * Cleans up XMachine by deleting variable list and functions list.
- */
-XMachine::~XMachine() {
-    /* Delete variables */
-    while (!variables_.empty()) {
-        delete variables_.back();
-        variables_.pop_back();
-    }
-    /* Delete functions */
-    while (!functions_.empty()) {
-        delete functions_.back();
-        functions_.pop_back();
-    }
-}
+XMachine::XMachine() : id_(0) {}
 
 /*!
  * \brief Prints XMachine
@@ -48,12 +25,14 @@ XMachine::~XMachine() {
  * Prints XMachine to standard out.
  */
 void XMachine::print() {
-    unsigned int ii;
+    boost::ptr_vector<XVariable>::iterator it;
+    boost::ptr_vector<XFunction>::iterator f_it;
+
     std::fprintf(stdout, "\tAgent Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
-        getVariables()->at(ii)->print();
-    for (ii = 0; ii < functions_.size(); ii++)
-        functions_.at(ii)->print();
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        (*it).print();
+    for (f_it = functions_.begin(); f_it != functions_.end(); ++f_it)
+        (*f_it).print();
 }
 
 void XMachine::setName(std::string name) {
@@ -71,14 +50,14 @@ XVariable * XMachine::addVariable() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XMachine::getVariables() {
+boost::ptr_vector<XVariable> * XMachine::getVariables() {
     return &variables_;
 }
 
 XVariable * XMachine::getVariable(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
-        if (variables_.at(ii)->getName() == name) return variables_.at(ii);
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if ((*it).getName() == name) return &(*it);
     return 0;
 }
 
@@ -88,14 +67,14 @@ XFunction * XMachine::addFunction() {
     return xfunction;
 }
 
-std::vector<XFunction*> * XMachine::getFunctions() {
+boost::ptr_vector<XFunction> * XMachine::getFunctions() {
     return &functions_;
 }
 
 bool XMachine::validateVariableName(std::string name) {
-    unsigned int ii;
-    for (ii = 0; ii < variables_.size(); ii++)
-        if (name == variables_.at(ii)->getName()) return true;
+    boost::ptr_vector<XVariable>::iterator it;
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        if (name == (*it).getName()) return true;
     return false;
 }
 
@@ -103,7 +82,7 @@ int XMachine::findStartEndStates() {
     // Map of state names and boolean for valid start state
     std::set<std::string> startStates;
     std::set<std::string>::iterator s;
-    std::vector<XFunction*>::iterator f;
+    boost::ptr_vector<XFunction>::iterator f;
 
     // Reset end states list
     endStates_.clear();
@@ -111,32 +90,23 @@ int XMachine::findStartEndStates() {
     // For each function
     for (f = functions_.begin(); f != functions_.end(); ++f) {
         // Add current state to possible end states list
-        endStates_.insert((*f)->getNextState());
+        endStates_.insert((*f).getNextState());
         // Add current state to possible start states list
-        startStates.insert((*f)->getCurrentState());
+        startStates.insert((*f).getCurrentState());
     }
     // For each function
     for (f = functions_.begin(); f != functions_.end(); ++f) {
         // If start states contain a next state then remove
-        s = startStates.find((*f)->getNextState());
+        s = startStates.find((*f).getNextState());
         if (s != startStates.end()) startStates.erase(s);
         // If end states contain a current state then remove
-        s = endStates_.find((*f)->getCurrentState());
+        s = endStates_.find((*f).getCurrentState());
         if (s != endStates_.end()) endStates_.erase(s);
     }
-    if (startStates.size() == 0) {
-        // No start states found
-        printErr(std::string("Error: ") +
-                name_ + std::string("agent doesn't have a start state"));
-        return 1;
-    } else if (startStates.size() > 1) {
-        // Multiple start states found
-        printErr(std::string("Error: ") +
-            name_ + std::string(" agent has multiple possible start states:"));
-        for (s = startStates.begin(); s != startStates.end(); s++)
-            printErr(std::string("\t") + *s);
-        return 2;
-    }
+    // No start states found
+    if (startStates.size() == 0) return 1;
+    // Multiple start states found
+    else if (startStates.size() > 1) return 2;
     // One start state
     startState_ = (*startStates.begin());
 
@@ -161,7 +131,7 @@ int XMachine::generateDependencyGraph() {
  */
 int XMachine::generateStateGraph() {
     return functionDependencyGraph_.generateStateGraph(
-            functions_, startState_, endStates_);
+            &functions_, startState_, endStates_);
 }
 
 XGraph * XMachine::getFunctionDependencyGraph() {
@@ -176,45 +146,35 @@ int XMachine::checkFunctionConditions() {
     return functionDependencyGraph_.checkFunctionConditions();
 }
 
-int XMachine::registerWithMemoryManager() {
-    std::vector<XVariable*>::iterator vit;
+void XMachine::registerWithMemoryManager() {
+    boost::ptr_vector<XVariable>::iterator vit;
     flame::mem::MemoryManager& memoryManager =
         flame::mem::MemoryManager::GetInstance();
 
     /* Register agent with memory manager */
-    try { memoryManager.RegisterAgent(name_); }
-    catch(const flame::exceptions::logic_error& E) {
-        std::fprintf(stderr,
-            "Error: %s\nWhen registering '%s' agent with the memory manager\n",
-            E.what(), name_.c_str());
-        return 1;
-    }
+    memoryManager.RegisterAgent(name_);
     /* Register agent memory variables */
-    for (vit = variables_.begin(); vit != variables_.end(); vit++) {
-        if ((*vit)->getType() == "int") {
-            /* Register int variable */
-    try { memoryManager.RegisterAgentVar<int>(name_, (*vit)->getName()); }
-            catch(const flame::exceptions::logic_error& E) {
-                std::fprintf(stderr, "Error: %s\n", E.what());
-                return 1;
-            }
-        } else if ((*vit)->getType() == "double") {
-            /* Register double variable */
-    try { memoryManager.RegisterAgentVar<double>(name_, (*vit)->getName()); }
-            catch(const flame::exceptions::logic_error& E) {
-                std::fprintf(stderr, "Error: %s\n", E.what());
-                return 1;
-            }
-        }
-    }
+    for (vit = variables_.begin(); vit != variables_.end(); ++vit)
+        /* Register int variable */
+        if ((*vit).getType() == "int")
+            memoryManager.RegisterAgentVar<int>(name_, (*vit).getName());
+        /* Register double variable */
+        else if ((*vit).getType() == "double")
+            memoryManager.RegisterAgentVar<double>(name_, (*vit).getName());
     /* Population Size hint */
     memoryManager.HintPopulationSize(name_, 100);
-
-    return 0;
 }
 
 void XMachine::addToModelGraph(XGraph * modelGraph) {
     modelGraph->import(&functionDependencyGraph_);
+}
+
+void XMachine::setID(int id) {
+    id_ = id;
+}
+
+int XMachine::getID() {
+    return id_;
 }
 
 }}  // namespace flame::model

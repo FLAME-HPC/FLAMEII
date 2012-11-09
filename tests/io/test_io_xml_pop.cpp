@@ -14,14 +14,45 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include "flame2/io/io_manager.hpp"
 #include "flame2/io/io_xml_model.hpp"
 #include "flame2/io/io_xml_pop.hpp"
 #include "flame2/mem/memory_manager.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
+namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
+
+BOOST_AUTO_TEST_CASE(test_read_same_dir) {
+    xml::IOXMLModel ioxmlmodel;
+    model::XModel model;
+    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+
+    /* Read model xml */
+    ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
+
+    // Create 0.xml in program dir
+    FILE *file;
+    file = fopen("0.xml", "w");
+    if (file == NULL) {
+        BOOST_FAIL("Error: Could not create 0.xml for test");
+    } else {
+        fprintf(file, "<states></states>");
+        fclose(file);
+
+        BOOST_CHECK_NO_THROW(
+        iomanager.readPop("0.xml", &model, flame::io::IOManager::xml));
+
+        BOOST_CHECK_NO_THROW(
+        iomanager.readPop("./0.xml", &model, flame::io::IOManager::xml));
+
+        if (remove("0.xml") != 0)
+            fprintf(stderr,
+                    "Warning: Could not delete the generated file: 0.xml\n");
+    }
+}
 
 /* Test creation of data schema */
 BOOST_AUTO_TEST_CASE(test_data_schema) {
@@ -49,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 
 /* Test the reading of XML population files. */
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
-    int rc;
+    unsigned int ii;
     xml::IOXMLPop ioxmlpop;
     xml::IOXMLModel ioxmlmodel;
     model::XModel model;
@@ -59,68 +90,38 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     /* Read model xml */
     ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
     /* Register agents with memory manager */
-    unsigned int ii, jj;
-    size_t pop_size_hint = 3;
-    for (ii = 0; ii < model.getAgents()->size(); ii++) {
-        model::XMachine * agent = model.getAgents()->at(ii);
-        /* Register agent */
-        memoryManager.RegisterAgent(agent->getName());
-        /* Register agent memory variables */
-        for (jj = 0; jj < agent->getVariables()->size(); jj++) {
-            model::XVariable * var =
-                    agent->getVariables()->at(jj);
-            if (var->getType() == "int") {
-                /* Register int variable */
-                memoryManager.RegisterAgentVar<int>
-                    (agent->getName(), var->getName());
-            } else if (var->getType() == "double") {
-                /* Register double variable */
-                memoryManager.RegisterAgentVar<double>
-                    (agent->getName(), var->getName());
-            }
-        }
-        /* Population Size hint */
-        memoryManager.HintPopulationSize(agent->getName(), pop_size_hint);
-    }
+    model.registerWithMemoryManager();
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_missing.xml",
-            &model);
-    BOOST_CHECK(rc == 1);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_missing.xml", &model),
+            e::inaccessable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_malformed.xml",
-            &model);
-    BOOST_CHECK(rc == 2);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_malformed.xml", &model),
+            e::unparseable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_tag.xml",
-            &model);
-    BOOST_CHECK(rc == 3);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+        "io/models/all_data_its/0_unknown_tag.xml", &model),
+            e::unparseable_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_agent.xml",
-            &model);
-    BOOST_CHECK(rc == 4);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_unknown_agent.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_unknown_variable.xml",
-            &model);
-    BOOST_CHECK(rc == 5);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_unknown_variable.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_var_not_int.xml",
-            &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_var_not_int.xml", &model),
+            e::invalid_pop_file);
 
-    rc = ioxmlpop.readPop(
-            "io/models/all_data_its/0_var_not_double.xml",
-            &model);
-    BOOST_CHECK(rc == 6);
+    BOOST_CHECK_THROW(ioxmlpop.readPop(
+            "io/models/all_data_its/0_var_not_double.xml", &model),
+            e::invalid_pop_file);
 
     std::string zeroxml = "io/models/all_data_its/0.xml";
-    rc = ioxmlpop.readPop(zeroxml, &model);
-    BOOST_CHECK(rc == 0);
+    BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, &model));
 
     /* Test pop data read in */
     /* Test ints data */

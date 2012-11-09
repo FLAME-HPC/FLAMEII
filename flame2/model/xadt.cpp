@@ -16,32 +16,22 @@
 namespace flame { namespace model {
 
 /*!
- * \brief Initialises XADT
+ * \brief Constructs XADT
  *
- * Initialises XADT with not holding dynamic arrays.
+ * Initialises holding dynamic arrays to be false.
  */
-XADT::XADT() {
-    holdsDynamicArray_ = false;
-}
+XADT::XADT() : holdsDynamicArray_(false) {}
 
 /*!
- * \brief Cleans up XADT
+ * \brief Prints XADT
  *
- * Cleans up XADT by deleting variable list.
+ * Prints out XADT name and variables.
  */
-XADT::~XADT() {
-    /* Delete variables */
-    while (!variables_.empty()) {
-        delete variables_.back();
-        variables_.pop_back();
-    }
-}
-
 void XADT::print() {
-    unsigned int ii;
-    std::fprintf(stdout, "\tADT Name: %s\n", getName().c_str());
-    for (ii = 0; ii < getVariables()->size(); ii++)
-        getVariables()->at(ii)->print();
+    boost::ptr_vector<XVariable>::iterator it;
+    std::printf("\tADT Name: %s\n", getName().c_str());
+    for (it = variables_.begin(); it != variables_.end(); it++)
+        (*it).print();
 }
 
 void XADT::setName(std::string name) {
@@ -58,7 +48,7 @@ XVariable * XADT::addVariable() {
     return xvariable;
 }
 
-std::vector<XVariable*> * XADT::getVariables() {
+boost::ptr_vector<XVariable> * XADT::getVariables() {
     return &variables_;
 }
 
