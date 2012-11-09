@@ -11,16 +11,20 @@
 
 namespace flame { namespace mb2 {
 
-size_t BoardWriter::GetCount(void) {
+size_t BoardWriter::GetCount(void) const {
   return _data->size();
 }
 
-bool BoardWriter::IsConnected(void) {
+bool BoardWriter::IsConnected(void) const {
   return _connected;
 }
 
 void BoardWriter::Disconnect(void) {
   _connected = false;
 }
-    
+
+BoardWriter* BoardWriter::clone_empty(void) {
+  return new BoardWriter(_data.get()->clone_empty());
+}
+
 }}  // namespace flame::mb2

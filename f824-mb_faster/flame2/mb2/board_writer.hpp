@@ -16,16 +16,20 @@
 #include "flame2/mem/vector_wrapper.hpp"
 
 namespace flame { namespace mb2 {
-
-
+  
 class BoardWriter {
   friend class MessageBoard;
   
   public:
     typedef boost::shared_ptr<BoardWriter> handle;
 
-    size_t GetCount(void);
-    bool IsConnected(void);
+    size_t GetCount(void) const;
+    bool IsConnected(void) const;
+
+    template <class T>
+    static BoardWriter* create(void) {
+      return new BoardWriter(new flame::mem::VectorWrapper<T>());
+    }
     
     template <typename T>
     void Post(T& msg) {
@@ -44,20 +48,20 @@ class BoardWriter {
     }
     
   protected:
-    boost::scoped_ptr<VectorWrapperBase> _data;
-
-    // Constructor should only be called by MessageBoard
-    template <typename T>
-    BoardWriter(void) : _data(new VectorWrapper<T>()), _connected(true) {}
-
-    BoardWriter(BoardWriter* src)
-        : _data(src->_data->clone_empty()), _connected(true) {}
+    boost::scoped_ptr<flame::mem::VectorWrapperBase> _data;
+    
+    BoardWriter* clone_empty(void);
 
     void Disconnect();
 
   private:
     bool _connected;
-}
+
+    // Since we cannot have templated constructors, all instantiation should
+    // be done using the factory function: create<T>()
+    explicit BoardWriter(flame::mem::VectorWrapperBase *vec)
+        : _data(vec), _connected(true) {}
+};
 
 }}  // namespace flame::mb2
 #endif  // MB__BOARD_WRITER_HPP

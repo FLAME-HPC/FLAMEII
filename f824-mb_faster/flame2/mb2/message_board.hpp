@@ -19,20 +19,21 @@ namespace flame { namespace mb2 {
 
 class MessageBoard {
   public:
-    template <typename T>
-    explicit MessageBoard(const std::string& msg_name)
-        : _name(msg_name),
-          _writer_template(new BoardWriter<T>()),
-          _data(new VectorWrapper<T>()) {}
+    template <class T>
+    static MessageBoard* create(const std::string& msg_name) {
+      return new MessageBoard(msg_name,
+                              new flame::mem::VectorWrapper<T>(),
+                              BoardWriter::create<T>());
+    }
 
     void Sync(void);
     void Clear(void);
-    size_t GetCount(void);
+    size_t GetCount(void) const;
 
     BoardWriter::handle GetBoardWriter(void);
     
   private:
-    typedef std::vector<BoardWriter::handle> WriterVector
+    typedef std::vector<BoardWriter::handle> WriterVector;
 
     std::string _name;
     WriterVector _writers;
@@ -40,8 +41,15 @@ class MessageBoard {
     // All writers for this board will be cloned from this one, thus allowing
     // the GetBoardWriter call to be typeless.
     boost::scoped_ptr<BoardWriter> _writer_template;
-    boost::scoped_ptr<VectorWrapperBase> _data;
+    boost::scoped_ptr<flame::mem::VectorWrapperBase> _data;
 
+    // Since we cannot have templated constructors, all instantiation should
+    // be done using the factory function: create<T>()
+    MessageBoard(const std::string& msg_name,
+                 flame::mem::VectorWrapperBase *vec,
+                 BoardWriter *writer)
+        : _name(msg_name), _writer_template(writer), _data(vec) {}
+        
     void _DeleteWriters(void);
     
 };

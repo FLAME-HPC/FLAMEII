@@ -13,16 +13,16 @@ namespace flame { namespace mb2 {
 
 void MessageBoard::Clear(void) {
   _DeleteWriters();
-  _data.clear();
+  _data->clear();
 }
 
 // Number of messages that "has been synched"
-size_t MessageBoard::GetCount(void) {
+size_t MessageBoard::GetCount(void) const {
   return _data->size();
 }
 
 BoardWriter::handle MessageBoard::GetBoardWriter(void) {
-  BoardWriter::handle writer(new BoardWriter(_writer_template->get()));
+  BoardWriter::handle writer(_writer_template->clone_empty());
   _writers.push_back(writer);
   return writer;
 }
@@ -41,14 +41,13 @@ void MessageBoard::Sync(void) {
   _data->reserve(num_messages);
 
   // Copy messages from writers into board
-  WriterVector::iterator iter;
   for (iter = _writers.begin(); iter != _writers.end(); ++iter) {
-    _data->Extend((*iter)->_data);
+    _data->Extend((*iter)->_data.get());
   }
 
   // discard all writers. We don't use _DeleteWriters() as we've already
   // disconnected the writers. All that's left to do is clear the writer vector.
-  _writers->clear();
+  _writers.clear();
 }
 
 void MessageBoard::_DeleteWriters(void) {
@@ -60,7 +59,7 @@ void MessageBoard::_DeleteWriters(void) {
   }
 
   // Clear the writer vector
-  _writers->clear();
+  _writers.clear();
 }
 
 }}  // namespace flame::mb2
