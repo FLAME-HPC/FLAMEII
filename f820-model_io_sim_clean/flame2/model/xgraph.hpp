@@ -118,7 +118,9 @@ class XGraph {
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
+    /*! \brief Ptr to a graph so that graphs can be swapped */
     Graph * graph_;
+    /*! \brief Ptr to vertex task so that mappings can be swapped */
     std::vector<Task *> * vertex2task_;
     EdgeMap * edge2dependency_;
     Task * startTask_;

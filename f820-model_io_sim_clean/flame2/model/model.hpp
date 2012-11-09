@@ -21,7 +21,6 @@ namespace model {
 class Model {
   public:
     explicit Model(std::string model);
-    ~Model();
     void registerAgentFunction(std::string name,
             flame::exe::TaskFunction f_ptr);
     template <typename T>

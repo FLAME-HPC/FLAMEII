@@ -75,7 +75,7 @@ COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
              flame2/compat/C/flame_compat_c.cpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
              $(MB_SRC) $(SIM_SRC) $(COMPAT_SRC) tests/run_tests.cpp \
-             $(MODEL_TEST) $(IO_TEST_POP) $(IO_TEST_MODEL) $(IO_TEST_MAN)
+             $(MODEL_TEST) $(IO_TEST_POP) $(IO_TEST_MODEL) $(IO_TEST_MAN) $(SIM_TEST)
 #             $(MEM_TEST) \
              $(EXE_TEST) \
              $(MB_TEST) \

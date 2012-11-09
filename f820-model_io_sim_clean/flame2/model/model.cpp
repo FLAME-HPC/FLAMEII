@@ -17,6 +17,12 @@
 namespace flame {
 namespace model {
 
+/*!
+ * \brief Constructs Model
+ *
+ * Initialises Model by loading model using path string and
+ * validates the model.
+ */
 Model::Model(std::string path_to_model) {
     // Load model
     flame::io::IOManager::GetInstance().loadModel(path_to_model, &model_);
@@ -24,9 +30,6 @@ Model::Model(std::string path_to_model) {
     // Validate model
     if (model_.validate() != 0) throw flame::exceptions::flame_model_exception(
             "Model could not be validated");
-}
-
-Model::~Model() {
 }
 
 flame::model::XModel * Model::getXModel() {
