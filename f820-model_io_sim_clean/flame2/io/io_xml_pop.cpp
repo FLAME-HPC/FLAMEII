@@ -449,7 +449,8 @@ void IOXMLPop::processStartNode(std::vector<std::string> * tags,
 
 template <class T>
 int IOXMLPop::processTextVariableCast(std::string value,
-        std::vector<std::string> * tags, model::XMachine ** agent) {
+        std::vector<std::string> * tags, model::XMachine ** agent,
+        xmlTextReaderPtr reader) {
     flame::mem::MemoryManager& memoryManager =
                     flame::mem::MemoryManager::GetInstance();
     T typeValue;
@@ -458,6 +459,7 @@ int IOXMLPop::processTextVariableCast(std::string value,
         typeValue = boost::lexical_cast<T>(value);
     // Catch exception
     } catch(const boost::bad_lexical_cast&) {
+        xmlFreeTextReader(reader);
         throw exc::invalid_pop_file(
             std::string("Variable could not be cast to correct type: ").
                 append(value).append(" in ").append(tags->back()));
@@ -472,7 +474,8 @@ int IOXMLPop::processTextVariableCast(std::string value,
 }
 
 int IOXMLPop::processTextVariable(std::string value,
-        std::vector<std::string> * tags, model::XMachine ** agent) {
+        std::vector<std::string> * tags, model::XMachine ** agent,
+        xmlTextReaderPtr reader) {
     int rc;
     /* Get pointer to variable type */
     model::XVariable * var = (*agent)->getVariable(tags->back());
@@ -482,14 +485,15 @@ int IOXMLPop::processTextVariable(std::string value,
          * use appropriate casting function */
         if (var->getType() == "int") {
             rc = processTextVariableCast<int>(
-                    value, tags, agent);
+                    value, tags, agent, reader);
             if (rc != 0) return rc;
         } else if (var->getType() == "double") {
             rc = processTextVariableCast<double>(
-                    value, tags, agent);
+                    value, tags, agent, reader);
             if (rc != 0) return rc;
         }
     } else {
+        xmlFreeTextReader(reader);
         throw exc::invalid_pop_file(
             std::string("Agent variable is not recognised: ").
                 append(tags->back()));
@@ -517,7 +521,7 @@ int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
                 std::string("Agent type is not recognised: ").append(value));
         }
     } else { if (*agent) /* Check if agent exists */
-        rc = processTextVariable(value, tags, agent);
+        rc = processTextVariable(value, tags, agent, reader);
     }
 
     return rc;

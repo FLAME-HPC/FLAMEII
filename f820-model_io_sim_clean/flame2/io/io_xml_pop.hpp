@@ -85,9 +85,9 @@ class IOXMLPop {
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,
-        model::XMachine ** agent);
+        model::XMachine ** agent, xmlTextReaderPtr reader);
     int processTextVariable(std::string value, std::vector<std::string> * tags,
-        model::XMachine ** agent);
+        model::XMachine ** agent, xmlTextReaderPtr reader);
     int processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
         model::XMachine ** agent, model::XModel * model);
