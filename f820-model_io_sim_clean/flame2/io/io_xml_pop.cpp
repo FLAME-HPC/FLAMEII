@@ -433,15 +433,18 @@ void IOXMLPop::validateData(std::string const& data_file,
 }
 
 void IOXMLPop::processStartNode(std::vector<std::string> * tags,
-        std::string name) {
+        std::string name, xmlTextReaderPtr reader) {
     /* If correct tag at correct depth with
      * correct tag name */
     if ((tags->size() == 0 && name == "states") ||
         (tags->size() == 1 &&
         (name == "itno" || name == "environment" || name == "xagent")) ||
         tags->size() == 2) tags->push_back(name);
-    else
-    throw exc::unparseable_file(std::string("Unknown xml tag: ").append(name));
+    else {
+        xmlFreeTextReader(reader);
+        throw exc::unparseable_file(
+                std::string("Unknown xml tag: ").append(name));
+    }
 }
 
 template <class T>
@@ -508,9 +511,11 @@ int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
         /* Check if agent is part of this model */
         (*agent) = model->getAgent(value);
         /* If agent name is unknown */
-        if (!(*agent))
+        if (!(*agent)) {
+            xmlFreeTextReader(reader);
             throw exc::invalid_pop_file(
                 std::string("Agent type is not recognised: ").append(value));
+        }
     } else { if (*agent) /* Check if agent exists */
         rc = processTextVariable(value, tags, agent);
     }
@@ -559,7 +564,7 @@ int IOXMLPop::processNode(xmlTextReaderPtr reader, model::XModel * model,
     /* Handle node */
     switch (xmlTextReaderNodeType(reader)) {
         case 1: /* Start element */
-            processStartNode(tags, name);
+            processStartNode(tags, name, reader);
             break;
         case 3: /* Text */
             if (tags->size() == 3 && tags->at(1) == "xagent")

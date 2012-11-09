@@ -80,7 +80,8 @@ class IOXMLPop {
     int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
         xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
-    void processStartNode(std::vector<std::string> * tags, std::string name);
+    void processStartNode(std::vector<std::string> * tags, std::string name,
+            xmlTextReaderPtr reader);
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,
