@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of BoardWriter class
  */
+#include "flame2/config.hpp"
 #include "board_writer.hpp"
 
 namespace flame { namespace mb2 {

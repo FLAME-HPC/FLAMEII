@@ -43,6 +43,10 @@ run_tests_SOURCES += \
   mb/test_board_proxy.cpp \
   mb/test_board_writer.cpp
 
+# Add tests for "mb2"
+run_tests_SOURCES += \
+  mb2/test_board_writer2.cpp
+  
 # Add tests for "io"
 run_tests_SOURCES += \
   io/test_io_manager.cpp \

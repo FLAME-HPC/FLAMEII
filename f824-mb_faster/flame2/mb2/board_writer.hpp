@@ -32,7 +32,7 @@ class BoardWriter {
     }
     
     template <typename T>
-    void Post(T& msg) {
+    void Post(const T &msg) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
       if (*(_data->GetDataType()) != typeid(T)) {
         throw flame::exceptions::invalid_type("mismatching type");
@@ -40,7 +40,8 @@ class BoardWriter {
 #endif
 #ifdef DEBUG
       if (!IsConnected()) {
-        throw flame::exceptions::logic_error("No longer connected to board");
+        throw flame::exceptions::invalid_operation(
+                                 "No longer connected to board");
       }
 #endif
       std::vector<T> *v = static_cast<std::vector<T>*>(_data->GetVectorPtr());

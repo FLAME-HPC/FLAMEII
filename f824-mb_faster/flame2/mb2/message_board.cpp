@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of MessageBoard class
  */
+#include "flame2/config.hpp"
 #include "message_board.hpp"
 
 namespace flame { namespace mb2 {
@@ -43,6 +44,7 @@ void MessageBoard::Sync(void) {
   // Copy messages from writers into board
   for (iter = _writers.begin(); iter != _writers.end(); ++iter) {
     _data->Extend((*iter)->_data.get());
+    (*iter)->_data->clear();
   }
 
   // discard all writers. We don't use _DeleteWriters() as we've already
