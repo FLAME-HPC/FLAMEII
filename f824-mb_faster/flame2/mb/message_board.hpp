@@ -80,7 +80,8 @@ class MessageBoard : public TypeValidator {
       std::pair<MemoryMap::iterator, bool> ret;
       GenericVector* vec_ptr = new flame::mem::VectorWrapper<T>();
       ret = mem_map_.insert(var_name, vec_ptr);  // takes ownership of obj
-      if (!ret.second) {  // if replacement instead of insertion
+      if (!ret.second) {
+        delete vec_ptr;
         throw flame::exceptions::logic_error("variable already registered");
       }
 

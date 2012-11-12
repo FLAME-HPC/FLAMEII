@@ -51,7 +51,7 @@ size_t BoardWriter::GetCount(void) {
 void BoardWriter::RegisterVar(std::string var_name, GenericVector* vec) {
   std::pair<MemoryMap::iterator, bool> ret;
   ret = mem_map_.insert(var_name, vec);
-  if (!ret.second) {  // if replacement instead of insertion
+  if (!ret.second) {  // var exists
     throw flame::exceptions::logic_error("variable already registered");
   }
 }
