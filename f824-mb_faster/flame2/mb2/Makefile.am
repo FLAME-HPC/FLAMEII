@@ -10,11 +10,16 @@
 
 module_headers = \
   board_writer.hpp \
-  message_board.hpp 
+  message_board.hpp \
+  message_iterator.hpp \
+  message_iterator_backend.hpp \
+  message_iterator_backend_raw.hpp
 
 module_sources = \
   board_writer.cpp \
-  message_board.cpp
+  message_board.cpp \
+  message_iterator.cpp \
+  message_iterator_backend_raw.cpp
 
 # Header install path
 library_includedir = $(pkgincludedir)/mb2
