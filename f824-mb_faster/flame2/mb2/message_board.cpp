@@ -22,10 +22,14 @@ size_t MessageBoard::GetCount(void) const {
   return _data->size();
 }
 
-BoardWriter::handle MessageBoard::GetBoardWriter(void) {
-  BoardWriter::handle writer(_writer_template->clone_empty());
-  _writers.push_back(writer);
-  return writer;
+MessageBoard::writer MessageBoard::GetBoardWriter(void) {
+  MessageBoard::writer w(_writer_template->clone_empty());
+  _writers.push_back(w);
+  return w;
+}
+
+MessageBoard::iterator MessageBoard::GetMessages(void) {
+  return MessageBoard::iterator(MessageIterator::create(_data.get()));
 }
 
 void MessageBoard::Sync(void) {

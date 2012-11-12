@@ -21,7 +21,6 @@ class BoardWriter {
   friend class MessageBoard;
   
   public:
-    typedef boost::shared_ptr<BoardWriter> handle;
 
     size_t GetCount(void) const;
     bool IsConnected(void) const;

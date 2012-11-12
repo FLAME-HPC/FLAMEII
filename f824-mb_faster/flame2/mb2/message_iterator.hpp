@@ -10,6 +10,7 @@
 #ifndef MB__MESSAGE_ITERATOR_HPP_
 #define MB__MESSAGE_ITERATOR_HPP_
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include "flame2/mem/vector_wrapper.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "message_iterator_backend.hpp"
@@ -19,6 +20,8 @@ namespace flame { namespace mb2 {
 
 class MessageIterator {
   public:
+    typedef boost::shared_ptr<MessageIterator> handle;
+    
     bool AtEnd(void) const;
     size_t GetCount(void) const;
     void Rewind(void);
@@ -49,7 +52,7 @@ class MessageIterator {
       if (AtEnd()) {
         throw flame::exceptions::out_of_range("End of iteration");
       }
-      return T(*static_cast<T>(_backend->Get()));
+      return T(*static_cast<T*>(_backend->Get()));
     }
     
   private:

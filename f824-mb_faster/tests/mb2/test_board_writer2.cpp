@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(mb_single_writer) {
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
   // Get a writer
-  mb::BoardWriter::handle writer = board->GetBoardWriter();
+  mb::MessageBoard::writer writer = board->GetBoardWriter();
   BOOST_CHECK(writer->IsConnected());
 
   // Try posting invalid type
@@ -64,9 +64,9 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writer) {
   mb::MessageBoard *board = mb::MessageBoard::create<int>("msg1");
 
   // Get writers
-  mb::BoardWriter::handle writer1 = board->GetBoardWriter();
-  mb::BoardWriter::handle writer2 = board->GetBoardWriter();
-  mb::BoardWriter::handle writer3 = board->GetBoardWriter();
+  mb::MessageBoard::writer writer1 = board->GetBoardWriter();
+  mb::MessageBoard::writer writer2 = board->GetBoardWriter();
+  mb::MessageBoard::writer writer3 = board->GetBoardWriter();
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)0);

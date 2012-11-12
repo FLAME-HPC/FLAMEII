@@ -12,13 +12,18 @@
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include "flame2/mem/vector_wrapper.hpp"
 #include "board_writer.hpp"
+#include "message_iterator.hpp"
 
 namespace flame { namespace mb2 {
 
 class MessageBoard {
   public:
+    typedef boost::shared_ptr<BoardWriter> writer;
+    typedef boost::shared_ptr<MessageIterator> iterator;
+    
     template <class T>
     static MessageBoard* create(const std::string& msg_name) {
       return new MessageBoard(msg_name,
@@ -30,10 +35,11 @@ class MessageBoard {
     void Clear(void);
     size_t GetCount(void) const;
 
-    BoardWriter::handle GetBoardWriter(void);
+    writer GetBoardWriter(void);
+    iterator GetMessages(void);
     
   private:
-    typedef std::vector<BoardWriter::handle> WriterVector;
+    typedef std::vector<writer> WriterVector;
 
     std::string _name;
     WriterVector _writers;
