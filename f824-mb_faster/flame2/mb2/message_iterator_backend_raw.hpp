@@ -38,10 +38,10 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     MessageIteratorBackend* GetMutableVersion(void) const;
     
   private:
-    flame::mem::VectorWrapperBase* _v;
-    size_t _count;
-    size_t _pos;
-    void* _current;
+    flame::mem::VectorWrapperBase* v_;
+    size_t count_;
+    size_t pos_;
+    void* current_;
 };
 
 }}  // namespace flame::mb2

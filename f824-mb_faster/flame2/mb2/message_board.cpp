@@ -14,22 +14,22 @@ namespace flame { namespace mb2 {
 
 void MessageBoard::Clear(void) {
   _DeleteWriters();
-  _data->clear();
+  data_->clear();
 }
 
 // Number of messages that "has been synched"
 size_t MessageBoard::GetCount(void) const {
-  return _data->size();
+  return data_->size();
 }
 
 MessageBoard::writer MessageBoard::GetBoardWriter(void) {
-  MessageBoard::writer w(_writer_template->clone_empty());
-  _writers.push_back(w);
+  MessageBoard::writer w(writer_template_->clone_empty());
+  writers_.push_back(w);
   return w;
 }
 
 MessageBoard::iterator MessageBoard::GetMessages(void) {
-  return MessageBoard::iterator(MessageIterator::create(_data.get()));
+  return MessageBoard::iterator(MessageIterator::create(data_.get()));
 }
 
 void MessageBoard::Sync(void) {
@@ -37,35 +37,35 @@ void MessageBoard::Sync(void) {
   
   // Determine new message total based on messages in writers
   WriterVector::iterator iter;
-  for (iter = _writers.begin(); iter != _writers.end(); ++iter) {
+  for (iter = writers_.begin(); iter != writers_.end(); ++iter) {
     (*iter)->Disconnect();  // no more writing into this board
     num_messages += (*iter)->GetCount();
   }
 
   // Resize memory to fit in all messages from writers
-  _data->reserve(num_messages);
+  data_->reserve(num_messages);
 
   // Copy messages from writers into board
-  for (iter = _writers.begin(); iter != _writers.end(); ++iter) {
-    _data->Extend((*iter)->_data.get());
-    (*iter)->_data->clear();
+  for (iter = writers_.begin(); iter != writers_.end(); ++iter) {
+    data_->Extend((*iter)->data_.get());
+    (*iter)->data_->clear();
   }
 
   // discard all writers. We don't use _DeleteWriters() as we've already
   // disconnected the writers. All that's left to do is clear the writer vector.
-  _writers.clear();
+  writers_.clear();
 }
 
 void MessageBoard::_DeleteWriters(void) {
   // First, disconnect all writers so clients holding a handle to the writer
   // can no longer post to the board
   WriterVector::iterator iter;
-  for (iter = _writers.begin(); iter != _writers.end(); ++iter) {
+  for (iter = writers_.begin(); iter != writers_.end(); ++iter) {
     (*iter)->Disconnect();
   }
 
   // Clear the writer vector
-  _writers.clear();
+  writers_.clear();
 }
 
 }}  // namespace flame::mb2

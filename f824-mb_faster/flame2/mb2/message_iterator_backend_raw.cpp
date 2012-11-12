@@ -16,33 +16,33 @@
 namespace flame { namespace mb2 {
   MessageIteratorBackendRaw::MessageIteratorBackendRaw(
       flame::mem::VectorWrapperBase* vw_ptr)
-          : _v(vw_ptr),
-            _count(vw_ptr->size()),
-            _pos(0),
-            _current(vw_ptr->GetRawPtr()) {}
+          : v_(vw_ptr),
+            count_(vw_ptr->size()),
+            pos_(0),
+            current_(vw_ptr->GetRawPtr()) {}
 
   MessageIteratorBackendRaw::~MessageIteratorBackendRaw(void) {}
 
   bool MessageIteratorBackendRaw::AtEnd(void) const {
-    return (_pos == _count);
+    return (pos_ == count_);
   }
 
   size_t MessageIteratorBackendRaw::GetCount(void) const {
-    return _count;
+    return count_;
   }
 
   void MessageIteratorBackendRaw::Rewind(void) {
-    _pos = 0;
-    _current = _v->GetRawPtr();
+    pos_ = 0;
+    current_ = v_->GetRawPtr();
   }
 
   bool MessageIteratorBackendRaw::Next(void) {
-    if (_pos == _count) {
+    if (pos_ == count_) {
       throw flame::exceptions::out_of_range("End of iteration");
     }
-    _pos++;
-    _current = _v->StepRawPtr(_current);
-    return (_pos != _count);  // return false if end of iter, true otherwise
+    pos_++;
+    current_ = v_->StepRawPtr(current_);
+    return (pos_ != count_);  // return false if end of iter, true otherwise
   }
 
   bool MessageIteratorBackendRaw::Randomise(void) {
@@ -50,7 +50,7 @@ namespace flame { namespace mb2 {
   }
 
   void* MessageIteratorBackendRaw::Get(void) {
-    return _current;
+    return current_;
   }
   
   bool MessageIteratorBackendRaw::IsMutable(void) const {

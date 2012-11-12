@@ -11,6 +11,7 @@
 module_headers = \
   board_writer.hpp \
   message_board.hpp \
+  message_board_manager.hpp \
   message_iterator.hpp \
   message_iterator_backend.hpp \
   message_iterator_backend_raw.hpp

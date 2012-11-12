@@ -24,10 +24,9 @@ namespace flame { namespace mb {
  */
 void MessageBoardManager::RegisterMessage(std::string msg_name) {
   std::pair<BoardMap::iterator, bool> ret;
-  MessageBoard* board = new MessageBoard(msg_name)
+  MessageBoard* board = new MessageBoard(msg_name);
   ret = board_map_.insert(msg_name, board);
   if (!ret.second) {  // key exists
-    delete board;
     throw flame::exceptions::logic_error("Name exists. Prev board replaced");
   }
 }

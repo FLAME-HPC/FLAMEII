@@ -41,20 +41,20 @@ class MessageBoard {
   private:
     typedef std::vector<writer> WriterVector;
 
-    std::string _name;
-    WriterVector _writers;
+    std::string name_;
+    WriterVector writers_;
     // store a reference board writer of the correct type
     // All writers for this board will be cloned from this one, thus allowing
     // the GetBoardWriter call to be typeless.
-    boost::scoped_ptr<BoardWriter> _writer_template;
-    boost::scoped_ptr<flame::mem::VectorWrapperBase> _data;
+    boost::scoped_ptr<BoardWriter> writer_template_;
+    boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
 
     // Since we cannot have templated constructors, all instantiation should
     // be done using the factory function: create<T>()
     MessageBoard(const std::string& msg_name,
                  flame::mem::VectorWrapperBase *vec,
                  BoardWriter *writer)
-        : _name(msg_name), _writer_template(writer), _data(vec) {}
+        : name_(msg_name), writer_template_(writer), data_(vec) {}
         
     void _DeleteWriters(void);
     

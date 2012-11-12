@@ -13,19 +13,19 @@
 namespace flame { namespace mb2 {
 
 size_t BoardWriter::GetCount(void) const {
-  return _data->size();
+  return data_->size();
 }
 
 bool BoardWriter::IsConnected(void) const {
-  return _connected;
+  return connected_;
 }
 
 void BoardWriter::Disconnect(void) {
-  _connected = false;
+  connected_ = false;
 }
 
 BoardWriter* BoardWriter::clone_empty(void) {
-  return new BoardWriter(_data.get()->clone_empty());
+  return new BoardWriter(data_.get()->clone_empty());
 }
 
 }}  // namespace flame::mb2

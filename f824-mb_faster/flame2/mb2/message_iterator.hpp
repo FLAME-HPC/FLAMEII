@@ -45,20 +45,20 @@ class MessageIterator {
     template <typename T>
     T Get(void) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
-      if (*(_backend->GetDataType()) != typeid(T)) {
+      if (*(backend_->GetDataType()) != typeid(T)) {
         throw flame::exceptions::invalid_type("mismatching type");
       }
 #endif
       if (AtEnd()) {
         throw flame::exceptions::out_of_range("End of iteration");
       }
-      return T(*static_cast<T*>(_backend->Get()));
+      return T(*static_cast<T*>(backend_->Get()));
     }
     
   private:
-    boost::scoped_ptr<MessageIteratorBackend> _backend;
+    boost::scoped_ptr<MessageIteratorBackend> backend_;
 
-    MessageIterator(MessageIteratorBackend *b) : _backend(b) {}
+    MessageIterator(MessageIteratorBackend *b) : backend_(b) {}
     
     void _RequireMutableBackend(void);
 };

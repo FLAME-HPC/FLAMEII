@@ -33,7 +33,7 @@ class BoardWriter {
     template <typename T>
     void Post(const T &msg) {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
-      if (*(_data->GetDataType()) != typeid(T)) {
+      if (*(data_->GetDataType()) != typeid(T)) {
         throw flame::exceptions::invalid_type("mismatching type");
       }
 #endif
@@ -43,24 +43,24 @@ class BoardWriter {
                                  "No longer connected to board");
       }
 #endif
-      std::vector<T> *v = static_cast<std::vector<T>*>(_data->GetVectorPtr());
+      std::vector<T> *v = static_cast<std::vector<T>*>(data_->GetVectorPtr());
       v->push_back(msg);
     }
     
   protected:
-    boost::scoped_ptr<flame::mem::VectorWrapperBase> _data;
+    boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
     
     BoardWriter* clone_empty(void);
 
     void Disconnect();
 
   private:
-    bool _connected;
+    bool connected_;
 
     // Since we cannot have templated constructors, all instantiation should
     // be done using the factory function: create<T>()
     explicit BoardWriter(flame::mem::VectorWrapperBase *vec)
-        : _data(vec), _connected(true) {}
+        : data_(vec), connected_(true) {}
 };
 
 }}  // namespace flame::mb2

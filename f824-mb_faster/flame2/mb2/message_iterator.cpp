@@ -14,31 +14,31 @@
 namespace flame { namespace mb2 {
 
 bool MessageIterator::AtEnd(void) const {
-  return _backend->AtEnd();
+  return backend_->AtEnd();
 }
 
 size_t MessageIterator::GetCount(void) const {
-  return _backend->GetCount();
+  return backend_->GetCount();
 }
 
 void MessageIterator::Rewind(void) {
-  _backend->Rewind();
+  backend_->Rewind();
 }
 
 bool MessageIterator::Next(void) {
-  return _backend->Next();
+  return backend_->Next();
 }
 
 void MessageIterator::Randomise(void) {
   _RequireMutableBackend(); 
-  _backend->Randomise();
+  backend_->Randomise();
 }
 
 
 void MessageIterator::_RequireMutableBackend(void) {
-  if (_backend->IsMutable()) return;
-  boost::scoped_ptr<MessageIteratorBackend> b(_backend->GetMutableVersion());
-  _backend.swap(b);
+  if (backend_->IsMutable()) return;
+  boost::scoped_ptr<MessageIteratorBackend> b(backend_->GetMutableVersion());
+  backend_.swap(b);
 }
 
 }}  // namespace::mb2

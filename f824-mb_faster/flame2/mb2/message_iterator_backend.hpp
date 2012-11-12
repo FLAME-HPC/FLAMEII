@@ -18,7 +18,7 @@ class MessageIteratorBackend {
     template <typename BackendType>
     static MessageIteratorBackend* create(flame::mem::VectorWrapperBase* vw_ptr) {
       BackendType *b = new BackendType(vw_ptr);
-      b->_data_type = vw_ptr->GetDataType();
+      b->data_type_ = vw_ptr->GetDataType();
       return b;
     }
     
@@ -34,11 +34,11 @@ class MessageIteratorBackend {
     virtual MessageIteratorBackend* GetMutableVersion(void) const = 0;
     
     const std::type_info* GetDataType() const {
-      return _data_type;
+      return data_type_;
     } 
     
   private:
-    const std::type_info *_data_type;
+    const std::type_info *data_type_;
 };
 
 }}  // namespace flame::mb2
