@@ -10,7 +10,6 @@
 #ifndef MB__MESSAGE_BOARD_MANAGER_HPP_
 #define MB__MESSAGE_BOARD_MANAGER_HPP_
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/thread/mutex.hpp>
 #include "message_board.hpp"
 
 namespace flame { namespace mb2 {
@@ -69,7 +68,6 @@ class MessageBoardManager {
   private:
     typedef boost::ptr_map<std::string, MessageBoard> board_map;
 
-    boost::mutex mutex_;
     board_map map_;
     
     //! This is a singleton class. Disable manual instantiation

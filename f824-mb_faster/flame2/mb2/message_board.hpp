@@ -13,6 +13,7 @@
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 #include "flame2/mem/vector_wrapper.hpp"
 #include "board_writer.hpp"
 #include "message_iterator.hpp"
@@ -48,6 +49,7 @@ class MessageBoard {
     // the GetBoardWriter call to be typeless.
     boost::scoped_ptr<BoardWriter> writer_template_;
     boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
+    boost::mutex mutex_;
 
     // Since we cannot have templated constructors, all instantiation should
     // be done using the factory function: create<T>()

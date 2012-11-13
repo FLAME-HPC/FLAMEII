@@ -23,6 +23,7 @@ size_t MessageBoard::GetCount(void) const {
 }
 
 MessageBoard::writer MessageBoard::GetBoardWriter(void) {
+  boost::lock_guard<boost::mutex> lock(mutex_);
   MessageBoard::writer w(writer_template_->clone_empty());
   writers_.push_back(w);
   return w;
