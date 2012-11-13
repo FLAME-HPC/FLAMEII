@@ -46,6 +46,7 @@ run_tests_SOURCES += \
 # Add tests for "mb2"
 run_tests_SOURCES += \
   mb2/test_board_writer2.cpp \
+  mb2/test_board_manager2.cpp \
   mb2/test_message_iterator.cpp \
   mb2/test_board_client.cpp
   

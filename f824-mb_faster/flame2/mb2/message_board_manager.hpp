@@ -29,7 +29,6 @@ class MessageBoardManager {
       MessageBoard *board = MessageBoard::create<T>(msg_name);
       ret = map_.insert(msg_name, board);
       if (!ret.second) {
-        delete board;
         throw flame::exceptions::logic_error("Message with that name exists");
       }
     }
