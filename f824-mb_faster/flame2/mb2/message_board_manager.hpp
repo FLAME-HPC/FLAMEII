@@ -25,7 +25,7 @@ class MessageBoardManager {
 
     template <typename T>
     void RegisterMessage(std::string msg_name) {
-      std::pair<MessageBoard::iterator, bool> ret;
+      std::pair<board_map::iterator, bool> ret;
       MessageBoard *board = MessageBoard::create<T>(msg_name);
       ret = map_.insert(msg_name, board);
       if (!ret.second) {

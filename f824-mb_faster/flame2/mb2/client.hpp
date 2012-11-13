@@ -17,6 +17,7 @@
 #ifndef MB__CLIENT_HPP_
 #define MB__CLIENT_HPP_
 #include <string>
+#include <set>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/flat_map.hpp>
 #include "message_board.hpp"
@@ -29,7 +30,7 @@ namespace flame { namespace mb2 {
 //  * All insertion done before any lookups, and only at the init phase
 //  * It is possible to engineer a usage where insertion is in-order
 //  * Lookup performance more important than insertion
-typedef boost::container::flat_set<std::string> acl_set_type;
+typedef std::set<std::string> acl_set_type;
 typedef boost::container::flat_map<std::string,
                                    MessageBoard::writer> writer_map_type;
 

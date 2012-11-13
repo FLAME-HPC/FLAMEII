@@ -11,6 +11,7 @@
 #define MB__PROXY_HPP_
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include "message_board_manager.hpp"
 #include "client.hpp"
 
 namespace flame { namespace mb2 {
@@ -33,7 +34,7 @@ class Proxy {
       return client(new Client(acl_read_, acl_post_));
     }
     
-    inline AllowRead(const std::string& msg_name) {
+    inline void AllowRead(const std::string& msg_name) {
 #ifndef NDEBUG
       // perform this check only in debug mode. This routine is never called by
       // end users so unless there's a bug in the framework the test shouldn't
@@ -47,7 +48,7 @@ class Proxy {
       acl_read_.insert(msg_name);
     }
 
-    inline AllowPost(const std::string& msg_name) {
+    inline void AllowPost(const std::string& msg_name) {
 #ifndef NDEBUG
       // perform this check only in debug mode. This routine is never called by
       // end users so unless there's a bug in the framework the test shouldn't
@@ -60,6 +61,14 @@ class Proxy {
 #endif
       acl_post_.insert(msg_name);
     }
+
+    // We need this because we use flat_set as a class member.
+    // See: http://bit.ly/SZg7dZ
+    Proxy& operator=(const Proxy& source) {
+      acl_read_ = source.acl_read_;
+      acl_post_ = source.acl_post_;
+      return *this;
+    }
     
   private:
     // acl_set_type defined in client.hpp
@@ -68,13 +77,14 @@ class Proxy {
     acl_set_type acl_post_;
 
     inline bool _can_read(const std::string& msg_name) {
-      return (acl_read_.find(msg_name) != acl_read_.end())
+      return (acl_read_.find(msg_name) != acl_read_.end());
     }
 
     inline bool _can_post(const std::string& msg_name) {
-      return (acl_post_.find(msg_name) != acl_post_.end())
+      return (acl_post_.find(msg_name) != acl_post_.end());
     }
 };
+
 
 }}  // namespace flame::mb2
 #endif  // MB__PROXY_HPP_
