@@ -18,6 +18,7 @@
  */
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_
+#include "flame2/exceptions/all.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 #include "message_iterator_backend.hpp"
 
@@ -25,17 +26,49 @@ namespace flame { namespace mb2 {
 
 class MessageIteratorBackendRaw : public MessageIteratorBackend {
   public:
-    MessageIteratorBackendRaw(flame::mem::VectorWrapperBase* vw_ptr);
-    ~MessageIteratorBackendRaw(void);
-    bool AtEnd(void) const;
-    size_t GetCount(void) const;
-    void Rewind(void);
-    bool Next(void);
-    bool Randomise(void);
-    void* Get(void);
-
-    bool IsMutable(void) const;
-    MessageIteratorBackend* GetMutableVersion(void) const;
+    MessageIteratorBackendRaw(flame::mem::VectorWrapperBase* vw_ptr)
+        : v_(vw_ptr), count_(vw_ptr->size()), pos_(0),
+          current_(vw_ptr->GetRawPtr()) {}
+          
+    ~MessageIteratorBackendRaw(void) {}
+    
+    inline bool AtEnd(void) const {
+      return (pos_ == count_);
+    }
+    
+    inline size_t GetCount(void) const {
+      return count_;
+    }
+    
+    inline void Rewind(void) {
+      pos_ = 0;
+      current_ = v_->GetRawPtr();
+    }
+    
+    inline bool Next(void) {
+      if (pos_ == count_) {
+        throw flame::exceptions::out_of_range("End of iteration");
+      }
+      pos_++;
+      current_ = v_->StepRawPtr(current_);
+      return (pos_ != count_);  // return false if end of iter, true otherwise
+    }
+    
+    inline bool Randomise(void) {
+      throw flame::exceptions::logic_error("Raw backend cannot be randomised");
+    }
+    
+    inline void* Get(void) {
+      return current_;
+    }
+    
+    inline bool IsMutable(void) const {
+      return false;
+    }
+    
+    inline MessageIteratorBackend* GetMutableVersion(void) const {
+      throw flame::exceptions::not_implemented("not yet implemented");
+    }
     
   private:
     flame::mem::VectorWrapperBase* v_;

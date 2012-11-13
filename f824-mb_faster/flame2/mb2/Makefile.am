@@ -19,8 +19,7 @@ module_headers = \
 module_sources = \
   board_writer.cpp \
   message_board.cpp \
-  message_iterator.cpp \
-  message_iterator_backend_raw.cpp
+  message_iterator.cpp
 
 # Header install path
 library_includedir = $(pkgincludedir)/mb2
