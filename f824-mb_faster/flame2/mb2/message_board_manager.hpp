@@ -27,7 +27,7 @@ class MessageBoardManager {
     void RegisterMessage(std::string msg_name) {
       std::pair<MessageBoard::iterator, bool> ret;
       MessageBoard *board = MessageBoard::create<T>(msg_name);
-      ret = board_map_.insert(msg_name, board);
+      ret = map_.insert(msg_name, board);
       if (!ret.second) {
         delete board;
         throw flame::exceptions::logic_error("Message with that name exists");
@@ -50,7 +50,7 @@ class MessageBoardManager {
       _GetMessageBoard(msg_name).Sync();
     }
     
-    inline size_t GetCount(const std::string& msg_name) const {
+    inline size_t GetCount(const std::string& msg_name) {
       return _GetMessageBoard(msg_name).GetCount();
     }
     

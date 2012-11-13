@@ -10,14 +10,17 @@
 
 module_headers = \
   board_writer.hpp \
+  client.hpp \
   message_board.hpp \
   message_board_manager.hpp \
   message_iterator.hpp \
   message_iterator_backend.hpp \
-  message_iterator_backend_raw.hpp
+  message_iterator_backend_raw.hpp \
+  proxy.hpp
 
 module_sources = \
   board_writer.cpp \
+  client.cpp \
   message_board.cpp \
   message_iterator.cpp
 
