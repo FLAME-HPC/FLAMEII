@@ -15,7 +15,7 @@
 #include "flame2/exceptions/all.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
   
 class BoardWriter {
   friend class MessageBoard;
@@ -63,5 +63,5 @@ class BoardWriter {
         : data_(vec), connected_(true) {}
 };
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 #endif  // MB__BOARD_WRITER_HPP

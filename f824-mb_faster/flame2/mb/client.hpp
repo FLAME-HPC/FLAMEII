@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/client.hpp
+ * \file flame2/mb/client.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -22,7 +22,7 @@
 #include <boost/container/flat_map.hpp>
 #include "message_board.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 // Use flat_set/flat_map instead of set/map. This should yield better
 // performance in our case where:
@@ -48,5 +48,5 @@ class Client {
     acl_set_type acl_read_;
 };
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 #endif  // MB__CLIENT_HPP_

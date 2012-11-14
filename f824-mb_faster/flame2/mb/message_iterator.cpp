@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/message_iterator.hpp
+ * \file flame2/mb/message_iterator.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #include "flame2/config.hpp"
 #include "message_iterator.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 bool MessageIterator::AtEnd(void) const {
   return backend_->AtEnd();
@@ -41,4 +41,4 @@ void MessageIterator::_RequireMutableBackend(void) {
   backend_.swap(b);
 }
 
-}}  // namespace::mb2
+}}  // namespace::mb

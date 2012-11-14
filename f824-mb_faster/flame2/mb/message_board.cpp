@@ -10,7 +10,7 @@
 #include "flame2/config.hpp"
 #include "message_board.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 void MessageBoard::Clear(void) {
   _DeleteWriters();
@@ -69,4 +69,4 @@ void MessageBoard::_DeleteWriters(void) {
   writers_.clear();
 }
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb

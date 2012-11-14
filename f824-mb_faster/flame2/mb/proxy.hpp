@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/proxy.cpp
+ * \file flame2/mb/proxy.cpp
  * \author Shawn Chin
  * \date October 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -14,7 +14,7 @@
 #include "message_board_manager.hpp"
 #include "client.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 /*!
  * \brief Proxy object to produce Clients that can access message board
@@ -86,5 +86,5 @@ class Proxy {
 };
 
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 #endif  // MB__PROXY_HPP_

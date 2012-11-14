@@ -10,7 +10,7 @@
 #include "flame2/config.hpp"
 #include "board_writer.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 size_t BoardWriter::GetCount(void) const {
   return data_->size();
@@ -28,4 +28,4 @@ BoardWriter* BoardWriter::clone_empty(void) {
   return new BoardWriter(data_.get()->clone_empty());
 }
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb

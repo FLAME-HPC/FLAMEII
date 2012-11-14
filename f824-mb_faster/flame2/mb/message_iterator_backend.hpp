@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/message_iterator_backend.hpp
+ * \file flame2/mb/message_iterator_backend.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -11,7 +11,7 @@
 #define MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #include "flame2/mem/vector_wrapper.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 class MessageIteratorBackend {
   public:
@@ -41,6 +41,6 @@ class MessageIteratorBackend {
     const std::type_info *data_type_;
 };
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 
 #endif  // MB__MESSAGE_ITERATOR_BACKEND_HPP_

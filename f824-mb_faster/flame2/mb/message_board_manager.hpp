@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/message_board_manager.hpp
+ * \file flame2/mb/message_board_manager.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,7 +12,7 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include "message_board.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 class MessageBoardManager {
   public:

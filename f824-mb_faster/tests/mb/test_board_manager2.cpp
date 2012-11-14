@@ -9,13 +9,13 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include "flame2/mb2/message_board_manager.hpp"
-#include "flame2/mb2/message_board.hpp"
+#include "flame2/mb/message_board_manager.hpp"
+#include "flame2/mb/message_board.hpp"
 
 BOOST_AUTO_TEST_SUITE(MBModule)
 
 namespace e = flame::exceptions;
-namespace mb = flame::mb2;
+namespace mb = flame::mb;
 
 BOOST_AUTO_TEST_CASE(mb2_initialise_and_test_singleton) {
   mb::MessageBoardManager& mgr1 = mb::MessageBoardManager::GetInstance();

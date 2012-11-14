@@ -22,7 +22,7 @@
 #include "flame2/mem/vector_wrapper.hpp"
 #include "message_iterator_backend.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 class MessageIteratorBackendRaw : public MessageIteratorBackend {
   public:
@@ -77,6 +77,6 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     void* current_;
 };
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 
 #endif  // MB__MESSAGE_ITERATOR_BACKEND_RAW_HPP_

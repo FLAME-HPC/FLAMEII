@@ -18,7 +18,7 @@
 #include "board_writer.hpp"
 #include "message_iterator.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 class MessageBoard {
   public:
@@ -62,5 +62,5 @@ class MessageBoard {
     
 };
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
 #endif  // MB__MESSAGE_BOARD_HPP_

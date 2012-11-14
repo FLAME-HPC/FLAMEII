@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb2/client.hpp
+ * \file flame2/mb/client.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -13,7 +13,7 @@
 #include "message_board_manager.hpp"
 #include "client.hpp"
 
-namespace flame { namespace mb2 {
+namespace flame { namespace mb {
 
 Client::Client(acl_set_type acl_read, acl_set_type acl_post)
     : acl_read_(acl_read) {
@@ -46,4 +46,4 @@ MessageBoard::iterator Client::GetMessages(const std::string& msg_name) {
   return MessageBoardManager::GetInstance().GetMessages(msg_name);
 }
 
-}}  // namespace flame::mb2
+}}  // namespace flame::mb
