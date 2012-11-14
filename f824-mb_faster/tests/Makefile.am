@@ -36,19 +36,12 @@ run_tests_SOURCES += \
 #  exe/test_task_manager.cpp \
 #  exe/test_task_splitter.cpp
 
-# Add tests for "mb"
-#run_tests_SOURCES += \
-#  mb/test_board_iteration.cpp \
-#  mb/test_board_manager.cpp \
-#  mb/test_board_proxy.cpp \
-#  mb/test_board_writer.cpp
-
 # Add tests for "mb2"
 run_tests_SOURCES += \
-  mb2/test_board_writer2.cpp \
-  mb2/test_board_manager2.cpp \
-  mb2/test_message_iterator.cpp \
-  mb2/test_board_client.cpp
+  mb/test_board_writer2.cpp \
+  mb/test_board_manager2.cpp \
+  mb/test_message_iterator.cpp \
+  mb/test_board_client.cpp
   
 # Add tests for "io"
 #run_tests_SOURCES += \
