@@ -329,7 +329,7 @@ flame2/exe/Makefile
 flame2/mem/Makefile
 flame2/sim/Makefile
 flame2/model/Makefile
-flame2/api/cxx/Makefile
+flame2/api/Makefile
 flame2/exceptions/Makefile
 ])
 

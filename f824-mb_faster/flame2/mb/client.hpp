@@ -39,9 +39,9 @@ class Client {
     Client(acl_set_type acl_read, acl_set_type acl_post);
     
     MessageBoard::writer GetBoardWriter(const std::string& msg_name);
-    // TODO(lsc): GetBoardWriter(msg_name, query);  // when filtering enabled
-
+    
     MessageBoard::iterator GetMessages(const std::string& msg_name);
+    // TODO(lsc): GetMessages(msg_name, query);  // when filtering enabled
     
   private:
     writer_map_type writers_;

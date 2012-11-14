@@ -9,19 +9,12 @@
  */
 #ifndef FLAME2__API__CXX__FLAME2_HPP_
 #define FLAME2__API__CXX__FLAME2_HPP_
-#include "flame2/mb/message_board.hpp"
+#include "agent_api.hpp"
 
 #define FLAME_AGENT_ALIVE 0
 #define FLAME_AGENT_DEAD  1
 
 namespace flame2 { namespace api {
-
-// Expose flame::mb::MessageBoard::iterator as flame::api::MessageIterator
-namespace internal {
-  using flame::mb::MessageBoard;
-  typedef MessageBoard::iterator  MessageIterator;
-}
-using internal::MessageIterator;
 
 }}  // namespace flame2::api
 

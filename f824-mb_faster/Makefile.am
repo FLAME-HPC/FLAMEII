@@ -16,7 +16,7 @@ SUBDIRS = \
   flame2/mb \
   flame2/mem \
   flame2/exe \
-  flame2/api/cxx \
+  flame2/api \
   flame2/exceptions \
   utils
 #  flame2/model
@@ -38,7 +38,7 @@ LIBADD_LIST = \
   flame2/mb/lib_flame_mb  \
   flame2/exe/lib_flame_exe \
   flame2/mem/lib_flame_mem \
-  flame2/api/cxx/lib_flame_api_cxx
+  flame2/api/lib_flame_api
 
 #  flame2/io/lib_flame_io
 #  flame2/model/lib_flame_model
@@ -67,7 +67,7 @@ libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la)
 endif
 
 # API headers
-include_HEADERS = flame2/api/cxx/flame2.hpp
+include_HEADERS = flame2/api/flame2.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \

@@ -18,7 +18,7 @@
 
 namespace flame { namespace exe {
 
-typedef boost::function<int (void*, void*)> TaskFunction;
+typedef boost::function<int (void*)> TaskFunction;
 
 class TaskSplitter;  // forward declaration
 typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;
