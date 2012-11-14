@@ -51,8 +51,8 @@ class AgentAPI {
     }
     
   private:
-    MBClient mb_;
     MemIterPtr mem_;
+    MBClient mb_;
 };
 
 

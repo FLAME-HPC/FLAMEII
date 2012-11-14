@@ -11,6 +11,7 @@
 #include <vector>
 #include <ostream>
 #include <boost/test/unit_test.hpp>
+#include "flame2/api/flame2.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 #include "flame2/exe/task_manager.hpp"
@@ -38,7 +39,7 @@ inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
   return os;
 }
 
-FLAME_AGENT_FUNC(func_post_message) {
+FLAME_AGENT_FUNCTION(func_post_message) {
   location_message msg;
   msg.x = flame_mem_get_double("x");
   msg.y = flame_mem_get_double("y");
@@ -49,7 +50,7 @@ FLAME_AGENT_FUNC(func_post_message) {
   return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(func_read_message) {
+FLAME_AGENT_FUNCTION(func_read_message) {
   int checksum = 0;
   flame_msg_iterator iter;
   location_message msg;

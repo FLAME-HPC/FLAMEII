@@ -16,7 +16,7 @@
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
 #include "flame2/exe/scheduler.hpp"
-#include "flame2/compat/C/flame2.h"
+#include "flame2/api/flame2.hpp"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
@@ -25,30 +25,30 @@ namespace mem = flame::mem;
 
 const int AGENT_COUNT = 5000;
 
-FLAME_AGENT_FUNC(func_Y_10X) {
-  int x = flame_mem_get_int("x_int");
-  flame_mem_set_double("y_dbl", (x * 10.0));
+FLAME_AGENT_FUNCTION(func_Y_10X) {
+  int x = FLAME->MemoryGet<int>("x_int");
+  FLAME->MemorySet<double>("y_dbl", (x * 10.0));
   return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(func_Z_Xp1) {
-  int x = flame_mem_get_int("x_int");
-  flame_mem_set_double("z_dbl", (x + 1.0));
+FLAME_AGENT_FUNCTION(func_Z_Xp1) {
+  int x = FLAME->MemoryGet<int>("x_int");
+  FLAME->MemorySet<double>("z_dbl", (x + 1.0));
   return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(func_Y_XpY) {
-  int x = flame_mem_get_int("x_int");
-  double y = flame_mem_get_double("y_dbl");
-  flame_mem_set_double("y_dbl", (x + y));
+FLAME_AGENT_FUNCTION(func_Y_XpY) {
+  int x = FLAME->MemoryGet<int>("x_int");
+  double y = FLAME->MemoryGet<double>("y_dbl");
+  FLAME->MemorySet<double>("y_dbl", (x + y));
   return FLAME_AGENT_ALIVE;
 }
 
 
-FLAME_AGENT_FUNC(func_X_YpZ) {
-  double y = flame_mem_get_double("y_dbl");
-  double z = flame_mem_get_double("z_dbl");
-  flame_mem_set_int("x_int", static_cast<int>(y+z));
+FLAME_AGENT_FUNCTION(func_X_YpZ) {
+  double y = FLAME->MemoryGet<double>("y_dbl");
+  double z = FLAME->MemoryGet<double>("z_dbl");
+  FLAME->MemorySet<int>("x_int", static_cast<int>(y+z));
   return FLAME_AGENT_ALIVE;
 }
 

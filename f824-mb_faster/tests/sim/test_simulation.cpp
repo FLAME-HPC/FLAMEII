@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_SUITE(Simulation)
 #define kr 0.1 /* Stiffness variable for repulsion */
 #define distance(x1, y1, x2, y2) (sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)))
 
-FLAME_AGENT_FUNC(outputdata) {
+FLAME_AGENT_FUNCTION(outputdata) {
     // printf("outputdata\n");
 
     my_location_message msg;
@@ -58,7 +58,7 @@ FLAME_AGENT_FUNC(outputdata) {
     return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(inputdata) {
+FLAME_AGENT_FUNCTION(inputdata) {
     flame_msg_iterator iter;
     my_location_message msg;
     double x = flame_mem_get_double("x");
@@ -92,7 +92,7 @@ FLAME_AGENT_FUNC(inputdata) {
     return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(move) {
+FLAME_AGENT_FUNCTION(move) {
     /* update position based on accumulated forces */
     flame_mem_set_double("x", flame_mem_get_double("x") +
             flame_mem_get_double("fx"));

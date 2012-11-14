@@ -14,11 +14,12 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include "flame2/mem/memory_iterator.hpp"
+#include "flame2/api/agent_api.hpp"
 #include "flame2/mb/proxy.hpp"
 
 namespace flame { namespace exe {
 
-typedef boost::function<int (void*)> TaskFunction;
+typedef boost::function<int (flame::api::AgentAPI*)> TaskFunction;
 
 class TaskSplitter;  // forward declaration
 typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;

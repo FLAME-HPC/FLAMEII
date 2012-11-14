@@ -14,6 +14,10 @@
 #define FLAME_AGENT_ALIVE 0
 #define FLAME_AGENT_DEAD  1
 
+// This should match signature of flame::exe::TaskFunction
+// define in flame2/exe/task_interface.hpp
+#define FLAME_AGENT_FUNCTION(funcName) int funcName(flame::api::AgentAPI* FLAME)
+     
 namespace flame2 { namespace api {
 
 }}  // namespace flame2::api
