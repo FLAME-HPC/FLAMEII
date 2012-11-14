@@ -9,6 +9,7 @@
  */
 #ifndef MODEL__XMACHINE_HPP_
 #define MODEL__XMACHINE_HPP_
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -17,21 +18,19 @@
 #include "xfunction.hpp"
 #include "xgraph.hpp"
 
-
 namespace flame { namespace model {
 
 class XMachine {
   public:
     XMachine();
-    ~XMachine();
     void print();
     void setName(std::string name);
     const std::string getName();
     XVariable * addVariable();
-    std::vector<XVariable*> * getVariables();
+    boost::ptr_vector<XVariable> * getVariables();
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
-    std::vector<XFunction*> * getFunctions();
+    boost::ptr_vector<XFunction> * getFunctions();
     bool validateVariableName(std::string name);
     int findStartEndStates();
     std::string getStartState();
@@ -41,13 +40,16 @@ class XMachine {
     int checkCyclicDependencies();
     int checkFunctionConditions();
     int generateDependencyGraph();
-    int registerWithMemoryManager();
+    void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);
+    void setID(int id);
+    int getID();
 
   private:
+    int id_;
     std::string name_;
-    std::vector<XVariable*> variables_;
-    std::vector<XFunction*> functions_;
+    boost::ptr_vector<XVariable> variables_;
+    boost::ptr_vector<XFunction> functions_;
     std::string startState_;
     std::set<std::string> endStates_;
     XGraph functionDependencyGraph_;

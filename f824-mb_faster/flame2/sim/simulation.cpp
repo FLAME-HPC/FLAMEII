@@ -19,31 +19,16 @@ namespace flame { namespace sim {
 
 Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
     flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-    int rc = 0;
 
-    modelLoaded_ = false;
-    popLoaded_ = false;
     model_ = model->getXModel();
 
-    rc += model_->registerWithMemoryManager();
-
-    if (rc == 0) modelLoaded_ = true;
-
-    if (modelLoaded_) {
-        popLoaded_ = true;
-        iomanager.readPop(pop_file, model_, io::IOManager::xml);
-    }
+    model_->registerWithMemoryManager();
+    iomanager.readPop(pop_file, model_, io::IOManager::xml);
 }
 
 void Simulation::start(size_t iterations) {
-    if (popLoaded_) {
-        // Register agents with memory and task manager
-        model_->registerWithTaskManager();
-
-    } else {
-        std::fprintf(stderr,
-                "Error: Cannot start simulation because pop not loaded\n");
-    }
+    // Register agents with memory and task manager
+    model_->registerWithTaskManager();
 
     exe::Scheduler s;
     exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);

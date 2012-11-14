@@ -31,7 +31,11 @@ XVariable::XVariable()
     constantSet_(false),
     constant_(false) {}
 
-
+/*!
+ * \brief Initialises XVariable
+ *
+ * Initialises XVariable using a name.
+ */
 XVariable::XVariable(std::string name)
     : name_(name),
     isDynamicArray_(false),
