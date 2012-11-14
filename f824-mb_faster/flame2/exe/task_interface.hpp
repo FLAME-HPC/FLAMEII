@@ -19,7 +19,8 @@
 
 namespace flame { namespace exe {
 
-typedef boost::function<int (flame::api::AgentAPI*)> TaskFunction;
+typedef boost::function<flame::api::AgentFuncRetType
+                        (flame::api::AgentFuncParamType)> TaskFunction;
 
 class TaskSplitter;  // forward declaration
 typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;

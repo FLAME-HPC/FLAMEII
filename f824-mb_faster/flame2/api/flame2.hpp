@@ -16,10 +16,13 @@
 
 using flame::api::AgentAPI;
 using flame::api::MessageIterator;
+using flame::api::AgentFuncParamType;
+using flame::api::AgentFuncRetType;
 
 // This should match signature of flame::exe::TaskFunction
 // define in flame2/exe/task_interface.hpp
-#define FLAME_AGENT_FUNCTION(funcName) int funcName(AgentAPI* FLAME)
+#define FLAME_AGENT_FUNCTION(funcName) \
+          AgentFuncRetType funcName(AgentFuncParamType FLAME)
 
 
 #endif  // FLAME2__API__CXX__FLAME2_HPP_

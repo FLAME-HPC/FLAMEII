@@ -16,11 +16,17 @@
 #include "flame2/mb/message_iterator.hpp"
 #include "flame2/mem/memory_iterator.hpp"
 #include "flame2/mb/client.hpp"
+
 namespace flame { namespace api {
+  
+class AgentAPI;  // Forward declaration (defined below)
+typedef AgentAPI* AgentFuncParamType;
+typedef int AgentFuncRetType;
 
 typedef boost::shared_ptr<flame::mb::MessageIterator>  MessageIterator;
 typedef boost::shared_ptr<flame::mb::Client> MBClient;
 typedef boost::shared_ptr<flame::mem::MemoryIterator> MemIterPtr;
+
 /*!
  * \brief Proxy object through which agent functions make API calls
  *
