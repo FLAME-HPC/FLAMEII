@@ -1,7 +1,7 @@
 # ============================================================================
 # Desc    : automake for flame2/mb2
 # Author  : Shawn Chin
-# Date    : October 2012
+# Date    : November 2012
 # License : GNU Lesser General Public License
 # Copyright (c) 2012 STFC Rutherford Appleton Laboratory
 # Copyright (c) 2012 University of Sheffield
@@ -25,7 +25,7 @@ module_sources = \
   message_iterator.cpp
 
 # Header install path
-library_includedir = $(pkgincludedir)/mb2
+library_includedir = $(pkgincludedir)/mb
 
 # Install all headers
 library_include_HEADERS = $(module_headers)
@@ -34,20 +34,20 @@ noinst_LTLIBRARIES =
 common_flags = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 
 if BUILD_DEBUG
-noinst_LTLIBRARIES += lib_flame_mb2-dbg.la
-lib_flame_mb2_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
-lib_flame_mb2_dbg_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES += lib_flame_mb-dbg.la
+lib_flame_mb_dbg_la_CPPFLAGS = $(common_flags) @CPPFLAGS_DBG@
+lib_flame_mb_dbg_la_SOURCES  = $(module_headers) $(module_sources)
 endif
 
 if BUILD_PROD
-noinst_LTLIBRARIES += lib_flame_mb2-prod.la
-lib_flame_mb2_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
-lib_flame_mb2_prod_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES += lib_flame_mb-prod.la
+lib_flame_mb_prod_la_CPPFLAGS = $(common_flags) @CPPFLAGS_PROD@
+lib_flame_mb_prod_la_SOURCES  = $(module_headers) $(module_sources)
 endif
 
 if BUILD_TEST
-noinst_LTLIBRARIES += lib_flame_mb2-test.la
-lib_flame_mb2_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
-lib_flame_mb2_test_la_SOURCES  = $(module_headers) $(module_sources)
+noinst_LTLIBRARIES += lib_flame_mb-test.la
+lib_flame_mb_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
+lib_flame_mb_test_la_SOURCES  = $(module_headers) $(module_sources)
 endif
 

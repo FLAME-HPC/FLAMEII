@@ -13,12 +13,12 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Directories to search and build
 SUBDIRS = \
-  flame2/mb2 \
+  flame2/mb \
   flame2/mem \
   flame2/exceptions \
   utils
 #  flame2/io \
-#  flame2/mb2 \
+#  flame2/mb \
 #  flame2/mem \
 #  flame2/exe \
 #  flame2/sim \
@@ -37,11 +37,11 @@ lib_LTLIBRARIES =
 # Note that the build type and file extensions are automatically appended
 # depending on the build type
 LIBADD_LIST = \
-  flame2/mb2/lib_flame_mb2  \
+  flame2/mb/lib_flame_mb  \
   flame2/mem/lib_flame_mem  
 #  flame2/exe/lib_flame_exe \
 #  flame2/io/lib_flame_io  \
-#  flame2/mb2/lib_flame_mb2  \
+#  flame2/mb/lib_flame_mb  \
 #  flame2/mem/lib_flame_mem  \
 #  flame2/sim/lib_flame_sim  \
 #  flame2/model/lib_flame_model \
