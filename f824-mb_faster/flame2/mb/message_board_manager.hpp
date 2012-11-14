@@ -46,7 +46,7 @@ class MessageBoardManager {
     }
     
     inline void Clear(const std::string& msg_name) {
-      _GetMessageBoard(msg_name).Sync();
+      _GetMessageBoard(msg_name).Clear();
     }
     
     inline size_t GetCount(const std::string& msg_name) {

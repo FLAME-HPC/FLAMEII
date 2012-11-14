@@ -56,21 +56,16 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   MessageIterator iter;
   location_message msg;
 
-  iter = flame_msg_get_iterator("location");
-  for (; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
-    flame_msg_iterator_get_message(iter, &msg);
+  for (iter = FLAME->GetMessages("location"); !iter->AtEnd(); iter->Next()) {
+    msg = iter->Get<location_message>();
     checksum += msg.id;
   }
-  flame_msg_iterator_free(iter);
 
-  flame_mem_set_int("checksum", checksum);
+  FLAME->MemorySet<int>("checksum", checksum);
   return FLAME_AGENT_ALIVE;
 }
 
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
-  // C compatibility mode
-  flame::compat::c::CompatibilityManager& compat = \
-         flame::compat::c::CompatibilityManager::GetInstance();
 
   // Define agents and population
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
@@ -96,15 +91,8 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
     cs->push_back(0);
   }
 
-  // Register Message Board
-  // Use compat manager for C API
-  compat.RegisterMessage<location_message>("location");
-
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
-  // --- the following already done by compat.RegisterMessage ---
-  // mb_mgr.RegisterMessage("location");
-  // mb_mgr.RegisterMessageVar<location_message>("location",
-  //                              flame::compat::c::Constants::MESSAGE_VARNAME);
+  mb_mgr.RegisterMessage<location_message>("location");
 
 
   // Register Task
@@ -153,7 +141,6 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mem_mgr.Reset();
   mb_mgr.Reset();
   tm.Reset();
-  compat.Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
