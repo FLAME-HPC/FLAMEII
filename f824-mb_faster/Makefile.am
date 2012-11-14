@@ -16,6 +16,7 @@ SUBDIRS = \
   flame2/mb \
   flame2/mem \
   flame2/exe \
+  flame2/api/cxx \
   flame2/exceptions \
   utils
 #  flame2/model
@@ -36,7 +37,8 @@ lib_LTLIBRARIES =
 LIBADD_LIST = \
   flame2/mb/lib_flame_mb  \
   flame2/exe/lib_flame_exe \
-  flame2/mem/lib_flame_mem
+  flame2/mem/lib_flame_mem \
+  flame2/api/cxx/lib_flame_api_cxx
 
 #  flame2/io/lib_flame_io
 #  flame2/model/lib_flame_model
@@ -64,11 +66,8 @@ libflame2_test_la_LDFLAGSS = @COMMON_LDFLAGS@
 libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la) 
 endif
 
-# C API header
-include_HEADERS = flame2/compat/C/flame2.h
-# flame2 config header
-# Should not need to be installed since it is only used by cpp files.
-# nobase_include_HEADERS = flame2/config.hpp
+# API headers
+include_HEADERS = flame2/api/cxx/flame2.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
