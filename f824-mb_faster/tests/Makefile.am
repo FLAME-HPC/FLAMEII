@@ -30,18 +30,18 @@ run_tests_SOURCES += \
   mem/test_vector_wrapper.cpp
 
 # Add tests for "exe"
-run_tests_SOURCES += \
-  exe/test_execution_module.cpp \
-  exe/test_task_access_to_mb.cpp \
-  exe/test_task_manager.cpp \
-  exe/test_task_splitter.cpp
+#run_tests_SOURCES += \
+#  exe/test_execution_module.cpp \
+#  exe/test_task_access_to_mb.cpp \
+#  exe/test_task_manager.cpp \
+#  exe/test_task_splitter.cpp
 
 # Add tests for "mb"
-run_tests_SOURCES += \
-  mb/test_board_iteration.cpp \
-  mb/test_board_manager.cpp \
-  mb/test_board_proxy.cpp \
-  mb/test_board_writer.cpp
+#run_tests_SOURCES += \
+#  mb/test_board_iteration.cpp \
+#  mb/test_board_manager.cpp \
+#  mb/test_board_proxy.cpp \
+#  mb/test_board_writer.cpp
 
 # Add tests for "mb2"
 run_tests_SOURCES += \
@@ -51,20 +51,20 @@ run_tests_SOURCES += \
   mb2/test_board_client.cpp
   
 # Add tests for "io"
-run_tests_SOURCES += \
-  io/test_io_manager.cpp \
-  io/test_io_xml_model.cpp \
-  io/test_io_xml_pop.cpp
+#run_tests_SOURCES += \
+#  io/test_io_manager.cpp \
+#  io/test_io_xml_model.cpp \
+#  io/test_io_xml_pop.cpp
 
 # Add tests for "model"
-run_tests_SOURCES += \
-  model/test_model_validation.cpp \
-  model/test_xgraph.cpp
+#run_tests_SOURCES += \
+#  model/test_model_validation.cpp \
+#  model/test_xgraph.cpp
 
 # Add tests for "sim"
-run_tests_SOURCES += \
-  sim/test_sim_manager.cpp \
-  sim/test_simulation.cpp
+#run_tests_SOURCES += \
+#  sim/test_sim_manager.cpp \
+#  sim/test_simulation.cpp
 
 else
 run: all
