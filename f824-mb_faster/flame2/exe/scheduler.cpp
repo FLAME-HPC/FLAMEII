@@ -16,7 +16,7 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/foreach.hpp>
 #include "flame2/config.hpp"
-#include "flame2/io/io_manager.hpp"
+// #include "flame2/io/io_manager.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "scheduler.hpp"
@@ -157,8 +157,8 @@ void Scheduler::RunIteration() {
   tm.Finalise();
 
   // inform IO manager of the current iteration count
-  flame::io::IOManager &io = flame::io::IOManager::GetInstance();
-  io.setIteration(iter_count_);
+  //flame::io::IOManager &io = flame::io::IOManager::GetInstance();
+  //io.setIteration(iter_count_);
 
   // sanity check. avoid deadlock if no ready tasks
   if (!tm.IterTaskAvailable()) {

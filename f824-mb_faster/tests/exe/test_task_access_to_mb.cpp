@@ -17,8 +17,6 @@
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
-#include "flame2/compat/C/compatibility_manager.hpp"
-#include "flame2/compat/C/flame2.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 

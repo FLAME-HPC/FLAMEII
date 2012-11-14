@@ -15,17 +15,14 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
   flame2/mb \
   flame2/mem \
+  flame2/exe \
   flame2/exceptions \
   utils
-#  flame2/io \
-#  flame2/mb \
-#  flame2/mem \
-#  flame2/exe \
-#  flame2/sim \
-#  flame2/model \
-#  flame2/compat/C \
-#  flame2/exceptions \
-#  utils
+#  flame2/model
+#  flame2/io
+#  flame2/sim 
+#  flame2/compat/C 
+
 
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests
@@ -38,13 +35,12 @@ lib_LTLIBRARIES =
 # depending on the build type
 LIBADD_LIST = \
   flame2/mb/lib_flame_mb  \
-  flame2/mem/lib_flame_mem  
-#  flame2/exe/lib_flame_exe \
-#  flame2/io/lib_flame_io  \
-#  flame2/mb/lib_flame_mb  \
-#  flame2/mem/lib_flame_mem  \
-#  flame2/sim/lib_flame_sim  \
-#  flame2/model/lib_flame_model \
+  flame2/exe/lib_flame_exe \
+  flame2/mem/lib_flame_mem
+
+#  flame2/io/lib_flame_io
+#  flame2/model/lib_flame_model
+#  flame2/sim/lib_flame_sim  
 #  flame2/compat/C/lib_flame_compat_c
   
 if BUILD_DEBUG

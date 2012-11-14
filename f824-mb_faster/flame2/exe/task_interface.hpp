@@ -26,7 +26,7 @@ typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;
 class Task {
   public:
     typedef size_t id_type;
-    typedef flame::mb::ClientHandle MessageBoardClient;
+    typedef flame::mb::Proxy::client MessageBoardClient;
     typedef boost::shared_ptr<Task> Handle;
 
     //! Identifier for different task types

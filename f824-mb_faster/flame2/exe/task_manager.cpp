@@ -64,6 +64,8 @@ Task& TaskManager::CreateMessageBoardTask(std::string task_name,
 
   return *task_ptr;
 }
+
+/*
 //! \brief Registers and returns a new IO Task
 Task& TaskManager::CreateIOTask(std::string task_name,
                                 std::string agent_name,
@@ -79,6 +81,7 @@ Task& TaskManager::CreateIOTask(std::string task_name,
 
   return *task_ptr;
 }
+*/
 
 /*!
  * \brief Internal method to register a task within the manager
