@@ -21,25 +21,41 @@ namespace flame { namespace mb {
 class MessageIterator {
   public:
     typedef boost::shared_ptr<MessageIterator> handle;
-    
-    bool AtEnd(void) const;
-    size_t GetCount(void) const;
-    void Rewind(void);
-    bool Next(void);
-    void Randomise(void);
-
-    //template <typename BackendType>
-    //static MessageIterator* create(VectorWrapperBase* vw_ptr) {
-    //  return new MessageIterator(
-    //      MessageIteratorBackend::create<BackendType>(vw_ptr)
-    //  );
-    //}
 
     // default to a raw backend
     static MessageIterator* create(flame::mem::VectorWrapperBase* vw_ptr) {
       return new MessageIterator(
         MessageIteratorBackend::create<MessageIteratorBackendRaw>(vw_ptr)
       );
+    }
+
+    //  Factory function for specific backends
+    //template <typename BackendType>
+    //static MessageIterator* create(VectorWrapperBase* vw_ptr) {
+    //  return new MessageIterator(
+    //      MessageIteratorBackend::create<BackendType>(vw_ptr)
+    //  );
+    //}
+    
+    inline bool AtEnd(void) const {
+      return backend_->AtEnd();
+    }
+    
+    inline size_t GetCount(void) const {
+      return backend_->GetCount();
+    }
+    
+    inline void Rewind(void) {
+      backend_->Rewind();
+    }
+    
+    inline bool Next(void) {
+      return backend_->Next();
+    }
+    
+    inline void Randomise(void) {
+      _RequireMutableBackend(); 
+      backend_->Randomise();
     }
     
     template <typename T>
@@ -60,7 +76,11 @@ class MessageIterator {
 
     MessageIterator(MessageIteratorBackend *b) : backend_(b) {}
     
-    void _RequireMutableBackend(void);
+    inline void _RequireMutableBackend(void) {
+      if (backend_->IsMutable()) return;
+      boost::scoped_ptr<MessageIteratorBackend> b(backend_->GetMutableVersion());
+      backend_.swap(b);
+    }
 };
 
 }}  // namespace flame::mb
