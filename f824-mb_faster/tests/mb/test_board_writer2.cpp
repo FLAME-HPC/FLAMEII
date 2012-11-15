@@ -17,9 +17,11 @@ BOOST_AUTO_TEST_SUITE(MB2Module)
 namespace mb = flame::mb;
 namespace e = flame::exceptions;
 
+typedef boost::scoped_ptr<mb::MessageBoard> board_ptr_type;
+
 BOOST_AUTO_TEST_CASE(mb_single_writer) {
   // Create message board of type "int"
-  mb::MessageBoard *board = mb::MessageBoard::create<int>("msg1");
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
 
   // Board starts off empty
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
@@ -61,7 +63,7 @@ BOOST_AUTO_TEST_CASE(mb_single_writer) {
 
 BOOST_AUTO_TEST_CASE(mb_multiple_writer) {
   // Create message board of type "int"
-  mb::MessageBoard *board = mb::MessageBoard::create<int>("msg1");
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
 
   // Get writers
   mb::MessageBoard::writer writer1 = board->GetBoardWriter();

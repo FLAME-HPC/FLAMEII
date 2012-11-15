@@ -9,6 +9,7 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "flame2/exceptions/all.hpp"
 #include "flame2/mb/message_board.hpp"
 
@@ -18,8 +19,10 @@ namespace e = flame::exceptions;
 namespace mb = flame::mb;
 namespace mem = flame::mem;
 
+typedef boost::scoped_ptr<mb::MessageBoard> board_ptr_type;
+
 BOOST_AUTO_TEST_CASE(mb2_iterate_empty) {
-  mb::MessageBoard *board = mb::MessageBoard::create<int>("msg1");
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
   // Check requirements for iterator of empty board
@@ -34,7 +37,7 @@ BOOST_AUTO_TEST_CASE(mb2_iterate_empty) {
 }
 
 BOOST_AUTO_TEST_CASE(mb2_iterate_simple) {
-  mb::MessageBoard *board = mb::MessageBoard::create<int>("msg1");
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
 
   // Post messages and sync
   mb::MessageBoard::writer writer = board->GetBoardWriter();

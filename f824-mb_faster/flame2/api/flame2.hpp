@@ -14,8 +14,8 @@
 #define FLAME_AGENT_ALIVE 0
 #define FLAME_AGENT_DEAD  1
 
+typedef flame::api::MessageIteratorWrapper MessageIterator;
 using flame::api::AgentAPI;
-using flame::api::MessageIterator;
 using flame::api::AgentFuncParamType;
 using flame::api::AgentFuncRetType;
 

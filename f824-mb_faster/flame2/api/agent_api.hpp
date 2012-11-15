@@ -9,13 +9,13 @@
  */
 // TODO(lsc): trap exceptions and print sensible error messages
 
-#ifndef FLAME2__API__CXX__AGENT_API_HPP_
-#define FLAME2__API__CXX__AGENT_API_HPP_
+#ifndef API__AGENT_API_HPP_
+#define API__AGENT_API_HPP_
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "flame2/mb/message_iterator.hpp"
 #include "flame2/mem/memory_iterator.hpp"
 #include "flame2/mb/client.hpp"
+#include "message_iterator_wrapper.hpp"
 
 namespace flame { namespace api {
   
@@ -23,7 +23,6 @@ class AgentAPI;  // Forward declaration (defined below)
 typedef AgentAPI& AgentFuncParamType;
 typedef int AgentFuncRetType;
 
-typedef boost::shared_ptr<flame::mb::MessageIterator>  MessageIterator;
 typedef boost::shared_ptr<flame::mb::Client> MBClient;
 typedef boost::shared_ptr<flame::mem::MemoryIterator> MemIterPtr;
 
@@ -52,8 +51,8 @@ class AgentAPI {
       mb_->GetBoardWriter(msg_name)->Post<T>(msg);
     }
 
-    inline MessageIterator GetMessages(const std::string& msg_name) {
-      return mb_->GetMessages(msg_name);
+    inline MessageIteratorWrapper GetMessages(const std::string& msg_name) {
+      return MessageIteratorWrapper(mb_->GetMessages(msg_name));
     }
     
   private:
@@ -64,4 +63,4 @@ class AgentAPI {
 
 }}  // namespace flame2::api
 
-#endif  // FLAME2__API__CXX__AGENT_API_HPP_
+#endif  // API__AGENT_API_HPP_

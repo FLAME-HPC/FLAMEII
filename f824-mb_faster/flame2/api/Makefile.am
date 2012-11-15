@@ -10,7 +10,8 @@
 
 module_headers = \
   flame2.hpp \
-  agent_api.hpp
+  agent_api.hpp \
+  message_iterator_wrapper.hpp
 
 # Note: flame2.h is installed by the master Makefile.am
 
