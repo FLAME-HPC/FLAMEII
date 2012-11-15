@@ -55,7 +55,8 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   int checksum = 0;
   location_message msg;
   
-  MessageIterator iter = FLAME.GetMessageIterator("location");
+  MessageIterator iter;
+  iter = FLAME.GetMessageIterator("location");
   for (; !iter.AtEnd(); iter.Next()) {
     msg = iter.GetMessage<location_message>();
     checksum += msg.id;
