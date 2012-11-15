@@ -47,7 +47,7 @@ class MessageIteratorWrapper {
     }
     
     template <typename T>
-    T Get(void) {
+    T GetMessage(void) {
       return parent_->Get<T>();
     }
     

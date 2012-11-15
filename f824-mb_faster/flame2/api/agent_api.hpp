@@ -8,6 +8,7 @@
  * \brief Declaration of AgentAPI 
  */
 // TODO(lsc): trap exceptions and print sensible error messages
+// TODO(lsc): Cache message iterators (?)
 
 #ifndef API__AGENT_API_HPP_
 #define API__AGENT_API_HPP_
@@ -37,12 +38,12 @@ class AgentAPI {
     AgentAPI(MemIterPtr mem, MBClient mb) : mem_(mem), mb_(mb) {}
 
     template <typename T>
-    inline T MemoryGet(const std::string& var_name) {
+    inline T GetMem(const std::string& var_name) {
       return mem_->Get<T>(var_name);
     }
 
     template <typename T>
-    inline void MemorySet(const std::string& var_name, T value) {
+    inline void SetMem(const std::string& var_name, T value) {
       mem_->Set<T>(var_name, value);
     }
 
@@ -51,7 +52,8 @@ class AgentAPI {
       mb_->GetBoardWriter(msg_name)->Post<T>(msg);
     }
 
-    inline MessageIteratorWrapper GetMessages(const std::string& msg_name) {
+    inline MessageIteratorWrapper GetMessageIterator(
+          const std::string& msg_name) {
       return MessageIteratorWrapper(mb_->GetMessages(msg_name));
     }
     
