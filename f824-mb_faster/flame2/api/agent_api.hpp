@@ -10,8 +10,8 @@
 // TODO(lsc): trap exceptions and print sensible error messages
 // TODO(lsc): Cache message iterators (?)
 
-#ifndef API__AGENT_API_HPP_
-#define API__AGENT_API_HPP_
+#ifndef FLAME2__API__AGENT_API_HPP_
+#define FLAME2__API__AGENT_API_HPP_
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "flame2/mem/memory_iterator.hpp"
@@ -65,4 +65,4 @@ class AgentAPI {
 
 }}  // namespace flame2::api
 
-#endif  // API__AGENT_API_HPP_
+#endif  // FLAME2__API__AGENT_API_HPP_

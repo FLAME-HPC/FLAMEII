@@ -15,15 +15,20 @@
  * Note that without a default constuctor, users will not be able to use:
  *   MessageIterator iter;  // null iterator
  */
+#ifndef FLAME2__API__MESSAGE_ITERATOR_WRAPPER_HPP_
+#define FLAME2__API__MESSAGE_ITERATOR_WRAPPER_HPP_
 #include <boost/shared_ptr.hpp>
-#include "flame2/exceptions/all.hpp"
 #include "flame2/mem/memory_iterator.hpp"
-#ifndef API__MESSAGE_ITERATOR_WRAPPER_HPP_
-#define API__MESSAGE_ITERATOR_WRAPPER_HPP_
+#include "flame2/exceptions/api.hpp"
 
 #ifndef NDEBUG
   #define ASSERT_PTR_NOT_NULL(ptr) { \
-            if (!ptr) throw flame::exceptions::invalid_operation("eeek"); }
+    if (!ptr) { \
+      throw flame::exceptions::flame_api_exception("MessageIterator", \
+        "Iterators must be assigned using " \
+        "FLAME.GetMessages(\"message_name\") before it can be accessed."); \
+    } \
+  }
 #else
   #define ASSERT_PTR_NOT_NULL(ptr) do {} while(0)
 #endif
@@ -75,4 +80,4 @@ class MessageIteratorWrapper {
 };
 
 }}  // namespace::api
-#endif  // API__MESSAGE_ITERATOR_WRAPPER_HPP_
+#endif  // FLAME2__API__MESSAGE_ITERATOR_WRAPPER_HPP_

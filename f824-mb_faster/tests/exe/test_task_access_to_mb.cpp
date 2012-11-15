@@ -56,7 +56,7 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   location_message msg;
   
   MessageIterator iter;
-  iter = FLAME.GetMessageIterator("location");
+  //iter = FLAME.GetMessageIterator("location");
   for (; !iter.AtEnd(); iter.Next()) {
     msg = iter.GetMessage<location_message>();
     checksum += msg.id;
@@ -65,6 +65,7 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   FLAME.SetMem<int>("checksum", checksum);
   return FLAME_AGENT_ALIVE;
 }
+
 
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
 

@@ -17,6 +17,7 @@ library_include_HEADERS = \
   base.hpp \
   exe.hpp \
   io.hpp \
+  api.hpp \
   mem.hpp
   
 

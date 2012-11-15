@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief C++ API for FLAME2 Models
  */
-#ifndef FLAME2__API__CXX__FLAME2_HPP_
-#define FLAME2__API__CXX__FLAME2_HPP_
+#ifndef FLAME2__API__FLAME2_HPP_
+#define FLAME2__API__FLAME2_HPP_
 #include "agent_api.hpp"
 
 #define FLAME_AGENT_ALIVE 0
@@ -25,4 +25,4 @@ using flame::api::AgentFuncRetType;
           AgentFuncRetType funcName(AgentFuncParamType FLAME)
 
 
-#endif  // FLAME2__API__CXX__FLAME2_HPP_
+#endif  // FLAME2__API__FLAME2_HPP_
