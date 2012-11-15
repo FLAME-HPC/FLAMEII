@@ -26,29 +26,29 @@ namespace mem = flame::mem;
 const int AGENT_COUNT = 5000;
 
 FLAME_AGENT_FUNCTION(func_Y_10X) {
-  int x = FLAME->MemoryGet<int>("x_int");
-  FLAME->MemorySet<double>("y_dbl", (x * 10.0));
+  int x = FLAME.MemoryGet<int>("x_int");
+  FLAME.MemorySet<double>("y_dbl", (x * 10.0));
   return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNCTION(func_Z_Xp1) {
-  int x = FLAME->MemoryGet<int>("x_int");
-  FLAME->MemorySet<double>("z_dbl", (x + 1.0));
+  int x = FLAME.MemoryGet<int>("x_int");
+  FLAME.MemorySet<double>("z_dbl", (x + 1.0));
   return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNCTION(func_Y_XpY) {
-  int x = FLAME->MemoryGet<int>("x_int");
-  double y = FLAME->MemoryGet<double>("y_dbl");
-  FLAME->MemorySet<double>("y_dbl", (x + y));
+  int x = FLAME.MemoryGet<int>("x_int");
+  double y = FLAME.MemoryGet<double>("y_dbl");
+  FLAME.MemorySet<double>("y_dbl", (x + y));
   return FLAME_AGENT_ALIVE;
 }
 
 
 FLAME_AGENT_FUNCTION(func_X_YpZ) {
-  double y = FLAME->MemoryGet<double>("y_dbl");
-  double z = FLAME->MemoryGet<double>("z_dbl");
-  FLAME->MemorySet<int>("x_int", static_cast<int>(y+z));
+  double y = FLAME.MemoryGet<double>("y_dbl");
+  double z = FLAME.MemoryGet<double>("z_dbl");
+  FLAME.MemorySet<int>("x_int", static_cast<int>(y+z));
   return FLAME_AGENT_ALIVE;
 }
 

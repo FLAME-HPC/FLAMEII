@@ -108,7 +108,7 @@ void AgentTask::Run() {
 
   while (!m->AtEnd()) {  // run function for each agent
     //func_(static_cast<void*>(m_ptr.get()), static_cast<void*>(mb_client.get()));
-    func_(&agent);
+    func_(agent);
     // TODO(lsc): check rc == 0 to handle agent death
     m->Step();
   }

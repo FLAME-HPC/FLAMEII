@@ -42,12 +42,12 @@ inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
 FLAME_AGENT_FUNCTION(func_post_message) {
   location_message msg;
   
-  msg.x = FLAME->MemoryGet<double>("x");
-  msg.y = FLAME->MemoryGet<double>("y");
-  msg.z = FLAME->MemoryGet<double>("z");
-  msg.id = FLAME->MemoryGet<int>("id");
+  msg.x = FLAME.MemoryGet<double>("x");
+  msg.y = FLAME.MemoryGet<double>("y");
+  msg.z = FLAME.MemoryGet<double>("z");
+  msg.id = FLAME.MemoryGet<int>("id");
 
-  FLAME->PostMessage<location_message>("location", msg);
+  FLAME.PostMessage<location_message>("location", msg);
   return FLAME_AGENT_ALIVE;
 }
 
@@ -56,12 +56,12 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   MessageIterator iter;
   location_message msg;
 
-  for (iter = FLAME->GetMessages("location"); !iter->AtEnd(); iter->Next()) {
+  for (iter = FLAME.GetMessages("location"); !iter->AtEnd(); iter->Next()) {
     msg = iter->Get<location_message>();
     checksum += msg.id;
   }
 
-  FLAME->MemorySet<int>("checksum", checksum);
+  FLAME.MemorySet<int>("checksum", checksum);
   return FLAME_AGENT_ALIVE;
 }
 

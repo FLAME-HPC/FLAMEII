@@ -20,7 +20,7 @@
 namespace flame { namespace api {
   
 class AgentAPI;  // Forward declaration (defined below)
-typedef AgentAPI* AgentFuncParamType;
+typedef AgentAPI& AgentFuncParamType;
 typedef int AgentFuncRetType;
 
 typedef boost::shared_ptr<flame::mb::MessageIterator>  MessageIterator;
