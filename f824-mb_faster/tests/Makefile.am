@@ -36,12 +36,10 @@ run_tests_SOURCES += \
   exe/test_task_access_to_mb.cpp \
   exe/test_task_splitter.cpp
 
-
-
-# Add tests for "mb2"
+# Add tests for "mb"
 run_tests_SOURCES += \
-  mb/test_board_writer2.cpp \
-  mb/test_board_manager2.cpp \
+  mb/test_board_writer.cpp \
+  mb/test_board_manager.cpp \
   mb/test_message_iterator.cpp \
   mb/test_board_client.cpp
   
@@ -61,6 +59,11 @@ run_tests_SOURCES += \
 #  sim/test_sim_manager.cpp \
 #  sim/test_simulation.cpp
 
+# Add tests for "api"
+run_tests_SOURCES += \
+  api/test_message_iterator_wrapper.cpp
+
+  
 else
 run: all
 all:
