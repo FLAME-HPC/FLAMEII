@@ -21,7 +21,7 @@ namespace mem = flame::mem;
 
 typedef boost::scoped_ptr<mb::MessageBoard> board_ptr_type;
 
-BOOST_AUTO_TEST_CASE(mb2_iterate_empty) {
+BOOST_AUTO_TEST_CASE(mb_iterate_empty) {
   board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(mb2_iterate_empty) {
   BOOST_CHECK_THROW(iter->Get<double>(), e::invalid_type);
 }
 
-BOOST_AUTO_TEST_CASE(mb2_iterate_simple) {
+BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
   board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
 
   // Post messages and sync

@@ -33,6 +33,42 @@ class flame_api_exception : public flame_exception {
     std::string m_;
 
 };
-  
+
+class flame_api_invalid_operation : public flame_api_exception {
+  public:
+    flame_api_invalid_operation(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
+class flame_api_not_implemented : public flame_api_exception {
+  public:
+    flame_api_not_implemented(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
+class flame_api_invalid_type : public flame_api_exception {
+  public:
+    flame_api_invalid_type(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
+class flame_api_out_of_range : public flame_api_exception {
+  public:
+    flame_api_out_of_range(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
+class flame_api_unknown_param : public flame_api_exception {
+  public:
+    flame_api_unknown_param(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
+class flame_api_access_denied : public flame_api_exception {
+  public:
+    flame_api_access_denied(const std::string& func, const std::string& msg)
+      : flame_api_exception(func, msg) {}
+};
+
 }}  // namespace flame::exceptions
 #endif  // EXCEPTIONS__API_HPP_

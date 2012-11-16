@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(MBModule)
 namespace e = flame::exceptions;
 namespace mb = flame::mb;
 
-BOOST_AUTO_TEST_CASE(mb2_initialise_and_test_singleton) {
+BOOST_AUTO_TEST_CASE(mb_initialise_and_test_singleton) {
   mb::MessageBoardManager& mgr1 = mb::MessageBoardManager::GetInstance();
   mgr1.RegisterMessage<int>("TestSingleton");
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(mb2_initialise_and_test_singleton) {
   BOOST_CHECK_THROW(mgr.RegisterMessage<int>("TestSingleton"), e::logic_error);
 }
 
-BOOST_AUTO_TEST_CASE(mb2_manager_lifecycle) {
+BOOST_AUTO_TEST_CASE(mb_manager_lifecycle) {
   mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
   mgr.RegisterMessage<double>("location");
 

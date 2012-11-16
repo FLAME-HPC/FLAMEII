@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(MBModule)
 namespace e = flame::exceptions;
 namespace mb = flame::mb;
 
-BOOST_AUTO_TEST_CASE(mb2_proxy_acl) {
+BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
   // Set up board manager
   mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
   mgr.RegisterMessage<int>("m_int");

@@ -24,12 +24,19 @@ typedef boost::scoped_ptr<mb::MessageBoard> board_ptr_type;
 
 BOOST_AUTO_TEST_CASE(api_test_null_iterator_wrapper) {
   flame::api::MessageIteratorWrapper iterator;
-  BOOST_CHECK_THROW(iterator.AtEnd(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.Next(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.GetCount(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.Rewind(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.Randomise(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_exception);
+  BOOST_CHECK_THROW(iterator.AtEnd(), e::flame_api_invalid_operation);
+  BOOST_CHECK_THROW(iterator.Next(), e::flame_api_invalid_operation);
+  BOOST_CHECK_THROW(iterator.GetCount(), e::flame_api_invalid_operation);
+  BOOST_CHECK_THROW(iterator.Rewind(), e::flame_api_invalid_operation);
+  BOOST_CHECK_THROW(iterator.Randomise(), e::flame_api_invalid_operation);
+  BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_invalid_operation);
+
+  // make sure we can catch the exception using the exception base class
+  try {
+    iterator.Next();
+  } catch(const e::flame_api_exception& E) {
+    // NO OP
+  }
 }
 
 BOOST_AUTO_TEST_CASE(api_test_iterator_wrapper_empty) {
@@ -37,12 +44,12 @@ BOOST_AUTO_TEST_CASE(api_test_iterator_wrapper_empty) {
   flame::api::MessageIteratorWrapper  iterator(board->GetMessages());
   BOOST_CHECK_EQUAL(iterator.GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(iterator.AtEnd(), true);
-  BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_exception);
-  BOOST_CHECK_THROW(iterator.Next(), e::flame_api_exception);  // out of range
+  BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_out_of_range);
+  BOOST_CHECK_THROW(iterator.Next(), e::flame_api_out_of_range);  // out of range
   iterator.Rewind();  // should not raise any exceptions
 
   // randomisation not yet implemented
-  BOOST_CHECK_THROW(iterator.Randomise(), e::flame_api_exception);
+  BOOST_CHECK_THROW(iterator.Randomise(), e::flame_api_not_implemented);
 }
 
 BOOST_AUTO_TEST_CASE(api_iterate_iterator_wrapper_simple) {

@@ -44,13 +44,13 @@ class AgentAPI {
       try {
         return mem_->Get<T>(var_name);
       } catch(const flame::exceptions::invalid_type& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_invalid_type(
           "GetMem",
           "Invalid type specified. Check that the type used when calling "
           "'.GetMem<DATATYPE>()' matches the type of the agent memory variable."
         );
       } catch(const flame::exceptions::invalid_variable& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_unknown_param(
           "GetMem",
           std::string("Agent does not have a memory variable with the name '")
             + var_name + "'."
@@ -63,13 +63,13 @@ class AgentAPI {
       try {
         mem_->Set<T>(var_name, value);
       } catch(const flame::exceptions::invalid_type& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_invalid_type(
           "SetMem",
           "Invalid type specified. Check that the type used when calling "
           "'.SetMem<DATATYPE>()' matches the type of the agent memory variable."
         );
       } catch(const flame::exceptions::invalid_variable& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_unknown_param(
           "SetMem",
           std::string("Agent does not have a memory variable with the name '")
             + var_name + "'."
@@ -82,19 +82,19 @@ class AgentAPI {
       try {
         mb_->GetBoardWriter(msg_name)->Post<T>(msg);
       } catch(const flame::exceptions::invalid_type& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_invalid_type(
           "PostMessage",
           "Invalid type specified. Check that the type used when calling "
           "'.PostMessage<DATATYPE>()' matches the message type."
         );
       } catch(const flame::exceptions::invalid_operation& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_access_denied(
           "PostMessage",
           std::string("No access. This function has not been given write ")
           + "access to message named '" + msg_name + "'."
         );
       } catch(const flame::exceptions::invalid_argument& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_unknown_param(
           "PostMessage",
           std::string("Unknown message. The is no registered message with the ")
           + "name '" + msg_name + "'. Do check your that the name you "
@@ -108,13 +108,13 @@ class AgentAPI {
       try {
         return MessageIteratorWrapper(mb_->GetMessages(msg_name));
       } catch(const flame::exceptions::invalid_operation& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_access_denied(
           "GetMessageIterator",
           std::string("No access. This function has not been given read ")
           + "access to message named '" + msg_name + "'."
         );
       } catch(const flame::exceptions::invalid_argument& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_unknown_param(
           "GetMessageIterator",
           std::string("Unknown message. The is no registered message with the ")
           + "name '" + msg_name + "'. Do check your that the name you "

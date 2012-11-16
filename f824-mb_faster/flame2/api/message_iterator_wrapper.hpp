@@ -25,7 +25,7 @@
 #ifndef NDEBUG
   #define ASSERT_PTR_NOT_NULL(ptr) { \
     if (!ptr) { \
-      throw flame::exceptions::flame_api_exception("MessageIterator", \
+      throw flame::exceptions::flame_api_invalid_operation("MessageIterator", \
         "Iterators must be assigned using " \
         "FLAME.GetMessages(\"message_name\") before it can be accessed."); \
     } \
@@ -65,7 +65,7 @@ class MessageIteratorWrapper {
       try {
         return parent_->Next();
       } catch(const flame::exceptions::out_of_range& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_out_of_range(
           "MessageIterator::Next",
           "End of Iteration. Next() should not be called once the "
           "iteration has completed or if the message board is empty. "
@@ -76,7 +76,7 @@ class MessageIteratorWrapper {
     
     inline void Randomise(void) {
       ASSERT_PTR_NOT_NULL(parent_);
-      throw flame::exceptions::flame_api_exception(
+      throw flame::exceptions::flame_api_not_implemented(
         "MessageIterator::Randomise", "Not yet implemented, sorry."
       );
       parent_->Randomise();
@@ -88,13 +88,13 @@ class MessageIteratorWrapper {
       try {
         return parent_->Get<T>();
       } catch(const flame::exceptions::invalid_type& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_invalid_type(
           "MessageIterator::GetMessage",
           "Invalid type specified. Check that the type used when calling "
           "'.GetMessage<MESSAGE_TYPE>()' matches the message type."
         );
       } catch(const flame::exceptions::out_of_range& E) {
-        throw flame::exceptions::flame_api_exception(
+        throw flame::exceptions::flame_api_out_of_range(
           "MessageIterator::GetMessage",
           "End of Iteration. GetMessage<MESSAGE_TYPE>() should not be called "
           "once the iteration has completed or if the message board is empty. "
