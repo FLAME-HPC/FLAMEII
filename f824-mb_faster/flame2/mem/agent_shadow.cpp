@@ -46,4 +46,8 @@ size_t AgentShadow::get_size() {
   return am_->GetPopulationSize();
 }
 
+bool AgentShadow::IsRegistered(const std::string& var_name) const {
+  return am_->IsRegistered(var_name);
+}
+
 }}  //  namespace flame::mem

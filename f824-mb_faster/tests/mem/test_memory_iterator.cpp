@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(memiter_test_memoryiterator) {
   BOOST_CHECK_EQUAL(iptr->get_position(), (size_t)0);
 
   // Accessing var without access permission
-  BOOST_CHECK_THROW(iptr->Get<double>("q_dbl"), e::invalid_variable);
+  BOOST_CHECK_THROW(iptr->Get<double>("q_dbl"), e::invalid_operation);
   // Accessing invalid var
   BOOST_CHECK_THROW(iptr->Get<double>("NotVar"), e::invalid_variable);
 

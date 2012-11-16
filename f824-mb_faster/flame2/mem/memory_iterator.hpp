@@ -59,7 +59,11 @@ class MemoryIterator {
         return static_cast<const T* const>(ptr_map_.at(var_name));
       }
       catch(const std::out_of_range& E) {
-        throw flame::exceptions::invalid_variable("invalid variable");
+        if (!shadow_->IsRegistered(var_name)) {
+          throw flame::exceptions::invalid_variable("invalid variable");
+        } else {
+          throw flame::exceptions::invalid_operation("no read access to var");
+        }
       }
     }
 
@@ -67,21 +71,20 @@ class MemoryIterator {
     template <typename T>
     T* GetWritePtr(const std::string& var_name) const {
       if (rw_set_ptr_->find(var_name) == rw_set_ptr_->end()) {
-        throw flame::exceptions::invalid_operation("variable is not writeable");
+        if (!shadow_->IsRegistered(var_name)) {
+          throw flame::exceptions::invalid_variable("invalid variable");
+        } else {
+          throw flame::exceptions::invalid_operation("no write access to var");
+        }
       }
 
-      try {
 #ifndef DISABLE_RUNTIME_TYPE_CHECKING
-        VectorWrapperBase* vwb = vec_map_ptr_->at(var_name);
-        if (*(vwb->GetDataType()) != typeid(T)) {
-          throw flame::exceptions::invalid_type("invalid type");
-        }
+      VectorWrapperBase* vwb = vec_map_ptr_->at(var_name);
+      if (*(vwb->GetDataType()) != typeid(T)) {
+        throw flame::exceptions::invalid_type("invalid type");
+      }
 #endif
-        return static_cast<T* const>(ptr_map_.at(var_name));
-      }
-      catch(const std::out_of_range& E) {
-        throw flame::exceptions::invalid_variable("invalid variable");
-      }
+      return static_cast<T* const>(ptr_map_.at(var_name));
     }
 
     //! Returns the value of a given variable
@@ -118,6 +121,7 @@ class MemoryIterator {
     size_t size_;  //! Population size
     size_t offset_;  //! Offset to start iterating from
     size_t count_;  //! Number or elements to iterate through
+    AgentShadow* shadow_;  //! Pointer to agent shadow instance
     VoidPtrMap ptr_map_;  //! map of raw pointers of vars
     ConstVectorMap* vec_map_ptr_;  //! pointer to vec map
     WriteableSet* rw_set_ptr_;  //! Pointer to set of writeable vars
