@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(mb2_proxy_acl) {
   // Test proxy with no read/write access
   mb::Proxy p;
   mb::Proxy::client c = p.GetClient();
-  BOOST_CHECK_THROW(c->GetMessages("msg1"), e::invalid_operation);
-  BOOST_CHECK_THROW(c->GetBoardWriter("msg1"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetMessages("m_int"), e::invalid_operation);
+  BOOST_CHECK_THROW(c->GetBoardWriter("m_int"), e::invalid_operation);
 
   // Test invalid messages
   BOOST_CHECK_THROW(p.AllowRead("a_msg"), e::invalid_argument);
@@ -69,6 +69,10 @@ BOOST_AUTO_TEST_CASE(mb2_proxy_acl) {
   BOOST_CHECK_THROW(p.AllowPost("m_double"), e::invalid_operation);
   BOOST_CHECK_THROW(p.AllowRead("m_int"), e::invalid_operation);
 
+  // Test with unknown msg
+  BOOST_CHECK_THROW(c->GetMessages("unknown"), e::invalid_argument);
+  BOOST_CHECK_THROW(c->GetBoardWriter("unknown"), e::invalid_argument);
+  
   // TESTBUILD only routine to reset list of registered boards
   mgr.Reset();
 }

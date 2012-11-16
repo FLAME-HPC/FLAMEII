@@ -21,8 +21,8 @@ namespace exc = flame::exceptions;
 void MemoryManager::RegisterAgent(std::string agent_name) {
   std::pair<AgentMap::iterator, bool> ret;
   ret = agent_map_.insert(agent_name, new AgentMemory(agent_name));
-  if (!ret.second) {  // if replacement instead of insertion
-    throw exc::logic_error("Name exists. Previous agent replaced.");
+  if (!ret.second) { 
+    throw exc::logic_error("Agent with that name already exists");
   }
 }
 

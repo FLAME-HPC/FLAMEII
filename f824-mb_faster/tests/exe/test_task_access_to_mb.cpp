@@ -41,7 +41,7 @@ inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
 
 FLAME_AGENT_FUNCTION(func_post_message) {
   location_message msg;
-  
+
   msg.x = FLAME.GetMem<double>("x");
   msg.y = FLAME.GetMem<double>("y");
   msg.z = FLAME.GetMem<double>("z");
@@ -56,7 +56,7 @@ FLAME_AGENT_FUNCTION(func_read_message) {
   location_message msg;
   
   MessageIterator iter;
-  //iter = FLAME.GetMessageIterator("location");
+  iter = FLAME.GetMessageIterator("location");
   for (; !iter.AtEnd(); iter.Next()) {
     msg = iter.GetMessage<location_message>();
     checksum += msg.id;

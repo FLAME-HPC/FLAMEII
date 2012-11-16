@@ -16,6 +16,8 @@
 #include <boost/shared_ptr.hpp>
 #include "flame2/mem/memory_iterator.hpp"
 #include "flame2/mb/client.hpp"
+#include "flame2/exceptions/api.hpp"
+#include "flame2/exceptions/all.hpp"
 #include "message_iterator_wrapper.hpp"
 
 namespace flame { namespace api {
@@ -39,22 +41,86 @@ class AgentAPI {
 
     template <typename T>
     inline T GetMem(const std::string& var_name) {
-      return mem_->Get<T>(var_name);
+      try {
+        return mem_->Get<T>(var_name);
+      } catch(const flame::exceptions::invalid_type& E) {
+        throw flame::exceptions::flame_api_exception(
+          "GetMem",
+          "Invalid type specified. Check that the type used when calling "
+          "'.GetMem<DATATYPE>()' matches the type of the agent memory variable."
+        );
+      } catch(const flame::exceptions::invalid_variable& E) {
+        throw flame::exceptions::flame_api_exception(
+          "GetMem",
+          std::string("Agent does not have a memory variable with the name '")
+            + var_name + "'."
+        );
+      }
     }
 
     template <typename T>
     inline void SetMem(const std::string& var_name, T value) {
-      mem_->Set<T>(var_name, value);
+      try {
+        mem_->Set<T>(var_name, value);
+      } catch(const flame::exceptions::invalid_type& E) {
+        throw flame::exceptions::flame_api_exception(
+          "SetMem",
+          "Invalid type specified. Check that the type used when calling "
+          "'.SetMem<DATATYPE>()' matches the type of the agent memory variable."
+        );
+      } catch(const flame::exceptions::invalid_variable& E) {
+        throw flame::exceptions::flame_api_exception(
+          "SetMem",
+          std::string("Agent does not have a memory variable with the name '")
+            + var_name + "'."
+        );
+      }
     }
 
     template <typename T>
     inline void PostMessage(const std::string& msg_name, T msg) {
-      mb_->GetBoardWriter(msg_name)->Post<T>(msg);
+      try {
+        mb_->GetBoardWriter(msg_name)->Post<T>(msg);
+      } catch(const flame::exceptions::invalid_type& E) {
+        throw flame::exceptions::flame_api_exception(
+          "PostMessage",
+          "Invalid type specified. Check that the type used when calling "
+          "'.PostMessage<DATATYPE>()' matches the message type."
+        );
+      } catch(const flame::exceptions::invalid_operation& E) {
+        throw flame::exceptions::flame_api_exception(
+          "PostMessage",
+          std::string("No access. This function has not been given write ")
+          + "access to message named '" + msg_name + "'."
+        );
+      } catch(const flame::exceptions::invalid_argument& E) {
+        throw flame::exceptions::flame_api_exception(
+          "PostMessage",
+          std::string("Unknown message. The is no registered message with the ")
+          + "name '" + msg_name + "'. Do check your that the name you "
+          "specified matches the message name provided in the model definition."
+        );
+      }
     }
 
     inline MessageIteratorWrapper GetMessageIterator(
           const std::string& msg_name) {
-      return MessageIteratorWrapper(mb_->GetMessages(msg_name));
+      try {
+        return MessageIteratorWrapper(mb_->GetMessages(msg_name));
+      } catch(const flame::exceptions::invalid_operation& E) {
+        throw flame::exceptions::flame_api_exception(
+          "GetMessageIterator",
+          std::string("No access. This function has not been given read ")
+          + "access to message named '" + msg_name + "'."
+        );
+      } catch(const flame::exceptions::invalid_argument& E) {
+        throw flame::exceptions::flame_api_exception(
+          "GetMessageIterator",
+          std::string("Unknown message. The is no registered message with the ")
+          + "name '" + msg_name + "'. Do check your that the name you "
+          "specified matches the message name provided in the model definition."
+        );
+      }
     }
     
   private:

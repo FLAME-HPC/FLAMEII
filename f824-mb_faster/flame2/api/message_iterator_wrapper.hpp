@@ -20,6 +20,7 @@
 #include <boost/shared_ptr.hpp>
 #include "flame2/mem/memory_iterator.hpp"
 #include "flame2/exceptions/api.hpp"
+#include "flame2/exceptions/all.hpp"
 
 #ifndef NDEBUG
   #define ASSERT_PTR_NOT_NULL(ptr) { \
@@ -61,18 +62,45 @@ class MessageIteratorWrapper {
     
     inline bool Next(void) {
       ASSERT_PTR_NOT_NULL(parent_);
-      return parent_->Next();
+      try {
+        return parent_->Next();
+      } catch(const flame::exceptions::out_of_range& E) {
+        throw flame::exceptions::flame_api_exception(
+          "MessageIterator::Next",
+          "End of Iteration. Next() should not be called once the "
+          "iteration has completed or if the message board is empty. "
+          "You can check using '.AtEnd()'."
+        );
+      }
     }
     
     inline void Randomise(void) {
       ASSERT_PTR_NOT_NULL(parent_);
+      throw flame::exceptions::flame_api_exception(
+        "MessageIterator::Randomise", "Not yet implemented, sorry."
+      );
       parent_->Randomise();
     }
     
     template <typename T>
     T GetMessage(void) {
       ASSERT_PTR_NOT_NULL(parent_);
-      return parent_->Get<T>();
+      try {
+        return parent_->Get<T>();
+      } catch(const flame::exceptions::invalid_type& E) {
+        throw flame::exceptions::flame_api_exception(
+          "MessageIterator::GetMessage",
+          "Invalid type specified. Check that the type used when calling "
+          "'.GetMessage<MESSAGE_TYPE>()' matches the message type."
+        );
+      } catch(const flame::exceptions::out_of_range& E) {
+        throw flame::exceptions::flame_api_exception(
+          "MessageIterator::GetMessage",
+          "End of Iteration. GetMessage<MESSAGE_TYPE>() should not be called "
+          "once the iteration has completed or if the message board is empty. "
+          "You can check using '.AtEnd()'."
+        );
+      }
     }
     
   private:

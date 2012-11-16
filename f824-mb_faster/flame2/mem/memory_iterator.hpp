@@ -88,22 +88,24 @@ class MemoryIterator {
     template <typename T>
     T Get(const std::string& var_name) const {
       const T* ptr = GetReadPtr<T>(var_name);
+#ifndef NDEBUG
       if (ptr == NULL) {
         throw flame::exceptions::out_of_range("end of iterator met");
-      } else {
-        return *(ptr);
       }
+#endif
+      return *(ptr);
     }
 
     //! Sets the value of a given variable
     template <typename T>
     void Set(const std::string& var_name, T value) {
       T* ptr = GetWritePtr<T>(var_name);
+#ifndef NDEBUG
       if (ptr == NULL) {
         throw flame::exceptions::out_of_range("end of iterator met");
-      } else {
-        *(ptr) = value;
       }
+#endif
+      *(ptr) = value;
     }
 
   protected:

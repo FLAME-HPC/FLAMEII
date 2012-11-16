@@ -35,13 +35,21 @@ MessageBoard::writer Client::GetBoardWriter(const std::string& msg_name) {
   try {
     return writers_.at(msg_name);
   } catch(const std::out_of_range& E) {
-    throw flame::exceptions::invalid_operation("No post access for this msg");
+    if (MessageBoardManager::GetInstance().BoardExists(msg_name)) {
+      throw flame::exceptions::invalid_operation("No post access for this msg");
+    } else {
+      throw flame::exceptions::invalid_argument("Unknown message");
+    }
   }
 }
 
 MessageBoard::iterator Client::GetMessages(const std::string& msg_name) {
   if (acl_read_.find(msg_name) == acl_read_.end()) {
-    throw flame::exceptions::invalid_operation("No read access for this msg");
+    if (MessageBoardManager::GetInstance().BoardExists(msg_name)) {
+      throw flame::exceptions::invalid_operation("No read access for this msg");
+    } else {
+      throw flame::exceptions::invalid_argument("Unknown message");
+    }
   }
   return MessageBoardManager::GetInstance().GetMessages(msg_name);
 }
