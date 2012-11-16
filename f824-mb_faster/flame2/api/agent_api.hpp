@@ -52,8 +52,14 @@ class AgentAPI {
       } catch(const flame::exceptions::invalid_variable& E) {
         throw flame::exceptions::flame_api_unknown_param(
           "GetMem",
-          std::string("Agent does not have a memory variable with the name '")
-            + var_name + "'."
+          std::string("Unknown memory variable. Agent does not have memory "
+          "variable with name '") + var_name + "'."
+        );
+      } catch(const flame::exceptions::invalid_operation& E) {
+        throw flame::exceptions::flame_api_access_denied(
+          "GetMem",
+          std::string("No access. This function has not been given read "
+          "access to memory variable '") + var_name + "'."
         );
       }
     }
@@ -71,8 +77,14 @@ class AgentAPI {
       } catch(const flame::exceptions::invalid_variable& E) {
         throw flame::exceptions::flame_api_unknown_param(
           "SetMem",
-          std::string("Agent does not have a memory variable with the name '")
-            + var_name + "'."
+          std::string("Unknown memory variable. Agent does not have memory "
+          "variable with name '") + var_name + "'."
+        );
+      } catch(const flame::exceptions::invalid_operation& E) {
+        throw flame::exceptions::flame_api_access_denied(
+          "SetMem",
+          std::string("No access. This function has not been given write "
+          "access to memory variable '") + var_name + "'."
         );
       }
     }

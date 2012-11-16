@@ -61,7 +61,8 @@ run_tests_SOURCES += \
 
 # Add tests for "api"
 run_tests_SOURCES += \
-  api/test_message_iterator_wrapper.cpp
+  api/test_message_iterator_wrapper.cpp \
+  api/test_flame_api.cpp
 
   
 else
