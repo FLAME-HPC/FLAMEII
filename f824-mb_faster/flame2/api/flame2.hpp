@@ -11,18 +11,25 @@
 #define FLAME2__API__FLAME2_HPP_
 #include "agent_api.hpp"
 
+//! Return code for agent function to signify that agent should remain alive
 #define FLAME_AGENT_ALIVE 0
+//! Return code for agent function to trigger death of agent
 #define FLAME_AGENT_DEAD  1
 
+//! Message Iterator type to be used in user code
 typedef flame::api::MessageIteratorWrapper MessageIterator;
+//! Expose datatype for API proxy object
 using flame::api::AgentAPI;
-using flame::api::AgentFuncParamType;
-using flame::api::AgentFuncRetType;
+//! input argument type expected of all agent transition function
+using flame::api::FLAME_AgentFunctionParamType;
+//! return type expected of all agent transition function
+using flame::api::FLAME_AgentFunctionReturnType;
 
-// This should match signature of flame::exe::TaskFunction
-// define in flame2/exe/task_interface.hpp
+//! Macro for defining agent transition functions with the correct input
+//! argument and return type
 #define FLAME_AGENT_FUNCTION(funcName) \
-          AgentFuncRetType funcName(AgentFuncParamType FLAME)
+          FLAME_AgentFunctionReturnType \
+          funcName(FLAME_AgentFunctionParamType FLAME)
 
 
 #endif  // FLAME2__API__FLAME2_HPP_

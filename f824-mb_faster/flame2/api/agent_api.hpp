@@ -7,7 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief Declaration of AgentAPI 
  */
-// TODO(lsc): trap exceptions and print sensible error messages
 // TODO(lsc): Cache message iterators (?)
 
 #ifndef FLAME2__API__AGENT_API_HPP_
@@ -22,23 +21,59 @@
 
 namespace flame { namespace api {
   
-class AgentAPI;  // Forward declaration (defined below)
-typedef AgentAPI& AgentFuncParamType;
-typedef int AgentFuncRetType;
+class AgentAPI;  // Forward declaration (class defined below)
 
+//! Datatype for argument of all agent transition functions
+typedef AgentAPI& FLAME_AgentFunctionParamType;
+//! Datatype for return value for all agent transition functions
+typedef int FLAME_AgentFunctionReturnType;
+
+//! Shared pointer to message board client
 typedef boost::shared_ptr<flame::mb::Client> MBClient;
+//! Shared pointer to agent memory iterator
 typedef boost::shared_ptr<flame::mem::MemoryIterator> MemIterPtr;
 
 /*!
  * \brief Proxy object through which agent functions make API calls
  *
  * An instance of this class is passed as an argument to all agent transition
- * functions
+ * functions. It should be used to make all FLAME API calls. This allows us
+ * to map each call to the corrent agent memory and access priviledges without
+ * resorting to nasty global values.
+ *
+ * All methods are inlined to reduce the impact of the additional level of
+ * indirection.
+ *
+ * All erroneous calls should result in an subclass of
+ * flame::exceptions::flame_api_exception being thrown with an appropriate
+ * error message. Any other exception thrown as a result of a method call
+ * woulb be considered a framework bug.
  */
 class AgentAPI {
   public:
+
+    /*!
+     * \brief Constructor
+     * \param mem Shared pointer to agent memory iterator
+     * \param mb Shared pointer to message board client
+     *
+     * We expect \c mem to be derived from
+     * flame::mem::AgentShadow::GetMemoryIterator() and mb from the
+     * flame::exe::TaskInterface::GetMessageBoardClient(). These objects should
+     * thus contain access control information to manage access from a
+     * specific agent function to memory and message boards.
+     */
     AgentAPI(MemIterPtr mem, MBClient mb) : mem_(mem), mb_(mb) {}
 
+    /*!
+     * \brief Returns an agent memory value
+     * \param var_name Name of memory variable to retrieve
+     *
+     * Possible exceptions:
+     *  - flame::exceptions::flame_api_invalid_type (Invalid type specified)
+     *  - flame::exceptions::flame_api_unknown_param (Unknown variable name)
+     *  - flame::exceptions::flame_api_access_denied (No read access to var)
+     */
     template <typename T>
     inline T GetMem(const std::string& var_name) {
       try {
@@ -64,6 +99,16 @@ class AgentAPI {
       }
     }
 
+    /*!
+     * \brief Sets an agent memory value
+     * \param var_name Name of memory variable to set
+     * \param value Value to set it to
+     *
+     * Possible exceptions:
+     *  - flame::exceptions::flame_api_invalid_type (Invalid type specified)
+     *  - flame::exceptions::flame_api_unknown_param (Unknown variable name)
+     *  - flame::exceptions::flame_api_access_denied (No write access to var)
+     */
     template <typename T>
     inline void SetMem(const std::string& var_name, T value) {
       try {
@@ -89,6 +134,16 @@ class AgentAPI {
       }
     }
 
+    /*!
+     * \brief Post a message
+     * \param msg_name Name of message to post
+     * \param msg Value of the message
+     *
+     * Possible exceptions:
+     *  - flame::exceptions::flame_api_invalid_type (Mismatcing type specified)
+     *  - flame::exceptions::flame_api_unknown_param (Unknown message name)
+     *  - flame::exceptions::flame_api_access_denied (No write access to board)
+     */
     template <typename T>
     inline void PostMessage(const std::string& msg_name, T msg) {
       try {
@@ -115,6 +170,14 @@ class AgentAPI {
       }
     }
 
+    /*!
+     * \brief Returns a message iterator
+     * \param msg_name Name of message to post
+     *
+     * Possible exceptions:
+     *  - flame::exceptions::flame_api_unknown_param (Unknown message name)
+     *  - flame::exceptions::flame_api_access_denied (No read access to board)
+     */
     inline MessageIteratorWrapper GetMessageIterator(
           const std::string& msg_name) {
       try {
@@ -136,11 +199,9 @@ class AgentAPI {
     }
     
   private:
-    MemIterPtr mem_;
-    MBClient mb_;
+    MemIterPtr mem_;  //! Store shared pointer to agent memory iterator
+    MBClient mb_;  //! Store shared pointer to message board client
 };
-
-
 }}  // namespace flame2::api
 
 #endif  // FLAME2__API__AGENT_API_HPP_

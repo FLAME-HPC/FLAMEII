@@ -6,14 +6,6 @@
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
  * \brief Wrapper class for flame::mb::MessageIterator
- *
- * This was introduced to enable a cleaner and consistent API. We return a 
- * wrapper instance instead of the shared_ptr returned by board::GetMessages()
- * so users can access iterator methods directly rather than
- * using the -> indirection.
- *
- * Note that without a default constuctor, users will not be able to use:
- *   MessageIterator iter;  // null iterator
  */
 #ifndef FLAME2__API__MESSAGE_ITERATOR_WRAPPER_HPP_
 #define FLAME2__API__MESSAGE_ITERATOR_WRAPPER_HPP_
@@ -22,6 +14,8 @@
 #include "flame2/exceptions/api.hpp"
 #include "flame2/exceptions/all.hpp"
 
+//! For non-production code, assert that the message iterator is not null.
+//! To be used at by all methods in MessageIteratorWrapper.
 #ifndef NDEBUG
   #define ASSERT_PTR_NOT_NULL(ptr) { \
     if (!ptr) { \
@@ -35,31 +29,77 @@
 #endif
 
 namespace flame { namespace api {
-  
+
+//! Shared pointer type for actuals MessageIterator
 typedef boost::shared_ptr<flame::mb::MessageIterator> SharedMessageIterator;
 
+/*!
+ * \brief Wrapper class for flame::mb::MessageIterator
+ *
+ * This was introduced to enable a cleaner and consistent API. An instance of
+ * this class is returned in place of the shared_ptr returned by
+ * flame::mb::MessageBoard::GetMessages() so users can access iterator methods
+ * directly rather than using the -> indirection.
+ *
+ * While not technically useful, we define a default constructor so users
+ * can declare an iterator instance without assigning it. This reduces the
+ * number of gotchas in the API.
+ *
+ * \code{.cpp}
+ *   MessageIterator iter;  // declare obj without assignment (null ptr)
+ *   // ...
+ *   iter = FLAME.GetMessageIterator("message_name");  // assign later
+ * \endcode
+ * 
+ * When the default constructor is used, a null shared pointer is created.
+ * Dereferencing this will cause an assertion error. It is therefore the users'
+ * responsibility to ensure that instances should not be used until assigned
+ * a value using the GetMessageIterator() API call.
+ *
+ * Checking the pointer each time a method is called may be expensive in when
+ * done repeatedly in a tight loop. To avoid this overhead, the checks are
+ * compiled away in the production version of the library (users are expected
+ * to use the debug version for development work).
+ */
 class MessageIteratorWrapper {
   public:
+    //! Default constructor with null pointer
     MessageIteratorWrapper(void) {}  
-    
+
+    //! Constructor which initialises the pointer to actual message iterator
     explicit MessageIteratorWrapper(SharedMessageIterator iter)
         : parent_(iter) {}
-    
+
+    //! Returns true if end of iteration reached, false otherwise.
     inline bool AtEnd(void) const {
       ASSERT_PTR_NOT_NULL(parent_);
       return parent_->AtEnd();
     }
-    
+
+    //! Returns the number of messages in the iterator
     inline size_t GetCount(void) const {
       ASSERT_PTR_NOT_NULL(parent_);
       return parent_->GetCount();
     }
-    
+
+    //! Resets the iterator to restart iteration from the beginning
     inline void Rewind(void) {
       ASSERT_PTR_NOT_NULL(parent_);
       parent_->Rewind();
     }
-    
+
+    /*!
+     * \brief Steps to the next message in the iteration
+     * \return false if stepping to the last item in the iteration,
+     * true otherwise
+     *
+     * Throws flame::exception::flame_api_out_of_range if the end of iteration
+     * has already been reached. This is the same as calling the method on an
+     * empty iterator.
+     *
+     * Users are expected to only call Next() if AtEnd() returns false or if
+     * a previous call to Next() returned true.
+     */
     inline bool Next(void) {
       ASSERT_PTR_NOT_NULL(parent_);
       try {
@@ -73,7 +113,18 @@ class MessageIteratorWrapper {
         );
       }
     }
-    
+
+    /*!
+     * \brief Randomises the iterator so messages are returned in random order
+     *
+     * (Not yet implemented)
+     *
+     * Note that out of order iteration of messages requires an the iterator to
+     * store an intermediate array of indices, leading to a degradation in
+     * performance.
+     *
+     * Randomisation of an in-progress iterator will rewind it.
+     */
     inline void Randomise(void) {
       ASSERT_PTR_NOT_NULL(parent_);
       throw flame::exceptions::flame_api_not_implemented(
@@ -81,7 +132,19 @@ class MessageIteratorWrapper {
       );
       parent_->Randomise();
     }
-    
+
+    /*!
+     * \brief Return the current message in the iteration
+     *
+     * Messages are return by-value. This allows for 'safer' usage at the
+     * expense of the copy overheads.
+     *
+     * Throws flame::exceptions::flame_api_out_of_range if called on an empty
+     * iterator of if end of iteration is reached.
+     *
+     * Throws flame::exceptions::flame_api_invalid_type when the type used does
+     * not match the datatype of the requested message.
+     */
     template <typename T>
     T GetMessage(void) {
       ASSERT_PTR_NOT_NULL(parent_);
@@ -104,7 +167,7 @@ class MessageIteratorWrapper {
     }
     
   private:
-    SharedMessageIterator parent_;
+    SharedMessageIterator parent_;  // shared pointer to the actual iterator
 };
 
 }}  // namespace::api
