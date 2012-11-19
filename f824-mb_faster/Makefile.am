@@ -14,15 +14,15 @@ ACLOCAL_AMFLAGS = -I m4
 # Directories to search and build
 SUBDIRS = \
   flame2/mb \
+  flame2/io \
   flame2/mem \
   flame2/exe \
   flame2/api \
   flame2/exceptions \
+  flame2/model \
+  flame2/sim \
   utils
-#  flame2/model
-#  flame2/io
-#  flame2/sim 
-#  flame2/compat/C 
+
 
 
 # Directories to include in the distribution
@@ -38,12 +38,11 @@ LIBADD_LIST = \
   flame2/mb/lib_flame_mb  \
   flame2/exe/lib_flame_exe \
   flame2/mem/lib_flame_mem \
-  flame2/api/lib_flame_api
+  flame2/api/lib_flame_api \
+  flame2/io/lib_flame_io \  
+  flame2/model/lib_flame_model \
+  flame2/sim/lib_flame_sim  
 
-#  flame2/io/lib_flame_io
-#  flame2/model/lib_flame_model
-#  flame2/sim/lib_flame_sim  
-#  flame2/compat/C/lib_flame_compat_c
   
 if BUILD_DEBUG
 lib_LTLIBRARIES += libflame2-dbg.la

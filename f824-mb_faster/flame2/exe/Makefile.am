@@ -18,8 +18,8 @@ module_headers = \
   task_manager.hpp \
   task_queue_interface.hpp \
   task_splitter.hpp \
-  worker_thread.hpp
-#  io_task.hpp
+  worker_thread.hpp \
+  io_task.hpp
   
 module_sources = \
   agent_task.cpp \
@@ -29,8 +29,8 @@ module_sources = \
   splitting_fifo_task_queue.cpp \
   task_manager.cpp \
   task_splitter.cpp \
-  worker_thread.cpp
-# io_task.cpp 
+  worker_thread.cpp \
+  io_task.cpp 
 
 # Header install path
 library_includedir = $(pkgincludedir)/exe

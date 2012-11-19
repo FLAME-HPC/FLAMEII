@@ -44,20 +44,20 @@ run_tests_SOURCES += \
   mb/test_board_client.cpp
   
 # Add tests for "io"
-#run_tests_SOURCES += \
-#  io/test_io_manager.cpp \
-#  io/test_io_xml_model.cpp \
-#  io/test_io_xml_pop.cpp
+run_tests_SOURCES += \
+  io/test_io_manager.cpp \
+  io/test_io_xml_model.cpp \
+  io/test_io_xml_pop.cpp
 
 # Add tests for "model"
-#run_tests_SOURCES += \
-#  model/test_model_validation.cpp \
-#  model/test_xgraph.cpp
+run_tests_SOURCES += \
+  model/test_model_validation.cpp \
+  model/test_xgraph.cpp
 
 # Add tests for "sim"
-#run_tests_SOURCES += \
-#  sim/test_sim_manager.cpp \
-#  sim/test_simulation.cpp
+run_tests_SOURCES += \
+  sim/test_sim_manager.cpp \
+  sim/test_simulation.cpp
 
 # Add tests for "api"
 run_tests_SOURCES += \

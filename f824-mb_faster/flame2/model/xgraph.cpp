@@ -23,7 +23,6 @@
 #include <algorithm>   // For sort
 #include "flame2/config.hpp"
 #include "flame2/exe/task_manager.hpp"
-#include "flame2/compat/C/flame2.h"
 #include "xgraph.hpp"
 #include "xcondition.hpp"
 #include "xfunction.hpp"
