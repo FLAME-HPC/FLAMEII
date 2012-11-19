@@ -18,7 +18,6 @@ class flame_exception : public std::runtime_error {
   public:
     explicit flame_exception(const std::string& msg)
         : std::runtime_error(msg) {}
-
 };
 
 class logic_error : public flame_exception {

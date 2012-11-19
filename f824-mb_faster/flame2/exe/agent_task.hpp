@@ -56,6 +56,14 @@ class AgentTask : public Task {
 
     //! Constructor used internally to produce split task
     AgentTask(const AgentTask& parent, size_t offset, size_t count);
+
+  private:
+    //! Derive and return the transition function name from task name
+    std::string get_transition_function_name(void) const {
+      // Since we're yet to determine how task names are actually
+      // built, for now we return task name as is.
+      return task_name_;
+    }
 };
 
 }}  // namespace flame::exe

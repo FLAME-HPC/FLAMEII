@@ -31,7 +31,6 @@ class flame_api_exception : public flame_exception {
   private:
     std::string f_;
     std::string m_;
-
 };
 
 class flame_api_invalid_operation : public flame_api_exception {

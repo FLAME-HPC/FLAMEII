@@ -11,6 +11,7 @@
 #include <string>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
+#include "flame2/exceptions/api.hpp"
 #include "flame2/api/agent_api.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "agent_task.hpp"
@@ -107,8 +108,15 @@ void AgentTask::Run() {
   api::AgentAPI agent(m, GetMessageBoardClient());
 
   while (!m->AtEnd()) {  // run function for each agent
-    //func_(static_cast<void*>(m_ptr.get()), static_cast<void*>(mb_client.get()));
-    func_(agent);
+    try {
+      func_(agent);
+    } catch(const flame::exceptions::flame_api_exception& E) {
+      // throw new exception and tag on agent/task name
+      throw flame::exceptions::flame_task_exception(agent_name_,
+                                                get_transition_function_name(),
+                                                E.what());
+    }
+
     // TODO(lsc): check rc == 0 to handle agent death
     m->Step();
   }

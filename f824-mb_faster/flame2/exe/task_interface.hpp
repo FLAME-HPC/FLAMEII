@@ -94,7 +94,7 @@ class Task {
     void set_task_id(id_type id) { task_id_ = id; }
 
     //! Returns the task name
-    std::string get_task_name() { return task_name_; }
+    std::string get_task_name() const { return task_name_; }
 
     //! Returns true if the given task id is a termination signal
     inline static bool IsTermTask(id_type task_id) {
