@@ -16,17 +16,17 @@ namespace flame { namespace mb {
 //! Abstract base class for message iterator backends
 class MessageIteratorBackend {
   public:
-
     //! Factory method to instantiate a backend of a specific type
     template <typename BackendType>
-    static MessageIteratorBackend* create(flame::mem::VectorWrapperBase* vw_ptr) {
+    static MessageIteratorBackend* create(
+          flame::mem::VectorWrapperBase* vw_ptr) {
       BackendType *b = new BackendType(vw_ptr);
       b->data_type_ = vw_ptr->GetDataType();
       return b;
     }
 
     //! Destructor
-    virtual ~MessageIteratorBackend(void) {};
+    virtual ~MessageIteratorBackend(void) {}
 
     //! Returns true if end of iteration reached (or if iterator is empty)
     virtual bool AtEnd(void) const = 0;
@@ -67,18 +67,18 @@ class MessageIteratorBackend {
 
     //! Returns true if the backend is mutable
     virtual bool IsMutable(void) const = 0;
-    
+
     //! Returns a new mutable backend which addresses the same messages
     virtual MessageIteratorBackend* GetMutableVersion(void) const = 0;
 
     //! Returns a type_info of the underlying message type
     const std::type_info* GetDataType() const {
       return data_type_;
-    } 
-    
+    }
+
   private:
     //! Cache of the type_info of the underlying message type
-    const std::type_info *data_type_;  
+    const std::type_info *data_type_;
 };
 
 }}  // namespace flame::mb

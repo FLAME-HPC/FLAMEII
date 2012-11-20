@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of the Client class
  */
+#include <string>
 #include <stdexcept>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
@@ -20,7 +21,7 @@ Client::Client(acl_set_type acl_read, acl_set_type acl_post)
   // we don't cache iterators since they can be modified by users, e.g.
   // randomisation, sorting, etc.
   // Instead we keep a set of msg names with read privs(acl_read_)
-  
+  //
   // writers we can cache. As long as each Client instance is never used
   // concurrently (one per thread) we can get away with reusing the same writer
   MessageBoardManager &m = MessageBoardManager::GetInstance();

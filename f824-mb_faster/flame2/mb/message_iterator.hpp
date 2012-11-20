@@ -47,8 +47,7 @@ class MessageIterator {
     //! Factory method to instantiate a MessageIterator with the default backend
     static MessageIterator* create(flame::mem::VectorWrapperBase* vw_ptr) {
       return new MessageIterator(
-        MessageIteratorBackend::create<MessageIteratorBackendRaw>(vw_ptr)
-      );
+          MessageIteratorBackend::create<MessageIteratorBackendRaw>(vw_ptr));
     }
 
     /*  --- we don't need this yet ---
@@ -127,7 +126,7 @@ class MessageIterator {
       }
       return T(*static_cast<T*>(backend_->Get()));
     }
-    
+
   private:
     /*!
      * \brief pointer to backend instance
@@ -138,7 +137,7 @@ class MessageIterator {
     boost::scoped_ptr<MessageIteratorBackend> backend_;  //! pointer to backend
 
     //! Private constructor
-    MessageIterator(MessageIteratorBackend *b) : backend_(b) {}
+    explicit MessageIterator(MessageIteratorBackend *b) : backend_(b) {}
 
     //! Swaps backed to a mutable version if not already mutable
     inline void _RequireMutableBackend(void) {

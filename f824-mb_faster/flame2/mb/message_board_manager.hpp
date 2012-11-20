@@ -9,6 +9,8 @@
  */
 #ifndef MB__MESSAGE_BOARD_MANAGER_HPP_
 #define MB__MESSAGE_BOARD_MANAGER_HPP_
+#include <string>
+#include <utility>
 #include <boost/ptr_container/ptr_map.hpp>
 #include "message_board.hpp"
 
@@ -109,7 +111,7 @@ class MessageBoardManager {
     typedef boost::ptr_map<std::string, MessageBoard> board_map;
 
     board_map map_;  //! map of message board instances
-    
+
     //! This is a singleton class. Disable manual instantiation
     MessageBoardManager() {}
     //! This is a singleton class. Disable copy constructor

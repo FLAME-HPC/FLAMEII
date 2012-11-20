@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(mb_proxy_acl) {
   // Test with unknown msg
   BOOST_CHECK_THROW(c->GetMessages("unknown"), e::invalid_argument);
   BOOST_CHECK_THROW(c->GetBoardWriter("unknown"), e::invalid_argument);
-  
+
   // TESTBUILD only routine to reset list of registered boards
   mgr.Reset();
 }

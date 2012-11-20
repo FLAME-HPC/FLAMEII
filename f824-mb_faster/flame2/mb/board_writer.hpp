@@ -25,7 +25,7 @@ namespace flame { namespace mb {
  */
 class BoardWriter {
   friend class MessageBoard;  //! Give MessageBoard access to protected methods
-  
+
   public:
     //! Returns the number of posted messages
     size_t GetCount(void) const;
@@ -65,11 +65,11 @@ class BoardWriter {
       std::vector<T> *v = static_cast<std::vector<T>*>(data_->GetVectorPtr());
       v->push_back(msg);
     }
-    
+
   protected:
     //! datatype for smart pointer to VectorWrapper
     boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
-    
+
     //! Factory method to create a BoardWriter for a specific message type
     template <class T>
     static BoardWriter* create(void) {

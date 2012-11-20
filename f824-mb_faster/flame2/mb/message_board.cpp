@@ -40,7 +40,7 @@ MessageBoard::iterator MessageBoard::GetMessages(void) {
 
 void MessageBoard::Sync(void) {
   size_t num_messages = GetCount();
-  
+
   // Determine new message total based on messages in writers
   WriterVector::iterator iter;
   for (iter = writers_.begin(); iter != writers_.end(); ++iter) {

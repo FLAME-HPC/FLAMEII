@@ -30,7 +30,7 @@ namespace flame { namespace mb {
  */
 class MessageBoard {
   public:
-    //! shared pointer type to reference a board writer 
+    //! shared pointer type to reference a board writer
     typedef boost::shared_ptr<BoardWriter> writer;
     //! shared pointer type to reference a message iterator
     typedef boost::shared_ptr<MessageIterator> iterator;
@@ -111,11 +111,11 @@ class MessageBoard {
      * and may result in memory violation errors.
      */
     iterator GetMessages(void);
-    
+
   private:
     //! datatype for storing collection of active board writers
-    typedef std::vector<writer> WriterVector;  
-    
+    typedef std::vector<writer> WriterVector;
+
     std::string name_;  //! message name
     WriterVector writers_;  //! collection of active board writers
     // store a reference board writer of the correct type
@@ -133,7 +133,7 @@ class MessageBoard {
     //! Pointer to VectorWrapper instance to store messages
     boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
 
-    boost::mutex mutex_; //! mutex lock for orchestrating concurrent access
+    boost::mutex mutex_;  //! mutex lock for orchestrating concurrent access
 
     //! Internal constructor used by factory method to instantiate board
     MessageBoard(const std::string& msg_name,
@@ -143,7 +143,6 @@ class MessageBoard {
 
     //! Internal routine used to disconnect and delete collection of writers
     void _DeleteWriters(void);
-    
 };
 
 }}  // namespace flame::mb

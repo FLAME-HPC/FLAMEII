@@ -98,7 +98,7 @@ class Proxy {
       acl_post_ = source.acl_post_;
       return *this;
     }
-    
+
   private:
     // acl_set_type defined in client.hpp
     acl_set_type acl_read_;  //! Set of message names with read access

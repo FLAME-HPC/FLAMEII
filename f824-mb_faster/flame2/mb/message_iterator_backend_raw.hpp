@@ -29,7 +29,6 @@ namespace flame { namespace mb {
  */
 class MessageIteratorBackendRaw : public MessageIteratorBackend {
   public:
-
     /*!
      * \brief Constructor
      * \param vw_ptr Pointer to the VectorWrapper instance of the board
@@ -44,7 +43,7 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
      * accessing it will result in undefined behaviour. It is the framework's
      * responsibility to ensure that this does not happen.
      */
-    MessageIteratorBackendRaw(flame::mem::VectorWrapperBase* vw_ptr)
+    explicit MessageIteratorBackendRaw(flame::mem::VectorWrapperBase* vw_ptr)
         : v_(vw_ptr), count_(vw_ptr->size()), pos_(0),
           current_(vw_ptr->GetRawPtr()) {}
 
@@ -84,7 +83,8 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
      * Always throws flame::exceptions::not_implemented.
      */
     inline bool Randomise(void) {
-      throw flame::exceptions::not_implemented("Raw backend cannot be randomised");
+      throw flame::exceptions::not_implemented(
+          "Raw backend cannot be randomised");
     }
 
     //! Returns a pointer to the current message, or NULL if end of iteration
@@ -101,10 +101,10 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     inline MessageIteratorBackend* GetMutableVersion(void) const {
       throw flame::exceptions::not_implemented("not yet implemented");
     }
-    
+
   private:
     //! Pointer to the VectorWrapper of the board
-    flame::mem::VectorWrapperBase* v_;  
+    flame::mem::VectorWrapperBase* v_;
     size_t count_;  //! Number of messages within the scope of iteration
     size_t pos_;  //! Current cursor position
     void* current_;  //! Pointer to current message

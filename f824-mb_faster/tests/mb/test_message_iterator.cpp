@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(mb_iterate_simple) {
   BOOST_CHECK_EQUAL(iter->AtEnd(), true);
   iter->Rewind();
   BOOST_CHECK_EQUAL(iter->AtEnd(), false);
-  
+
   /* Iterate with rc from Next() as loop term flag */
   int i = 0;
   do {

@@ -8,6 +8,7 @@
  * \brief Test suite for the user API (C++)
  */
 #define BOOST_TEST_DYN_LINK
+#include <vector>
 #include <boost/test/unit_test.hpp>
 #include <boost/scoped_ptr.hpp>
 #include "flame2/exceptions/api.hpp"
@@ -24,7 +25,6 @@ namespace mem = flame::mem;
 namespace e = flame::exceptions;
 
 BOOST_AUTO_TEST_CASE(api_test_basic) {
-
   // Create and populate agent memory
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
   mem_mgr.RegisterAgent("Circle");
@@ -40,20 +40,19 @@ BOOST_AUTO_TEST_CASE(api_test_basic) {
     rw_ptr->push_back(i + 10);
     na_ptr->push_back(i + 100);
   }
-  
+
   // Create message board
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
   mb_mgr.RegisterMessage<int>("msg_read");
   mb_mgr.RegisterMessage<int>("msg_write");
   mb_mgr.RegisterMessage<int>("msg_no_access");
-  
-  
+
   // Prepare access to memory
   mem::AgentShadowPtr shadow = mem_mgr.GetAgentShadow("Circle");
   shadow->AllowAccess("ro");  // read-only
   shadow->AllowAccess("rw", true);  // read-write
   // No access given to var "no_access"
-  
+
   // Prepare access to message board
   mb::Proxy proxy;
   proxy.AllowRead("msg_read");
@@ -96,19 +95,18 @@ BOOST_AUTO_TEST_CASE(api_test_basic) {
   BOOST_CHECK_THROW(FLAME.GetMessageIterator("unknown"),
                       e::flame_api_unknown_param);
 
-
   // test iterating through agents
-  for(int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 10; ++i) {
     BOOST_CHECK_EQUAL(FLAME.GetMem<int>("ro"), i);
     BOOST_CHECK_EQUAL(FLAME.GetMem<int>("rw"), i + 10);
     BOOST_CHECK(!mem_iter->AtEnd());
     mem_iter->Step();
   }
   BOOST_CHECK(mem_iter->AtEnd());
-  
+
   // reset managers so as not to affect next test suite
   mem_mgr.Reset();
-  mb_mgr.Reset(); 
+  mb_mgr.Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

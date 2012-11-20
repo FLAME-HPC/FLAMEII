@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(mb_single_writer) {
   // Board starts off empty
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
-  // Sync would be a NOOP 
+  // Sync would be a NOOP
   board->Sync();
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(mb_single_writer) {
 
   // Try posting invalid type
   BOOST_CHECK_THROW(writer->Post<double>(0.2), e::invalid_type);
-  
+
   // Post 4 messages
   writer->Post<int>(1);
   writer->Post<int>(2);
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writer) {
   BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)1);
   BOOST_CHECK_EQUAL(writer3->GetCount(), (size_t)4);
 
-  // sync 
+  // sync
   board->Sync();
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)5);
   BOOST_CHECK(!writer1->IsConnected());
@@ -97,7 +97,6 @@ BOOST_AUTO_TEST_CASE(mb_multiple_writer) {
   BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(writer3->GetCount(), (size_t)0);
-  
 }
 
 BOOST_AUTO_TEST_SUITE_END()

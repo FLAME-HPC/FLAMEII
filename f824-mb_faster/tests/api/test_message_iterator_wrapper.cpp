@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(api_test_iterator_wrapper_empty) {
   BOOST_CHECK_EQUAL(iterator.GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(iterator.AtEnd(), true);
   BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_out_of_range);
-  BOOST_CHECK_EQUAL(iterator.Next(), false); 
+  BOOST_CHECK_EQUAL(iterator.Next(), false);
   iterator.Rewind();  // should not raise any exceptions
 
   // randomisation not yet implemented
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(api_iterate_iterator_wrapper_simple) {
   BOOST_CHECK_EQUAL(iterator.AtEnd(), true);
   iterator.Rewind();
   BOOST_CHECK_EQUAL(iterator.AtEnd(), false);
-  
+
   /* Iterate with rc from Next() as loop term flag */
   int i = 0;
   do {

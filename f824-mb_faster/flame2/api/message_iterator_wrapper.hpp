@@ -25,7 +25,7 @@
     } \
   }
 #else
-  #define ASSERT_PTR_NOT_NULL(ptr) do {} while(0)
+  #define ASSERT_PTR_NOT_NULL(ptr) do {} while (0)
 #endif
 
 namespace flame { namespace api {
@@ -64,7 +64,7 @@ typedef boost::shared_ptr<flame::mb::MessageIterator> SharedMessageIterator;
 class MessageIteratorWrapper {
   public:
     //! Default constructor with null pointer
-    MessageIteratorWrapper(void) {}  
+    MessageIteratorWrapper(void) {}
 
     //! Constructor which initialises the pointer to actual message iterator
     explicit MessageIteratorWrapper(SharedMessageIterator iter)
@@ -111,8 +111,7 @@ class MessageIteratorWrapper {
     inline void Randomise(void) {
       ASSERT_PTR_NOT_NULL(parent_);
       throw flame::exceptions::flame_api_not_implemented(
-        "MessageIterator::Randomise", "Not yet implemented, sorry."
-      );
+        "MessageIterator::Randomise", "Not yet implemented, sorry.");
       parent_->Randomise();
     }
 
@@ -137,18 +136,16 @@ class MessageIteratorWrapper {
         throw flame::exceptions::flame_api_invalid_type(
           "MessageIterator::GetMessage",
           "Invalid type specified. Check that the type used when calling "
-          "'.GetMessage<MESSAGE_TYPE>()' matches the message type."
-        );
+          "'.GetMessage<MESSAGE_TYPE>()' matches the message type.");
       } catch(const flame::exceptions::out_of_range& E) {
         throw flame::exceptions::flame_api_out_of_range(
           "MessageIterator::GetMessage",
           "End of Iteration. GetMessage<MESSAGE_TYPE>() should not be called "
           "once the iteration has completed or if the message board is empty. "
-          "You can check using '.AtEnd()'."
-        );
+          "You can check using '.AtEnd()'.");
       }
     }
-    
+
   private:
     SharedMessageIterator parent_;  // shared pointer to the actual iterator
 };

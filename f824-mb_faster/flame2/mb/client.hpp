@@ -88,7 +88,7 @@ class Client {
     MessageBoard::iterator GetMessages(const std::string& msg_name);
 
     // TODO(lsc): GetMessages(msg_name, query);  // when filtering enabled
-    
+
   private:
     writer_map_type writers_;  //! Cache of writers for each allowed message
     acl_set_type acl_read_;  //! Names of messages client can read from
