@@ -16,10 +16,6 @@ size_t BoardWriter::GetCount(void) const {
   return data_->size();
 }
 
-bool BoardWriter::IsConnected(void) const {
-  return connected_;
-}
-
 void BoardWriter::Disconnect(void) {
   connected_ = false;
 }

@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(api_test_iterator_wrapper_empty) {
   BOOST_CHECK_EQUAL(iterator.GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(iterator.AtEnd(), true);
   BOOST_CHECK_THROW(iterator.GetMessage<int>(), e::flame_api_out_of_range);
-  BOOST_CHECK_THROW(iterator.Next(), e::flame_api_out_of_range);  // out of range
+  BOOST_CHECK_EQUAL(iterator.Next(), false); 
   iterator.Rewind();  // should not raise any exceptions
 
   // randomisation not yet implemented

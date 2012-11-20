@@ -13,19 +13,24 @@
 namespace flame { namespace mb {
 
 void MessageBoard::Clear(void) {
-  _DeleteWriters();
-  data_->clear();
+  _DeleteWriters();  // Disconnects and delete all writers
+  data_->clear();  // Empty internal vector of messages
 }
 
-// Number of messages that "has been synched"
 size_t MessageBoard::GetCount(void) const {
   return data_->size();
 }
 
+// This is the only method that's protected by a mutex since multiple
+// worker threads may request for a board writer at the same time.
+// The actual message posting is not locked since each thread would then
+// write into their own board writer and not directly into the message board
 MessageBoard::writer MessageBoard::GetBoardWriter(void) {
-  boost::lock_guard<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_);  // mutex guard
+
+  // clone an empty copy of a board writer that's assigned to the correct type
   MessageBoard::writer w(writer_template_->clone_empty());
-  writers_.push_back(w);
+  writers_.push_back(w);  // add to collection of writers
   return w;
 }
 

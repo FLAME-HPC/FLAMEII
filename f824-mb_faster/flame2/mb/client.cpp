@@ -33,7 +33,7 @@ Client::Client(acl_set_type acl_read, acl_set_type acl_post)
 
 MessageBoard::writer Client::GetBoardWriter(const std::string& msg_name) {
   try {
-    return writers_.at(msg_name);
+    return writers_.at(msg_name);  // throws exception if key is invalid
   } catch(const std::out_of_range& E) {
     if (MessageBoardManager::GetInstance().BoardExists(msg_name)) {
       throw flame::exceptions::invalid_operation("No post access for this msg");
@@ -44,7 +44,7 @@ MessageBoard::writer Client::GetBoardWriter(const std::string& msg_name) {
 }
 
 MessageBoard::iterator Client::GetMessages(const std::string& msg_name) {
-  if (acl_read_.find(msg_name) == acl_read_.end()) {
+  if (acl_read_.find(msg_name) == acl_read_.end()) {  // if no read access
     if (MessageBoardManager::GetInstance().BoardExists(msg_name)) {
       throw flame::exceptions::invalid_operation("No read access for this msg");
     } else {

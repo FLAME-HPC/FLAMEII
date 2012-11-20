@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(mb_iterate_empty) {
   BOOST_CHECK_EQUAL(iter->GetCount(), (size_t)0);
   BOOST_CHECK_EQUAL(iter->AtEnd(), true);
   BOOST_CHECK_THROW(iter->Get<int>(), e::out_of_range);
-  BOOST_CHECK_THROW(iter->Next(), e::out_of_range);
+  BOOST_CHECK_EQUAL(iter->Next(), false);
   iter->Rewind();  // should not raise any exceptions
 
   BOOST_CHECK_THROW(iter->Get<double>(), e::invalid_type);

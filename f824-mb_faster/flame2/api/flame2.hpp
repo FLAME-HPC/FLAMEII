@@ -9,7 +9,7 @@
  */
 #ifndef FLAME2__API__FLAME2_HPP_
 #define FLAME2__API__FLAME2_HPP_
-#include "agent_api.hpp"
+#include "flame2/api/agent_api.hpp"
 
 //! Return code for agent function to signify that agent should remain alive
 #define FLAME_AGENT_ALIVE 0

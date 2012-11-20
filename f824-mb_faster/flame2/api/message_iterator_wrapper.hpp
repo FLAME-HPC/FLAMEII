@@ -90,28 +90,11 @@ class MessageIteratorWrapper {
 
     /*!
      * \brief Steps to the next message in the iteration
-     * \return false if stepping to the last item in the iteration,
-     * true otherwise
-     *
-     * Throws flame::exception::flame_api_out_of_range if the end of iteration
-     * has already been reached. This is the same as calling the method on an
-     * empty iterator.
-     *
-     * Users are expected to only call Next() if AtEnd() returns false or if
-     * a previous call to Next() returned true.
+     * \return true if successful, false otherwise (end of iteration)
      */
     inline bool Next(void) {
       ASSERT_PTR_NOT_NULL(parent_);
-      try {
-        return parent_->Next();
-      } catch(const flame::exceptions::out_of_range& E) {
-        throw flame::exceptions::flame_api_out_of_range(
-          "MessageIterator::Next",
-          "End of Iteration. Next() should not be called once the "
-          "iteration has completed or if the message board is empty. "
-          "You can check using '.AtEnd()'."
-        );
-      }
+      return parent_->Next();
     }
 
     /*!
@@ -119,9 +102,9 @@ class MessageIteratorWrapper {
      *
      * (Not yet implemented)
      *
-     * Note that out of order iteration of messages requires an the iterator to
-     * store an intermediate array of indices, leading to a degradation in
-     * performance.
+     * Note that out of order iteration of messages requires the iterator to
+     * store an intermediate array of indices. This may lead to a degradation
+     * in iteration performance.
      *
      * Randomisation of an in-progress iterator will rewind it.
      */
