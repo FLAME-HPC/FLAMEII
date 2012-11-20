@@ -1,6 +1,5 @@
-CPP_SOURCES = main.cpp
-C_SOURCES   = agent_functions.c
-HEADERS     = agent_functions.h message_datatypes.h
+SOURCES = agent_functions.cpp main.cpp
+HEADERS = agent_functions.hpp message_datatypes.hpp
 
 # Required scripts
 FLAME2_CONFIG = flame2-config
@@ -21,12 +20,12 @@ LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --rpath)
 
 # conditionally force libtool to statically link all depencies
 ifeq ($(static),1)
-	LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --static) 
+LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --static) 
 endif
 
 EXECUTABLE = run
 DEPS      = $(HEADERS) Makefile
-OBJECTS   = $(C_SOURCES:.c=.o) $(CPP_SOURCES:.cpp=.o)
+OBJECTS   = $(SOURCES:.cpp=.o)
 
 .PHONY: f2config show production
 
@@ -62,11 +61,6 @@ endif
 	@$(LINK_COMMAND)  $(OBJECTS) -o $@ $(LINK_FLAGS)
 
 $(OBJECTS): $(DEPS)
-
-# Use C++ compiler, even for C code
-.c.o:
-	@echo "[$(MODE)] Compiling $<"
-	@$(CXX) -c $(COMPILE_FLAGS) $< -o $@
 
 .cpp.o:
 	@echo "[$(MODE)] Compiling $<"

@@ -1,13 +1,13 @@
 #include <iostream>
-#include "flame2/compat/C/compatibility_manager.hpp"
 #include "flame2/exe/task_manager.hpp"
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/model/xmodel.hpp"
+#include "flame2/mb/message_board_manager.hpp"
 
-#include "agent_functions.h"
-#include "message_datatypes.h"
+#include "agent_functions.hpp"
+#include "message_datatypes.hpp"
 
 int main(int argc, const char* argv[]) {
 
@@ -38,39 +38,18 @@ int main(int argc, const char* argv[]) {
   std::string model_path;
   model_path = "circles.xml";
 
-  /*
-  // Define agents and population
-  flame::mem::MemoryManager& mem_mgr = flame::mem::MemoryManager::GetInstance();
-  mem_mgr.RegisterAgent("Circle");
-  mem_mgr.RegisterAgentVar<double>("Circle", "x");
-  mem_mgr.RegisterAgentVar<double>("Circle", "y");
-  mem_mgr.RegisterAgentVar<double>("Circle", "fx");
-  mem_mgr.RegisterAgentVar<double>("Circle", "fy");
-  mem_mgr.RegisterAgentVar<double>("Circle", "radius");
-  mem_mgr.RegisterAgentVar<int>("Circle", "id");
-  */
   
-  // Register Message Boards
-  // For C API we cannnot handle individual vars in messages. Not yet.
-  // Might have to do it via compatibilityManager :(
-  flame::compat::c::CompatibilityManager& compat_mgr = flame::compat::c::CompatibilityManager::GetInstance();
-  compat_mgr.RegisterMessage<location_message>("location");
-  
-  /*
-  // Populate
-  flame::io::IOManager io_mgr;
-  // Currently readPop depends on read in model
-  // Need to change dependency to memory mgr?
-  io_mgr.readPop(pop_path, xmodel, FileType::xml);
-  */
-
-  // Load data
+  // Load model and population data
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
   model::XModel model;
   iomanager.loadModel(model_path, &model);
   model.validate();
   model.registerWithMemoryManager();
   iomanager.readPop(pop_path, &model, flame::io::IOManager::xml);
+
+  // Register Message Boards
+  flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();
+  mb_mbr.RegisterMessage<location_message>("location");
 
   // Define tasks
   flame::exe::TaskManager& task_mgr = flame::exe::TaskManager::GetInstance();
@@ -106,41 +85,20 @@ int main(int argc, const char* argv[]) {
                                   flame::exe::MessageBoardTask::OP_SYNC);
   task_mgr.CreateMessageBoardTask("__MB__clear_location", "location", 
                                   flame::exe::MessageBoardTask::OP_CLEAR);
-  /*
-  task_mgr.CreateIOTask("__IO__output_Circle_x", "Circle", "x",
-                                  flame::exe::IOTask::OP_OUTPUT);
-  task_mgr.CreateIOTask("__IO__output_Circle_y", "Circle", "y",
-                                  flame::exe::IOTask::OP_OUTPUT);
-  task_mgr.CreateIOTask("__IO__output_Circle_fx", "Circle", "fx",
-                                  flame::exe::IOTask::OP_OUTPUT);
-  task_mgr.CreateIOTask("__IO__output_Circle_fy", "Circle", "fy",
-                                  flame::exe::IOTask::OP_OUTPUT);
-  task_mgr.CreateIOTask("__IO__output_Circle_radius", "Circle", "radius",
-                                  flame::exe::IOTask::OP_OUTPUT);              
-  task_mgr.CreateIOTask("__IO__output_Circle_id", "Circle", "id",
-                                  flame::exe::IOTask::OP_OUTPUT);
-  // Need to remember model environment constants
-  //task_mgr.CreateIOTask("__IO__output_Model_env", "Circles", "env" 
-  //                                flame::exe::IOTask::OP_OUTPUT);   
-  */
-  //taskManager.CreateIOTask("__IO__output_Model_initialise", "", "",
-  //                        flame::exe::IOTask::OP_INIT);
-  task_mgr.CreateIOTask("__IO__output_Model_finalise", "", "",
-                          flame::exe::IOTask::OP_FIN);
+
   
-  // Add task dependencies
-  //taskManager.AddDependency("__AGENT__outputdata", "__IO__output_Circle_radius");
-  //taskManager.AddDependency("__AGENT__outputdata", "__IO__output_Circle_id");
+  // Dependencies for agent functions
   task_mgr.AddDependency("__MB__sync_location", "__AGENT__outputdata");
   task_mgr.AddDependency("__AGENT__inputdata", "__MB__sync_location");
   task_mgr.AddDependency("__MB__clear_location", "__AGENT__inputdata");
   task_mgr.AddDependency("__AGENT__move", "__AGENT__inputdata");
-  /*
-  task_mgr.AddDependency("__IO__output_Circle_fx", "__AGENT__inputdata");
-  task_mgr.AddDependency("__IO__output_Circle_fy", "__AGENT__inputdata");
-  task_mgr.AddDependency("__IO__output_Circle_x", "__AGENT__move");
-  task_mgr.AddDependency("__IO__output_Circle_y", "__AGENT__move");
-  */
+
+  // Task and dependencies for data output
+  task_mgr.CreateIOTask("__IO__output_Model_initialise", "", "",
+                          flame::exe::IOTask::OP_INIT);
+  task_mgr.CreateIOTask("__IO__output_Model_finalise", "", "",
+                          flame::exe::IOTask::OP_FIN);
+  task_mgr.AddDependency("__IO__output_Model_finalise", "__IO__output_Model_initialise");
   task_mgr.AddDependency("__IO__output_Model_finalise", "__AGENT__move");
   
   // Initialise scheduler

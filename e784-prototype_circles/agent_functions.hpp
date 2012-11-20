@@ -1,0 +1,9 @@
+#ifndef AGENT_FUNCTIONS_HPP_
+#define AGENT_FUNCTIONS_HPP_
+#include "flame2.hpp"
+
+FLAME_AGENT_FUNCTION(outputdata);
+FLAME_AGENT_FUNCTION(inputdata);
+FLAME_AGENT_FUNCTION(move);
+
+#endif  // AGENT_FUNCTIONS_HPP_
