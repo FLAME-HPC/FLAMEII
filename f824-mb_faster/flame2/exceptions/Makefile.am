@@ -18,6 +18,7 @@ library_include_HEADERS = \
   exe.hpp \
   io.hpp \
   api.hpp \
+  model.hpp \
   mem.hpp
   
 
