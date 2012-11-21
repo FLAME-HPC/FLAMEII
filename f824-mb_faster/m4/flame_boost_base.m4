@@ -76,6 +76,16 @@ AC_ARG_WITH([boost],
 #    ],
 #    [want_boost="yes"])
 
+# Include boost headers as system headersto suppress compiler warnings
+# Do update this list as more compilers are tested
+case "$CXX" in
+  g++*|gcc*|icc*)
+    boost_include_option="-isystem "
+    ;;
+  *)
+    boost_include_option="-I"
+    ;;
+esac
 
 AC_ARG_WITH([boost-libdir],
         AS_HELP_STRING([--with-boost-libdir=BOOST_LIB_DIR],
@@ -119,7 +129,7 @@ if test "x$want_boost" = "xyes"; then
     dnl this location ist chosen if boost libraries are installed with the --layout=system option
     dnl or if you install boost with RPM
     if test "$ac_boost_path" != ""; then
-        BOOST_CPPFLAGS="-I$ac_boost_path/include"
+        BOOST_CPPFLAGS="$boost_include_option$ac_boost_path/include"
         for ac_boost_path_tmp in $libsubdirs; do
                 if test -d "$ac_boost_path"/"$ac_boost_path_tmp" ; then
                         BOOST_LDFLAGS="-L$ac_boost_path/$ac_boost_path_tmp"
@@ -134,7 +144,7 @@ if test "x$want_boost" = "xyes"; then
                     if ls "$ac_boost_path_tmp/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
                 done
                 BOOST_LDFLAGS="-L$ac_boost_path_tmp/$libsubdir"
-                BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
+                BOOST_CPPFLAGS="$boost_include_option$ac_boost_path_tmp/include"
                 BOOST_LIBDIR="$ac_boost_path_tmp/$libsubdir"
                 break;
             fi
@@ -189,7 +199,7 @@ if test "x$want_boost" = "xyes"; then
                         _version=$_version_tmp
                     fi
                     VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
-                    BOOST_CPPFLAGS="-I$ac_boost_path/include/boost-$VERSION_UNDERSCORE"
+                    BOOST_CPPFLAGS="$boost_include_option$ac_boost_path/include/boost-$VERSION_UNDERSCORE"
                 done
             fi
         else
@@ -208,7 +218,7 @@ if test "x$want_boost" = "xyes"; then
                 done
 
                 VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
-                BOOST_CPPFLAGS="-I$best_path/include/boost-$VERSION_UNDERSCORE"
+                BOOST_CPPFLAGS="$boost_include_option$best_path/include/boost-$VERSION_UNDERSCORE"
                 if test "$ac_boost_lib_path" = ""; then
                     for libsubdir in $libsubdirs ; do
                         if ls "$best_path/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
@@ -231,7 +241,7 @@ if test "x$want_boost" = "xyes"; then
                     V_CHECK=`expr $stage_version_shorten \>\= $_version`
                     if test "$V_CHECK" = "1" -a "$ac_boost_lib_path" = "" ; then
                         # AC_MSG_NOTICE(We will use a staged boost library from $BOOST_ROOT)
-                        BOOST_CPPFLAGS="-I$BOOST_ROOT"
+                        BOOST_CPPFLAGS="$boost_include_option$BOOST_ROOT"
                         BOOST_LDFLAGS="-L$BOOST_ROOT/stage/$libsubdir"
                         BOOST_LIBDIR="$BOOST_ROOT/stage/$libsubdir"
                     fi

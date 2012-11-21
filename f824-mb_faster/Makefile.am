@@ -39,7 +39,7 @@ LIBADD_LIST = \
   flame2/exe/lib_flame_exe \
   flame2/mem/lib_flame_mem \
   flame2/api/lib_flame_api \
-  flame2/io/lib_flame_io \  
+  flame2/io/lib_flame_io \
   flame2/model/lib_flame_model \
   flame2/sim/lib_flame_sim  
 
