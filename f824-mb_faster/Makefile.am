@@ -66,7 +66,9 @@ libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la)
 endif
 
 # API headers
-include_HEADERS = flame2/api/flame2.hpp
+include_HEADERS = \
+  flame2/api/flame2.hpp \
+  flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
