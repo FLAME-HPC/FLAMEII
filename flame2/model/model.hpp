@@ -12,8 +12,7 @@
 #define MODEL__MODEL_HPP_
 #include <string>
 #include "flame2/model/xmodel.hpp"
-#include "flame2/compat/C/compatibility_manager.hpp"
-#include "flame2/compat/C/flame2.h"
+#include "flame2/mb/message_board_manager.hpp"
 
 namespace flame {
 namespace model {
@@ -25,8 +24,7 @@ class Model {
             flame::exe::TaskFunction f_ptr);
     template <typename T>
     void registerMessageType(std::string name) {
-        flame::compat::c::CompatibilityManager::GetInstance().
-                RegisterMessage<T>(name);
+      flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
     }
     flame::model::XModel * getXModel();
   private:

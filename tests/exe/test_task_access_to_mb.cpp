@@ -11,14 +11,13 @@
 #include <vector>
 #include <ostream>
 #include <boost/test/unit_test.hpp>
+#include "flame2/api/flame2.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 #include "flame2/exe/task_manager.hpp"
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
-#include "flame2/compat/C/compatibility_manager.hpp"
-#include "flame2/compat/C/flame2.h"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
@@ -40,37 +39,35 @@ inline std::ostream &operator<<(std::ostream &os, const location_message& ob) {
   return os;
 }
 
-FLAME_AGENT_FUNC(func_post_message) {
+FLAME_AGENT_FUNCTION(func_post_message) {
   location_message msg;
-  msg.x = flame_mem_get_double("x");
-  msg.y = flame_mem_get_double("y");
-  msg.z = flame_mem_get_double("z");
-  msg.id = flame_mem_get_int("id");
 
-  flame_msg_post("location", &msg);
+  msg.x = FLAME.GetMem<double>("x");
+  msg.y = FLAME.GetMem<double>("y");
+  msg.z = FLAME.GetMem<double>("z");
+  msg.id = FLAME.GetMem<int>("id");
+
+  FLAME.PostMessage<location_message>("location", msg);
   return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(func_read_message) {
+FLAME_AGENT_FUNCTION(func_read_message) {
   int checksum = 0;
-  flame_msg_iterator iter;
   location_message msg;
-
-  iter = flame_msg_get_iterator("location");
-  for (; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
-    flame_msg_iterator_get_message(iter, &msg);
+  
+  MessageIterator iter;
+  iter = FLAME.GetMessageIterator("location");
+  for (; !iter.AtEnd(); iter.Next()) {
+    msg = iter.GetMessage<location_message>();
     checksum += msg.id;
   }
-  flame_msg_iterator_free(iter);
 
-  flame_mem_set_int("checksum", checksum);
+  FLAME.SetMem<int>("checksum", checksum);
   return FLAME_AGENT_ALIVE;
 }
 
+
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
-  // C compatibility mode
-  flame::compat::c::CompatibilityManager& compat = \
-         flame::compat::c::CompatibilityManager::GetInstance();
 
   // Define agents and population
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
@@ -96,15 +93,8 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
     cs->push_back(0);
   }
 
-  // Register Message Board
-  // Use compat manager for C API
-  compat.RegisterMessage<location_message>("location");
-
   mb::MessageBoardManager& mb_mgr = mb::MessageBoardManager::GetInstance();
-  // --- the following already done by compat.RegisterMessage ---
-  // mb_mgr.RegisterMessage("location");
-  // mb_mgr.RegisterMessageVar<location_message>("location",
-  //                              flame::compat::c::Constants::MESSAGE_VARNAME);
+  mb_mgr.RegisterMessage<location_message>("location");
 
 
   // Register Task
@@ -153,7 +143,6 @@ BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
   mem_mgr.Reset();
   mb_mgr.Reset();
   tm.Reset();
-  compat.Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

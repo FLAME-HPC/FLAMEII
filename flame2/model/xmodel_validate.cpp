@@ -7,13 +7,16 @@
  * \copyright GNU Lesser General Public License
  * \brief Checks and validates a loaded model
  */
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#ifndef TESTBUILD
+#include <cstdarg>
+#endif
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include "flame2/config.hpp"
 #include "flame2/model/xmodel.hpp"
 #include "xmodel_validate.hpp"

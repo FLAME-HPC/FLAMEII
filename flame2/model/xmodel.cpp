@@ -14,7 +14,6 @@
 #include <map>
 #include "flame2/config.hpp"
 #include "flame2/mb/message_board_manager.hpp"
-#include "flame2/compat/C/flame2.h"
 #include "xmodel.hpp"
 
 namespace flame { namespace model {
@@ -79,13 +78,17 @@ void XModel::registerWithMemoryManager() {
         (*agent).registerWithMemoryManager();
 }
 
+// TODO(sc): This method has been temporarily crippled. RegisterMessage<T>(..)
+//           is now a templated method and so cannot be called this way.
 void XModel::registerWithMessageBoardManager() {
     mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
     boost::ptr_vector<XMessage>::iterator m;
 
     // For each message
+    /*
     for (m = messages_.begin(); m != messages_.end(); ++m)
         mgr.RegisterMessage((*m).getName());
+    */
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {

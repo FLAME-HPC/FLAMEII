@@ -14,7 +14,7 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/exe/task_manager.hpp"
 #include "flame2/exe/task_splitter.hpp"
-#include "flame2/compat/C/flame2.h"
+#include "flame2/api/flame2.hpp"
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
@@ -22,7 +22,7 @@ namespace e = flame::exceptions;
 namespace exe = flame::exe;
 namespace mem = flame::mem;
 
-FLAME_AGENT_FUNC(dummy_func) {
+FLAME_AGENT_FUNCTION(dummy_func) {
   return FLAME_AGENT_ALIVE;
 }
 

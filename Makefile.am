@@ -13,15 +13,17 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Directories to search and build
 SUBDIRS = \
-  flame2/io \
   flame2/mb \
+  flame2/io \
   flame2/mem \
   flame2/exe \
-  flame2/sim \
-  flame2/model \
-  flame2/compat/C \
+  flame2/api \
   flame2/exceptions \
+  flame2/model \
+  flame2/sim \
   utils
+
+
 
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests
@@ -33,13 +35,14 @@ lib_LTLIBRARIES =
 # Note that the build type and file extensions are automatically appended
 # depending on the build type
 LIBADD_LIST = \
-  flame2/exe/lib_flame_exe \
-  flame2/io/lib_flame_io  \
   flame2/mb/lib_flame_mb  \
-  flame2/mem/lib_flame_mem  \
-  flame2/sim/lib_flame_sim  \
+  flame2/exe/lib_flame_exe \
+  flame2/mem/lib_flame_mem \
+  flame2/api/lib_flame_api \
+  flame2/io/lib_flame_io \
   flame2/model/lib_flame_model \
-  flame2/compat/C/lib_flame_compat_c
+  flame2/sim/lib_flame_sim  
+
   
 if BUILD_DEBUG
 lib_LTLIBRARIES += libflame2-dbg.la
@@ -62,11 +65,10 @@ libflame2_test_la_LDFLAGSS = @COMMON_LDFLAGS@
 libflame2_test_la_LIBADD = $(LIBADD_LIST:=-test.la) 
 endif
 
-# C API header
-include_HEADERS = flame2/compat/C/flame2.h
-# flame2 config header
-# Should not need to be installed since it is only used by cpp files.
-# nobase_include_HEADERS = flame2/config.hpp
+# API headers
+include_HEADERS = \
+  flame2/api/flame2.hpp \
+  flame2/config.hpp
 
 # Extra files to add into distribution
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \

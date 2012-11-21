@@ -1,7 +1,7 @@
 /*!
  * \file flame2/mb/client.hpp
  * \author Shawn Chin
- * \date October 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
@@ -16,47 +16,82 @@
  */
 #ifndef MB__CLIENT_HPP_
 #define MB__CLIENT_HPP_
-#include <map>
 #include <string>
-#include "mb_common.hpp"
-#include "proxy.hpp"
+#include <set>
+#include <boost/container/flat_set.hpp>
+#include <boost/container/flat_map.hpp>
+#include "message_board.hpp"
 
 namespace flame { namespace mb {
 
+// Use flat_set/flat_map instead of set/map. This should yield better
+// performance in our case where:
+//  * we expect to have a relatively small number of elements
+//  * All insertion done before any lookups, and only at the init phase
+//  * It is possible to engineer a usage where insertion is in-order
+//  * Lookup performance more important than insertion
+
+/*!
+ * \brief datatype to store a set of message names for managing access control
+ *
+ * We Use boost::container::flat_set instead of std::set. This should yield
+ * better performance in our case where:
+ *
+ * - we expect to have a relatively small number of elements
+ * - All insertion done before any lookups, and only at the init phase
+ * - It is possible to engineer a usage where insertion is in-order
+ * - Lookup performance more important than insertion
+ *
+ * Reference: http://lafstern.org/matt/col1.pdf
+ */
+typedef std::set<std::string> acl_set_type;
+
+/*!
+ * \brief datatype to map a small collection of names to writers
+ *
+ * For the same reasons stated in the description of acl_set_type, we use
+ * boost::container::flat_map instead of std::map.
+ */
+typedef boost::container::flat_map<std::string,
+                                   MessageBoard::writer> writer_map_type;
+
+//! Message board client used by end-user API for all message board interactions
 class Client {
   public:
-    friend class Proxy;
+    /*!
+     * \brief
+     * \param acl_read names of messages client can read
+     * \param acl_post names of messages client can post to
+     */
+    Client(acl_set_type acl_read, acl_set_type acl_post);
 
-    //! Returns an iterator to read all messages in the board
-    MessageIteratorHandle GetMessages(const std::string& msg_name);
+    /*!
+     * \brief Returns a board writer instance for posting message
+     * 
+     * Throws flame::exceptions::invalid_argument if given message name is
+     * invalid.
+     *
+     * Throws flame::exceptions::invalid_operation if client does not have
+     * permissions to write to given message
+     */
+    MessageBoard::writer GetBoardWriter(const std::string& msg_name);
 
-    //! Returns a handle to a board writer
-    BoardWriterHandle GetWriter(const std::string& msg_name);
+    /*!
+     * \brief Returns an iterator to read messages from the given message board
+     * 
+     * Throws flame::exceptions::invalid_argument if given message name is
+     * invalid.
+     *
+     * Throws flame::exceptions::invalid_operation if client does not have
+     * permissions to read given message.
+     */
+    MessageBoard::iterator GetMessages(const std::string& msg_name);
 
-    //! Returns a handle to a new message which which can post to a board
-    MessageHandle NewMessage(const std::string& msg_name);
-
-    /* // (When filtering is enabled)
-    //! Queries the board
-    MessageIteratorHandle GetMessage(const std::string& msg_name,
-                                     const std::string& query);
-    */
-  protected:
-    // constructor limited to mb::Proxy
-    Client(const Proxy::StringSet& acl_read, const Proxy::StringSet& acl_post);
+    // TODO(lsc): GetMessages(msg_name, query);  // when filtering enabled
 
   private:
-    typedef std::map<std::string, BoardWriterHandle> WriterMap;
-
-    Proxy::StringSet acl_read_;  //! msg with read access
-    Proxy::StringSet acl_post_;  //! msg with post acess
-    WriterMap writer_cache_;  //! Cache of writer handles
-
-    //! Checks if read access is set for a message
-    bool _can_read(const std::string& msg_name);
-
-    //! Checks if post access is set for a message
-    bool _can_post(const std::string& msg_name);
+    writer_map_type writers_;  //! Cache of writers for each allowed message
+    acl_set_type acl_read_;  //! Names of messages client can read from
 };
 
 }}  // namespace flame::mb

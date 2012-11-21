@@ -1,71 +1,93 @@
 /*!
  * \file flame2/mb/board_writer.hpp
  * \author Shawn Chin
- * \date September 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Declaration of BoardWriter
+ * \brief Declaration of BoardWriter class
  */
 #ifndef MB__BOARD_WRITER_HPP
 #define MB__BOARD_WRITER_HPP
-#include <string>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
+#include "flame2/exceptions/all.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
-#include "message_board.hpp"
-#include "message.hpp"
 
 namespace flame { namespace mb {
 
-class TypeValidator;  // forward declaration
-
 /*!
- * \brief Proxy object used to post messages to a board
+ * \brief Object acting as a buffer for posts to a message board
  *
- * Messages are not posted to the board directly as concurrent posts will
- * incur too much locking overheads. Instead, each thread can be assigned
- * a BoardWrite instance into which messages are posted. These messages
- * are eventually incorporated into the board by MessageBoard::Sync().
- *
- * This class should not be manually instantiated as it is only useful when
- * associated with a MessageBoard. The constructor is therefore protected
- * and callable only by MessageBoard.
+ * Access to this object is not mutex protected as each worker thread is
+ * expected to request its own instance.
  */
 class BoardWriter {
-  //! Only MessageBoard can call the constructor
-  friend class MessageBoard;
+  friend class MessageBoard;  //! Give MessageBoard access to protected methods
 
   public:
-    //! Returns a Message instance that can .Post() to this writer
-    MessageHandle NewMessage(void);
+    //! Returns the number of posted messages
+    size_t GetCount(void) const;
 
-    //! Callback function for storing posted messages
-    void PostCallback(Message* msg);
+    /*!
+     * \brief Returns true if still connected to parent board
+     *
+     * Once disconnected, messages can no longer be posted.
+     */
+    inline bool IsConnected(void) const { return connected_; }
 
-    //! Return the number of messages posted so far
-    size_t GetCount(void);
-
-    //! Indicate if writer is still connected to the board
-    bool IsConnected(void);
+    /*!
+     * \brief Posts a message
+     *
+     * Posted message will be buffered in the writer and only copied to the
+     * message board during a message board sync.
+     *
+     * Throws flame::exceptions::invalid_type if the type specified does not
+     * match the message type.
+     *
+     * Throws flame::exceptions::invalid_operation if the the writer has been
+     * disconnected
+     */
+    template <typename T>
+    void Post(const T &msg) {
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
+      if (*(data_->GetDataType()) != typeid(T)) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+#endif
+#ifdef DEBUG
+      if (!IsConnected()) {
+        throw flame::exceptions::invalid_operation(
+                                 "No longer connected to board");
+      }
+#endif
+      std::vector<T> *v = static_cast<std::vector<T>*>(data_->GetVectorPtr());
+      v->push_back(msg);
+    }
 
   protected:
-    //! Constructor. Limited to friend classes
-    explicit BoardWriter(const std::string message_name, TypeValidator* tv);
+    //! datatype for smart pointer to VectorWrapper
+    boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
 
-    //! Var registration. Limited to friend classes
-    void RegisterVar(std::string var_name, GenericVector* vec);
+    //! Factory method to create a BoardWriter for a specific message type
+    template <class T>
+    static BoardWriter* create(void) {
+      return new BoardWriter(new flame::mem::VectorWrapper<T>());
+    }
 
-    //! Internal data structure. Accessible by friend classes
-    MemoryMap mem_map_;
+    //! Return a clone holding the same VectorWrapper type but with no content
+    BoardWriter* clone_empty(void);
 
-    //! Sets flag to indicate that writer is not disconnected from the board
-    void Disconnect(void);
+    //! Disconnect the writer so messages can no longer be posted
+    void Disconnect();
 
   private:
-    size_t count_;  //! Number of messages posted
-    std::string msg_name_;  //! Message name
-    TypeValidator* validator_;
-    bool connected_;  //! Indicate if writer is still valid
+    bool connected_;  //! Flag to determine if the writer is still connected
+
+    //! Private constructor with takes a pointer to a VectorWrapper object
+    explicit BoardWriter(flame::mem::VectorWrapperBase *vec)
+        : data_(vec), connected_(true) {}
 };
 
 }}  // namespace flame::mb

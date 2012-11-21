@@ -11,7 +11,6 @@
 module_headers = \
   agent_task.hpp \
   fifo_task_queue.hpp \
-  io_task.hpp \
   message_board_task.hpp \
   scheduler.hpp \
   splitting_fifo_task_queue.hpp \
@@ -19,18 +18,19 @@ module_headers = \
   task_manager.hpp \
   task_queue_interface.hpp \
   task_splitter.hpp \
-  worker_thread.hpp
-
+  worker_thread.hpp \
+  io_task.hpp
+  
 module_sources = \
   agent_task.cpp \
   fifo_task_queue.cpp \
-  io_task.cpp \
   message_board_task.cpp \
   scheduler.cpp \
   splitting_fifo_task_queue.cpp \
   task_manager.cpp \
   task_splitter.cpp \
-  worker_thread.cpp
+  worker_thread.cpp \
+  io_task.cpp 
 
 # Header install path
 library_includedir = $(pkgincludedir)/exe

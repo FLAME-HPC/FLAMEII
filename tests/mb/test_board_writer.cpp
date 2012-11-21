@@ -1,7 +1,7 @@
 /*!
- * \file tests/mb/test_board_writer.cpp
+ * \file tests/mb2/test_board_writer.cpp
  * \author Shawn Chin
- * \date September 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
@@ -9,200 +9,94 @@
  */
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include "flame2/exceptions/all.hpp"
 #include "flame2/mb/message_board.hpp"
-#include "flame2/mb/message.hpp"
 
-BOOST_AUTO_TEST_SUITE(MBModule)
+BOOST_AUTO_TEST_SUITE(MB2Module)
 
-namespace e = flame::exceptions;
 namespace mb = flame::mb;
-namespace mem = flame::mem;
+namespace e = flame::exceptions;
+
+typedef boost::scoped_ptr<mb::MessageBoard> board_ptr_type;
 
 BOOST_AUTO_TEST_CASE(mb_single_writer) {
-  mb::MessageBoard board = mb::MessageBoard("msg1");
-  board.RegisterVar<int>("int");
-  board.RegisterVar<double>("dbl");
+  // Create message board of type "int"
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
 
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  /* should be a NOOP */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  /* get a writer */
-  mb::BoardWriterHandle writer = board.GetBoardWriter();
-  /* board should not be finalised. no more new vars */
-  BOOST_CHECK_THROW(board.RegisterVar<int>("i2"), e::logic_error);
-
-  /* get a message handle so we can post new messages */
-  mb::MessageHandle msg = writer->NewMessage();
-
-  /* we should not be able to post yet. Not all vars set */
-  BOOST_CHECK_THROW(msg->Post(), e::insufficient_data);
-
-  /* Setting unknown variable */
-  BOOST_CHECK_THROW(msg->Set<int>("unknown", 1), e::invalid_variable);
-
-  /* Setting variable with wrong type */
-  BOOST_CHECK_THROW(msg->Set<int>("dbl", 1), e::invalid_type);
-
-  /* The following should work */
-  msg->Set<int>("int", 1);
-  BOOST_CHECK_THROW(msg->Post(), e::insufficient_data);  // still not enough
-  msg->Set<double>("dbl", 0.1);
-
-  /* We should not be able to post */
-  msg->Post();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)1);
-
-  /* We should be able to post again (duplicate message) */
-  msg->Post();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)2);
-
-  /* Reset message. Can no longer post.*/
-  msg->Clear();
-  BOOST_CHECK_THROW(msg->Post(), e::insufficient_data);
-
-  /* Not yet synched, Board should still be empty */
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  /* sync */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)2);
-
-  /* another sync should not make a difference */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)2);
-}
-
-BOOST_AUTO_TEST_CASE(mb_multiple_writers) {
-  mb::MessageBoard board = mb::MessageBoard("msg1");
-  board.RegisterVar<int>("int");
-  board.RegisterVar<double>("dbl");
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  mb::BoardWriterHandle writer;
-  mb::MessageHandle msg;
-
-  /* Get a writer, don't write */
-  writer = board.GetBoardWriter();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)0);
-
-  /* Get another writer, post one message */
-  writer = board.GetBoardWriter();
-  msg = writer->NewMessage();
-  msg->Set<int>("int", 10);
-  msg->Set<double>("dbl", 0.1);
-  msg->Post();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)1);
-
-  /* Get another writer, post 4 messages */
-  writer = board.GetBoardWriter();
-  msg = writer->NewMessage();
-  msg->Set<int>("int", 20);
-  msg->Set<double>("dbl", 0.2);
-  msg->Post();
-  msg->Post();
-  msg->Set<int>("int", 40); /* change data */
-  msg->Post();
-  msg->Set<double>("dbl", 0.04); /* change data */
-  msg->Post();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)4);
-
-  /* before sync, board should still be empty */
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  /* after sync, 5 messages */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)5);
-
-  /* sync again, no change */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)5);
-
-  /* get another writer and post 5 more messages */
-  writer = board.GetBoardWriter();
-  msg = writer->NewMessage();
-  msg->Set<int>("int", 10);
-  msg->Set<double>("dbl", 0.1);
-  msg->Post();
-  msg->Post();
-  msg->Post();
-  msg->Post();
-  msg->Post();
-  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)5);
-
-  /* after sync, 10 messages */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)10);
-
-  /* sync again, no change */
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)10);
-}
-
-BOOST_AUTO_TEST_CASE(mb_concurrent_writers) {
-  mb::MessageBoard board = mb::MessageBoard("msg1");
-  board.RegisterVar<int>("int");
-  board.RegisterVar<double>("dbl");
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)0);
-
-  mb::BoardWriterHandle writer1, writer2;
-  mb::MessageHandle msg1, msg2, msg2b;
-
-  writer1 = board.GetBoardWriter();
-  writer2 = board.GetBoardWriter();
-
-  msg1 = writer1->NewMessage();
-  msg2 = writer2->NewMessage();
-  msg2b = writer2->NewMessage();
-
-  msg1->Set<int>("int", 10);
-  msg1->Set<double>("dbl", 0.1);
-
-  msg2->Set<int>("int", 20);
-  msg2->Set<double>("dbl", 0.2);
-
-  msg2b->Set<int>("int", 30);
-  msg2b->Set<double>("dbl", 0.3);
-
-  msg1->Post();
-  msg2->Post();
-  msg2->Post();
-  msg1->Post();
-  msg1->Post();
-  msg2b->Post();
-  msg1->Post();
-
-  BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)4);
-  BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)3);
-
-  board.Sync();
-  BOOST_CHECK_EQUAL(board.GetCount(), (size_t)7);
-}
-
-BOOST_AUTO_TEST_CASE(mb_writer_test_disconnect) {
-  // use new so we can force deallocation
-  mb::MessageBoard *board = new mb::MessageBoard("msg1");
-  board->RegisterVar<int>("int");
-  board->RegisterVar<double>("dbl");
+  // Board starts off empty
   BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
 
-  // a new writer should be connected
-  mb::BoardWriterHandle writer = board->GetBoardWriter();
+  // Sync would be a NOOP
+  board->Sync();
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+
+  // Get a writer
+  mb::MessageBoard::writer writer = board->GetBoardWriter();
   BOOST_CHECK(writer->IsConnected());
 
-  // disconnected once parent board is synched
+  // Try posting invalid type
+  BOOST_CHECK_THROW(writer->Post<double>(0.2), e::invalid_type);
+
+  // Post 4 messages
+  writer->Post<int>(1);
+  writer->Post<int>(2);
+  writer->Post<int>(3);
+  writer->Post<int>(4);
+
+  // All messages still in writer before sync
+  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)4);
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+
+  // After sync, messages in board, writer disconnected
   board->Sync();
   BOOST_CHECK(!writer->IsConnected());
+  BOOST_CHECK_EQUAL(writer->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)4);
 
-  // new writer is connected
-  writer = board->GetBoardWriter();
-  BOOST_CHECK(writer->IsConnected());
+  // Try posting to locked board
+  BOOST_CHECK_THROW(writer->Post<int>(5), e::invalid_operation);
 
-  // disconnected after board deleted
-  delete board;
-  BOOST_CHECK(!writer->IsConnected());
+  // Another sync shouldn't make any difference
+  board->Sync();
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)4);
+}
+
+BOOST_AUTO_TEST_CASE(mb_multiple_writer) {
+  // Create message board of type "int"
+  board_ptr_type board(mb::MessageBoard::create<int>("msg1"));
+
+  // Get writers
+  mb::MessageBoard::writer writer1 = board->GetBoardWriter();
+  mb::MessageBoard::writer writer2 = board->GetBoardWriter();
+  mb::MessageBoard::writer writer3 = board->GetBoardWriter();
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer3->GetCount(), (size_t)0);
+
+  // write to writer2
+  writer2->Post<int>(21);
+
+  // write to writer3
+  writer3->Post<int>(31);
+  writer3->Post<int>(32);
+  writer3->Post<int>(33);
+  writer3->Post<int>(34);
+
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)1);
+  BOOST_CHECK_EQUAL(writer3->GetCount(), (size_t)4);
+
+  // sync
+  board->Sync();
+  BOOST_CHECK_EQUAL(board->GetCount(), (size_t)5);
+  BOOST_CHECK(!writer1->IsConnected());
+  BOOST_CHECK(!writer2->IsConnected());
+  BOOST_CHECK(!writer3->IsConnected());
+  BOOST_CHECK_EQUAL(writer1->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer2->GetCount(), (size_t)0);
+  BOOST_CHECK_EQUAL(writer3->GetCount(), (size_t)0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

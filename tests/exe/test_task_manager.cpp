@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 #include <boost/test/unit_test.hpp>
-#include "flame2/compat/C/flame2.h"
+#include "flame2/api/flame2.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/exe/task_manager.hpp"
 
@@ -21,7 +21,7 @@ namespace exe = flame::exe;
 namespace mem = flame::mem;
 
 // dummy function
-FLAME_AGENT_FUNC(func1) { return 0; }
+FLAME_AGENT_FUNCTION(func1) { return 0; }
 
 BOOST_AUTO_TEST_CASE(taskmgr_initialise_and_test_singleton) {
   std::string task_name = "test_task";

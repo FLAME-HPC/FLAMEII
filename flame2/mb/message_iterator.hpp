@@ -1,7 +1,7 @@
 /*!
  * \file flame2/mb/message_iterator.hpp
  * \author Shawn Chin
- * \date September 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
@@ -9,74 +9,143 @@
  */
 #ifndef MB__MESSAGE_ITERATOR_HPP_
 #define MB__MESSAGE_ITERATOR_HPP_
-#include <string>
+#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include "flame2/mem/vector_wrapper.hpp"
 #include "flame2/exceptions/all.hpp"
-#include "type_validator.hpp"
-#include "mb_common.hpp"
-#include "message.hpp"
 #include "message_iterator_backend.hpp"
+#include "message_iterator_backend_raw.hpp"
 
 namespace flame { namespace mb {
 
+/*!
+ *
+ * \brief Iterator object to step through messages within a board
+ *
+ * This is essentially a wrapper class which relies on a MessageIteratorBackend
+ * to store and interact with messages. This additional layer of indirection
+ * allows us to swap backends transparently when the need arises.
+ *
+ * For example, the most efficient way to iterate through messages that are
+ * contiguous in memory would be to use a raw pointer to the actual message
+ * and use pointer arithmetic to step to the next message. This is done by the
+ * default backend (see MessageIteratorBackendRaw).
+ *
+ * However, when operations such as filtering or randomisation is requested,
+ * the iteration is no longer in order and we then need to manage a list of
+ * indices to drive the iteration. This is when a different backend is required.
+ * By swapping out the existing backend with a new one, the operation is
+ * transparent to users and the only hint of this happening is a potential
+ * performance degration after the less performant but more flexible backend
+ * is swapped in.
+ */
 class MessageIterator {
   public:
-    explicit MessageIterator(MessageIteratorBackend::Handle backend);
+    //! shared pointer type to be returned as handle to iterator instances
+    typedef boost::shared_ptr<MessageIterator> handle;
 
-    //! Indicates end of iteration
-    bool AtEnd(void) const;
+    //! Factory method to instantiate a MessageIterator with the default backend
+    static MessageIterator* create(flame::mem::VectorWrapperBase* vw_ptr) {
+      return new MessageIterator(
+          MessageIteratorBackend::create<MessageIteratorBackendRaw>(vw_ptr));
+    }
 
-    //! Returns total number of messages in the iterator
-    size_t GetCount(void) const;
+    /*  --- we don't need this yet ---
+    //  Factory function for specific backends
+    template <typename BackendType>
+    static MessageIterator* create(VectorWrapperBase* vw_ptr) {
+      return new MessageIterator(
+          MessageIteratorBackend::create<BackendType>(vw_ptr)
+      );
+    }
+    */
 
-    //! Restarts the iteration
-    void Rewind(void);
+    //! Returns true if end of iterator reached
+    inline bool AtEnd(void) const {
+      return backend_->AtEnd();
+    }
 
-    // Randomisation can only be done with mutable backends. To be implemented.
-    // An immutable backend will be converted with a mutable one before
-    // randomisation is performed.
-    //   void Randomise(void);
+    //! Returns the number of messages within the scope of the iterator
+    inline size_t GetCount(void) const {
+      return backend_->GetCount();
+    }
 
-    //! Returns a handle to the current message
-    MessageHandle GetMessage(void);
-
-    //! \brief Step through to the next message in the iteration
-    bool Next(void);
+    //! Move the cursor back to the beginning
+    inline void Rewind(void) {
+      backend_->Rewind();
+    }
 
     /*!
-     * \brief Returns a specific variable from the current message
-     * \return Message variable value
+     * \brief Step to the next message in the iteration
+     * \return true if successful, false otherwise (end of iteration)
+     */
+    inline bool Next(void) {
+      return backend_->Next();
+    }
+
+    /*!
+     * \brief Randomise the order of iteration
      *
-     * Throws flame::exceptions::out_of_range if there are no more messages
-     * to return (end of iteration or empty iterator).
+     * (Not yet implemented)
+     *
+     * Out of order iteration of messages requires the backend to
+     * store an intermediate array of indices (a mutable backend).
+     * _RequireMutableBackend() is therefore called to swap the backend if the
+     * existing one is not mutable.
+     *
+     * Non-mutable backends are less flexible but more performant; we can
+     * therefore expect randomisation to potentially increase the overheads
+     * of message iteration.
+     *
+     * Randomisation of an in-progress iterator will rewind it.
+     */
+    inline void Randomise(void) {
+      _RequireMutableBackend();
+      backend_->Rewind();
+      backend_->Randomise();
+    }
+
+    /*!
+     * \brief Returns a copy of the current message
+     *
+     * Throws flame::exceptions::invalid_type if the specified type does not
+     * match the message type.
+     *
+     * Throws flame::exceptions::out_of_range if the iterator is empty or if
+     * end of iteration is reached.
      */
     template <typename T>
-    T Get(const std::string& var_name) {
+    T Get(void) {
+#ifndef DISABLE_RUNTIME_TYPE_CHECKING
+      if (*(backend_->GetDataType()) != typeid(T)) {
+        throw flame::exceptions::invalid_type("mismatching type");
+      }
+#endif
       if (AtEnd()) {
         throw flame::exceptions::out_of_range("End of iteration");
       }
-      if (!current_) {  // if no cached message, initialise.
-        current_ = backend_->GetMessage();
-      }
-      return current_->Get<T>(var_name);
+      return T(*static_cast<T*>(backend_->Get()));
     }
 
   private:
-    //! Cache of the current message
-    MessageHandle current_;
-
     /*!
-     * \brief Backend with handles the actual message iteration
+     * \brief pointer to backend instance
      *
-     * We offload the actual operation to a separate object so we can use
-     * different derived classes for different iteration types. We also have
-     * the opportunity to replace the backend at run-time without affecting
-     * the exising object user.
-     *
-     * Backends will be swapped when we need a different class of iterators
-     * (from immutable to mutable) or if we need to change the contents
-     * (filter/union/intersection operations).
+     * Using a scoped_ptr, the lifespan of the backend  is automatically
+     * managed and the object is a deleted along with the iterator.
      */
-    MessageIteratorBackend::Handle backend_;
+    boost::scoped_ptr<MessageIteratorBackend> backend_;  //! pointer to backend
+
+    //! Private constructor
+    explicit MessageIterator(MessageIteratorBackend *b) : backend_(b) {}
+
+    //! Swaps backed to a mutable version if not already mutable
+    inline void _RequireMutableBackend(void) {
+      if (backend_->IsMutable()) return;
+      boost::scoped_ptr<MessageIteratorBackend>
+          b(backend_->GetMutableVersion());
+      backend_.swap(b);
+    }
 };
 
 }}  // namespace flame::mb

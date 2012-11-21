@@ -137,18 +137,20 @@ STORE_CPPFLAGS="${CPPFLAGS}"
 CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
 AC_CHECK_HEADER([boost/graph/adjacency_list.hpp], [],
                 [AC_MSG_FAILURE([Boost Graph Library headers missing])])
-AC_CHECK_HEADER([boost/any.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/any.hpp])]) 
-AC_CHECK_HEADER([boost/function.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/function.hpp])])
-AC_CHECK_HEADER([boost/foreach.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/foreach.hpp])])
-AC_CHECK_HEADER([boost/shared_ptr.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/shared_ptr.hpp])])
-AC_CHECK_HEADER([boost/ptr_container/ptr_map.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_map.hpp])])
-AC_CHECK_HEADER([boost/ptr_container/ptr_vector.hpp], [],
-                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_vector.hpp])])
+#AC_CHECK_HEADER([boost/any.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/any.hpp])]) 
+#AC_CHECK_HEADER([boost/function.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/function.hpp])])
+#AC_CHECK_HEADER([boost/foreach.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/foreach.hpp])])
+#AC_CHECK_HEADER([boost/shared_ptr.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/shared_ptr.hpp])])
+#AC_CHECK_HEADER([boost/ptr_container/ptr_map.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_map.hpp])])
+#AC_CHECK_HEADER([boost/ptr_container/ptr_vector.hpp], [],
+#                [AC_MSG_FAILURE([Could not find boost/ptr_container/ptr_vector.hpp])])
+AC_CHECK_HEADER([boost/container/flat_set.hpp], [],
+                [AC_MSG_FAILURE([Could not find boost/container/flat_set.hpp])])
 CPPFLAGS="${STORE_CPPFLAGS}"
 AC_LANG_POP([C++])
 
@@ -327,7 +329,7 @@ flame2/exe/Makefile
 flame2/mem/Makefile
 flame2/sim/Makefile
 flame2/model/Makefile
-flame2/compat/C/Makefile
+flame2/api/Makefile
 flame2/exceptions/Makefile
 ])
 

@@ -11,6 +11,8 @@
 #include <string>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
+#include "flame2/exceptions/api.hpp"
+#include "flame2/api/agent_api.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "agent_task.hpp"
 #include "task_splitter.hpp"
@@ -19,6 +21,8 @@ namespace flame { namespace exe {
 
 namespace mem = flame::mem;
 namespace mb = flame::mb;
+namespace api = flame::api;
+
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
 /*!
@@ -100,14 +104,21 @@ void AgentTask::AllowAccess(const std::string& var_name, bool writeable) {
  * \todo (lsc) Mark agent for deletion if the function returns FLAME_AGENT_DEAD.
  */
 void AgentTask::Run() {
-  mem::MemoryIteratorPtr m_ptr = GetMemoryIterator();
-  MessageBoardClient mb_client = GetMessageBoardClient();
+  mem::MemoryIteratorPtr m = GetMemoryIterator();
+  api::AgentAPI agent(m, GetMessageBoardClient());
 
-  m_ptr->Rewind();
-  while (!m_ptr->AtEnd()) {  // run function for each agent
-    func_(static_cast<void*>(m_ptr.get()), static_cast<void*>(mb_client.get()));
+  while (!m->AtEnd()) {  // run function for each agent
+    try {
+      func_(agent);
+    } catch(const flame::exceptions::flame_api_exception& E) {
+      // throw new exception and tag on agent/task name
+      throw flame::exceptions::flame_task_exception(agent_name_,
+                                                get_transition_function_name(),
+                                                E.what());
+    }
+
     // TODO(lsc): check rc == 0 to handle agent death
-    m_ptr->Step();
+    m->Step();
   }
 }
 

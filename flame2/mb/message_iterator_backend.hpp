@@ -1,7 +1,7 @@
 /*!
  * \file flame2/mb/message_iterator_backend.hpp
  * \author Shawn Chin
- * \date October 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
@@ -9,85 +9,78 @@
  */
 #ifndef MB__MESSAGE_ITERATOR_BACKEND_HPP_
 #define MB__MESSAGE_ITERATOR_BACKEND_HPP_
-#include <string>
-#include <boost/shared_ptr.hpp>
-#include <boost/any.hpp>
-#include "mb_common.hpp"
+#include "flame2/mem/vector_wrapper.hpp"
 
 namespace flame { namespace mb {
 
-//! Abstract base class for a message iterator backend
+//! Abstract base class for message iterator backends
 class MessageIteratorBackend {
   public:
-    //! Shared pointer handle to store MessageIteratorBackend
-    typedef boost::shared_ptr<MessageIteratorBackend> Handle;
-
-    //! Class method to build a MessageIteratorBackend
-    template <typename T>
-    static Handle Factory(MemoryMap* vec_map_ptr, TypeValidator *tv) {
-      return Handle(new T(vec_map_ptr, tv));
+    //! Factory method to instantiate a backend of a specific type
+    template <typename BackendType>
+    static MessageIteratorBackend* create(
+          flame::mem::VectorWrapperBase* vw_ptr) {
+      BackendType *b = new BackendType(vw_ptr);
+      b->data_type_ = vw_ptr->GetDataType();
+      return b;
     }
 
     //! Destructor
-    virtual ~MessageIteratorBackend() {}
+    virtual ~MessageIteratorBackend(void) {}
 
-    //! Indicates end of iteration
+    //! Returns true if end of iteration reached (or if iterator is empty)
     virtual bool AtEnd(void) const = 0;
 
-    //! Returns total number of messages in the iterator
+    //! Returns the number of messages within the scope of the iterator
     virtual size_t GetCount(void) const = 0;
 
-    //! \brief Step through to the next message in the iteration
-    virtual bool Step(void) = 0;
-
-    //! Restarts the iteration
+    //! Move the iteration cursor back to the starting position
     virtual void Rewind(void) = 0;
 
-    //! Returns next message in the iteration
-    MessageHandle GetMessage(void);
+    /*!
+     * \brief Step to the next message in the iterator.
+     * \return true if successful, false otherwise (end of iteration)
+     */
+    virtual bool Next(void) = 0;
 
     /*!
-     * \brief Determine if a this backend is mutable
-     * \return true/false
+     * \brief Randomise the order of iteration
      *
-     * Immutable backends access raw pointers directly and is therefore fast.
+     * May throw flame::exceptions::not_implemented if backend does not
+     * support randomisation, e.g. with immutable backends.
      *
-     * Mutable version access via a index array and is slower compared to
-     * immutable ones. However, the list of indices can be modified and so
-     * the iterator is randomisable, sortable, and can be used to iterate a
-     * through a non-contiguous subset of messages
+     * Front-end class should always check using IsMutable().
      */
+    virtual bool Randomise(void) = 0;
+
+    /*!
+     * \brief Returns an anonymous pointer to the memory location of the message
+     *
+     * The front-end code is expected to cast this to the correct type and
+     * return a copy of the message to end-users. The returned memory location
+     * should never be written to.
+     *
+     * It is advisable to use GetDataType() to validate the expected datatype
+     * before using the returned value.
+     */
+    virtual void* Get(void) = 0;
+
+    //! Returns true if the backend is mutable
     virtual bool IsMutable(void) const = 0;
 
-    /*!
-     * \brief Return a mutable backend with the same content
-     * \return Handle to new backend
-     *
-     * For an immutable backend, this will generate and return a mutable
-     * counterpart.
-     *
-     * If called on a mutable backend, a handle to the same
-     */
-    //  virtual Handle GetMutableVersion(void) = 0;
+    //! Returns a new mutable backend which addresses the same messages
+    virtual MessageIteratorBackend* GetMutableVersion(void) const = 0;
 
+    //! Returns a type_info of the underlying message type
+    const std::type_info* GetDataType() const {
+      return data_type_;
+    }
 
-    //! \todo (lsc) Set-like operations to form new iterators for existing ones
-
-  protected:
-    MemoryMap* vec_map_;  //! Pointer to the map of vectors holding messages
-    TypeValidator* validator_;  //! Pointer to the type validator object
-    size_t position_;  //! Counter indicating the current iteration position
-    size_t count_;  //! Number of messages referenced by the iterator
-
-    //! Constructor
-    MessageIteratorBackend(MemoryMap* vec_map_ptr, TypeValidator *tv);
-
-    /*! Returns the raw poiter to the current message variable
-     *
-     * This should return NULL if the there are no messages to return.
-     */
-    virtual void* Get(std::string var_name) = 0;
+  private:
+    //! Cache of the type_info of the underlying message type
+    const std::type_info *data_type_;
 };
 
 }}  // namespace flame::mb
+
 #endif  // MB__MESSAGE_ITERATOR_BACKEND_HPP_

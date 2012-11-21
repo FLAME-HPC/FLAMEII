@@ -14,15 +14,15 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "flame2/compat/C/flame2.h"
 #include "flame2/sim/sim_manager.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/model/model.hpp"
 
 #include "flame2/mb/client.hpp"
-#include "flame2/mb/message.hpp"
 #include "flame2/mb/message_iterator.hpp"
 #include "flame2/mb/message_board_manager.hpp"
+
+#include "flame2/api/flame2.hpp"
 
 namespace sim = flame::sim;
 namespace io = flame::io;
@@ -45,35 +45,34 @@ BOOST_AUTO_TEST_SUITE(Simulation)
 #define kr 0.1 /* Stiffness variable for repulsion */
 #define distance(x1, y1, x2, y2) (sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)))
 
-FLAME_AGENT_FUNC(outputdata) {
+FLAME_AGENT_FUNCTION(outputdata) {
     // printf("outputdata\n");
 
     my_location_message msg;
-    msg.x = flame_mem_get_double("x");
-    msg.y = flame_mem_get_double("y");
-    msg.id = flame_mem_get_int("id");
+    msg.x = FLAME.GetMem<double>("x");
+    msg.y = FLAME.GetMem<double>("y");
+    msg.id = FLAME.GetMem<int>("id");
 
-    flame_msg_post("location", &msg);
-
+    FLAME.PostMessage<my_location_message>("location", msg);
     return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(inputdata) {
-    flame_msg_iterator iter;
+FLAME_AGENT_FUNCTION(inputdata) {
+    MessageIterator iter;
     my_location_message msg;
-    double x = flame_mem_get_double("x");
-    double y = flame_mem_get_double("y");
-    double diameter = flame_mem_get_double("radius") * 2;
+    double x = FLAME.GetMem<double>("x");
+    double y = FLAME.GetMem<double>("y");
+    double diameter = FLAME.GetMem<double>("radius") * 2;
 
     /* tmp vars */
     double p, core_distance;
     double fx = 0, fy = 0;
 
     /* loop through messages */
-    iter = flame_msg_get_iterator("location");
-    for (; !flame_msg_iterator_end(iter); flame_msg_iterator_next(iter)) {
-      flame_msg_iterator_get_message(iter, &msg);
-      if (msg.id != flame_mem_get_int("id")) {
+    iter = FLAME.GetMessageIterator("location");
+    for (; !iter.AtEnd(); iter.Next()) {
+      msg = iter.GetMessage<my_location_message>();
+      if (msg.id != FLAME.GetMem<int>("id")) {
         core_distance = distance(x, y, msg.x, msg.y);
 
         if (core_distance < diameter) {
@@ -84,20 +83,19 @@ FLAME_AGENT_FUNC(inputdata) {
         }
       }
     }
-    flame_msg_iterator_free(iter);
 
     /* store forces in agent mem */
-    flame_mem_set_double("fx", fx);
-    flame_mem_set_double("fy", fy);
+    FLAME.SetMem<double>("fx", fx);
+    FLAME.SetMem<double>("fy", fy);
     return FLAME_AGENT_ALIVE;
 }
 
-FLAME_AGENT_FUNC(move) {
+FLAME_AGENT_FUNCTION(move) {
     /* update position based on accumulated forces */
-    flame_mem_set_double("x", flame_mem_get_double("x") +
-            flame_mem_get_double("fx"));
-    flame_mem_set_double("y", flame_mem_get_double("y") +
-            flame_mem_get_double("fy"));
+    FLAME.SetMem<double>("x", FLAME.GetMem<double>("x") +
+            FLAME.GetMem<double>("fx"));
+    FLAME.SetMem<double>("y", FLAME.GetMem<double>("y") +
+            FLAME.GetMem<double>("fy"));
     return FLAME_AGENT_ALIVE;
 }
 
@@ -131,7 +129,6 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
     // Reset memory manager
     flame::mem::MemoryManager::GetInstance().Reset();
     flame::exe::TaskManager::GetInstance().Reset();
-    flame::compat::c::CompatibilityManager::GetInstance().Reset();
     flame::mb::MessageBoardManager::GetInstance().Reset();
 }
 

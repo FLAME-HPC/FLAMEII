@@ -1,7 +1,7 @@
 /*!
  * \file flame2/mb/message_board_manager.hpp
  * \author Shawn Chin
- * \date October 2012
+ * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
@@ -9,72 +9,108 @@
  */
 #ifndef MB__MESSAGE_BOARD_MANAGER_HPP_
 #define MB__MESSAGE_BOARD_MANAGER_HPP_
-#include <map>
 #include <string>
-#include <vector>
-#include <boost/thread/mutex.hpp>
+#include <utility>
 #include <boost/ptr_container/ptr_map.hpp>
 #include "message_board.hpp"
 
 namespace flame { namespace mb {
+
+//! Singleton object to store and manage collection of message boards
 class MessageBoardManager {
   public:
-    //! Map type to store and manage lifetime of message board instances
-    typedef boost::ptr_map<std::string, MessageBoard> BoardMap;
-
     //! Class method to retrive a reference to the singleton object
     static MessageBoardManager& GetInstance() {
       static MessageBoardManager instance;
       return instance;
     }
 
-    //! Register a new message
-    void RegisterMessage(std::string msg_name);
-
-    //! Register a message variable of a certain type given a known message
+    /*!
+     * \brief Creates and stores a message board of a given name and type
+     *
+     * Throws flame::exceptions::logic_error if a name that already exists
+     * is provided.
+     *
+     * \note All types used must support the \c << operator. User defined types
+     * (such as structs) must implement the \c operator<< method.
+     */
     template <typename T>
-    void RegisterMessageVar(const std::string& msg_name, std::string var_name) {
-      GetMessageBoard(msg_name).RegisterVar<T>(var_name);
-    }
-
-    //! Registers a list of memory vars or a certain type for a given agent
-    template <typename T>
-    void RegisterMessageVar(const std::string& msg_name,
-                            const std::vector<std::string>& var_names) {
-      MessageBoard& board = GetMessageBoard(msg_name);
-      std::vector<std::string>::const_iterator it;
-      for (it = var_names.begin(); it != var_names.end(); ++it) {
-        board.RegisterVar<T>(*it);
+    void RegisterMessage(std::string msg_name) {
+      std::pair<board_map::iterator, bool> ret;
+      MessageBoard *board = MessageBoard::create<T>(msg_name);
+      ret = map_.insert(msg_name, board);
+      if (!ret.second) {
+        throw flame::exceptions::logic_error("Message with that name exists");
       }
     }
 
-    //! Creates and returns a handle to a board writer
-    MessageBoard::Writer GetBoardWriter(const std::string& msg_name);
+    /*!
+     * \brief Returns a shared pointer to BoardWriter instance for board
+     *
+     * Throws flame::exceptions::invalid_argument if unknown message name
+     * is provided.
+     */
+    inline MessageBoard::writer GetBoardWriter(const std::string& msg_name) {
+      return _GetMessageBoard(msg_name).GetBoardWriter();
+    }
 
-    //! Creates and returns a handle to a message iterator
-    MessageBoard::Iterator GetMessageIterator(const std::string& msg_name);
+    /*!
+     * \brief Returns a shared pointer to MessageIterator instance for board
+     *
+     * Throws flame::exceptions::invalid_argument if unknown message name
+     * is provided.
+     */
+    inline MessageBoard::iterator GetMessages(const std::string& msg_name) {
+      return _GetMessageBoard(msg_name).GetMessages();
+    }
 
-    //! Performs sync operation on board
-    void Sync(const std::string& msg_name);
+    /*!
+     * \brief Synchronises the specified board
+     *
+     * Throws flame::exceptions::invalid_argument if unknown message name
+     * is provided.
+     */
+    inline void Sync(const std::string& msg_name) {
+      _GetMessageBoard(msg_name).Sync();
+    }
 
-    //! Performs clear operation on board
-    void Clear(const std::string& msg_name);
+    /*!
+     * \brief Clears the specified board
+     *
+     * Throws flame::exceptions::invalid_argument if unknown message name
+     * is provided.
+     */
+    inline void Clear(const std::string& msg_name) {
+      _GetMessageBoard(msg_name).Clear();
+    }
 
-    //! Returns the number of messages that have been synched
-    size_t GetCount(const std::string& msg_name);
+    /*!
+     * \brief Returns the number of messages in the specified board
+     *
+     * Throws flame::exceptions::invalid_argument if unknown message name
+     * is provided.
+     */
+    inline size_t GetCount(const std::string& msg_name) {
+      return _GetMessageBoard(msg_name).GetCount();
+    }
 
-    //! Determines if a specific board has been registered
-    bool BoardExists(const std::string& msg_name);
+    //! Returns true if specified name is a registered message name
+    inline bool BoardExists(const std::string& msg_name) const {
+      return (map_.find(msg_name) != map_.end());
+    }
 
 #ifdef TESTBUILD
-    //! Delete all registered agents and vars
-    void Reset();
+    //! Delete all registered agents (TEST BUILD Only)
+    void Reset(void) {
+      map_.clear();
+    }
 #endif
 
   private:
-    //! Map used to associate a message name with a MessageBoard object
-    BoardMap board_map_;
-    boost::mutex mutex_;
+    //! Datatype to map message name to board instances
+    typedef boost::ptr_map<std::string, MessageBoard> board_map;
+
+    board_map map_;  //! map of message board instances
 
     //! This is a singleton class. Disable manual instantiation
     MessageBoardManager() {}
@@ -83,9 +119,14 @@ class MessageBoardManager {
     //! This is a singleton class. Disable assignment operation
     void operator=(const MessageBoardManager&);
 
-    //! Returns a refernce to a MessageBoard object given the message name
-    MessageBoard& GetMessageBoard(std::string msg_name);
+    //! Utility routine to return a reference to a board give a message name
+    inline MessageBoard& _GetMessageBoard(const std::string& msg_name) {
+      try {
+        return map_.at(msg_name);
+      } catch(const boost::bad_ptr_container_operation& E) {
+        throw flame::exceptions::invalid_argument("Unknown message name");
+      }
+    }
 };
-
 }}  // namespace flame::mb
 #endif  // MB__MESSAGE_BOARD_MANAGER_HPP_

@@ -62,7 +62,7 @@ class TaskManager {
                        std::string agent_name,
                        std::string var_name,
                        IOTask::Operation op);
-
+    
     //! \brief Returns a registered Task given a task id
     Task& GetTask(TaskId task_id);
 
