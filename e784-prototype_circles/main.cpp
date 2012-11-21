@@ -1,4 +1,6 @@
+#include <cstdio>
 #include <iostream>
+#include <sys/time.h>
 #include "flame2/exe/task_manager.hpp"
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
@@ -8,6 +10,13 @@
 
 #include "agent_functions.hpp"
 #include "message_datatypes.hpp"
+
+// returns time in seconds
+static double get_time(void) {
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  return now.tv_sec + (now.tv_usec * 1.e-6);
+}
 
 int main(int argc, const char* argv[]) {
 
@@ -110,9 +119,18 @@ int main(int argc, const char* argv[]) {
   s.SetSplittable(flame::exe::Task::AGENT_FUNCTION);  // Agent tasks can be split up
   
   // Run iterations
+  double start_time, stop_time, total_time;
+  start_time = get_time();
   for (size_t i = 1; i <= num_iters; ++i) {
     std::cout << "Iteration " << i << std::endl;
     s.RunIteration();
   }
+  stop_time = get_time();
+  total_time = stop_time - start_time;
+  printf("Execution time - %d:%02d:%03d [mins:secs:msecs]\n",
+           (int)(total_time/60), 
+           ((int)total_time)%60, 
+           (((int)(total_time * 1000.0)) % 1000));
   
+  return 0;
 }
