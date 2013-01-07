@@ -21,7 +21,8 @@ SUBDIRS = \
   flame2/exceptions \
   flame2/model \
   flame2/sim \
-  utils
+  utils \
+  xparser2
 
 
 
