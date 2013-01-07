@@ -14,5 +14,10 @@ xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
 xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
 xparser2_LDADD = $(top_srcdir)/libflame2-dbg.la @COMMON_LIBS@
   
-xparser2_SOURCES = xparser2.cpp
-noinst_HEADERS = xparser2.hpp
+xparser2_SOURCES = \
+  xparser2.cpp \
+  printer.cpp
+
+noinst_HEADERS = \
+  xparser2.hpp \
+  printer.hpp
