@@ -45,19 +45,12 @@ int main(int argc, const char* argv[]) {
   // Create model
   model::XModel model;
   model::XMachine * circle_agent = model.addAgent("Circle");
-  model::XVariable * agent_var;
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("int"); agent_var->setName("id");
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("double"); agent_var->setName("x");
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("double"); agent_var->setName("y");
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("double"); agent_var->setName("fx");
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("double"); agent_var->setName("fy");
-  agent_var = circle_agent->addVariable();
-  agent_var->setType("double"); agent_var->setName("radius");
+  circle_agent->addVariable("int", "id");
+  circle_agent->addVariable("double", "x");
+  circle_agent->addVariable("double", "y");
+  circle_agent->addVariable("double", "fx");
+  circle_agent->addVariable("double", "fy");
+  circle_agent->addVariable("double", "radius");
   model.validate();
   model.registerWithMemoryManager();
 
