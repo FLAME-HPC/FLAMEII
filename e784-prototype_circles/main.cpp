@@ -42,18 +42,26 @@ int main(int argc, const char* argv[]) {
     }
   }
   
-  // We shouldn't really need a model file since main.cpp is meant to be
-  // generated based on circles.xml
-  std::string model_path;
-  model_path = "circles.xml";
-
-  
-  // Load model and population data
-  flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+  // Create model
   model::XModel model;
-  iomanager.loadModel(model_path, &model);
-  model.validate();
+  model::XMachine * circle_agent = model.addAgent("Circle");
+  model::XVariable * agent_var;
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("int"); agent_var->setName("id");
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("double"); agent_var->setName("x");
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("double"); agent_var->setName("y");
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("double"); agent_var->setName("fx");
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("double"); agent_var->setName("fy");
+  agent_var = circle_agent->addVariable();
+  agent_var->setType("double"); agent_var->setName("radius");
   model.registerWithMemoryManager();
+
+  // Create population data
+  flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
   iomanager.readPop(pop_path, &model, flame::io::IOManager::xml);
 
   // Register Message Boards
