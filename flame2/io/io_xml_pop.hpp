@@ -9,9 +9,9 @@
  */
 #ifndef IO__XML_POP_HPP_
 #define IO__XML_POP_HPP_
-#include <boost/variant.hpp>
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
+#include <boost/variant.hpp>
 #include <string>
 #include <vector>
 #include <map>

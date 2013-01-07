@@ -7,11 +7,11 @@
  * \copyright GNU Lesser General Public License
  * \brief IOXMLPop: reading of population XML file
  */
+#include <libxml/xmlreader.h>
+#include <libxml/xmlwriter.h>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
-#include <libxml/xmlreader.h>
-#include <libxml/xmlwriter.h>
 #include <string>
 #include <vector>
 #include <cstdio>
