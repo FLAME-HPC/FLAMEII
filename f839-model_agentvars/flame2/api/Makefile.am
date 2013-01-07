@@ -15,7 +15,9 @@ module_headers = \
 
 # Note: flame2.h is installed by the master Makefile.am
 
-module_sources =
+# compile dummy file so "ar" on OSX does not choke on empty archive
+module_sources = dummy.cpp
+
 #module_sources = \
 #  compatibility_manager.cpp \
 #  flame_compat_c.cpp
