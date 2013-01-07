@@ -9,9 +9,9 @@
  */
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Flame Test Suite
-#include <boost/test/unit_test.hpp>
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
+#include <boost/test/unit_test.hpp>
 
 // Empty libxml error handler
 void err(void* /*ctx*/, const char* /*msg*/, ...) {}
