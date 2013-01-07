@@ -50,6 +50,13 @@ XVariable * XMachine::addVariable() {
     return xvariable;
 }
 
+XVariable * XMachine::addVariable(std::string type, std::string name) {
+    XVariable * xvariable = addVariable();
+    xvariable->setType(type);
+    xvariable->setName(name);
+    return xvariable;
+}
+
 boost::ptr_vector<XVariable> * XMachine::getVariables() {
     return &variables_;
 }
