@@ -58,6 +58,7 @@ int main(int argc, const char* argv[]) {
   agent_var->setType("double"); agent_var->setName("fy");
   agent_var = circle_agent->addVariable();
   agent_var->setType("double"); agent_var->setName("radius");
+  model.validate();
   model.registerWithMemoryManager();
 
   // Create population data
