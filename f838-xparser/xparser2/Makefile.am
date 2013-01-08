@@ -13,11 +13,13 @@
 sources = \
   xparser2.cpp \
   printer.cpp \
+  utils.cpp \
   codegen/gen_datastruct.cpp
  
 headers = \
   xparser2.hpp \
   printer.hpp \
+  utils.hpp \
   codegen/code_generator.hpp \
   codegen/gen_datastruct.hpp
 
@@ -27,11 +29,11 @@ LIBADD_LIST = \
   $(top_srcdir)/flame2/exe/lib_flame_exe \
   $(top_srcdir)/flame2/io/lib_flame_io \
   $(top_srcdir)/flame2/mb/lib_flame_mb
-  
+
 bin_PROGRAMS = xparser2
 xparser2_LIBS = @COMMON_LIBS@
 xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
-xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@
+xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
 xparser2_LDADD = $(LIBADD_LIST:=-dbg.la) @COMMON_LIBS@
 xparser2_SOURCES = $(sources)
 noinst_HEADERS = $(headers)

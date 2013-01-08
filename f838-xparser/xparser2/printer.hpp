@@ -32,15 +32,15 @@ class Printer {
     void PrintRaw(const std::string& text);
     void PrintRaw(const char* text);
     
-    void PrintFromFile(const char* filename);
-    void PrintFromFile(const char* filename,
+    void PrintFromFile(const std::string& filename);
+    void PrintFromFile(const std::string& filename,
                        const std::map<std::string, std::string>& vars);
-    void PrintFromFile(const char* filename,
+    void PrintFromFile(const std::string& filename,
                        const char* var, const std::string& value);
-    void PrintFromFile(const char* filename,
+    void PrintFromFile(const std::string& filename,
                        const char* var1, const std::string& value1,
                        const char* var2, const std::string& value2);
-    void PrintRawFromFile(const char* filename);
+    void PrintRawFromFile(const std::string& filename);
 
     void Indent();
     void Outdent();

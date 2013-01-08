@@ -18,9 +18,9 @@
 namespace {  // utility functions for use within this file only
 
 // returns a char* buffer which caller must delete
-const char* get_cstr_from_file(const char* filename) {
+const char* get_cstr_from_file(const std::string& filename) {
   // open file for reading
-  std::ifstream in(filename);
+  std::ifstream in(filename.c_str());
   if (in.fail()) {
     throw flame::exceptions::invalid_argument(
       std::string("Error reading file : ") + filename
@@ -150,27 +150,27 @@ void Printer::PrintRaw(const char* text) {
   write_(text, strlen(text));
 }
 
-void Printer::PrintFromFile(const char* filename) {
+void Printer::PrintFromFile(const std::string& filename) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer);
   delete buffer;
 }
 
-void Printer::PrintFromFile(const char* filename,
+void Printer::PrintFromFile(const std::string& filename,
                             const std::map<std::string, std::string>& vars) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, vars);
   delete buffer;
 }
 
-void Printer::PrintFromFile(const char* filename,
+void Printer::PrintFromFile(const std::string& filename,
                             const char* var, const std::string& value) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, var, value);
   delete buffer;
 }
 
-void Printer::PrintFromFile(const char* filename,
+void Printer::PrintFromFile(const std::string& filename,
                             const char* var1, const std::string& value1,
                             const char* var2, const std::string& value2) {
   const char* buffer = get_cstr_from_file(filename);
@@ -178,7 +178,7 @@ void Printer::PrintFromFile(const char* filename,
   delete buffer;
 }
 
-void Printer::PrintRawFromFile(const char* filename) {
+void Printer::PrintRawFromFile(const std::string& filename) {
   const char* buffer = get_cstr_from_file(filename);
   PrintRaw(buffer);
   delete buffer;
