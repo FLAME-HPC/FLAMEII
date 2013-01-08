@@ -22,26 +22,19 @@ class Printer {
     void Print(const char* text);
     void Print(const char* text,
                const std::map<std::string, std::string>& vars);
-
-    // Aliases for var mappings with a only a few vars
     void Print(const char* text,
                const char* var, const std::string& value);
-    void Print(const char* text,
-               const char* var1, const std::string& value1,
-               const char* var2, const std::string& value2);
-    void Print(const char* text,
-               const char* var1, const std::string& value1,
-               const char* var2, const std::string& value2,
-               const char* var3, const std::string& value3);
 
     // Print string as is. No indentation. No var replacement.
     void PrintRaw(const std::string& text);
     void PrintRaw(const char* text);
     
-    //void PrintFile(const char* filename);
-    //void PrintFile(const char* filename,
-    //               const std::map<std::string, std::string>& vars);
-    //void PrintFileRaw(const char* filename);
+    void PrintFromFile(const char* filename);
+    void PrintFromFile(const char* filename,
+                       const std::map<std::string, std::string>& vars);
+    void PrintFromFile(const char* filename,
+                       const char* var, const std::string& value);
+    void PrintRawFromFile(const char* filename);
 
     void Indent();
     void Outdent();

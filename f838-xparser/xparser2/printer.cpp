@@ -10,8 +10,39 @@
 #include <map>
 #include <string>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include "flame2/exceptions/base.hpp"
 #include "printer.hpp"
+
+namespace {  // utility functions for use within this file only
+
+// returns a char* buffer which caller must delete
+const char* get_cstr_from_file(const char* filename) {
+  // open file for reading
+  std::ifstream in(filename);
+  if (in.fail()) {
+    throw flame::exceptions::invalid_argument(
+      std::string("Error reading file : ") + filename
+    );
+  } 
+
+  // get file size
+  in.seekg(0, std::ifstream::end);
+  int length = in.tellg();
+  // create string buffer and append NULL char
+  char *buffer = new char[length + 1];
+  buffer[length] = '\0';  
+  
+  // read file into buffer
+  in.seekg(0, std::ifstream::beg);
+  in.read(buffer, length);
+  in.close();
+
+  return buffer;
+}
+
+}
 
 namespace xparser {
 
@@ -49,7 +80,7 @@ void Printer::Print(const char* text,
     if (text[i] == '\n') {  // found new line
       // Write what we have so far, including the newline
       write_(text + pos, i - pos + 1);
-      pos = i + i;
+      pos = i + 1;
       
       // next write_() should insert an indent
       at_start_of_line_ = true;
@@ -88,9 +119,6 @@ void Printer::Print(const char* text,
       pos = endpos + 1;
     }
   }
-
-  // Write out the remainder of the string
-  //write_(text + pos, size - pos);
 }
 
 void Printer::Print(const char* text) {
@@ -105,26 +133,6 @@ void Printer::Print(const char* text,
   Print(text, vars);
 }
 
-void Printer::Print(const char* text,
-                    const char* var1, const std::string& value1,
-                    const char* var2, const std::string& value2) {
-  std::map<std::string, std::string> vars;
-  vars[var1] = value1;
-  vars[var2] = value2;
-  Print(text, vars);
-}
-
-void Printer::Print(const char* text,
-                    const char* var1, const std::string& value1,
-                    const char* var2, const std::string& value2,
-                    const char* var3, const std::string& value3) {
-  std::map<std::string, std::string> vars;
-  vars[var1] = value1;
-  vars[var2] = value2;
-  vars[var3] = value3;
-  Print(text, vars);
-}
-
 void Printer::PrintRaw(const std::string& text) {
   write_(text.data(), text.size());
 }
@@ -132,5 +140,32 @@ void Printer::PrintRaw(const std::string& text) {
 void Printer::PrintRaw(const char* text) {
   write_(text, strlen(text));
 }
+
+void Printer::PrintFromFile(const char* filename) {
+  const char* buffer = get_cstr_from_file(filename);
+  Print(buffer);
+  delete buffer;
+}
+
+void Printer::PrintFromFile(const char* filename,
+                            const std::map<std::string, std::string>& vars) {
+  const char* buffer = get_cstr_from_file(filename);
+  Print(buffer, vars);
+  delete buffer;
+}
+
+void Printer::PrintFromFile(const char* filename,
+                            const char* var, const std::string& value) {
+  const char* buffer = get_cstr_from_file(filename);
+  Print(buffer, var, value);
+  delete buffer;
+}
+
+void Printer::PrintRawFromFile(const char* filename) {
+  const char* buffer = get_cstr_from_file(filename);
+  PrintRaw(buffer);
+  delete buffer;
+}
+
 
 }  // namespace xparser
