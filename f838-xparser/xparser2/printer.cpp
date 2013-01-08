@@ -133,6 +133,15 @@ void Printer::Print(const char* text,
   Print(text, vars);
 }
 
+void Printer::Print(const char* text,
+                    const char* var1, const std::string& value1,
+                    const char* var2, const std::string& value2) {
+  std::map<std::string, std::string> vars;
+  vars[var1] = value1;
+  vars[var2] = value2;
+  Print(text, vars);
+}
+
 void Printer::PrintRaw(const std::string& text) {
   write_(text.data(), text.size());
 }
@@ -158,6 +167,14 @@ void Printer::PrintFromFile(const char* filename,
                             const char* var, const std::string& value) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, var, value);
+  delete buffer;
+}
+
+void Printer::PrintFromFile(const char* filename,
+                            const char* var1, const std::string& value1,
+                            const char* var2, const std::string& value2) {
+  const char* buffer = get_cstr_from_file(filename);
+  Print(buffer, var1, value1, var2, value2);
   delete buffer;
 }
 

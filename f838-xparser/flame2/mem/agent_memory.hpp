@@ -46,7 +46,7 @@ class AgentMemory {
       }
       std::pair<MemoryMap::iterator, bool> ret;
       ret = mem_map_.insert(var_name, new VectorWrapper<T>());
-      if (!ret.second) {  // if replacement instead of insertion
+      if (!ret.second) {  // key exists. No insertion
         throw exc::logic_error("variable already registered");
       }
     }

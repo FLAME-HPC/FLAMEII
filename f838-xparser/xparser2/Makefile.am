@@ -12,11 +12,14 @@
 
 sources = \
   xparser2.cpp \
-  printer.cpp
+  printer.cpp \
+  codegen/gen_datastruct.cpp
  
 headers = \
   xparser2.hpp \
-  printer.hpp
+  printer.hpp \
+  codegen/code_generator.hpp \
+  codegen/gen_datastruct.hpp
 
 LIBADD_LIST = \
   $(top_srcdir)/flame2/model/lib_flame_model \
