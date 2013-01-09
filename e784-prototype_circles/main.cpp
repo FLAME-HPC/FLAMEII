@@ -5,8 +5,9 @@
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exe/splitting_fifo_task_queue.hpp"
 #include "flame2/io/io_manager.hpp"
-#include "flame2/model/xmodel.hpp"
+#include "flame2/model/model.hpp"
 #include "flame2/mb/message_board_manager.hpp"
+#include "flame2/sim/simulation.hpp"
 
 #include "agent_functions.hpp"
 #include "message_datatypes.hpp"
@@ -43,8 +44,9 @@ int main(int argc, const char* argv[]) {
   }
   
   // Create model
-  model::XModel model;
-  model::XMachine * circle_agent = model.addAgent("Circle");
+  model::Model model;
+  model::XModel * xmodel = model.getXModel();
+  model::XMachine * circle_agent = xmodel->addAgent("Circle");
   circle_agent->addVariable("int", "id");
   circle_agent->addVariable("double", "x");
   circle_agent->addVariable("double", "y");
@@ -77,51 +79,30 @@ int main(int argc, const char* argv[]) {
   function2->addReadOnlyVariable("fx");
   function2->addReadOnlyVariable("fy");
 
-  model::XMessage * xmessage = model.addMessage("location");
+  model::XMessage * xmessage = xmodel->addMessage("location");
   xmessage->addVariable("double", "x");
   xmessage->addVariable("double", "y");
   xmessage->addVariable("double", "z");
   xmessage->addVariable("int", "id");
 
-  model.validate();
-
-  // Above handled by model::Model
+  // Validate model
+  xmodel->validate();
 
   // Register agent functions
   model.registerAgentFunction("outputdata", &outputdata);
   model.registerAgentFunction("inputdata", &inputdata);
   model.registerAgentFunction("move", &move);
-  // Register Message Boards
-  //model.registerMessage<location_message>("location");
-  flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();
-  mb_mbr.RegisterMessage<location_message>("location");
+  // Register message types
+  model.registerMessageType<location_message>("location");
 
-  // Handled by sim::Simulation initialisation
-  model.registerWithMemoryManager();
-  // Create population data
-  flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-  iomanager.readPop(pop_path, &model, flame::io::IOManager::xml);
+  // Create simulation using model and path to initial pop
+  flame::sim::Simulation s(&model, pop_path);
 
-  // Handled by sim::Simulation start method
-  model.registerWithTaskManager();
-  
-  // Initialise scheduler
-  flame::exe::Scheduler s;
-  flame::exe::Scheduler::QueueId q = s.CreateQueue<flame::exe::SplittingFIFOTaskQueue>(num_cores);
-  s.AssignType(q, flame::exe::Task::AGENT_FUNCTION);
-  s.AssignType(q, flame::exe::Task::MB_FUNCTION);
-  s.AssignType(q, flame::exe::Task::IO_FUNCTION);
-  s.SetSplittable(flame::exe::Task::AGENT_FUNCTION);  // Agent tasks can be split up
-  
-  // Run iterations
   double start_time, stop_time, total_time;
   start_time = get_time();
-  for (size_t i = 1; i <= num_iters; ++i) {
-    std::cout << "Iteration " << i << std::endl;
-    s.RunIteration();
-  }
 
-  // Above handled by model::simulation::start()
+  // Run simulation
+  s.start(num_iters);
 
   stop_time = get_time();
   total_time = stop_time - start_time;
