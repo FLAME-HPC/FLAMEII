@@ -15,6 +15,67 @@
 #include "codegen/gen_datastruct.hpp"
 #include "xparser2.hpp"
 
+void generateConditionFunction(flame::model::XCondition * condition, xparser::Printer * p) {
+    std::map<std::string, std::string> variables;
+
+    if (condition->isNot) p->Print("!");
+    p->Print("(");
+    if (condition->isValues) {
+        /* Handle lhs */
+        if (condition->lhsIsAgentVariable) {
+            variables["lhs"] = condition->lhs;
+            p->Print("a.$lhs$", variables);
+        } else if (condition->lhsIsMessageVariable) {
+            variables["lhs"] = condition->lhs;
+            p->Print("m.$lhs$", variables);
+        } else if (condition->lhsIsValue) {
+            variables["lhsDouble"] = boost::lexical_cast<std::string>(condition->lhsDouble);
+            p->Print("$lhsDouble$", variables);
+        }
+        /* Handle operator */
+        variables["op"] = condition->op;
+        p->Print(" $op$ ", variables);
+        /* Handle rhs */
+        if (condition->rhsIsAgentVariable) {
+            variables["rhs"] = condition->rhs;
+            p->Print("a.$rhs$", variables);
+        } else if (condition->rhsIsMessageVariable) {
+            variables["rhs"] = condition->rhs;
+            p->Print("m.$rhs$", variables);
+        } else if (condition->rhsIsValue) {
+            variables["rhsDouble"] = boost::lexical_cast<std::string>(condition->rhsDouble);
+            p->Print("$rhsDouble$", variables);
+        }
+    }
+    if (condition->isConditions) {
+        generateConditionFunction(condition->lhsCondition, p);
+        variables["op"] = condition->op;
+        p->Print(" $op$ ", variables);
+        generateConditionFunction(condition->rhsCondition, p);
+    }
+    if (condition->isTime) {
+        p->Print("iteration_loop");
+        // If time period is not 'iteration' then
+        p->Print("%$time_period_iterations$");
+
+        p->Print(" == ");
+
+        if (condition->timePhaseIsVariable) {
+            variables["timePhaseVariable"] = condition->timePhaseVariable;
+            p->Print("a.$timePhaseVariable$", variables);
+        } else {
+            variables["timePhaseValue"] = boost::lexical_cast<std::string>(condition->timePhaseValue);
+            p->Print("$timePhaseValue$", variables);
+        }
+        // ToDo (SC) Handle time duration
+    }
+    p->Print(")");
+}
+
+void generateFilterFunction(flame::model::XCondition * /*condition*/, xparser::Printer * /*p*/) {
+    // ToDo (SC)
+}
+
 void printCondition(std::string cname, flame::model::XCondition * condition, xparser::Printer * p) {
     std::map<std::string, std::string> variables;
     variables["cname"] = cname;
@@ -234,6 +295,27 @@ int main(int argc, const char* argv[]) {
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             msg.AddVar((*variable).getType(), (*variable).getName());
         msg.Generate(p);
+    }
+
+    // Generate function condition functions
+    for (agent = agents->begin(); agent != agents->end(); ++agent) {
+        variables["agent_name"] = (*agent).getName();
+        boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
+        for (func = funcs->begin(); func != funcs->end(); ++func) {
+            if ((*func).getCondition()) {
+                variables["func_name"] = (*func).getName();
+                variables["func_current_state"] = (*func).getCurrentState();
+                variables["func_next_state"] = (*func).getNextState();
+                p.Print("int $agent_name$_$func_name$_$func_current_state$_$func_next_state$_condition() {\n", variables);
+                p.Indent();
+                p.Print("if ");
+                generateConditionFunction((*func).getCondition(), &p);
+                p.Print(" return 1;\n");
+                p.Print("return 0;\n");
+                p.Outdent();
+                p.Print("}\n\n");
+            }
+        }
     }
 
     /*
