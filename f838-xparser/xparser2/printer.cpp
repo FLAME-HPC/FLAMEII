@@ -17,23 +17,24 @@
 
 namespace {  // utility functions for use within this file only
 
-// returns a char* buffer which caller must delete
+// Allocates a char* buffer with size equal to the file size, copies in
+// the file content and returns the buffer.
+// The deallocation of the buffer is left to the caller.
 const char* get_cstr_from_file(const std::string& filename) {
   // open file for reading
   std::ifstream in(filename.c_str());
   if (in.fail()) {
     throw flame::exceptions::invalid_argument(
-      std::string("Error reading file : ") + filename
-    );
-  } 
+      std::string("Error reading file : ") + filename);
+  }
 
   // get file size
   in.seekg(0, std::ifstream::end);
   int length = in.tellg();
   // create string buffer and append NULL char
   char *buffer = new char[length + 1];
-  buffer[length] = '\0';  
-  
+  buffer[length] = '\0';
+
   // read file into buffer
   in.seekg(0, std::ifstream::beg);
   in.read(buffer, length);
@@ -41,7 +42,6 @@ const char* get_cstr_from_file(const std::string& filename) {
 
   return buffer;
 }
-
 }
 
 namespace xparser {
@@ -59,7 +59,7 @@ void Printer::Outdent() {
     throw flame::exceptions::invalid_operation(
       "Outdent() without matching Indent().");
   }
-  indent_.resize(indent_.size() - 2);
+  indent_.resize(indent_.size() - 2);  // reduce indent string by one level
 }
 
 void Printer::write_(const char* data, int size) {
@@ -81,7 +81,7 @@ void Printer::Print(const char* text,
       // Write what we have so far, including the newline
       write_(text + pos, i - pos + 1);
       pos = i + 1;
-      
+
       // next write_() should insert an indent
       at_start_of_line_ = true;
 
@@ -96,7 +96,7 @@ void Printer::Print(const char* text,
         throw flame::exceptions::invalid_argument(
           "Closing delimiter not found");
       }
-      
+
       int endpos = end - text;
       std::string varname(text + pos, endpos - pos);
       if (varname.empty()) {

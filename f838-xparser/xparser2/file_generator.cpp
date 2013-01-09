@@ -8,6 +8,7 @@
  * \brief Handles the writing out of files based on input generators.
  */
 #include <fstream>
+#include <string>
 #include <boost/filesystem.hpp>
 #include "flame2/exceptions/base.hpp"
 #include "codegen/code_generator.hpp"
@@ -19,12 +20,15 @@ FileGenerator::FileGenerator() {
   // use current working dir as output dir
   ChangeOutputDirectory(boost::filesystem::current_path().string());
 }
-    
+
 FileGenerator::FileGenerator(const std::string& output_dir) {
   ChangeOutputDirectory(output_dir);
 }
 
+// Changes the output directory
+// Also used by constructor to set default output directory
 void FileGenerator::ChangeOutputDirectory(const std::string& output_dir) {
+  // First, check if it is a valid directory
   boost::filesystem::path dir(output_dir);
   if (boost::filesystem::exists(dir) && boost::filesystem::is_directory(dir)) {
     outdir_ = dir.string();
@@ -33,6 +37,8 @@ void FileGenerator::ChangeOutputDirectory(const std::string& output_dir) {
   }
 }
 
+// outfile can contain a subdirectory path. However, do not create missing
+// subdirs so the caller has to make sure the directory exists
 void FileGenerator::Output(const std::string& outfile,
                            const xparser::codegen::CodeGenerator& g) const {
   // compose full path to output file

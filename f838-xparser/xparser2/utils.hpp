@@ -9,9 +9,18 @@
  */
 #ifndef XPARSER__UTILS_HPP_
 #define XPARSER__UTILS_HPP_
+#include <string>
 
 namespace xparser { namespace utils {
 
+/*! \brief Locates and returns full path to template with given filename
+ *
+ * The following directories are search in order:
+ * - ./xparser2/templates
+ * - $PKG_INSTALL_DIRECTORY/xparser2/templates
+ *
+ * If the template is not found, an empty string is returned
+ */
 std::string locate_template(const char* template_name);
 
 }}  // namespace xparser::utils
