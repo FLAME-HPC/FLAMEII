@@ -13,7 +13,6 @@
 #include "printer.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "xparser2.hpp"
-#include "printer.hpp"
 
 void printCondition(flame::model::XCondition * condition, xparser::Printer p) {
 
@@ -69,6 +68,7 @@ int main(int argc, const char* argv[]) {
     boost::ptr_vector<flame::model::XVariable>::iterator variable;
     boost::ptr_vector<flame::model::XFunction>::iterator func;
     boost::ptr_vector<flame::model::XIOput>::iterator ioput;
+    boost::ptr_vector<flame::model::XMessage>::iterator message;
     // Agents
     boost::ptr_vector<flame::model::XMachine> * agents = model.getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
@@ -140,9 +140,28 @@ int main(int argc, const char* argv[]) {
     p.Print("model.validate();\n");
     p.Print("// Register model memory\n");
     p.Print("model.registerWithMemoryManager();\n");
+    p.Print("// Register model tasks\n");
+    p.Print("model.registerWithTaskManager();\n");
+    // Register messages
+    p.Print("// Register messages\n");
+    p.Print("flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();\n");
+    boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
+    for (message = messages->begin(); message != messages->end(); ++message) {
+        variables["message_name"] = (*message).getName();
+        p.Print("mb_mbr.RegisterMessage<$message_name$_message>(\"$message_name$\");\n", variables);
+    }
 
     p.Outdent();
     p.Print("}\n\n");
+
+    //xparser::Printer p(std::cout);
+    for (message = messages->begin(); message != messages->end(); ++message) {
+        xparser::codegen::GenDataStruct msg((*message).getName() + "_message");
+        boost::ptr_vector<flame::model::XVariable> * vars = (*message).getVariables();
+        for (variable = vars->begin(); variable != vars->end(); ++variable)
+            msg.AddVar((*variable).getType(), (*variable).getName());
+        msg.Generate(p);
+    }
 
     /*
     1. main.cpp
@@ -181,11 +200,6 @@ int main(int argc, const char* argv[]) {
 
     return 0;
 
-  xparser::Printer p(std::cout);
-  xparser::codegen::GenDataStruct msg("location_message");
-  msg.AddVar("double", "x");
-  msg.AddVar("double", "y");
-  msg.AddVar("int", "id");
-  msg.Generate(p);
+
 
 }
