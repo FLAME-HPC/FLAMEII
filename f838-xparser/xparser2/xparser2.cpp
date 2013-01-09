@@ -9,14 +9,82 @@
  */
 #include <fstream>
 #include <map>
+#include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
 #include "printer.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "xparser2.hpp"
 
-void printCondition(flame::model::XCondition * condition, xparser::Printer p) {
+void printCondition(std::string cname, flame::model::XCondition * condition, xparser::Printer * p) {
+    std::map<std::string, std::string> variables;
+    variables["cname"] = cname;
 
-
+    if (condition->isNot) p->Print("$cname$->isNot = true;\n", variables);
+    if (condition->isValues) {
+        p->Print("$cname$->isValues = true;\n", variables);
+        /* Handle lhs */
+        if (condition->lhsIsAgentVariable) {
+            p->Print("$cname$->lhsIsAgentVariable = true;\n", variables);
+            variables["lhs"] = condition->lhs;
+            p->Print("$cname$->lhs = \"$lhs$\";\n", variables);
+        }
+        else if (condition->lhsIsMessageVariable) {
+            p->Print("$cname$->lhsIsMessageVariable = true;\n", variables);
+            variables["lhs"] = condition->lhs;
+            p->Print("$cname$->lhs = \"$lhs$\";\n", variables);
+        }
+        else if (condition->lhsIsValue) {
+            p->Print("$cname$->lhsIsValue = true;\n", variables);
+            variables["lhs"] = boost::lexical_cast<std::string>(condition->lhsDouble);
+            p->Print("$cname$->lhsDouble = $lhs$;\n", variables);
+        }
+        /* Handle operator */
+        variables["op"] = condition->op;
+        p->Print("$cname$->op = \"$op$\";\n", variables);
+        /* Handle rhs */
+        if (condition->rhsIsAgentVariable) {
+            p->Print("$cname$->rhsIsAgentVariable = true;\n", variables);
+            variables["rhs"] = condition->lhs;
+            p->Print("$cname$->rhs = \"$rhs$\";\n", variables);
+        }
+        else if (condition->rhsIsMessageVariable) {
+            p->Print("$cname$->rhsIsMessageVariable = true;\n", variables);
+            variables["rhs"] = condition->lhs;
+            p->Print("$cname$->rhs = \"$rhs$\";\n", variables);
+        }
+        else if (condition->rhsIsValue) {
+            p->Print("$cname$->rhsIsValue = true;\n", variables);
+            variables["rhs"] = boost::lexical_cast<std::string>(condition->rhsDouble);
+            p->Print("$cname$->rhsDouble = $rhs$;\n", variables);
+        }
+    }
+    if (condition->isConditions) {
+        p->Print("$cname$->isConditions = true;\n", variables);
+        p->Print("$cname$->lhsCondition = new model::XCondition;\n", variables);
+        printCondition(cname + "->lhsCondition", condition->lhsCondition, p);
+        variables["op"] = condition->op;
+        p->Print("$cname$->op = \"$op$\";\n", variables);
+        p->Print("$cname$->rhsCondition = new model::XCondition;\n", variables);
+        printCondition(cname + "->rhsCondition", condition->rhsCondition, p);
+    }
+    if (condition->isTime) {
+        p->Print("$cname$->isTime = true;\n", variables);
+        variables["timePeriod"] = condition->timePeriod;
+        p->Print("$cname$->timePeriod = \"$timePeriod$\";\n", variables);
+        if (condition->timePhaseIsVariable) {
+            p->Print("$cname$->timePhaseIsVariable = true;\n", variables);
+            variables["timePhaseVariable"] = condition->timePhaseVariable;
+            p->Print("$cname$->timePhaseVariable = \"$timePhaseVariable$\";\n", variables);
+        } else {
+            variables["timePhaseValue"] = boost::lexical_cast<std::string>(condition->timePhaseValue);
+            p->Print("$cname$->timePhaseValue = $timePhaseValue$;\n", variables);
+        }
+        if (condition->foundTimeDuration) {
+            p->Print("$cname$->foundTimeDuration = true;\n", variables);
+            variables["timeDuration"] = boost::lexical_cast<std::string>(condition->timeDuration);
+            p->Print("$cname$->timeDuration = $timeDuration$;\n", variables);
+        }
+    }
 }
 
 int main(int argc, const char* argv[]) {
@@ -92,6 +160,11 @@ int main(int argc, const char* argv[]) {
             p.Print("function->setName(\"$func_name$\");\n", variables);
             p.Print("function->setCurrentState(\"$func_current_state$\");\n", variables);
             p.Print("function->setNextState(\"$func_next_state$\");\n", variables);
+            // Condition
+            if ((*func).getCondition()) {
+                p.Print("condition = function->addCondition();\n");
+                printCondition("condition", (*func).getCondition(), &p);
+            }
             // Outputs
             boost::ptr_vector<flame::model::XIOput> * outputs = (*func).getOutputs();
             for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
@@ -106,8 +179,8 @@ int main(int argc, const char* argv[]) {
                 p.Print("ioput = function->addInput();\n");
                 p.Print("ioput->setMessageName(\"$message_name$\");\n", variables);
                 if ((*ioput).getFilter()) {
-                    //p.Print("condition = ioput->addFilter();\n");
-                    //printCondition((*ioput).getFilter(), p);
+                    p.Print("condition = ioput->addFilter();\n");
+                    printCondition("condition", (*ioput).getFilter(), &p);
                 }
                 if ((*ioput).isRandom()) p.Print("ioput->setRandom(true);\n");
                 if ((*ioput).isSort()) {
