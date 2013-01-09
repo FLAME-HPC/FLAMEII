@@ -13,13 +13,15 @@
 sources = \
   xparser2.cpp \
   printer.cpp \
+  file_generator.cpp \
   utils.cpp \
   codegen/gen_datastruct.cpp \
-  codegen/gen_makefile.cpp
+  codegen/gen_makefile.cpp 
  
 headers = \
   xparser2.hpp \
   printer.hpp \
+  file_generator.hpp \
   utils.hpp \
   codegen/code_generator.hpp \
   codegen/gen_datastruct.hpp \
