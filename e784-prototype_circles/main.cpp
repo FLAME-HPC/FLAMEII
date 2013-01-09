@@ -42,6 +42,8 @@ int main(int argc, const char* argv[]) {
     }
   }
   
+  model::XFunction * function = 0;
+  model::XIOput * ioput = 0;
   // Create model
   model::XModel model;
   model::XMachine * circle_agent = model.addAgent("Circle");
@@ -51,66 +53,71 @@ int main(int argc, const char* argv[]) {
   circle_agent->addVariable("double", "fx");
   circle_agent->addVariable("double", "fy");
   circle_agent->addVariable("double", "radius");
-  model.validate();
-  model.registerWithMemoryManager();
 
+  function = circle_agent->addFunction();
+  function->setName("outputdata");
+  function->setCurrentState("0");
+  function->setNextState("1");
+  function->setMemoryAccessInfoAvailable(true);
+  function->addReadOnlyVariable("x");
+  function->addReadOnlyVariable("y");
+  function->addReadOnlyVariable("radius");
+  function->addReadOnlyVariable("id");
+  ioput = function->addOutput();
+  ioput->setMessageName("location");
+
+  function = circle_agent->addFunction();
+  function->setName("inputdata");
+  function->setCurrentState("1");
+  function->setNextState("2");
+  function->setMemoryAccessInfoAvailable(true);
+  function->addReadOnlyVariable("x");
+  function->addReadOnlyVariable("y");
+  function->addReadOnlyVariable("radius");
+  function->addReadOnlyVariable("id");
+  function->addReadWriteVariable("fx");
+  function->addReadWriteVariable("fy");
+  ioput = function->addInput();
+  ioput->setMessageName("location");
+
+  function = circle_agent->addFunction();
+  function->setName("move");
+  function->setCurrentState("2");
+  function->setNextState("3");
+  function->setMemoryAccessInfoAvailable(true);
+  function->addReadWriteVariable("x");
+  function->addReadWriteVariable("y");
+  function->addReadOnlyVariable("fx");
+  function->addReadOnlyVariable("fy");
+
+  model::XMessage * xmessage = model.addMessage();
+  xmessage->setName("location");
+  xmessage->addVariable("double", "x");
+  xmessage->addVariable("double", "y");
+  xmessage->addVariable("double", "z");
+  xmessage->addVariable("int", "id");
+
+  model.validate();
+
+  // Above handled by model::Model
+
+  // Register agent functions
+  model.registerAgentFunction("outputdata", &outputdata);
+  model.registerAgentFunction("inputdata", &inputdata);
+  model.registerAgentFunction("move", &move);
+  // Register Message Boards
+  //model.registerMessage<location_message>("location");
+  flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();
+  mb_mbr.RegisterMessage<location_message>("location");
+
+  // Handled by sim::Simulation initialisation
+  model.registerWithMemoryManager();
   // Create population data
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
   iomanager.readPop(pop_path, &model, flame::io::IOManager::xml);
 
-  // Register Message Boards
-  flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();
-  mb_mbr.RegisterMessage<location_message>("location");
-
-  // Define tasks
-  flame::exe::TaskManager& task_mgr = flame::exe::TaskManager::GetInstance();
-  
-  // Register Agent Tasks (+ define access to memory/board)
-  flame::exe::Task& t1 = task_mgr.CreateAgentTask(
-                "__AGENT__outputdata", "Circle", &outputdata);
-  t1.AllowAccess("x", false);
-  t1.AllowAccess("y", false);
-  t1.AllowAccess("radius", false);
-  t1.AllowAccess("id", false);
-  t1.AllowMessagePost("location");
-  
-  flame::exe::Task& t2 = task_mgr.CreateAgentTask(
-                "__AGENT__inputdata", "Circle", &inputdata);
-  t2.AllowAccess("x", false);
-  t2.AllowAccess("y", false);
-  t2.AllowAccess("radius", false);
-  t2.AllowAccess("id", false);
-  t2.AllowAccess("fx", true);
-  t2.AllowAccess("fy", true);
-  t2.AllowMessageRead("location");
-  
-  flame::exe::Task& t3 = task_mgr.CreateAgentTask(
-                "__AGENT__move", "Circle", &move);
-  t3.AllowAccess("x", true);
-  t3.AllowAccess("y", true);
-  t3.AllowAccess("fx", false);
-  t3.AllowAccess("fy", false);
-  
-  // Register framework tasks (IO/Mem)
-  task_mgr.CreateMessageBoardTask("__MB__sync_location", "location", 
-                                  flame::exe::MessageBoardTask::OP_SYNC);
-  task_mgr.CreateMessageBoardTask("__MB__clear_location", "location", 
-                                  flame::exe::MessageBoardTask::OP_CLEAR);
-
-  
-  // Dependencies for agent functions
-  task_mgr.AddDependency("__MB__sync_location", "__AGENT__outputdata");
-  task_mgr.AddDependency("__AGENT__inputdata", "__MB__sync_location");
-  task_mgr.AddDependency("__MB__clear_location", "__AGENT__inputdata");
-  task_mgr.AddDependency("__AGENT__move", "__AGENT__inputdata");
-
-  // Task and dependencies for data output
-  task_mgr.CreateIOTask("__IO__output_Model_initialise", "", "",
-                          flame::exe::IOTask::OP_INIT);
-  task_mgr.CreateIOTask("__IO__output_Model_finalise", "", "",
-                          flame::exe::IOTask::OP_FIN);
-  task_mgr.AddDependency("__IO__output_Model_finalise", "__IO__output_Model_initialise");
-  task_mgr.AddDependency("__IO__output_Model_finalise", "__AGENT__move");
+  // Handled by sim::Simulation start method
+  model.registerWithTaskManager();
   
   // Initialise scheduler
   flame::exe::Scheduler s;
@@ -127,6 +134,9 @@ int main(int argc, const char* argv[]) {
     std::cout << "Iteration " << i << std::endl;
     s.RunIteration();
   }
+
+  // Above handled by model::simulation::start()
+
   stop_time = get_time();
   total_time = stop_time - start_time;
   printf("Execution time - %d:%02d:%03d [mins:secs:msecs]\n",
