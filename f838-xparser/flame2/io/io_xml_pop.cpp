@@ -30,7 +30,7 @@ IOXMLPop::IOXMLPop() : iteration_(0), xml_pop_path_is_set(false) {}
 
 // This method is empty because you can't (without a lot of difficulty)
 // write xml row-wise
-void IOXMLPop::writePop(std::string agent_name, std::string var_name) {}
+void IOXMLPop::writePop(std::string /*agent_name*/, std::string /*var_name*/) {}
 
 void IOXMLPop::initialiseData() {
     // Write out xml start and environment data when inplemented
