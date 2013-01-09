@@ -19,6 +19,7 @@ namespace model {
 
 class Model {
   public:
+    Model();
     explicit Model(std::string model);
     void registerAgentFunction(std::string name,
             flame::exe::TaskFunction f_ptr);

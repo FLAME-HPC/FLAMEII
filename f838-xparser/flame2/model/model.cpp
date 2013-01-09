@@ -17,6 +17,8 @@
 namespace flame {
 namespace model {
 
+Model::Model() {}
+
 /*!
  * \brief Constructs Model
  *
