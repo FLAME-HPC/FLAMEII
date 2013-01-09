@@ -42,8 +42,6 @@ int main(int argc, const char* argv[]) {
     }
   }
   
-  model::XFunction * function = 0;
-  model::XIOput * ioput = 0;
   // Create model
   model::XModel model;
   model::XMachine * circle_agent = model.addAgent("Circle");
@@ -54,44 +52,32 @@ int main(int argc, const char* argv[]) {
   circle_agent->addVariable("double", "fy");
   circle_agent->addVariable("double", "radius");
 
-  function = circle_agent->addFunction();
-  function->setName("outputdata");
-  function->setCurrentState("0");
-  function->setNextState("1");
-  function->setMemoryAccessInfoAvailable(true);
-  function->addReadOnlyVariable("x");
-  function->addReadOnlyVariable("y");
-  function->addReadOnlyVariable("radius");
-  function->addReadOnlyVariable("id");
-  ioput = function->addOutput();
-  ioput->setMessageName("location");
+  model::XFunction * function0 = circle_agent->addFunction("outputdata", "0", "1");
+  function0->setMemoryAccessInfoAvailable(true);
+  function0->addReadOnlyVariable("x");
+  function0->addReadOnlyVariable("y");
+  function0->addReadOnlyVariable("radius");
+  function0->addReadOnlyVariable("id");
+  function0->addOutput("location");
 
-  function = circle_agent->addFunction();
-  function->setName("inputdata");
-  function->setCurrentState("1");
-  function->setNextState("2");
-  function->setMemoryAccessInfoAvailable(true);
-  function->addReadOnlyVariable("x");
-  function->addReadOnlyVariable("y");
-  function->addReadOnlyVariable("radius");
-  function->addReadOnlyVariable("id");
-  function->addReadWriteVariable("fx");
-  function->addReadWriteVariable("fy");
-  ioput = function->addInput();
-  ioput->setMessageName("location");
+  model::XFunction * function1 = circle_agent->addFunction("inputdata", "1", "2");
+  function1->setMemoryAccessInfoAvailable(true);
+  function1->addReadOnlyVariable("x");
+  function1->addReadOnlyVariable("y");
+  function1->addReadOnlyVariable("radius");
+  function1->addReadOnlyVariable("id");
+  function1->addReadWriteVariable("fx");
+  function1->addReadWriteVariable("fy");
+  function1->addInput("location");
 
-  function = circle_agent->addFunction();
-  function->setName("move");
-  function->setCurrentState("2");
-  function->setNextState("3");
-  function->setMemoryAccessInfoAvailable(true);
-  function->addReadWriteVariable("x");
-  function->addReadWriteVariable("y");
-  function->addReadOnlyVariable("fx");
-  function->addReadOnlyVariable("fy");
+  model::XFunction * function2 = circle_agent->addFunction("move", "2", "3");
+  function2->setMemoryAccessInfoAvailable(true);
+  function2->addReadWriteVariable("x");
+  function2->addReadWriteVariable("y");
+  function2->addReadOnlyVariable("fx");
+  function2->addReadOnlyVariable("fy");
 
-  model::XMessage * xmessage = model.addMessage();
-  xmessage->setName("location");
+  model::XMessage * xmessage = model.addMessage("location");
   xmessage->addVariable("double", "x");
   xmessage->addVariable("double", "y");
   xmessage->addVariable("double", "z");
