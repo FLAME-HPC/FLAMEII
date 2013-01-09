@@ -48,6 +48,13 @@ XVariable * XMessage::addVariable() {
     return xvariable;
 }
 
+XVariable * XMessage::addVariable(std::string type, std::string name) {
+    XVariable * xvariable = addVariable();
+    xvariable->setType(type);
+    xvariable->setName(name);
+    return xvariable;
+}
+
 boost::ptr_vector<XVariable> * XMessage::getVariables() {
     return &variables_;
 }

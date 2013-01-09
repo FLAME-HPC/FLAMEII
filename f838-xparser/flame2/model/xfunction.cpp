@@ -96,6 +96,12 @@ XIOput * XFunction::addInput() {
     return xinput;
 }
 
+XIOput * XFunction::addInput(std::string name) {
+    XIOput * xinput = addInput();
+    xinput->setMessageName(name);
+    return xinput;
+}
+
 boost::ptr_vector<XIOput> * XFunction::getInputs() {
     return &inputs_;
 }
@@ -103,6 +109,12 @@ boost::ptr_vector<XIOput> * XFunction::getInputs() {
 XIOput * XFunction::addOutput() {
     XIOput * xoutput = new XIOput;
     outputs_.push_back(xoutput);
+    return xoutput;
+}
+
+XIOput * XFunction::addOutput(std::string name) {
+    XIOput * xoutput = addOutput();
+    xoutput->setMessageName(name);
     return xoutput;
 }
 
@@ -131,6 +143,9 @@ bool XFunction::getMemoryAccessInfoAvailable() {
 }
 
 void XFunction::addReadOnlyVariable(std::string name) {
+    if (!memoryAccessInfoAvailable_)
+        throw std::invalid_argument(
+                    "memory access info available has not been set to true");
     readOnlyVariables_.push_back(name);
 }
 
@@ -139,6 +154,9 @@ std::vector<std::string> * XFunction::getReadOnlyVariables() {
 }
 
 void XFunction::addReadWriteVariable(std::string name) {
+    if (!memoryAccessInfoAvailable_)
+        throw std::invalid_argument(
+                    "memory access info available has not been set to true");
     readWriteVariables_.push_back(name);
 }
 

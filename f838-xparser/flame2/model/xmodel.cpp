@@ -261,6 +261,12 @@ XMessage * XModel::addMessage() {
     return xmessage;
 }
 
+XMessage * XModel::addMessage(std::string name) {
+    XMessage * xmessage = addMessage();
+    xmessage->setName(name);
+    return xmessage;
+}
+
 /*!
  * \brief Returns a message object with given name
  * \param[in] name Name of the message

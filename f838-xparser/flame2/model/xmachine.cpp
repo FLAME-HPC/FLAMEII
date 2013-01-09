@@ -74,6 +74,15 @@ XFunction * XMachine::addFunction() {
     return xfunction;
 }
 
+XFunction * XMachine::addFunction(std::string name,
+            std::string currentState, std::string nextState) {
+    XFunction * xfunction = addFunction();
+    xfunction->setName(name);
+    xfunction->setCurrentState(currentState);
+    xfunction->setNextState(nextState);
+    return xfunction;
+}
+
 boost::ptr_vector<XFunction> * XMachine::getFunctions() {
     return &functions_;
 }

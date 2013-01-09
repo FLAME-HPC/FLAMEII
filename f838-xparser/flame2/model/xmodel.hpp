@@ -50,6 +50,7 @@ class XModel {
     boost::ptr_vector<XMachine> * getAgents();
     XMachine * getAgent(std::string name);
     XMessage * addMessage();
+    XMessage * addMessage(std::string name);
     XMessage * getMessage(std::string name);
     boost::ptr_vector<XMessage> * getMessages();
     void addAllowedDataType(std::string name);
