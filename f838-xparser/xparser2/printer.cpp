@@ -119,6 +119,10 @@ void Printer::Print(const char* text,
       pos = endpos + 1;
     }
   }
+
+  // Write the rest.
+  write_(text + pos, size - pos);
+
 }
 
 void Printer::Print(const char* text) {
