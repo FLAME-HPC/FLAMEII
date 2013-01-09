@@ -9,14 +9,12 @@
  */
 #ifndef XPARSER__CODEGEN__CODE_GENERATOR_HPP_
 #define XPARSER__CODEGEN__CODE_GENERATOR_HPP_
-namespace xparser {
-  
-class Printer;  // forward declaration
-
-namespace codegen {
+#include "../printer.hpp"
+namespace xparser { namespace codegen {
 
 class CodeGenerator {
   public:
+    typedef xparser::Printer Printer;
     inline CodeGenerator() {}
     virtual ~CodeGenerator() {}
     virtual void Generate(Printer& printer) const = 0;
@@ -25,6 +23,6 @@ class CodeGenerator {
     void operator=(const CodeGenerator&);
 };
 
-}  // namespace xparser::codegen
-}  // namespace xparser
+}}  // namespace xparser::codegen
+
 #endif  // XPARSER__CODEGEN__CODE_GENERATOR_HPP_

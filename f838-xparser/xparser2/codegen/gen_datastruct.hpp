@@ -14,7 +14,6 @@
 #include <vector>
 #include <utility>
 #include <string>
-#include "../printer.hpp"
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
