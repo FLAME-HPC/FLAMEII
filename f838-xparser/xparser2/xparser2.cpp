@@ -15,6 +15,7 @@
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
 #include "codegen/gen_headerfile.hpp"
+#include "codegen/gen_maincpp.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
 
@@ -238,11 +239,10 @@ int main(int argc, const char* argv[]) {
     // File generator
     xparser::FileGenerator filegen;
 
-    // Open file for writing
-    std::ofstream maincppfile;
-    maincppfile.open ("main.cpp");
+    // main.cpp
+    xparser::codegen::GenMainCpp genmaincpp;
     // create printer instance
-    xparser::Printer p(maincppfile);
+    xparser::Printer p(std::cout);
     p.Print("#include <cstdio>\n");
     p.Print("#include <iostream>\n");
     p.Print("#include <sys/time.h>\n");
@@ -415,8 +415,9 @@ int main(int argc, const char* argv[]) {
     p.Print("\nreturn 0;\n");
     p.Outdent();
     p.Print("}\n\n");
+    //genmaincpp.Insert(p);
     // close file when done
-    maincppfile.close();
+    filegen.Output("main.cpp", genmaincpp);
 
     // Message datatypes header
     xparser::codegen::GenHeaderFile h;
