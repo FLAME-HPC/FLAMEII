@@ -33,6 +33,8 @@ class XMachine {
     XFunction * addFunction();
     XFunction * addFunction(std::string name,
             std::string currentState, std::string nextState);
+    XFunction * getFunction(std::string name,
+            std::string current_state, std::string next_state);
     boost::ptr_vector<XFunction> * getFunctions();
     bool validateVariableName(std::string name);
     int findStartEndStates();

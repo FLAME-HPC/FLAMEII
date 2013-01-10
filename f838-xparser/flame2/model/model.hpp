@@ -28,6 +28,29 @@ class Model {
       flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
     }
     flame::model::XModel * getXModel();
+    void validate();
+    void addAgent(std::string name);
+    void addAgentVariable(std::string agent_name,
+            std::string type, std::string name);
+    void addAgentFunction(std::string agent_name, std::string name,
+            std::string current_state, std::string next_state);
+    void addAgentFunctionInput(std::string agent_name, std::string func_name,
+            std::string current_state, std::string next_state,
+            std::string name);
+    void addAgentFunctionOutput(std::string agent_name, std::string func_name,
+            std::string current_state, std::string next_state,
+            std::string name);
+    void addAgentFunctionReadWriteVariable(std::string agent_name,
+            std::string func_name,
+            std::string current_state, std::string next_state,
+            std::string name);
+    void addAgentFunctionReadOnlyVariable(std::string agent_name,
+            std::string func_name,
+            std::string current_state, std::string next_state,
+            std::string name);
+    void addMessage(std::string name);
+    void addMessageVariable(std::string message_name,
+            std::string type, std::string name);
   private:
     flame::model::XModel model_;
 };

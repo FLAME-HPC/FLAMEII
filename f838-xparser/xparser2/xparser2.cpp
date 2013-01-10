@@ -301,26 +301,19 @@ int main(int argc, const char* argv[]) {
     p.Print("}\n");
     p.Print("}\n\n");
 
-    p.Print("// Define tasks\n");
-    p.Print("model::XMachine * agent = 0;\n");
-    p.Print("model::XFunction * function = 0;\n");
-    p.Print("model::XIOput * ioput = 0;\n");
-    p.Print("model::XCondition * condition = 0;\n");
-    p.Print("model::XMessage * message = 0;\n");
     p.Print("// Create model\n");
     p.Print("model::Model model;\n");
-    p.Print("model::XModel * xmodel = model.getXModel();\n");
     // Agents
     agents = model.getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         variables["agent_name"] = (*agent).getName();
-        p.Print("agent = xmodel->addAgent(\"$agent_name$\");\n", variables);
+        p.Print("model.addAgent(\"$agent_name$\");\n", variables);
         // Agent memory
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable) {
             variables["var_name"] = (*variable).getName();
             variables["var_type"] = (*variable).getType();
-            p.Print("agent->addVariable(\"$var_type$\", \"$var_name$\");\n", variables);
+            p.Print("model.addAgentVariable(\"$agent_name$\", \"$var_type$\", \"$var_name$\");\n", variables);
         }
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
@@ -328,25 +321,24 @@ int main(int argc, const char* argv[]) {
             variables["func_name"] = (*func).getName();
             variables["func_current_state"] = (*func).getCurrentState();
             variables["func_next_state"] = (*func).getNextState();
-            p.Print("// Function: $func_name$\n", variables);
-            p.Print("function = agent->addFunction(\"$func_name$\", \"$func_current_state$\", \"$func_next_state$\");\n", variables);
+            p.Print("model.addAgentFunction(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\");\n", variables);
             // Condition
-            if ((*func).getCondition()) {
+            /*if ((*func).getCondition()) {
                 p.Print("condition = function->addCondition();\n");
                 generateConditionCreation("condition", (*func).getCondition(), &p);
-            }
+            }*/
             // Outputs
             boost::ptr_vector<flame::model::XIOput> * outputs = (*func).getOutputs();
             for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
                 variables["message_name"] = (*ioput).getMessageName();
-                p.Print("function->addOutput(\"$message_name$\");\n", variables);
+                p.Print("model.addAgentFunctionOutput(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$message_name$\");\n", variables);
             }
             // Inputs
             boost::ptr_vector<flame::model::XIOput> * inputs = (*func).getInputs();
             for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput) {
                 variables["message_name"] = (*ioput).getMessageName();
-                p.Print("ioput = function->addInput(\"$message_name$\");\n", variables);
-                if ((*ioput).getFilter()) {
+                p.Print("model.addAgentFunctionInput(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$message_name$\");\n", variables);
+                /*if ((*ioput).getFilter()) {
                     p.Print("condition = ioput->addFilter();\n");
                     generateConditionCreation("condition", (*ioput).getFilter(), &p);
                 }
@@ -357,21 +349,21 @@ int main(int argc, const char* argv[]) {
                     variables["sort_order"] = (*ioput).getSortOrder();
                     p.Print("ioput->setSortKey(\"$sort_key$\");\n", variables);
                     p.Print("ioput->setSortOrder(\"$sort_order$\");\n", variables);
-                }
+                }*/
             }
             // Memory Access info
             if ((*func).getMemoryAccessInfoAvailable()) {
-                p.Print("function->setMemoryAccessInfoAvailable(true);\n");
+                //p.Print("function->setMemoryAccessInfoAvailable(true);\n");
                 std::vector<std::string>::iterator var;
                 std::vector<std::string> * readOnly = (*func).getReadOnlyVariables();
                 for (var = readOnly->begin(); var != readOnly->end(); ++var) {
                     variables["read_only_var"] = (*var);
-                    p.Print("function->addReadOnlyVariable(\"$read_only_var$\");\n", variables);
+                    p.Print("model.addAgentFunctionReadOnlyVariable(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$read_only_var$\");\n", variables);
                 }
                 std::vector<std::string> * readWrite = (*func).getReadWriteVariables();
                 for (var = readWrite->begin(); var != readWrite->end(); ++var) {
                     variables["read_write_var"] = (*var);
-                    p.Print("function->addReadWriteVariable(\"$read_write_var$\");\n", variables);
+                    p.Print("model.addAgentFunctionReadWriteVariable(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$read_write_var$\");\n", variables);
                 }
             }
         }
@@ -380,18 +372,18 @@ int main(int argc, const char* argv[]) {
     boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
     for (message = messages->begin(); message != messages->end(); ++message) {
         variables["message_name"] = (*message).getName();
-        p.Print("message = xmodel->addMessage(\"$message_name$\");\n", variables);
+        p.Print("model.addMessage(\"$message_name$\");\n", variables);
         boost::ptr_vector<flame::model::XVariable> * vars = (*message).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable) {
             variables["var_name"] = (*variable).getName();
             variables["var_type"] = (*variable).getType();
-            p.Print("message->addVariable(\"$var_type$\", \"$var_name$\");\n", variables);
+            p.Print("model.addMessageVariable(\"$message_name$\", \"$var_type$\", \"$var_name$\");\n", variables);
         }
     }
-    p.Print("// Validate model\n");
-    p.Print("xmodel->validate();\n");
+    p.Print("\n// Validate model\n");
+    p.Print("model.validate();\n");
     // Register agent functions
-    p.Print("// Register agent functions\n");
+    p.Print("\n// Register agent functions\n");
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
@@ -406,13 +398,13 @@ int main(int argc, const char* argv[]) {
         p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
     // Create and run simulation
-    p.Print("// Create simulation using model and path to initial pop\n");
+    p.Print("\n// Create simulation using model and path to initial pop\n");
     p.Print("flame::sim::Simulation s(&model, pop_path);\n");
-    p.Print("double start_time, stop_time, total_time;\n");
+    p.Print("\ndouble start_time, stop_time, total_time;\n");
     p.Print("start_time = get_time();\n");
-    p.Print("// Run simulation\n");
+    p.Print("\n// Run simulation\n");
     p.Print("s.start(num_iters);\n");
-    p.Print("stop_time = get_time();\n");
+    p.Print("\nstop_time = get_time();\n");
     p.Print("total_time = stop_time - start_time;\n");
     p.Print("printf(\"Execution time - %d:%02d:%03d [mins:secs:msecs]\\n\",\n");
     p.Indent();
@@ -420,7 +412,7 @@ int main(int argc, const char* argv[]) {
     p.Print("((int)total_time)%60, \n");
     p.Print("(((int)(total_time * 1000.0)) % 1000));\n");
     p.Outdent();
-    p.Print("return 0;\n");
+    p.Print("\nreturn 0;\n");
     p.Outdent();
     p.Print("}\n\n");
     // close file when done

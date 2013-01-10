@@ -83,6 +83,21 @@ XFunction * XMachine::addFunction(std::string name,
     return xfunction;
 }
 
+XFunction * XMachine::getFunction(std::string name,
+            std::string current_state, std::string next_state) {
+    boost::ptr_vector<XFunction>::iterator func;
+    for (func = functions_.begin(); func != functions_.end();
+            ++func) {
+        if ((*func).getName() == name &&
+            (*func).getCurrentState() == current_state &&
+            (*func).getNextState() == next_state)
+            return &(*func);
+    }
+    //throw flame::exceptions::flame_model_exception(
+    //                "Function does not exist");
+    return 0;
+}
+
 boost::ptr_vector<XFunction> * XMachine::getFunctions() {
     return &functions_;
 }
