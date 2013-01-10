@@ -13,6 +13,8 @@
 #include "flame2/io/io_manager.hpp"
 #include "printer.hpp"
 #include "codegen/gen_datastruct.hpp"
+#include "codegen/gen_makefile.hpp"
+#include "file_generator.hpp"
 #include "xparser2.hpp"
 
 void generateConditionFunction(flame::model::XCondition * condition, xparser::Printer * p) {
@@ -67,13 +69,9 @@ void generateConditionFunction(flame::model::XCondition * condition, xparser::Pr
             variables["timePhaseValue"] = boost::lexical_cast<std::string>(condition->timePhaseValue);
             p->Print("$timePhaseValue$", variables);
         }
-        // ToDo (SC) Handle time duration
+        // ToDo (SC) Handle time duration?
     }
     p->Print(")");
-}
-
-void generateFilterFunction(flame::model::XCondition * /*condition*/, xparser::Printer * /*p*/) {
-    // ToDo (SC)
 }
 
 void printCondition(std::string cname, flame::model::XCondition * condition, xparser::Printer * p) {
@@ -167,31 +165,30 @@ int main(int argc, const char* argv[]) {
     }
 
     // Open file for writing
-    std::ofstream outfile;
-    outfile.open ("output.txt");
+    std::ofstream maincppfile;
+    maincppfile.open ("main.cpp");
 
     // create printer instance
-    //xparser::Printer p(outfile);
-    xparser::Printer p(std::cout);
+    xparser::Printer p(maincppfile);
 
     p.Print("#include \"flame2/exe/task_manager.hpp\"\n");
     p.Print("#include \"flame2/exe/scheduler.hpp\"\n");
     p.Print("#include \"flame2/exe/splitting_fifo_task_queue.hpp\"\n");
     p.Print("#include \"flame2/io/io_manager.hpp\"\n");
-    p.Print("#include \"flame2/model/xmodel.hpp\"\n");
+    p.Print("#include \"flame2/model/model.hpp\"\n");
     p.Print("#include \"flame2/mb/message_board_manager.hpp\"\n");
 
     p.Print("\nint main(int argc, const char* argv[]) {\n");
     p.Indent();
 
     p.Print("// Define tasks\n");
-    p.Print("flame::exe::TaskManager& task_mgr = flame::exe::TaskManager::GetInstance();\n");
     p.Print("model::XMachine * agent = 0;\n");
     p.Print("model::XFunction * function = 0;\n");
     p.Print("model::XIOput * ioput = 0;\n");
-    p.Print("flame::model::XCondition * condition = 0;\n");
+    p.Print("model::XCondition * condition = 0;\n");
     p.Print("// Create model\n");
-    p.Print("model::XModel model;\n");
+    p.Print("model::Model model;\n");
+    p.Print("model::XModel * xmodel = model.getXModel();\n");
     std::map<std::string, std::string> variables;
     boost::ptr_vector<flame::model::XMachine>::iterator agent;
     boost::ptr_vector<flame::model::XVariable>::iterator variable;
@@ -202,7 +199,7 @@ int main(int argc, const char* argv[]) {
     boost::ptr_vector<flame::model::XMachine> * agents = model.getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         variables["agent_name"] = (*agent).getName();
-        p.Print("agent = model.addAgent(\"$agent_name$\");\n", variables);
+        p.Print("agent = xmodel->addAgent(\"$agent_name$\");\n", variables);
         // Agent memory
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable) {
@@ -217,10 +214,7 @@ int main(int argc, const char* argv[]) {
             variables["func_current_state"] = (*func).getCurrentState();
             variables["func_next_state"] = (*func).getNextState();
             p.Print("// Function: $func_name$\n", variables);
-            p.Print("function = agent->addFunction();\n");
-            p.Print("function->setName(\"$func_name$\");\n", variables);
-            p.Print("function->setCurrentState(\"$func_current_state$\");\n", variables);
-            p.Print("function->setNextState(\"$func_next_state$\");\n", variables);
+            p.Print("function = agent->addFunction(\"$func_name$\", \"$func_current_state$\", \"$func_next_state$\");\n", variables);
             // Condition
             if ((*func).getCondition()) {
                 p.Print("condition = function->addCondition();\n");
@@ -230,15 +224,13 @@ int main(int argc, const char* argv[]) {
             boost::ptr_vector<flame::model::XIOput> * outputs = (*func).getOutputs();
             for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
                 variables["message_name"] = (*ioput).getMessageName();
-                p.Print("ioput = function->addOutput();\n");
-                p.Print("ioput->setMessageName(\"$message_name$\");\n", variables);
+                p.Print("function->addOutput(\"$message_name$\");\n", variables);
             }
             // Inputs
             boost::ptr_vector<flame::model::XIOput> * inputs = (*func).getInputs();
             for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput) {
                 variables["message_name"] = (*ioput).getMessageName();
-                p.Print("ioput = function->addInput();\n");
-                p.Print("ioput->setMessageName(\"$message_name$\");\n", variables);
+                p.Print("ioput = function->addInput(\"$message_name$\");\n", variables);
                 if ((*ioput).getFilter()) {
                     p.Print("condition = ioput->addFilter();\n");
                     printCondition("condition", (*ioput).getFilter(), &p);
@@ -259,64 +251,128 @@ int main(int argc, const char* argv[]) {
                 std::vector<std::string> * readOnly = (*func).getReadOnlyVariables();
                 for (var = readOnly->begin(); var != readOnly->end(); ++var) {
                     variables["read_only_var"] = (*var);
-                    p.Print("function->addReadOnlyVariable($read_only_var$);\n", variables);
+                    p.Print("function->addReadOnlyVariable(\"$read_only_var$\");\n", variables);
                 }
                 std::vector<std::string> * readWrite = (*func).getReadWriteVariables();
                 for (var = readWrite->begin(); var != readWrite->end(); ++var) {
                     variables["read_write_var"] = (*var);
-                    p.Print("function->addReadWriteVariable($read_write_var$);\n", variables);
+                    p.Print("function->addReadWriteVariable(\"$read_write_var$\");\n", variables);
                 }
             }
         }
     }
 
     p.Print("// Validate model\n");
-    p.Print("model.validate();\n");
-    p.Print("// Register model memory\n");
-    p.Print("model.registerWithMemoryManager();\n");
-    p.Print("// Register model tasks\n");
-    p.Print("model.registerWithTaskManager();\n");
+    p.Print("xmodel->validate();\n");
+    p.Print("// Register agent functions\n");
+    // ToDo SC
+
     // Register messages
-    p.Print("// Register messages\n");
-    p.Print("flame::mb::MessageBoardManager& mb_mbr = flame::mb::MessageBoardManager::GetInstance();\n");
+    p.Print("// Register message types\n");
     boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
     for (message = messages->begin(); message != messages->end(); ++message) {
         variables["message_name"] = (*message).getName();
-        p.Print("mb_mbr.RegisterMessage<$message_name$_message>(\"$message_name$\");\n", variables);
+        p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
 
     p.Outdent();
     p.Print("}\n\n");
 
-    //xparser::Printer p(std::cout);
+    // close file when done
+    maincppfile.close();
+
+    // Open file for writing
+    std::ofstream message_datatypeshppfile;
+    message_datatypeshppfile.open ("flame_generated_message_datatypes.hpp");
+
+    // create printer instance
+    xparser::Printer p1(message_datatypeshppfile);
+
+    p1.Print("#ifndef FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n");
+    p1.Print("#define FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n\n");
     for (message = messages->begin(); message != messages->end(); ++message) {
         xparser::codegen::GenDataStruct msg((*message).getName() + "_message");
         boost::ptr_vector<flame::model::XVariable> * vars = (*message).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             msg.AddVar((*variable).getType(), (*variable).getName());
-        msg.Generate(p);
+        msg.Generate(p1);
+        p1.Print("\n");
     }
+    p1.Print("#endif  // FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n");
 
+    // close file when done
+    message_datatypeshppfile.close();
+
+    // Open file for writing
+    std::ofstream condition_filter_methodscppfile;
+    condition_filter_methodscppfile.open ("flame_generated_condition_filter_methods.cpp");
+
+    // create printer instance
+    xparser::Printer p2(condition_filter_methodscppfile);
+
+    p2.Print("#include \"flame2.hpp\"\n");
+    p2.Print("#include \"flame_generated_message_datatypes.hpp\"\n");
     // Generate function condition functions
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         variables["agent_name"] = (*agent).getName();
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
+            // Conditions
             if ((*func).getCondition()) {
                 variables["func_name"] = (*func).getName();
                 variables["func_current_state"] = (*func).getCurrentState();
                 variables["func_next_state"] = (*func).getNextState();
-                p.Print("int $agent_name$_$func_name$_$func_current_state$_$func_next_state$_condition() {\n", variables);
-                p.Indent();
-                p.Print("if ");
-                generateConditionFunction((*func).getCondition(), &p);
-                p.Print(" return 1;\n");
-                p.Print("return 0;\n");
-                p.Outdent();
-                p.Print("}\n\n");
+                p2.Print("\nbool $agent_name$_$func_name$_$func_current_state$_$func_next_state$_condition() {\n", variables);
+                p2.Indent();
+                p2.Print("return ");
+                generateConditionFunction((*func).getCondition(), &p2);
+                p2.Print(";\n");
+                p2.Outdent();
+                p2.Print("}\n");
+            }
+            // Filters
+            // ToDo SC
+        }
+    }
+
+    // close file when done
+    condition_filter_methodscppfile.close();
+
+    std::ofstream condition_filter_methodshppfile;
+    condition_filter_methodshppfile.open ("flame_generated_condition_filter_methods.hpp");
+
+    xparser::Printer p3(condition_filter_methodshppfile);
+
+    p3.Print("#ifndef FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
+    p3.Print("#define FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
+    p3.Print("#include \"flame2.hpp\"\n\n");
+    // Generate function condition functions
+    for (agent = agents->begin(); agent != agents->end(); ++agent) {
+        variables["agent_name"] = (*agent).getName();
+        boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
+        for (func = funcs->begin(); func != funcs->end(); ++func) {
+            // Conditions
+            if ((*func).getCondition()) {
+                variables["func_name"] = (*func).getName();
+                variables["func_current_state"] = (*func).getCurrentState();
+                variables["func_next_state"] = (*func).getNextState();
+                p3.Print("bool $agent_name$_$func_name$_$func_current_state$_$func_next_state$_condition();\n", variables);
             }
         }
     }
+    p3.Print("\n#endif  // FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
+
+    condition_filter_methodshppfile.close();
+
+    // Makefile
+    xparser::FileGenerator filegen;
+
+    xparser::codegen::GenMakefile genMakefileInstance;
+    genMakefileInstance.AddHeaderFile("flame_generated_message_datatypes.hpp");
+    genMakefileInstance.AddHeaderFile("flame_generated_condition_filter_methods.hpp");
+    genMakefileInstance.AddSourceFile("flame_generated_condition_filter_methods.cpp");
+
+    filegen.Output("Makefile", genMakefileInstance);
 
     /*
     1. main.cpp
@@ -350,8 +406,7 @@ int main(int argc, const char* argv[]) {
     p.Print("} msg;\n");
     */
 
-    // close file when done
-    outfile.close();
+
 
     return 0;
 
