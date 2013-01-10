@@ -13,9 +13,8 @@
 namespace xparser { namespace codegen {
 
 void GenHeaderFile::Generate(Printer& printer) const {
+  // Generate unique include guard
   static const char* include_guard_prefix = "__INCLUDE_GUARD_";
-  
-  // Generate unique include guard 
   std::string include_guard(include_guard_prefix);
   include_guard += xparser::utils::gen_random_string(12);
 
@@ -23,29 +22,12 @@ void GenHeaderFile::Generate(Printer& printer) const {
   printer.Print("#ifndef $GUARD$\n", "GUARD", include_guard);
   printer.Print("#define $GUARD$\n", "GUARD", include_guard);
   
-  // sys header includes
-  StringSet::const_iterator i;
-  const StringSet& sysheaders = GetRequiredSysHeaders();
-  for (i = sysheaders.begin(); i != sysheaders.end(); ++i) {
-    printer.Print("#include <$HEADER$>\n", "HEADER", *i);
-  }
-  
-  // header includes
-  const StringSet& headers = GetRequiredHeaders();
-  for (i = headers.begin(); i != headers.end(); ++i) {
-    printer.Print("#include \"$HEADER$\"\n", "HEADER", *i);
-  }
-  printer.Print("\n");
-  
+  // Insert include statements
+  GenerateIncludeStatements(printer);
   // content
-  GeneratorVector::const_iterator g;
-  for (g = generators_.begin(); g != generators_.end(); ++g) {
-    g->Generate(printer);
-    printer.Print("\n");
-  }
+  GenerateInsertedContent(printer);
 
   // close include guard
   printer.Print("#endif  // $GUARD$\n", "GUARD", include_guard);
 }
-
 }}  // namespace xparser::codegen

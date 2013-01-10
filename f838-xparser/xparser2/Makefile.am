@@ -17,6 +17,7 @@ sources = \
   utils.cpp \
   codegen/gen_datastruct.cpp \
   codegen/gen_makefile.cpp \
+  codegen/gen_file.cpp \
   codegen/gen_headerfile.cpp
  
 headers = \
@@ -27,6 +28,7 @@ headers = \
   codegen/code_generator.hpp \
   codegen/gen_datastruct.hpp \
   codegen/gen_makefile.hpp \
+  codegen/gen_file.hpp \
   codegen/gen_headerfile.hpp
 
 templates = \
