@@ -73,6 +73,8 @@ MB_TEST    = tests/mb/test_board_iteration.cpp \
              tests/mb/test_board_writer.cpp
 COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
              flame2/compat/C/flame_compat_c.cpp
+XPARSER2_SRC = xparser2/xparser2.cpp \
+               xparser2/xparser2.hpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
              $(MB_SRC) $(SIM_SRC) $(COMPAT_SRC) tests/run_tests.cpp \
              $(MODEL_TEST) $(IO_TEST_POP) $(IO_TEST_MODEL) $(IO_TEST_MAN) $(SIM_TEST)
@@ -163,7 +165,8 @@ lint:
              $(IO_TEST_MAN) \
              $(IO_TEST_POP) \
              $(IO_TEST_MODEL) \
-             $(MODEL_IO_SIM_HEADERS)
+             $(MODEL_IO_SIM_HEADERS) \
+             $(XPARSER2_SRC)
 
 CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
 cccc:
