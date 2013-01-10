@@ -164,23 +164,22 @@ int main(int argc, const char* argv[]) {
         exit(2);
     }
 
+    // File generator
+    xparser::FileGenerator filegen;
+
     // Open file for writing
     std::ofstream maincppfile;
     maincppfile.open ("main.cpp");
-
     // create printer instance
     xparser::Printer p(maincppfile);
-
     p.Print("#include \"flame2/exe/task_manager.hpp\"\n");
     p.Print("#include \"flame2/exe/scheduler.hpp\"\n");
     p.Print("#include \"flame2/exe/splitting_fifo_task_queue.hpp\"\n");
     p.Print("#include \"flame2/io/io_manager.hpp\"\n");
     p.Print("#include \"flame2/model/model.hpp\"\n");
     p.Print("#include \"flame2/mb/message_board_manager.hpp\"\n");
-
     p.Print("\nint main(int argc, const char* argv[]) {\n");
     p.Indent();
-
     p.Print("// Define tasks\n");
     p.Print("model::XMachine * agent = 0;\n");
     p.Print("model::XFunction * function = 0;\n");
@@ -261,12 +260,10 @@ int main(int argc, const char* argv[]) {
             }
         }
     }
-
     p.Print("// Validate model\n");
     p.Print("xmodel->validate();\n");
     p.Print("// Register agent functions\n");
     // ToDo SC
-
     // Register messages
     p.Print("// Register message types\n");
     boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
@@ -274,20 +271,16 @@ int main(int argc, const char* argv[]) {
         variables["message_name"] = (*message).getName();
         p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
-
     p.Outdent();
     p.Print("}\n\n");
-
     // close file when done
     maincppfile.close();
 
     // Open file for writing
     std::ofstream message_datatypeshppfile;
     message_datatypeshppfile.open ("flame_generated_message_datatypes.hpp");
-
     // create printer instance
     xparser::Printer p1(message_datatypeshppfile);
-
     p1.Print("#ifndef FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n");
     p1.Print("#define FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n\n");
     for (message = messages->begin(); message != messages->end(); ++message) {
@@ -299,17 +292,21 @@ int main(int argc, const char* argv[]) {
         p1.Print("\n");
     }
     p1.Print("#endif  // FLAME_GENERATED_MESSAGE_DATATYPES_HPP_\n");
-
     // close file when done
     message_datatypeshppfile.close();
 
-    // Open file for writing
+    // Makefile
+    xparser::codegen::GenMakefile genMakefileInstance;
+    genMakefileInstance.AddHeaderFile("flame_generated_message_datatypes.hpp");
+    genMakefileInstance.AddHeaderFile("flame_generated_condition_filter_methods.hpp");
+    genMakefileInstance.AddSourceFile("flame_generated_condition_filter_methods.cpp");
+    filegen.Output("Makefile", genMakefileInstance);
+
+/*    // Condition functions cpp
     std::ofstream condition_filter_methodscppfile;
     condition_filter_methodscppfile.open ("flame_generated_condition_filter_methods.cpp");
-
     // create printer instance
     xparser::Printer p2(condition_filter_methodscppfile);
-
     p2.Print("#include \"flame2.hpp\"\n");
     p2.Print("#include \"flame_generated_message_datatypes.hpp\"\n");
     // Generate function condition functions
@@ -334,15 +331,13 @@ int main(int argc, const char* argv[]) {
             // ToDo SC
         }
     }
-
     // close file when done
     condition_filter_methodscppfile.close();
 
+    // Condition function header
     std::ofstream condition_filter_methodshppfile;
     condition_filter_methodshppfile.open ("flame_generated_condition_filter_methods.hpp");
-
     xparser::Printer p3(condition_filter_methodshppfile);
-
     p3.Print("#ifndef FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
     p3.Print("#define FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
     p3.Print("#include \"flame2.hpp\"\n\n");
@@ -361,18 +356,7 @@ int main(int argc, const char* argv[]) {
         }
     }
     p3.Print("\n#endif  // FLAME_GENERATED_CONDITION_FILTER_METHODS_HPP_\n");
-
-    condition_filter_methodshppfile.close();
-
-    // Makefile
-    xparser::FileGenerator filegen;
-
-    xparser::codegen::GenMakefile genMakefileInstance;
-    genMakefileInstance.AddHeaderFile("flame_generated_message_datatypes.hpp");
-    genMakefileInstance.AddHeaderFile("flame_generated_condition_filter_methods.hpp");
-    genMakefileInstance.AddSourceFile("flame_generated_condition_filter_methods.cpp");
-
-    filegen.Output("Makefile", genMakefileInstance);
+    condition_filter_methodshppfile.close();*/
 
     /*
     1. main.cpp
@@ -391,25 +375,5 @@ int main(int argc, const char* argv[]) {
     4. Makefile
     */
 
-    /*
-    std::map<std::string, std::string> variables;
-    variables["hello"] = "world";
-    variables["hey"] = "jude";
-    p.Print("$hello$ peace, said $hey$.\n", variables);
-    p.Print("I have no memory of this code\n");
-    p.Print("say $one$\n", "one", "hello");
-    p.Print("struct {\n");
-    p.Indent();
-    p.Print("double x;\n");
-    p.Print("double y;\n");
-    p.Outdent();
-    p.Print("} msg;\n");
-    */
-
-
-
     return 0;
-
-
-
 }
