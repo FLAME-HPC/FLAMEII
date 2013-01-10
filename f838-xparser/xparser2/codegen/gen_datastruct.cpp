@@ -17,6 +17,7 @@ namespace xparser { namespace codegen {
 
 GenDataStruct::GenDataStruct(const std::string& struct_name)
     : struct_name_(struct_name) {
+  RequireSysHeader("ostream");
 }
 
 // var_type and var_name validation not performed

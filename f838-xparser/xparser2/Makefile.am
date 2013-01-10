@@ -16,7 +16,8 @@ sources = \
   file_generator.cpp \
   utils.cpp \
   codegen/gen_datastruct.cpp \
-  codegen/gen_makefile.cpp 
+  codegen/gen_makefile.cpp \
+  codegen/gen_headerfile.cpp
  
 headers = \
   xparser2.hpp \
@@ -25,7 +26,8 @@ headers = \
   utils.hpp \
   codegen/code_generator.hpp \
   codegen/gen_datastruct.hpp \
-  codegen/gen_makefile.hpp
+  codegen/gen_makefile.hpp \
+  codegen/gen_headerfile.hpp
 
 templates = \
   templates/Makefile.tmpl

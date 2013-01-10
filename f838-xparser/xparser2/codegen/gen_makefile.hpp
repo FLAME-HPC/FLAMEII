@@ -26,9 +26,6 @@ class GenMakefile : public CodeGenerator {
   private:
     StringSet headers_;
     StringSet sources_;
-    
-    GenMakefile(const GenMakefile&);
-    void operator=(const GenMakefile&);
 };
   
 }}  // namespace xparser::codegen

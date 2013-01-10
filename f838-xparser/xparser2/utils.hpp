@@ -23,5 +23,8 @@ namespace xparser { namespace utils {
  */
 std::string locate_template(const char* template_name);
 
+//! Returns a random string of specified length containing alpha-numeric chars
+std::string gen_random_string(const int len);
+
 }}  // namespace xparser::utils
 #endif   // XPARSER__UTILS_HPP_

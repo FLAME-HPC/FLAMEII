@@ -35,12 +35,8 @@ class GenDataStruct : public CodeGenerator {
     VarnameSet dupe_check_;
     std::string struct_name_;
     
-
     void print_vars_(Printer& printer) const ;
     void print_stream_op_(Printer& printer) const ;
-    
-    GenDataStruct(const GenDataStruct&);
-    void operator=(const GenDataStruct&);
 };
 
 }}  // namespace xparser::codegen
