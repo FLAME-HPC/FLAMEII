@@ -40,7 +40,7 @@ LIBADD_LIST = \
 bin_PROGRAMS = xparser2
 xparser2_LIBS = @COMMON_LIBS@
 xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
-xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
+xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
 xparser2_LDADD = $(LIBADD_LIST:=-dbg.la) @COMMON_LIBS@
 xparser2_SOURCES = $(sources)
 noinst_HEADERS = $(headers)
