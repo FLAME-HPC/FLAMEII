@@ -7,7 +7,7 @@
 
 <environment>
     <functionFiles>
-        <file>functions.c</file>
+        <file>agent_functions.cpp</file>
     </functionFiles>
 </environment>
 
@@ -36,6 +36,16 @@
                 <outputs>
                     <output><messageName>location</messageName></output>
                 </outputs>
+                <memoryAccess>
+				<readOnly>
+				<variableName>x</variableName>
+				<variableName>y</variableName>
+				<variableName>radius</variableName>
+				<variableName>id</variableName>
+				</readOnly>
+				<readWrite>
+				</readWrite>
+				</memoryAccess>
             </function>
 
             <function><name>inputdata</name>
@@ -45,19 +55,41 @@
                 <inputs>
                     <input>
                         <messageName>location</messageName>
-                        <filter>
+                        <!-- <filter>
                             <lhs><value>a.id</value></lhs>
                             <op>NEQ</op>
                             <rhs><value>m.id</value></rhs>
-                        </filter>
+                        </filter> -->
                     </input>
                 </inputs>
+                <memoryAccess>
+                <readOnly>
+                <variableName>x</variableName>
+                <variableName>y</variableName>
+                <variableName>radius</variableName>
+                <variableName>id</variableName>
+                </readOnly>
+                <readWrite>
+                <variableName>fx</variableName>
+                <variableName>fy</variableName>
+                </readWrite>
+                </memoryAccess>
             </function>
 
             <function><name>move</name>
                 <description></description>
                 <currentState>2</currentState>
                 <nextState>end</nextState>
+                <memoryAccess>
+                <readOnly>
+                <variableName>fx</variableName>
+                <variableName>fy</variableName>
+                </readOnly>
+                <readWrite>
+                <variableName>x</variableName>
+                <variableName>y</variableName>
+                </readWrite>
+                </memoryAccess>
             </function>
 
         </functions>
