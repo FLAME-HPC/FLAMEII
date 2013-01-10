@@ -14,6 +14,7 @@
 #include "printer.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
+#include "codegen/gen_headerfile.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
 
@@ -425,24 +426,16 @@ int main(int argc, const char* argv[]) {
     // close file when done
     maincppfile.close();
 
-    // Open file for writing
-    std::ofstream message_datatypeshppfile;
-    message_datatypeshppfile.open ("message_datatypes.hpp");
-    // create printer instance
-    xparser::Printer p1(message_datatypeshppfile);
-    p1.Print("#ifndef MESSAGE_DATATYPES_HPP_\n");
-    p1.Print("#define MESSAGE_DATATYPES_HPP_\n\n");
+    // Message datatypes header
+    xparser::codegen::GenHeaderFile h;
     for (message = messages->begin(); message != messages->end(); ++message) {
         xparser::codegen::GenDataStruct msg((*message).getName() + "_message");
         boost::ptr_vector<flame::model::XVariable> * vars = (*message).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             msg.AddVar((*variable).getType(), (*variable).getName());
-        msg.Generate(p1);
-        p1.Print("\n");
+        h.Insert(msg);
     }
-    p1.Print("#endif  // MESSAGE_DATATYPES_HPP_\n");
-    // close file when done
-    message_datatypeshppfile.close();
+    filegen.Output("message_datatypes.hpp", h);
 
     // Makefile
     xparser::codegen::GenMakefile genMakefileInstance;
@@ -455,8 +448,6 @@ int main(int argc, const char* argv[]) {
             ++functionFile) {
         genMakefileInstance.AddSourceFile((*functionFile));
     }
-    //genMakefileInstance.AddHeaderFile("flame_generated_condition_filter_methods.hpp");
-    //genMakefileInstance.AddSourceFile("flame_generated_condition_filter_methods.cpp");
     filegen.Output("Makefile", genMakefileInstance);
 
     /*
