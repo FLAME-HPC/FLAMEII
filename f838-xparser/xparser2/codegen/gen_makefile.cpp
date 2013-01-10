@@ -23,10 +23,11 @@ void GenMakefile::AddSourceFile(const std::string& filename) {
 
 void GenMakefile::Generate(Printer& printer) const {
   // first, we make sure the template exists
-  std::string makefile_tmpl = xparser::utils::locate_template("Makefile.tmpl");
+  static const char* tmpl_name = "Makefile.tmpl";
+  std::string makefile_tmpl = xparser::utils::locate_template(tmpl_name);
   if (makefile_tmpl.empty()) {
     throw flame::exceptions::file_not_found(
-      "Could not locate template file - Makefile.tmpl");
+      std::string("Could not locate template file") + tmpl_name);
   }
 
   // Define list of source and header files

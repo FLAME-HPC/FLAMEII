@@ -18,7 +18,8 @@ sources = \
   codegen/gen_datastruct.cpp \
   codegen/gen_makefile.cpp \
   codegen/gen_file.cpp \
-  codegen/gen_headerfile.cpp
+  codegen/gen_headerfile.cpp \
+  codegen/gen_maincpp.cpp
  
 headers = \
   xparser2.hpp \
@@ -29,10 +30,13 @@ headers = \
   codegen/gen_datastruct.hpp \
   codegen/gen_makefile.hpp \
   codegen/gen_file.hpp \
-  codegen/gen_headerfile.hpp
+  codegen/gen_headerfile.hpp \
+  codegen/gen_maincpp.cpp
 
 templates = \
-  templates/Makefile.tmpl
+  templates/Makefile.tmpl \
+  templates/main_header.cpp.tmpl \
+  templates/main_footer.cpp.tmpl
 
 LIBADD_LIST = \
   $(top_srcdir)/flame2/model/lib_flame_model \

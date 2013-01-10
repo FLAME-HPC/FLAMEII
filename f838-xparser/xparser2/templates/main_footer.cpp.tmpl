@@ -1,0 +1,15 @@
+  double start_time, stop_time, total_time;
+  start_time = get_time();
+
+  // Run simulation
+  s.start(num_iters);
+
+  stop_time = get_time();
+  total_time = stop_time - start_time;
+  printf("Execution time - %d:%02d:%03d [mins:secs:msecs]\n",
+           (int)(total_time/60), 
+           ((int)total_time)%60, 
+           (((int)(total_time * 1000.0)) % 1000));
+  
+  return 0;
+}
