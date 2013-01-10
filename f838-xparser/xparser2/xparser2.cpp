@@ -243,9 +243,6 @@ int main(int argc, const char* argv[]) {
     xparser::codegen::GenMainCpp genmaincpp;
     // create printer instance
     xparser::Printer p(std::cout);
-    p.Print("#include <cstdio>\n");
-    p.Print("#include <iostream>\n");
-    p.Print("#include <sys/time.h>\n");
     p.Print("#include \"flame2/exe/task_manager.hpp\"\n");
     p.Print("#include \"flame2/exe/scheduler.hpp\"\n");
     p.Print("#include \"flame2/exe/splitting_fifo_task_queue.hpp\"\n");
@@ -266,40 +263,6 @@ int main(int argc, const char* argv[]) {
         }
     }
     p.Print("\n");
-
-    p.Print("// returns time in seconds\n");
-    p.Print("static double get_time(void) {\n");
-    p.Indent();
-    p.Print("struct timeval now;\n");
-    p.Print("gettimeofday(&now, NULL);\n");
-    p.Print("return now.tv_sec + (now.tv_usec * 1.e-6);\n");
-    p.Outdent();
-    p.Print("}\n\n");
-
-    p.Print("int main(int argc, const char* argv[]) {\n");
-    p.Indent();
-
-    p.Print("if (argc < 3 || argc > 4) {\n");
-    p.Print("std::cerr << \"Usage: \" << argv[0];\n");
-    p.Print("std::cerr << \" POP_DATA NUM_ITERATIONS [NUM_CORES]\" << std::endl;\n");
-    p.Print("exit(1);\n");
-    p.Print("}\n\n");
-
-    p.Print("std::string pop_path = argv[1];\n");
-    p.Print("size_t num_iters = (size_t)atoi(argv[2]);\n");
-    p.Print("if (num_iters == 0) {\n");
-    p.Print("std::cerr << \"Invalid value for NUM_ITERATIONS\" << std::endl;\n");
-    p.Print("exit(2);\n");
-    p.Print("}\n\n");
-
-    p.Print("size_t num_cores = 1; // default to single core run\n");
-    p.Print("if (argc > 3) {\n");
-    p.Print("num_cores = (size_t)atoi(argv[3]);\n");
-    p.Print("if (num_cores == 0) {\n");
-    p.Print("std::cerr << \"Invalid value for NUM_CORES\" << std::endl;\n");
-    p.Print("exit(3);\n");
-    p.Print("}\n");
-    p.Print("}\n\n");
 
     p.Print("// Create model\n");
     p.Print("model::Model model;\n");
@@ -397,25 +360,8 @@ int main(int argc, const char* argv[]) {
         variables["message_name"] = (*message).getName();
         p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
-    // Create and run simulation
-    p.Print("\n// Create simulation using model and path to initial pop\n");
-    p.Print("flame::sim::Simulation s(&model, pop_path);\n");
-    p.Print("\ndouble start_time, stop_time, total_time;\n");
-    p.Print("start_time = get_time();\n");
-    p.Print("\n// Run simulation\n");
-    p.Print("s.start(num_iters);\n");
-    p.Print("\nstop_time = get_time();\n");
-    p.Print("total_time = stop_time - start_time;\n");
-    p.Print("printf(\"Execution time - %d:%02d:%03d [mins:secs:msecs]\\n\",\n");
-    p.Indent();
-    p.Print("(int)(total_time/60), \n");
-    p.Print("((int)total_time)%60, \n");
-    p.Print("(((int)(total_time * 1000.0)) % 1000));\n");
-    p.Outdent();
-    p.Print("\nreturn 0;\n");
-    p.Outdent();
-    p.Print("}\n\n");
-    //genmaincpp.Insert(p);
+
+    //genmaincpp.Insert();
     // close file when done
     filegen.Output("main.cpp", genmaincpp);
 
