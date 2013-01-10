@@ -27,6 +27,9 @@ headers = \
   codegen/gen_datastruct.hpp \
   codegen/gen_makefile.hpp
 
+templates = \
+  templates/Makefile.tmpl
+
 LIBADD_LIST = \
   $(top_srcdir)/flame2/model/lib_flame_model \
   $(top_srcdir)/flame2/mem/lib_flame_mem \
@@ -41,3 +44,4 @@ xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir
 xparser2_LDADD = $(LIBADD_LIST:=-dbg.la) @COMMON_LIBS@
 xparser2_SOURCES = $(sources)
 noinst_HEADERS = $(headers)
+dist_pkgdata_DATA = $(templates)

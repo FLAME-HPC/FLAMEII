@@ -17,7 +17,7 @@ namespace xparser { namespace utils {
  *
  * The following directories are search in order:
  * - ./xparser2/templates
- * - $PKG_INSTALL_DIRECTORY/xparser2/templates
+ * - $PKGDATA_INSTALL_DIRECTORY
  *
  * If the template is not found, an empty string is returned
  */
