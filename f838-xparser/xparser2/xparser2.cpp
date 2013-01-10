@@ -12,12 +12,15 @@
 #include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
 #include "printer.hpp"
+#include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
 #include "codegen/gen_headerfile.hpp"
 #include "codegen/gen_maincpp.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
+
+namespace gen = xparser::codegen;
 
 void generateConditionFunction(flame::model::XCondition * condition, xparser::Printer * p) {
     std::map<std::string, std::string> variables;
@@ -236,13 +239,29 @@ int main(int argc, const char* argv[]) {
     boost::ptr_vector<flame::model::XMessage>::iterator message;
     boost::ptr_vector<flame::model::XMachine> * agents;
 
-    // File generator
+    // File generator to manage file writing
     xparser::FileGenerator filegen;
+    // Makefile generator
+    xparser::codegen::GenMakefile makefile;
 
-    // main.cpp
-    xparser::codegen::GenMainCpp genmaincpp;
+    // Write out headef file for agent function definitions
+    xparser::codegen::GenHeaderFile func_def_hpp;
+    agents = model.getAgents();
+    for (agent = agents->begin(); agent != agents->end(); ++agent) {
+        boost::ptr_vector<flame::model::XFunction> * funcs = agent->getFunctions();
+        for (func = funcs->begin(); func != funcs->end(); ++func) {
+            func_def_hpp.Insert(gen::GenAgentFunctionHeader(func->getName()));
+        }
+    }
+    filegen.Output("agent_function_definitions.hpp", func_def_hpp);
+    makefile.AddHeaderFile("agent_function_definitions.hpp");
+    
+    // main.cpp generator
+    xparser::codegen::GenMainCpp maincpp;
+    
     // create printer instance
     xparser::Printer p(std::cout);
+    /*  -- This should be inserted automatically by gen_*file
     p.Print("#include \"flame2/exe/task_manager.hpp\"\n");
     p.Print("#include \"flame2/exe/scheduler.hpp\"\n");
     p.Print("#include \"flame2/exe/splitting_fifo_task_queue.hpp\"\n");
@@ -252,17 +271,7 @@ int main(int argc, const char* argv[]) {
     p.Print("#include \"flame2/sim/simulation.hpp\"\n\n");
     p.Print("#include \"flame2.hpp\"\n");
     p.Print("#include \"message_datatypes.hpp\"\n\n");
-
-    p.Print("// Define agent functions here so don't have to create a header file\n");
-    agents = model.getAgents();
-    for (agent = agents->begin(); agent != agents->end(); ++agent) {
-        boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
-        for (func = funcs->begin(); func != funcs->end(); ++func) {
-            variables["func_name"] = (*func).getName();
-            p.Print("FLAME_AGENT_FUNCTION($func_name$);\n", variables);
-        }
-    }
-    p.Print("\n");
+    */
 
     p.Print("// Create model\n");
     p.Print("model::Model model;\n");
@@ -363,31 +372,31 @@ int main(int argc, const char* argv[]) {
 
     //genmaincpp.Insert();
     // close file when done
-    filegen.Output("main.cpp", genmaincpp);
-
+    filegen.Output("main.cpp", maincpp);
+    makefile.AddSourceFile("main.cpp");
+    
     // Message datatypes header
-    xparser::codegen::GenHeaderFile h;
+    xparser::codegen::GenHeaderFile msg_datatype_h;
     for (message = messages->begin(); message != messages->end(); ++message) {
         xparser::codegen::GenDataStruct msg((*message).getName() + "_message");
         boost::ptr_vector<flame::model::XVariable> * vars = (*message).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             msg.AddVar((*variable).getType(), (*variable).getName());
-        h.Insert(msg);
+        msg_datatype_h.Insert(msg);
     }
-    filegen.Output("message_datatypes.hpp", h);
+    filegen.Output("message_datatypes.hpp", msg_datatype_h);
+    makefile.AddHeaderFile("message_datatypes.hpp");
 
-    // Makefile
-    xparser::codegen::GenMakefile genMakefileInstance;
-    genMakefileInstance.AddSourceFile("main.cpp");
-    genMakefileInstance.AddHeaderFile("message_datatypes.hpp");
-    // Add user agent function files
+    // Add user agent function files to Makefile
     std::vector<std::string> * functionFiles = model.getFunctionFiles();
     std::vector<std::string>::iterator functionFile;
     for (functionFile = functionFiles->begin(); functionFile != functionFiles->end();
             ++functionFile) {
-        genMakefileInstance.AddSourceFile((*functionFile));
+        makefile.AddSourceFile((*functionFile));
     }
-    filegen.Output("Makefile", genMakefileInstance);
+
+    // Output Makefile now that all hpp and cpp files have been added
+    filegen.Output("Makefile", makefile);
 
     /*
     1. main.cpp
