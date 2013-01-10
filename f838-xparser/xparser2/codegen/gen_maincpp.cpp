@@ -32,9 +32,10 @@ void GenMainCpp::Generate(Printer& printer) const {
     throw flame::exceptions::file_not_found(
       std::string("Could not locate template file") + header_tmpl);
   }
-  printer.PrintRaw("\n");
+  printer.Print("\n");
   printer.PrintRawFromFile(tmpl);
-
+  printer.Print("\n");
+  
   // Insert content from attached generators
   printer.Indent();
   GenerateInsertedContent(printer);
