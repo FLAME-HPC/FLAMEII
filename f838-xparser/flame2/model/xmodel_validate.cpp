@@ -431,8 +431,9 @@ int XModelValidate::validateVariables(boost::ptr_vector<XVariable> * variables,
 int XModelValidate::validateFunctionFile(std::string name) {
     int errors = 0;
 
-    /* Name ends in '.c' */
-    if (!boost::algorithm::ends_with(name, ".c")) {
+    /* Name ends in '.c' or '.cpp' */
+    if (!(boost::algorithm::ends_with(name, ".c") ||
+            boost::algorithm::ends_with(name, ".cpp"))) {
         printErr("Error: Function file does not end in '.c': %s\n",
             name.c_str());
         ++errors;
