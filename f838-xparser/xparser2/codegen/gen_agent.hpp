@@ -17,6 +17,14 @@
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
+struct FuncTuple {
+    FuncTuple(std::string n, std::string c_s, std::string n_s)
+      : name(n), current_state(c_s), next_state(n_s) {}
+    std::string name;
+    std::string current_state;
+    std::string next_state;
+};
+
 class GenAgent : public CodeGenerator {
   public:
     typedef std::pair<std::string, std::string> VarPair;
@@ -25,6 +33,8 @@ class GenAgent : public CodeGenerator {
     
     explicit GenAgent(const std::string& agent_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
+    void AddFunction(const std::string& func_name,
+            const std::string& current_state, const std::string& next_state);
     void Generate(Printer& printer) const;
     
   private:
@@ -34,8 +44,10 @@ class GenAgent : public CodeGenerator {
     // Keep track of added vars to avoid dups
     VarnameSet dupe_check_;
     std::string agent_name_;
+    std::vector<FuncTuple> funcs_;
 
-    void print_vars_(Printer& printer) const ;
+    void print_vars_(Printer& printer) const;
+    void print_funcs_(Printer& printer) const;
 };
 
 }}  // namespace xparser::codegen

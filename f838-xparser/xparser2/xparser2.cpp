@@ -287,10 +287,13 @@ int main(int argc, const char* argv[]) {
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             genagent.AddVar((*variable).getType(), (*variable).getName());
-        maincpp.Insert(genagent);
+
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
+            genagent.AddFunction((*func).getName(),
+                    (*func).getCurrentState(), (*func).getNextState());
+
             variables["agent_name"] = (*agent).getName();
             variables["func_name"] = (*func).getName();
             variables["func_current_state"] = (*func).getCurrentState();
@@ -341,6 +344,7 @@ int main(int argc, const char* argv[]) {
                 }
             }
         }
+        maincpp.Insert(genagent);
     }
     // Messages
     boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
