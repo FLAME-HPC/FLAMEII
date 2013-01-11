@@ -22,6 +22,8 @@ class GenAgentFunc : public CodeGenerator {
     explicit GenAgentFunc(const std::string& func_name,
             const std::string& current_state, const std::string& next_state);
     void SetAgentName(const std::string& agent_name);
+    void AddOutput(const std::string& message_name);
+    void AddInput(const std::string& message_name);
     void Generate(Printer& printer) const;
     
   private:
@@ -29,6 +31,11 @@ class GenAgentFunc : public CodeGenerator {
     std::string func_name_;
     std::string current_state_;
     std::string next_state_;
+    std::vector<std::string> outputs_;
+    std::vector<std::string> inputs_;
+
+    void print_outputs_(Printer& printer) const;
+    void print_inputs_(Printer& printer) const;
 };
 
 }}  // namespace xparser::codegen

@@ -309,16 +309,13 @@ int main(int argc, const char* argv[]) {
             }*/
             // Outputs
             boost::ptr_vector<flame::model::XIOput> * outputs = (*func).getOutputs();
-            for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
-                variables["message_name"] = (*ioput).getMessageName();
-                p.Print("model.addAgentFunctionOutput(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$message_name$\");\n", variables);
-            }
+            for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput)
+              genagentfunc.AddOutput((*ioput).getMessageName());
             // Inputs
             boost::ptr_vector<flame::model::XIOput> * inputs = (*func).getInputs();
             for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput) {
-                variables["message_name"] = (*ioput).getMessageName();
-                p.Print("model.addAgentFunctionInput(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$message_name$\");\n", variables);
-                /*if ((*ioput).getFilter()) {
+              genagentfunc.AddInput((*ioput).getMessageName());
+              /*if ((*ioput).getFilter()) {
                     p.Print("condition = ioput->addFilter();\n");
                     generateConditionCreation("condition", (*ioput).getFilter(), &p);
                 }
