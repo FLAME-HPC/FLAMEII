@@ -48,7 +48,7 @@ void GenMainCpp::Generate(Printer& printer) const {
     throw flame::exceptions::file_not_found(
       std::string("Could not locate template file") + footer_tmpl);
   }
-  printer.PrintRaw("\n");
+  printer.Print("\n");
   printer.PrintRawFromFile(tmpl2);
 }
 }}  // namespace xparser::codegen
