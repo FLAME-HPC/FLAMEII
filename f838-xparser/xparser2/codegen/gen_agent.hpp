@@ -15,21 +15,19 @@
 #include <utility>
 #include <string>
 #include <map>
-#include "code_generator.hpp"
+#include "composable_code_generator.hpp"
 #include "gen_agentfunc.hpp"
 namespace xparser { namespace codegen {
 
-class GenAgent : public CodeGenerator {
+class GenAgent : public ComposableCodeGenerator {
   public:
     typedef std::pair<std::string, std::string> VarPair;
     typedef std::vector<VarPair> VarPairVector;
     typedef std::set<std::string> VarnameSet;
-    typedef boost::ptr_vector<GenAgentFunc> GenAgentFuncVector;
     
     explicit GenAgent(const std::string& agent_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
     void Generate(Printer& printer) const;
-    void GenerateInsertedContent(Printer& printer) const;
     void InsertFunc(const GenAgentFunc& generator);
     
   private:
@@ -39,7 +37,6 @@ class GenAgent : public CodeGenerator {
     // Keep track of added vars to avoid dups
     VarnameSet dupe_check_;
     std::string agent_name_;
-    GenAgentFuncVector generators_;
 
     void print_vars_(Printer& printer) const;
 };

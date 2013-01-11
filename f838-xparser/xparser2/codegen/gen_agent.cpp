@@ -37,7 +37,7 @@ void GenAgent::InsertFunc(const GenAgentFunc& generator) {
   // Set the func agent name
   gencopy->SetAgentName(agent_name_);
   // Store copy of generator
-  generators_.push_back(gencopy);
+  Insert(gencopy);
 }
 
 void GenAgent::Generate(Printer& printer) const {
@@ -57,12 +57,6 @@ void GenAgent::print_vars_(Printer& printer) const {
     printer.Print("model.addAgentVariable(\"$AGENT$\", \"$TYPE$\", \"$VAR$\");\n",
             variables);
   }
-}
-
-void GenAgent::GenerateInsertedContent(Printer& printer) const {
-  GenAgentFuncVector::const_iterator g;
-  for (g = generators_.begin(); g != generators_.end(); ++g)
-    g->Generate(printer);
 }
 
 }}  // namespace xparser::codegen
