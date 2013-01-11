@@ -15,7 +15,7 @@
 namespace xparser { namespace codegen {
 
 // Snippet classes defined in this file
-class MessageRegistrationSnippets;
+class RegisterAgentFuncSnippets;
 class AgentFunctionHeaderSnippets;
 
 // Abstract base class for repeating a code snipper for each var
@@ -58,12 +58,12 @@ class SingleVarSnippet : public CodeGenerator {
 };
 
 
-//class MessageRegistrationSnippets : public SingleVarSnippet {
-//  protected:
-//    const char* GetSnippetText(void) const {
-//      return "model.registerMessageType<$VAR$_message>(\"$VAR$\");\n";
-//    }
-//};
+class RegisterAgentFuncSnippets : public SingleVarSnippet {
+  protected:
+    const char* GetSnippetText(void) const {
+      return "model.registerAgentFunction(\"$VAR$\", &$VAR$);\n";
+    }
+};
 
 
 class AgentFunctionHeaderSnippets : public SingleVarSnippet {
