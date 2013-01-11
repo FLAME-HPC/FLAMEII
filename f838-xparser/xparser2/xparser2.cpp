@@ -11,7 +11,7 @@
 #include <map>
 #include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
-#include "printer.hpp"
+
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
@@ -20,7 +20,10 @@
 #include "codegen/gen_model.hpp"
 #include "codegen/gen_agent.hpp"
 #include "codegen/gen_agentfunc.hpp"
+#include "codegen/gen_message_registration.hpp"
+
 #include "file_generator.hpp"
+#include "printer.hpp"
 #include "xparser2.hpp"
 
 namespace gen = xparser::codegen;
@@ -266,7 +269,7 @@ int main(int argc, const char* argv[]) {
     
     xparser::codegen::GenModel genmodel;
 
-    maincpp.Insert(genmodel);
+    // maincpp.Insert(genmodel);
 
     // create printer instance
     xparser::Printer p(std::cout);
@@ -347,7 +350,27 @@ int main(int argc, const char* argv[]) {
         }
         maincpp.Insert(genagent);
     }
+
     // Messages
+    boost::ptr_vector<flame::model::XMessage> *messages = model.getMessages();
+    for (message = messages->begin(); message != messages->end(); ++message) {
+      // create generator to register a message. Calls the following
+      // - model.addMessage()
+      // - model.addMessageVariable()
+      // - model.registerMessageType()
+      gen::GenMessageRegistration msg_reg(message->getName());
+
+      // populate message vars
+      boost::ptr_vector<flame::model::XVariable> *vars = message->getVariables();
+      for (variable = vars->begin(); variable != vars->end(); ++variable) {
+        msg_reg.AddVar(variable->getType(), variable->getName());
+      }
+
+      // Append to main.cpp
+      maincpp.Insert(msg_reg);
+    }
+    
+    /*
     boost::ptr_vector<flame::model::XMessage> * messages = model.getMessages();
     for (message = messages->begin(); message != messages->end(); ++message) {
         variables["message_name"] = (*message).getName();
@@ -359,6 +382,8 @@ int main(int argc, const char* argv[]) {
             p.Print("model.addMessageVariable(\"$message_name$\", \"$var_type$\", \"$var_name$\");\n", variables);
         }
     }
+    */
+    
     p.Print("\n// Validate model\n");
     p.Print("model.validate();\n");
     // Register agent functions
@@ -371,13 +396,15 @@ int main(int argc, const char* argv[]) {
         }
     }
     // Register messages
+    /*
     p.Print("// Register message types\n");
     gen::MessageRegistrationSnippets msg_registration;
     for (message = messages->begin(); message != messages->end(); ++message) {
       msg_registration.Add(message->getName());
     }
     msg_registration.Generate(p);
-
+    */
+    
     filegen.Output("main.cpp", maincpp);
     makefile.AddSourceFile("main.cpp");
     

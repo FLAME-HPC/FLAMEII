@@ -58,12 +58,12 @@ class SingleVarSnippet : public CodeGenerator {
 };
 
 
-class MessageRegistrationSnippets : public SingleVarSnippet {
-  protected:
-    const char* GetSnippetText(void) const {
-      return "model.registerMessageType<$VAR$_message>(\"$VAR$\");\n";
-    }
-};
+//class MessageRegistrationSnippets : public SingleVarSnippet {
+//  protected:
+//    const char* GetSnippetText(void) const {
+//      return "model.registerMessageType<$VAR$_message>(\"$VAR$\");\n";
+//    }
+//};
 
 
 class AgentFunctionHeaderSnippets : public SingleVarSnippet {

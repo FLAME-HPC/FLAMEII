@@ -18,6 +18,14 @@ void GenFile::Generate(Printer& printer) const {
   GenerateInsertedContent(printer);
 }
 
+void GenFile::GenerateInsertedContent(Printer& printer) const {
+  GeneratorVector::const_iterator g;
+  for (g = generators_.begin(); g != generators_.end(); ++g) {
+    g->Generate(printer);
+    printer.Print("\n");
+  }
+}
+
 void GenFile::GenerateIncludeStatements(Printer& printer) const {
   // sys header includes
   StringSet::const_iterator i;

@@ -12,7 +12,6 @@
 #include <set>
 #include <string>
 #include <iostream>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include "../printer.hpp"
 namespace xparser { namespace codegen {
 
@@ -20,13 +19,10 @@ class CodeGenerator {
   public:
     typedef xparser::Printer Printer;
     typedef std::set<std::string> StringSet;
-    typedef boost::ptr_vector<CodeGenerator> GeneratorVector;
 
     inline CodeGenerator() {}
     virtual ~CodeGenerator() {}
-    virtual void Generate(Printer& printer) const {
-      GenerateInsertedContent(printer);
-    };
+    virtual void Generate(Printer& printer) const = 0;
 
     inline const StringSet& GetRequiredSysHeaders() const {
       return required_sys_headers_;
@@ -34,16 +30,6 @@ class CodeGenerator {
 
     inline const StringSet& GetRequiredHeaders() const {
       return required_headers_;
-    }
-
-    template <typename T>
-    inline void Insert(const T& generator) {
-      // inherit header dependencies
-      RequireHeader(generator.GetRequiredHeaders());
-      RequireSysHeader(generator.GetRequiredSysHeaders());
-
-      // Store copy of generator
-      generators_.push_back(new T(generator));
     }
 
   protected:
@@ -63,18 +49,10 @@ class CodeGenerator {
       required_sys_headers_.insert(header.begin(), header.end());
     }
 
-    inline void GenerateInsertedContent(Printer& printer) const {
-      GeneratorVector::const_iterator g;
-      for (g = generators_.begin(); g != generators_.end(); ++g) {
-        g->Generate(printer);
-        printer.Print("\n");
-      }
-    }
-
   private:
     StringSet required_headers_;
     StringSet required_sys_headers_;
-    GeneratorVector generators_;
+    
 };
 
 }}  // namespace xparser::codegen

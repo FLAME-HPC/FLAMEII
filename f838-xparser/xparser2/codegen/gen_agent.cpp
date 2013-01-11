@@ -33,14 +33,16 @@ void GenAgent::InsertFunc(const GenAgentFunc& generator) {
   // Set the func agent name
   gencopy.SetAgentName(agent_name_);
   // Store copy of generator
-  Insert(gencopy);
+  // DISABLED (nested inserts no longer possible)
+  // Insert(gencopy);
 }
 
 void GenAgent::Generate(Printer& printer) const {
   // generate agent
   printer.Print("model.addAgent(\"$AGENT$\");\n", "AGENT", agent_name_);
   print_vars_(printer);  // print variables
-  GenerateInsertedContent(printer);
+  // DISABLED (nested inserts no longer possible)
+  // GenerateInsertedContent(printer);
 }
 
 void GenAgent::print_vars_(Printer& printer) const {

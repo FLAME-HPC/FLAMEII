@@ -146,6 +146,18 @@ void Printer::Print(const char* text,
   Print(text, vars);
 }
 
+void Printer::Print(const char* text,
+                    const char* var1, const std::string& value1,
+                    const char* var2, const std::string& value2,
+                    const char* var3, const std::string& value3) {
+  std::map<std::string, std::string> vars;
+  vars[var1] = value1;
+  vars[var2] = value2;
+  vars[var3] = value3;
+  Print(text, vars);
+}
+
+
 void Printer::PrintRaw(const std::string& text) {
   write_(text.data(), text.size());
 }

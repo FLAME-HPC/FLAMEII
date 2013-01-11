@@ -58,6 +58,12 @@ class Printer {
     void Print(const char* text,
                const char* var1, const std::string& value1,
                const char* var2, const std::string& value2);
+               
+    //! Alternative form of Print() that does not require a map
+    void Print(const char* text,
+               const char* var1, const std::string& value1,
+               const char* var2, const std::string& value2,
+               const char* var3, const std::string& value3);
 
     //! Prints text as it stands. No indentation or variable substitution.
     void PrintRaw(const std::string& text);

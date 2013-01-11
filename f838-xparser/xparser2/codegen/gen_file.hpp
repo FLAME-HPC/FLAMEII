@@ -18,8 +18,23 @@ class GenFile : public CodeGenerator {
   public:
     void Generate(Printer& printer) const;
 
+    template <typename T>
+    inline void Insert(const T& generator) {
+      // inherit header dependencies
+      RequireHeader(generator.GetRequiredHeaders());
+      RequireSysHeader(generator.GetRequiredSysHeaders());
+
+      // Store copy of generator
+      generators_.push_back(new T(generator));
+    }
+    
   protected:
     void GenerateIncludeStatements(Printer& printer) const;
+    void GenerateInsertedContent(Printer& printer) const;
+
+  private:
+    typedef boost::ptr_vector<CodeGenerator> GeneratorVector;
+    GeneratorVector generators_;
 };
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_HEADERFILE_HPP_
