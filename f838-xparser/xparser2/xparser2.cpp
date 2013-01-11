@@ -293,19 +293,13 @@ int main(int argc, const char* argv[]) {
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             genagent.AddVar((*variable).getType(), (*variable).getName());
+        // Append to main.cpp
         maincpp.Insert(genagent);
-
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
             xparser::codegen::GenAgentFunc genagentfunc((*agent).getName(), (*func).getName(),
                     (*func).getCurrentState(), (*func).getNextState());
-
-            variables["agent_name"] = (*agent).getName();
-            variables["func_name"] = (*func).getName();
-            variables["func_current_state"] = (*func).getCurrentState();
-            variables["func_next_state"] = (*func).getNextState();
-            p.Print("model.addAgentFunction(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\");\n", variables);
             // Condition
             /*if ((*func).getCondition()) {
                 p.Print("condition = function->addCondition();\n");
@@ -334,7 +328,6 @@ int main(int argc, const char* argv[]) {
             }
             // Memory Access info
             if ((*func).getMemoryAccessInfoAvailable()) {
-                genagentfunc.setMemoryAccessInfoAvailable();
                 std::vector<std::string>::iterator var;
                 std::vector<std::string> * readOnly = (*func).getReadOnlyVariables();
                 for (var = readOnly->begin(); var != readOnly->end(); ++var)
@@ -343,6 +336,7 @@ int main(int argc, const char* argv[]) {
                 for (var = readWrite->begin(); var != readWrite->end(); ++var)
                   genagentfunc.AddReadWriteVar((*var));
             }
+            // Append to main.cpp
             maincpp.Insert(genagentfunc);
         }
     }
