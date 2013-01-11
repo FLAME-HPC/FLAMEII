@@ -24,7 +24,6 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
-
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
@@ -35,7 +34,6 @@
 #include "codegen/gen_agentfunc.hpp"
 #include "codegen/gen_message_registration.hpp"
 #include "file_generator.hpp"
-#include "printer.hpp"
 
 namespace gen = xparser::codegen;  // namespace shorthand
 
@@ -65,23 +63,14 @@ int main(int argc, const char* argv[]) {
         std::cerr << "Invalid model" << std::endl;
         exit(2);
     }
-    
-    //std::map<std::string, std::string> variables;
-    //boost::ptr_vector<flame::model::XVariable>::iterator variable;
-    //boost::ptr_vector<flame::model::XFunction>::iterator func;
-    //boost::ptr_vector<flame::model::XIOput>::iterator ioput;
-    //boost::ptr_vector<flame::model::XMessage>::iterator message;
 
     // File generator to manage file writing
     xparser::FileGenerator filegen;
-    // Makefile generator
-    xparser::codegen::GenMakefile makefile;
-
-    // main.cpp generator
-    xparser::codegen::GenMainCpp maincpp;
+    gen::GenMakefile makefile; // Makefile generator
+    gen::GenMainCpp maincpp; // main.cpp generator
 
     // initialise model and environment
-    xparser::codegen::GenModel genmodel;
+    gen::GenModel genmodel;
     maincpp.Insert(genmodel);
 
     // output to main.cpp code to define agents
@@ -94,7 +83,7 @@ int main(int argc, const char* argv[]) {
     makefile.AddHeaderFile("agent_function_definitions.hpp");
     
     // Define and register messages
-    xparser::codegen::GenHeaderFile msg_datatype_h;
+    gen::GenHeaderFile msg_datatype_h;
     generate_messages(&model, &maincpp, &msg_datatype_h);
     filegen.Output("message_datatypes.hpp", msg_datatype_h);
     makefile.AddHeaderFile("message_datatypes.hpp");
@@ -116,7 +105,6 @@ int main(int argc, const char* argv[]) {
 
     return 0;
 }
-
 
 void generate_agent_func_definition(flame::model::XModel *model,
                                     gen::GenMainCpp *maincpp,
