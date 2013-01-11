@@ -11,31 +11,15 @@
 #ifndef XPARSER__CODEGEN__GEN_FILE_HPP_
 #define XPARSER__CODEGEN__GEN_FILE_HPP_
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "code_generator.hpp"
+#include "composable_code_generator.hpp"
 namespace xparser { namespace codegen {
 
-class GenFile : public CodeGenerator {
+class GenFile : public ComposableCodeGenerator {
   public:
-    typedef boost::ptr_vector<CodeGenerator> GeneratorVector;
-    
     void Generate(Printer& printer) const;
 
-    template <typename T>
-    void Insert(const T& generator) {
-      // inherit header dependencies
-      RequireHeader(generator.GetRequiredHeaders());
-      RequireSysHeader(generator.GetRequiredSysHeaders());
-
-      // Store copy of generator
-      generators_.push_back(new T(generator));
-    }
-
   protected:
-    void GenerateInsertedContent(Printer& printer) const;
     void GenerateIncludeStatements(Printer& printer) const;
-    
-  private:
-    GeneratorVector generators_;
 };
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_HEADERFILE_HPP_

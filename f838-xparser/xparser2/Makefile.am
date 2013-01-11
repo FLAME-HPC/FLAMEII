@@ -30,6 +30,7 @@ headers = \
   file_generator.hpp \
   utils.hpp \
   codegen/code_generator.hpp \
+  codegen/composable_code_generator.hpp \
   codegen/gen_snippets.hpp \
   codegen/gen_datastruct.hpp \
   codegen/gen_makefile.hpp \
