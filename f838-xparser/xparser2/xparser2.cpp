@@ -248,14 +248,16 @@ int main(int argc, const char* argv[]) {
     xparser::codegen::GenMakefile makefile;
 
     // Write out headef file for agent function definitions
-    xparser::codegen::GenHeaderFile func_def_hpp;
+    gen::AgentFunctionHeaderSnippets agent_func_headers;
     agents = model.getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         boost::ptr_vector<flame::model::XFunction> * funcs = agent->getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
-            func_def_hpp.Insert(gen::GenAgentFunctionHeader(func->getName()));
+            agent_func_headers.Add(func->getName());
         }
     }
+    gen::GenHeaderFile func_def_hpp;
+    func_def_hpp.Insert(agent_func_headers);
     filegen.Output("agent_function_definitions.hpp", func_def_hpp);
     makefile.AddHeaderFile("agent_function_definitions.hpp");
     
@@ -373,11 +375,11 @@ int main(int argc, const char* argv[]) {
     }
     // Register messages
     p.Print("// Register message types\n");
+    gen::MessageRegistrationSnippets msg_registration;
     for (message = messages->begin(); message != messages->end(); ++message) {
-        variables["message_name"] = (*message).getName();
-        p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
+      msg_registration.Add(message->getName());
     }
-
+    msg_registration.Generate(p);
 
     filegen.Output("main.cpp", maincpp);
     makefile.AddSourceFile("main.cpp");
