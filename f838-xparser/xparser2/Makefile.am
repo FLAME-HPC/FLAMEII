@@ -19,7 +19,8 @@ sources = \
   codegen/gen_makefile.cpp \
   codegen/gen_file.cpp \
   codegen/gen_headerfile.cpp \
-  codegen/gen_maincpp.cpp
+  codegen/gen_maincpp.cpp \
+  codegen/gen_model.cpp
  
 headers = \
   xparser2.hpp \
@@ -32,7 +33,8 @@ headers = \
   codegen/gen_makefile.hpp \
   codegen/gen_file.hpp \
   codegen/gen_headerfile.hpp \
-  codegen/gen_maincpp.cpp
+  codegen/gen_maincpp.cpp \
+  codegen/gen_model.hpp
 
 templates = \
   templates/Makefile.tmpl \

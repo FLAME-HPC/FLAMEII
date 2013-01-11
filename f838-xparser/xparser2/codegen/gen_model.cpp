@@ -16,11 +16,11 @@ namespace xparser { namespace codegen {
 
 GenModel::GenModel() {}
 
-void GenDataStruct::Generate(Printer& printer) const {
+void GenModel::Generate(Printer& printer) const {
   // create model object
   printer.Print("model::Model model;\n");
-
-  print_stream_op_(printer);
+  // handle model environment stuff here
+  // ...
 }
 
 }}  // namespace xparser::codegen

@@ -17,6 +17,7 @@
 #include "codegen/gen_makefile.hpp"
 #include "codegen/gen_headerfile.hpp"
 #include "codegen/gen_maincpp.hpp"
+#include "codegen/gen_model.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
 
@@ -259,6 +260,8 @@ int main(int argc, const char* argv[]) {
     // main.cpp generator
     xparser::codegen::GenMainCpp maincpp;
     
+    xparser::codegen::GenModel genmodel;
+
     // create printer instance
     xparser::Printer p(std::cout);
     /*  -- This should be inserted automatically by gen_*file
@@ -370,8 +373,7 @@ int main(int argc, const char* argv[]) {
         p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
 
-    //genmaincpp.Insert();
-    // close file when done
+    maincpp.Insert(genmodel);
     filegen.Output("main.cpp", maincpp);
     makefile.AddSourceFile("main.cpp");
     

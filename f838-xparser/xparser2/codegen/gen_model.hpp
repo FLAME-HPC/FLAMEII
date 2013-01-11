@@ -7,8 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Generator for model registering.
  */
-#ifndef XPARSER__CODEGEN__GEN_DATASTRUCT_HPP_
-#define XPARSER__CODEGEN__GEN_DATASTRUCT_HPP_
+#ifndef XPARSER__CODEGEN__GEN_MODEL_HPP_
+#define XPARSER__CODEGEN__GEN_MODEL_HPP_
 #include <set>
 #include <vector>
 #include <utility>
@@ -22,7 +22,7 @@ class GenModel : public CodeGenerator {
     typedef std::vector<VarPair> VarPairVector;
     typedef std::set<std::string> VarnameSet;
     
-    explicit GenModel();
+    GenModel();
     void Generate(Printer& printer) const;
     
   private:
@@ -38,4 +38,4 @@ class GenModel : public CodeGenerator {
 };
 
 }}  // namespace xparser::codegen
-#endif  // XPARSER__CODEGEN__CODE_GENERATOR_HPP_
+#endif  // XPARSER__CODEGEN__GENMODEL_HPP_
