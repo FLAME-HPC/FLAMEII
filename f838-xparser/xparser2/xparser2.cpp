@@ -374,8 +374,6 @@ int main(int argc, const char* argv[]) {
     }
     */
     
-    p.Print("\n// Validate model\n");
-    p.Print("model.validate();\n");
     // Register agent functions
     p.Print("\n// Register agent functions\n");
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
