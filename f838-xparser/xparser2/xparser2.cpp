@@ -18,6 +18,7 @@
 #include "codegen/gen_headerfile.hpp"
 #include "codegen/gen_maincpp.hpp"
 #include "codegen/gen_model.hpp"
+#include "codegen/gen_agent.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
 
@@ -262,6 +263,8 @@ int main(int argc, const char* argv[]) {
     
     xparser::codegen::GenModel genmodel;
 
+    maincpp.Insert(genmodel);
+
     // create printer instance
     xparser::Printer p(std::cout);
     /*  -- This should be inserted automatically by gen_*file
@@ -276,23 +279,19 @@ int main(int argc, const char* argv[]) {
     p.Print("#include \"message_datatypes.hpp\"\n\n");
     */
 
-    p.Print("// Create model\n");
-    p.Print("model::Model model;\n");
     // Agents
     agents = model.getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
-        variables["agent_name"] = (*agent).getName();
-        p.Print("model.addAgent(\"$agent_name$\");\n", variables);
+        xparser::codegen::GenAgent genagent((*agent).getName());
         // Agent memory
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
-        for (variable = vars->begin(); variable != vars->end(); ++variable) {
-            variables["var_name"] = (*variable).getName();
-            variables["var_type"] = (*variable).getType();
-            p.Print("model.addAgentVariable(\"$agent_name$\", \"$var_type$\", \"$var_name$\");\n", variables);
-        }
+        for (variable = vars->begin(); variable != vars->end(); ++variable)
+            genagent.AddVar((*variable).getType(), (*variable).getName());
+        maincpp.Insert(genagent);
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
+            variables["agent_name"] = (*agent).getName();
             variables["func_name"] = (*func).getName();
             variables["func_current_state"] = (*func).getCurrentState();
             variables["func_next_state"] = (*func).getNextState();
@@ -373,7 +372,7 @@ int main(int argc, const char* argv[]) {
         p.Print("model.registerMessageType<$message_name$_message>(\"$message_name$\");\n", variables);
     }
 
-    maincpp.Insert(genmodel);
+
     filegen.Output("main.cpp", maincpp);
     makefile.AddSourceFile("main.cpp");
     
