@@ -27,14 +27,17 @@ void GenAgent::AddVar(const std::string& var_type,
   dupe_check_.insert(var_name);  // remember var name for dupe check
 }
 
-void GenAgent::InsertFunc(GenAgentFunc& generator) {
+void GenAgent::InsertFunc(const GenAgentFunc& generator) {
   // inherit header dependencies
   RequireHeader(generator.GetRequiredHeaders());
   RequireSysHeader(generator.GetRequiredSysHeaders());
 
-  generator.SetAgentName(agent_name_);
+  // Create copy of generator
+  GenAgentFunc * gencopy = new GenAgentFunc(generator);
+  // Set the func agent name
+  gencopy->SetAgentName(agent_name_);
   // Store copy of generator
-  generators_.push_back(new GenAgentFunc(generator));
+  generators_.push_back(gencopy);
 }
 
 void GenAgent::Generate(Printer& printer) const {
