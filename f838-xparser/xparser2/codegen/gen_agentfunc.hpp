@@ -23,7 +23,6 @@ class GenAgentFunc : public CodeGenerator {
             const std::string& current_state, const std::string& next_state);
     void AddOutput(const std::string& message_name);
     void AddInput(const std::string& message_name);
-    void setMemoryAccessInfoAvailable();
     void AddReadWriteVar(const std::string& var_name);
     void AddReadOnlyVar(const std::string& var_name);
     void Generate(Printer& printer) const;

@@ -20,10 +20,6 @@ GenAgentFunc::GenAgentFunc(const std::string& agent_name, const std::string& fun
   : agent_name_(agent_name), func_name_(func_name), current_state_(current_state),
     next_state_(next_state), memory_access_info_available_(false) {}
 
-void GenAgentFunc::setMemoryAccessInfoAvailable() {
-  memory_access_info_available_ = true;
-}
-
 void GenAgentFunc::AddOutput(const std::string& message_name) {
   if (std::find(outputs_.begin(), outputs_.end(), message_name)
     != outputs_.end())
@@ -63,6 +59,7 @@ void GenAgentFunc::Generate(Printer& printer) const {
   // print outputs and inputs
   print_outputs_(printer);
   print_inputs_(printer);
+  // print memory access info
   print_read_write_vars_(printer);
   print_read_only_vars_(printer);
 }
