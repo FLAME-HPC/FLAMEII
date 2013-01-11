@@ -628,9 +628,6 @@ int XModelValidate::validateAgentFunction(XFunction * xfunction,
     // Validate agent communication
     errors += validateAgentFunctionIOput(xfunction, agent);
 
-    // Validate agent memory access
-    // Todo Make sure variables are valid and only mentioned once
-
     return errors;
 }
 

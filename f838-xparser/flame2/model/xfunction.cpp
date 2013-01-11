@@ -23,7 +23,7 @@ namespace flame { namespace model {
  */
 XFunction::XFunction()
     : condition_(0),
-    memoryAccessInfoAvailable_(false) {}
+    memoryAccessInfoAvailable_(true) {}
 
 /*!
  * \brief Constructs XFunction
@@ -34,7 +34,7 @@ XFunction::XFunction()
 XFunction::XFunction(std::string name)
     : name_(name),
     condition_(0),
-    memoryAccessInfoAvailable_(false) {}
+    memoryAccessInfoAvailable_(true) {}
 
 /*!
  * \brief Cleans up XFunction

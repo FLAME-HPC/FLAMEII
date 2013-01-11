@@ -557,6 +557,9 @@ void IOXMLModel::readTransition(xmlNode * node,
     xmlNode *cur_node = NULL;
     model::XFunction * xfunction = machine->addFunction();
 
+    // Set memory access information to be unavailable
+    xfunction->setMemoryAccessInfoAvailable(false);
+
     /* Loop through each child of transition */
     for (cur_node = node->children;
         cur_node; cur_node = cur_node->next) {
