@@ -28,7 +28,6 @@ class GenAgent : public CodeGenerator {
     explicit GenAgent(const std::string& agent_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
     void Generate(Printer& printer) const;
-    void InsertFunc(const GenAgentFunc& generator);
     
   private:
     // store in vector rather than a map so vars can be output in the same

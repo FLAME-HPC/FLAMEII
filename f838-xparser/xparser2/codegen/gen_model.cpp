@@ -14,7 +14,11 @@
 
 namespace xparser { namespace codegen {
 
-GenModel::GenModel() {}
+GenModel::GenModel() {
+  // System headers used
+  RequireHeader("flame2/model/model.hpp");
+  RequireHeader("flame2/sim/simulation.hpp");
+}
 
 void GenModel::Generate(Printer& printer) const {
   // create model object

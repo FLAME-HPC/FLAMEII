@@ -293,11 +293,12 @@ int main(int argc, const char* argv[]) {
         boost::ptr_vector<flame::model::XVariable> * vars = (*agent).getVariables();
         for (variable = vars->begin(); variable != vars->end(); ++variable)
             genagent.AddVar((*variable).getType(), (*variable).getName());
+        maincpp.Insert(genagent);
 
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
-            xparser::codegen::GenAgentFunc genagentfunc((*func).getName(),
+            xparser::codegen::GenAgentFunc genagentfunc((*agent).getName(), (*func).getName(),
                     (*func).getCurrentState(), (*func).getNextState());
 
             variables["agent_name"] = (*agent).getName();
@@ -333,22 +334,17 @@ int main(int argc, const char* argv[]) {
             }
             // Memory Access info
             if ((*func).getMemoryAccessInfoAvailable()) {
-                //p.Print("function->setMemoryAccessInfoAvailable(true);\n");
+                genagentfunc.setMemoryAccessInfoAvailable();
                 std::vector<std::string>::iterator var;
                 std::vector<std::string> * readOnly = (*func).getReadOnlyVariables();
-                for (var = readOnly->begin(); var != readOnly->end(); ++var) {
-                    variables["read_only_var"] = (*var);
-                    p.Print("model.addAgentFunctionReadOnlyVariable(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$read_only_var$\");\n", variables);
-                }
+                for (var = readOnly->begin(); var != readOnly->end(); ++var)
+                  genagentfunc.AddReadOnlyVar((*var));
                 std::vector<std::string> * readWrite = (*func).getReadWriteVariables();
-                for (var = readWrite->begin(); var != readWrite->end(); ++var) {
-                    variables["read_write_var"] = (*var);
-                    p.Print("model.addAgentFunctionReadWriteVariable(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$read_write_var$\");\n", variables);
-                }
+                for (var = readWrite->begin(); var != readWrite->end(); ++var)
+                  genagentfunc.AddReadWriteVar((*var));
             }
-            genagent.InsertFunc(genagentfunc);
+            maincpp.Insert(genagentfunc);
         }
-        maincpp.Insert(genagent);
     }
 
     // Messages
