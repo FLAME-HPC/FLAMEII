@@ -19,6 +19,7 @@
 #include "codegen/gen_maincpp.hpp"
 #include "codegen/gen_model.hpp"
 #include "codegen/gen_agent.hpp"
+#include "codegen/gen_agentfunc.hpp"
 #include "file_generator.hpp"
 #include "xparser2.hpp"
 
@@ -291,7 +292,7 @@ int main(int argc, const char* argv[]) {
         // Agent functions
         boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
-            genagent.AddFunction((*func).getName(),
+            xparser::codegen::GenAgentFunc genagentfunc((*func).getName(),
                     (*func).getCurrentState(), (*func).getNextState());
 
             variables["agent_name"] = (*agent).getName();
@@ -343,6 +344,7 @@ int main(int argc, const char* argv[]) {
                     p.Print("model.addAgentFunctionReadWriteVariable(\"$agent_name$\", \"$func_name$\", \"$func_current_state$\", \"$func_next_state$\", \"$read_write_var$\");\n", variables);
                 }
             }
+            genagent.InsertFunc(genagentfunc);
         }
         maincpp.Insert(genagent);
     }

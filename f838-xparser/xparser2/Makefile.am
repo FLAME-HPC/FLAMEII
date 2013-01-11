@@ -21,7 +21,8 @@ sources = \
   codegen/gen_headerfile.cpp \
   codegen/gen_maincpp.cpp \
   codegen/gen_model.cpp \
-  codegen/gen_agent.cpp
+  codegen/gen_agent.cpp \
+  codegen/gen_agentfunc.cpp
  
 headers = \
   xparser2.hpp \
@@ -36,7 +37,8 @@ headers = \
   codegen/gen_headerfile.hpp \
   codegen/gen_maincpp.cpp \
   codegen/gen_model.hpp \
-  codegen/gen_agent.hpp
+  codegen/gen_agent.hpp \
+  codegen/gen_agentfunc.hpp
 
 templates = \
   templates/Makefile.tmpl \

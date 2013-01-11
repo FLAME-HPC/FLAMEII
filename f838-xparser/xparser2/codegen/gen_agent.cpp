@@ -27,22 +27,21 @@ void GenAgent::AddVar(const std::string& var_type,
   dupe_check_.insert(var_name);  // remember var name for dupe check
 }
 
-void GenAgent::AddFunction(const std::string& func_name,
-  const std::string& current_state, const std::string& next_state) {
-    std::vector<FuncTuple>::iterator f = funcs_.begin();
-    for (; f != funcs_.end(); ++f)
-        if ((*f).name == func_name && (*f).current_state == current_state
-                && (*f).next_state == next_state)
-            throw flame::exceptions::logic_error("function already exists");
-    // store func
-    funcs_.push_back(FuncTuple(func_name, current_state, next_state));
+void GenAgent::InsertFunc(GenAgentFunc& generator) {
+  // inherit header dependencies
+  RequireHeader(generator.GetRequiredHeaders());
+  RequireSysHeader(generator.GetRequiredSysHeaders());
+
+  generator.SetAgentName(agent_name_);
+  // Store copy of generator
+  generators_.push_back(new GenAgentFunc(generator));
 }
 
 void GenAgent::Generate(Printer& printer) const {
   // generate agent
   printer.Print("model.addAgent(\"$AGENT$\");\n", "AGENT", agent_name_);
   print_vars_(printer);  // print variables
-  print_funcs_(printer);  // print functions
+  GenerateInsertedContent(printer);
 }
 
 void GenAgent::print_vars_(Printer& printer) const {
@@ -57,17 +56,10 @@ void GenAgent::print_vars_(Printer& printer) const {
   }
 }
 
-void GenAgent::print_funcs_(Printer& printer) const {
-  std::map<std::string, std::string> variables;
-  variables["AGENT"] = agent_name_;
-  std::vector<FuncTuple>::const_iterator f = funcs_.begin();
-  for (; f != funcs_.end(); ++f) {
-    variables["FUNC"] = (*f).name;
-    variables["CURRENT"] = (*f).current_state;
-    variables["NEXT"] = (*f).next_state;
-    printer.Print("model.addAgentFunction(\"$AGENT$\", \"$FUNC$\","
-            "\"$CURRENT$\", \"$NEXT$\");\n", variables);
-  }
+void GenAgent::GenerateInsertedContent(Printer& printer) const {
+  GenAgentFuncVector::const_iterator g;
+  for (g = generators_.begin(); g != generators_.end(); ++g)
+    g->Generate(printer);
 }
 
 }}  // namespace xparser::codegen
