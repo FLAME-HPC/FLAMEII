@@ -28,14 +28,10 @@ void GenAgent::AddVar(const std::string& var_type,
 }
 
 void GenAgent::InsertFunc(const GenAgentFunc& generator) {
-  // inherit header dependencies
-  RequireHeader(generator.GetRequiredHeaders());
-  RequireSysHeader(generator.GetRequiredSysHeaders());
-
   // Create copy of generator
-  GenAgentFunc * gencopy = new GenAgentFunc(generator);
+  GenAgentFunc gencopy(generator);
   // Set the func agent name
-  gencopy->SetAgentName(agent_name_);
+  gencopy.SetAgentName(agent_name_);
   // Store copy of generator
   Insert(gencopy);
 }

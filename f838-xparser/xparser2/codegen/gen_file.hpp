@@ -11,10 +11,10 @@
 #ifndef XPARSER__CODEGEN__GEN_FILE_HPP_
 #define XPARSER__CODEGEN__GEN_FILE_HPP_
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "composable_code_generator.hpp"
+#include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
-class GenFile : public ComposableCodeGenerator {
+class GenFile : public CodeGenerator {
   public:
     void Generate(Printer& printer) const;
 

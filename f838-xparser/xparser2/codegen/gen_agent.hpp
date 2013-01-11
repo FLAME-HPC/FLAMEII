@@ -15,11 +15,11 @@
 #include <utility>
 #include <string>
 #include <map>
-#include "composable_code_generator.hpp"
+#include "code_generator.hpp"
 #include "gen_agentfunc.hpp"
 namespace xparser { namespace codegen {
 
-class GenAgent : public ComposableCodeGenerator {
+class GenAgent : public CodeGenerator {
   public:
     typedef std::pair<std::string, std::string> VarPair;
     typedef std::vector<VarPair> VarPairVector;
