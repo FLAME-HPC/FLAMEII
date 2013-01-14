@@ -12,8 +12,14 @@
 #include "gen_file.hpp"
 namespace xparser { namespace codegen {
 
+/*! \brief Generates a header file
+ *
+ * Similar to GenFile, but wraps content with an randomly generated
+ * include guard.
+ */
 class GenHeaderFile : public GenFile {
   public:
+    //! Writes header file to printer instance
     void Generate(Printer* printer) const;
 };
 }}  // namespace xparser::codegen

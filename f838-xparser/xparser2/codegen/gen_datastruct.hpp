@@ -45,8 +45,6 @@ class GenDataStruct : public CodeGenerator {
     typedef std::vector<VarPair> VarPairVector;  //! Collection of VarPair
     typedef std::set<std::string> VarnameSet;  //! Collection of names
 
-    // store in vector rather than a map so vars can be output in the same
-    // order they were added
     /*! \brief Collection of VarPair
      *
      * A Vector is used rather that a map so variables can be output in the

@@ -7,13 +7,15 @@
  * \copyright GNU Lesser General Public License
  * \brief generic generator for building header files
  */
+#include <string>
 #include "../utils.hpp"
 #include "gen_headerfile.hpp"
 
 namespace xparser { namespace codegen {
 
 void GenHeaderFile::Generate(Printer* printer) const {
-  // Generate unique include guard
+  // Generate include guard
+  // (The output filename is not known, so use a random string instead)
   static const char* include_guard_prefix = "__INCLUDE_GUARD_";
   std::string include_guard(include_guard_prefix);
   include_guard += xparser::utils::gen_random_string(12);
@@ -21,7 +23,7 @@ void GenHeaderFile::Generate(Printer* printer) const {
   // Insert include guard
   printer->Print("#ifndef $GUARD$\n", "GUARD", include_guard);
   printer->Print("#define $GUARD$\n", "GUARD", include_guard);
-  
+
   // Insert include statements
   GenerateIncludeStatements(printer);
   // content

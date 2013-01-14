@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief generator for main.cpp file to drive flame simulation
  */
+#include <string>
 #include "flame2/exceptions/base.hpp"
 #include "../utils.hpp"
 #include "gen_maincpp.hpp"
@@ -19,6 +20,8 @@ GenMainCpp::GenMainCpp() {
   RequireSysHeader("string");
   RequireSysHeader("iostream");
   RequireSysHeader("sys/time.h");
+  // flame headers
+  RequireHeader("flame2/sim/simulation.hpp");  // used in main_footer.cpp.tmpl
 }
 
 void GenMainCpp::Generate(Printer* printer) const {
@@ -35,7 +38,7 @@ void GenMainCpp::Generate(Printer* printer) const {
   printer->Print("\n");
   printer->PrintRawFromFile(tmpl);
   printer->Print("\n");
-  
+
   // Insert content from attached generators
   printer->Indent();
   GenerateInsertedContent(printer);

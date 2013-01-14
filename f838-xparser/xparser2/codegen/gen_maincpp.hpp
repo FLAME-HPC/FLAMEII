@@ -12,6 +12,7 @@
 #include "gen_file.hpp"
 namespace xparser { namespace codegen {
 
+//! Generates main.ccp file
 class GenMainCpp : public GenFile {
   public:
     GenMainCpp();
