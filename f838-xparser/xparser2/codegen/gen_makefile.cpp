@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Generator for model Makefile
  */
+#include <string>
 #include <boost/algorithm/string/join.hpp>
 #include "flame2/exceptions/mem.hpp"
 #include "../utils.hpp"
@@ -35,7 +36,7 @@ void GenMakefile::Generate(Printer* printer) const {
                  boost::algorithm::join(sources_, " "));
   printer->Print("HEADERS = $FILES$\n", "FILES",
                  boost::algorithm::join(headers_, " "));
-                   
+
   // Append template to output
   printer->PrintRaw("\n");
   printer->PrintRawFromFile(makefile_tmpl);

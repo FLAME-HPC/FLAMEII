@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Generate code to define and register messages
  */
+#include <string>
 #include "gen_message_registration.hpp"
 namespace xparser { namespace codegen {
 
@@ -23,7 +24,7 @@ void GenMessageRegistration::AddVar(const std::string& var_type,
 void GenMessageRegistration::Generate(Printer* printer) const {
   // register message with model
   printer->Print("model.addMessage(\"$MSG$\");\n", "MSG", name_);
-  
+
   // add vars to message
   VarPairVector::const_iterator i = vars_.begin();
   for (; i != vars_.end(); ++i) {
@@ -33,7 +34,7 @@ void GenMessageRegistration::Generate(Printer* printer) const {
                    "VARTYPE", i->first,
                    "VARNAME", i->second);
   }
-  
+
   // register message datatype
   printer->Print("model.registerMessageType<$MSG$_message>(\"$MSG$\");\n",
                  "MSG", name_);

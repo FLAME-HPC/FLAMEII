@@ -14,21 +14,27 @@
 #include <string>
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
-  
-class GenMessageRegistration : public CodeGenerator {
-public:
-    explicit GenMessageRegistration(const std::string& msg_name);
-    void AddVar(const std::string& var_type, const std::string& var_name);
-    void Generate(Printer* printer) const;
-    
-  private:
-    typedef std::pair<std::string, std::string> VarPair;
-    typedef std::vector<VarPair> VarPairVector;
 
-    std::string name_;
-    // store in vector rather than a map so vars can be output in the same
-    // order they were added
+//! Generates code to register a message and register its datatype
+class GenMessageRegistration : public CodeGenerator {
+  public:
+    explicit GenMessageRegistration(const std::string& msg_name);
+    //! Adds a message variable and its type
+    void AddVar(const std::string& var_type, const std::string& var_name);
+    //! Prints the generated code to the printer instance
+    void Generate(Printer* printer) const;
+
+  private:
+    typedef std::pair<std::string, std::string> VarPair;  //! type-name pair
+    typedef std::vector<VarPair> VarPairVector;  //! Collection of vars
+
+    /*! \brief Collection of VarPair
+     *
+     * A Vector is used rather that a map so variables can be output in the
+     * same order they were added
+     */
     VarPairVector vars_;
+    std::string name_;  //! message name
 };
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_MESSAGGES_HPP_
