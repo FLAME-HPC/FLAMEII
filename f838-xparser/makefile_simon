@@ -74,7 +74,6 @@ MB_TEST    = tests/mb/test_board_iteration.cpp \
 COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
              flame2/compat/C/flame_compat_c.cpp
 XPARSER2_SRC = xparser2/xparser2.cpp \
-               xparser2/xparser2.hpp \
                xparser2/file_generator.cpp \
                xparser2/file_generator.hpp \
                xparser2/printer.cpp \
