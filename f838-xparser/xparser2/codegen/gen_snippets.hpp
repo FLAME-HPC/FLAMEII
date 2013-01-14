@@ -21,12 +21,18 @@ class AgentFunctionHeaderSnippets;
 // Abstract base class for repeating a code snipper for each var
 class SingleVarSnippet : public CodeGenerator {
   public:
-    inline SingleVarSnippet() {}
+    inline SingleVarSnippet() {
+      Init();
+    }
+    
     inline SingleVarSnippet(const std::string& var) {
       Add(var);
+      Init();
     }
+    
     inline SingleVarSnippet(const std::vector<std::string>& var_vector) {
       Add(var_vector);
+      Init();
     }
     
     inline void Generate(Printer& printer) const {
