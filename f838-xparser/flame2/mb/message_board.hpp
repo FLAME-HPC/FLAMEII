@@ -138,8 +138,8 @@ class MessageBoard {
     //! Internal constructor used by factory method to instantiate board
     MessageBoard(const std::string& msg_name,
                  flame::mem::VectorWrapperBase *vec,
-                 BoardWriter *writer)
-        : name_(msg_name), writer_template_(writer), data_(vec) {}
+                 BoardWriter *board_writer)
+        : name_(msg_name), writer_template_(board_writer), data_(vec) {}
 
     //! Internal routine used to disconnect and delete collection of writers
     void _DeleteWriters(void);
