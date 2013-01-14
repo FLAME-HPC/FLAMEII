@@ -26,12 +26,12 @@ Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
     iomanager.readPop(pop_file, model_, io::IOManager::xml);
 }
 
-void Simulation::start(size_t iterations) {
+void Simulation::start(size_t iterations, size_t num_cores) {
     // Register agents with memory and task manager
     model_->registerWithTaskManager();
 
     exe::Scheduler s;
-    exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(4);
+    exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(num_cores);
     s.AssignType(q, exe::Task::AGENT_FUNCTION);
     s.AssignType(q, exe::Task::MB_FUNCTION);
     s.AssignType(q, exe::Task::IO_FUNCTION);
