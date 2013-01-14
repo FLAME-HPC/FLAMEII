@@ -56,7 +56,6 @@ XMachine * Model::getAgent(std::string name) {
   if (agent) return agent;
   // if agent does not exist
   throw flame::exceptions::flame_model_exception("Agent does not exist");
-  // Agent with that name already exists
 }
 
 void Model::addAgentVariable(std::string agent_name,
