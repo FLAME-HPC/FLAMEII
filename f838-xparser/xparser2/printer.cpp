@@ -177,6 +177,7 @@ void Printer::PrintFromFile(const std::string& filename,
   delete buffer;
 }
 
+/*
 void Printer::PrintFromFile(const std::string& filename,
                             const char* var, const std::string& value) {
   const char* buffer = get_cstr_from_file(filename);
@@ -191,6 +192,7 @@ void Printer::PrintFromFile(const std::string& filename,
   Print(buffer, var1, value1, var2, value2);
   delete buffer;
 }
+*/
 
 void Printer::PrintRawFromFile(const std::string& filename) {
   const char* buffer = get_cstr_from_file(filename);

@@ -75,13 +75,14 @@ class Printer {
     //! Like Print() but takes the input text from a file
     void PrintFromFile(const std::string& filename,
                        const std::map<std::string, std::string>& vars);
-    //! Like Print() but takes the input text from a file
+    /* /! Like Print() but takes the input text from a file
     void PrintFromFile(const std::string& filename,
                        const char* var, const std::string& value);
     //! Like Print() but takes the input text from a file
     void PrintFromFile(const std::string& filename,
                        const char* var1, const std::string& value1,
                        const char* var2, const std::string& value2);
+    */
     //! Like PrintRaw() but takes the input text from a file
     void PrintRawFromFile(const std::string& filename);
 
