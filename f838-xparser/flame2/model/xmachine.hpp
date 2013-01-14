@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "flame2/exe/task_interface.hpp"
 #include "xvariable.hpp"
 #include "xfunction.hpp"
 #include "xgraph.hpp"
