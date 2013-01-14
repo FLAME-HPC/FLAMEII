@@ -21,15 +21,17 @@
 #include "flame2/model/xmodel.hpp"
 #include "xmodel_validate.hpp"
 
+#ifdef TESTBUILD
+void printErr(const char */*format*/, ...) {}
+#else
 void printErr(const char *format, ...) {
   // Print message to stderr
-#ifndef TESTBUILD
   va_list arg;
   va_start(arg, format);
   std::vfprintf(stderr, format, arg);
   va_end(arg);
-#endif
 }
+#endif
 
 namespace flame { namespace model {
 

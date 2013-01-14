@@ -104,8 +104,8 @@ size_t Task::getPriorityLevel() {
   return priorityLevel_;
 }
 
-void Task::setHasCondition(bool hasCondition) {
-  hasCondition_ = hasCondition;
+void Task::setHasCondition(bool hasCond) {
+  hasCondition_ = hasCond;
 }
 
 bool Task::hasCondition() {
