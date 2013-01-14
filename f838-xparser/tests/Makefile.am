@@ -13,7 +13,10 @@ noinst_PROGRAMS = run_tests
 run_tests_LIBS = @COMMON_LIBS@
 run_tests_LDFLAGS = @BOOST_UNIT_TEST_FRAMEWORK_LIB@ @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@ -no-install
 run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@ @CPPFLAGS_TEST@
-run_tests_LDADD = $(top_srcdir)/libflame2-test.la @COMMON_LIBS@ 
+run_tests_LDADD = \
+  $(top_srcdir)/libflame2-test.la \
+  $(top_srcdir)/xparser2/lib_xparser2.la \
+  @COMMON_LIBS@ 
 run_tests_SOURCES = run_tests.cpp
 
 #### Note: ####
@@ -64,6 +67,9 @@ run_tests_SOURCES += \
   api/test_message_iterator_wrapper.cpp \
   api/test_flame_api.cpp
 
+# Add tests for "xparser2"
+run_tests_SOURCES += \
+  xparser2/test_xparser2_utils.cpp
   
 else
 run: all
