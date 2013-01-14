@@ -24,11 +24,11 @@ class GenAgent : public CodeGenerator {
     typedef std::pair<std::string, std::string> VarPair;
     typedef std::vector<VarPair> VarPairVector;
     typedef std::set<std::string> VarnameSet;
-    
+
     explicit GenAgent(const std::string& agent_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
     void Generate(Printer* printer) const;
-    
+
   private:
     // store in vector rather than a map so vars can be output in the same
     // order they were added

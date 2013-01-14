@@ -19,14 +19,15 @@ namespace xparser { namespace codegen {
 
 class GenAgentFunc : public CodeGenerator {
   public:
-    explicit GenAgentFunc(const std::string& agent_name, const std::string& func_name,
+    explicit GenAgentFunc(const std::string& agent_name,
+        const std::string& func_name,
             const std::string& current_state, const std::string& next_state);
     void AddOutput(const std::string& message_name);
     void AddInput(const std::string& message_name);
     void AddReadWriteVar(const std::string& var_name);
     void AddReadOnlyVar(const std::string& var_name);
     void Generate(Printer* printer) const;
-    
+
   private:
     std::string agent_name_;
     std::string func_name_;

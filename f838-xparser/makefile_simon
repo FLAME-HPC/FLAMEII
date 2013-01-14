@@ -74,7 +74,33 @@ MB_TEST    = tests/mb/test_board_iteration.cpp \
 COMPAT_SRC = flame2/compat/C/compatibility_manager.cpp \
              flame2/compat/C/flame_compat_c.cpp
 XPARSER2_SRC = xparser2/xparser2.cpp \
-               xparser2/xparser2.hpp
+               xparser2/xparser2.hpp \
+               xparser2/file_generator.cpp \
+               xparser2/file_generator.hpp \
+               xparser2/printer.cpp \
+               xparser2/printer.hpp \
+               xparser2/utils.cpp \
+               xparser2/utils.hpp \
+               xparser2/codegen/code_generator.hpp \
+               xparser2/codegen/gen_agent.cpp \
+               xparser2/codegen/gen_agent.hpp \
+               xparser2/codegen/gen_agentfunc.cpp \
+               xparser2/codegen/gen_agentfunc.hpp \
+               xparser2/codegen/gen_datastruct.cpp \
+               xparser2/codegen/gen_datastruct.hpp \
+               xparser2/codegen/gen_file.cpp \
+               xparser2/codegen/gen_file.hpp \
+               xparser2/codegen/gen_headerfile.cpp \
+               xparser2/codegen/gen_headerfile.hpp \
+               xparser2/codegen/gen_maincpp.cpp \
+               xparser2/codegen/gen_maincpp.hpp \
+               xparser2/codegen/gen_makefile.cpp \
+               xparser2/codegen/gen_makefile.hpp \
+               xparser2/codegen/gen_message_registration.cpp \
+               xparser2/codegen/gen_message_registration.hpp \
+               xparser2/codegen/gen_model.cpp \
+               xparser2/codegen/gen_model.hpp \
+               xparser2/codegen/gen_snippets.hpp
 SOURCES    = $(IO_SRC) $(MODEL_SRC) $(MEM_SRC) $(EXE_SRC) \
              $(MB_SRC) $(SIM_SRC) $(COMPAT_SRC) tests/run_tests.cpp \
              $(MODEL_TEST) $(IO_TEST_POP) $(IO_TEST_MODEL) $(IO_TEST_MAN) $(SIM_TEST)

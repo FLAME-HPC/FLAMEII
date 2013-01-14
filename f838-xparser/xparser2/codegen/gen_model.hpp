@@ -21,10 +21,10 @@ class GenModel : public CodeGenerator {
     typedef std::pair<std::string, std::string> VarPair;
     typedef std::vector<VarPair> VarPairVector;
     typedef std::set<std::string> VarnameSet;
-    
+
     GenModel();
     void Generate(Printer* printer) const;
-    
+
   private:
     // store in vector rather than a map so vars can be output in the same
     // order they were added
@@ -32,9 +32,9 @@ class GenModel : public CodeGenerator {
     // Keep track of added vars to avoid dups
     VarnameSet dupe_check_;
     std::string struct_name_;
-    
-    void print_vars_(Printer* printer) const ;
-    void print_stream_op_(Printer* printer) const ;
+
+    void print_vars_(Printer* printer) const;
+    void print_stream_op_(Printer* printer) const;
 };
 
 }}  // namespace xparser::codegen

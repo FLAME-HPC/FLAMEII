@@ -8,6 +8,8 @@
  * \brief Generator for agent function registering.
  */
 #include <string>
+#include <vector>
+#include <map>
 #include <utility>
 #include <algorithm>
 #include "flame2/exceptions/base.hpp"
@@ -15,9 +17,11 @@
 
 namespace xparser { namespace codegen {
 
-GenAgentFunc::GenAgentFunc(const std::string& agent_name, const std::string& func_name,
+GenAgentFunc::GenAgentFunc(const std::string& agent_name,
+    const std::string& func_name,
       const std::string& current_state, const std::string& next_state)
-  : agent_name_(agent_name), func_name_(func_name), current_state_(current_state),
+  : agent_name_(agent_name), func_name_(func_name),
+    current_state_(current_state),
     next_state_(next_state), memory_access_info_available_(false) {}
 
 void GenAgentFunc::AddOutput(const std::string& message_name) {

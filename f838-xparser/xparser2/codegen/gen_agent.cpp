@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Generator for agent registering.
  */
+#include <map>
 #include <string>
 #include <utility>
 #include "flame2/exceptions/base.hpp"
