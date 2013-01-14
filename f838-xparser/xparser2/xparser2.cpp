@@ -22,6 +22,8 @@
  *    - schema to validate input data
  */
 #include <fstream>
+#include <vector>
+#include <string>
 #include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
 #include "codegen/gen_snippets.hpp"
@@ -43,11 +45,11 @@ void generate_agents(flame::model::XModel *model,
 void generate_agent_func_definition(flame::model::XModel *model,
                                     gen::GenMainCpp *maincpp,
                                     gen::GenHeaderFile *func_def_hpp);
-                                    
+
 void generate_messages(flame::model::XModel *model,
                        gen::GenMainCpp *maincpp,
                        gen::GenHeaderFile *msg_datatype_h);
-                       
+
 int main(int argc, const char* argv[]) {
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0];
@@ -66,8 +68,8 @@ int main(int argc, const char* argv[]) {
 
     // File generator to manage file writing
     xparser::FileGenerator filegen;
-    gen::GenMakefile makefile; // Makefile generator
-    gen::GenMainCpp maincpp; // main.cpp generator
+    gen::GenMakefile makefile;  // Makefile generator
+    gen::GenMainCpp maincpp;    // main.cpp generator
 
     // initialise model and environment
     gen::GenModel genmodel;
@@ -81,7 +83,7 @@ int main(int argc, const char* argv[]) {
     generate_agent_func_definition(&model, &maincpp, &func_def_hpp);
     filegen.Output("agent_function_definitions.hpp", func_def_hpp);
     makefile.AddHeaderFile("agent_function_definitions.hpp");
-    
+
     // Define and register messages
     gen::GenHeaderFile msg_datatype_h;
     generate_messages(&model, &maincpp, &msg_datatype_h);
@@ -91,12 +93,12 @@ int main(int argc, const char* argv[]) {
     // output completed main.cpp file
     filegen.Output("main.cpp", maincpp);
     makefile.AddSourceFile("main.cpp");
-    
+
     // Add user agent function files to Makefile
     std::vector<std::string> * functionFiles = model.getFunctionFiles();
     std::vector<std::string>::iterator functionFile;
-    for (functionFile = functionFiles->begin(); functionFile != functionFiles->end();
-            ++functionFile) {
+    for (functionFile = functionFiles->begin();
+        functionFile != functionFiles->end(); ++functionFile) {
         makefile.AddSourceFile((*functionFile));
     }
 
@@ -119,16 +121,16 @@ void generate_agent_func_definition(flame::model::XModel *model,
   for (agent = agents->begin(); agent != agents->end(); ++agent) {
     boost::ptr_vector<flame::model::XFunction> * funcs = agent->getFunctions();
     for (func = funcs->begin(); func != funcs->end(); ++func) {
-      agent_func_headers.Add(func->getName());  // func declaration
-      register_agent_func.Add(func->getName()); // func registrations
+      agent_func_headers.Add(func->getName());   // func declaration
+      register_agent_func.Add(func->getName());  // func registrations
     }
   }
-  
+
   // append generated content to apropriate files
   maincpp->Insert(register_agent_func);
   func_def_hpp->Insert(agent_func_headers);
 }
-                                    
+
 void generate_messages(flame::model::XModel *model,
                        gen::GenMainCpp *maincpp,
                        gen::GenHeaderFile *msg_datatype_h) {
@@ -138,14 +140,14 @@ void generate_messages(flame::model::XModel *model,
   for (m = messages->begin(); m != messages->end(); ++m) {
     gen::GenMessageRegistration msg_reg(m->getName());
     gen::GenDataStruct msg_datatype(m->getName() + "_message");
-    
+
     // populate message vars
     boost::ptr_vector<flame::model::XVariable> *vars = m->getVariables();
     for (v = vars->begin(); v != vars->end(); ++v) {
       msg_reg.AddVar(v->getType(), v->getName());
       msg_datatype.AddVar(v->getType(), v->getName());
     }
-    
+
     // Append to main.cpp
     maincpp->Insert(msg_reg);
 
@@ -153,7 +155,7 @@ void generate_messages(flame::model::XModel *model,
     msg_datatype_h->Insert(msg_datatype);
   }
 }
-                       
+
 void generate_agents(flame::model::XModel *model,
                      xparser::codegen::GenMainCpp *maincpp) {
   boost::ptr_vector<flame::model::XMachine>::iterator agent;
@@ -161,7 +163,7 @@ void generate_agents(flame::model::XModel *model,
   for (agent = agents->begin(); agent != agents->end(); ++agent) {
     std::string agent_name = agent->getName();
     gen::GenAgent gen_agent(agent_name);
-    
+
     // iterate through agent memory var
     boost::ptr_vector<flame::model::XVariable> *vars = agent->getVariables();
     boost::ptr_vector<flame::model::XVariable>::iterator v;
@@ -169,7 +171,7 @@ void generate_agents(flame::model::XModel *model,
       gen_agent.AddVar(v->getType(), v->getName());
     }
     maincpp->Insert(gen_agent);
-    
+
     // iterate throught agent functions
     boost::ptr_vector<flame::model::XFunction> *funcs = agent->getFunctions();
     boost::ptr_vector<flame::model::XFunction>::iterator f;
@@ -182,7 +184,7 @@ void generate_agents(flame::model::XModel *model,
       for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
         gen_func.AddOutput(ioput->getMessageName());
       }
-      
+
       // loop inputs
       boost::ptr_vector<flame::model::XIOput> * inputs = f->getInputs();
       for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput) {
@@ -195,7 +197,7 @@ void generate_agents(flame::model::XModel *model,
       for (s = rw->begin(); s != rw->end(); ++s) {
         gen_func.AddReadWriteVar(*s);
       }
-      
+
       // specify read-only vars
       std::vector<std::string> *ro = f->getReadOnlyVariables();
       for (s = ro->begin(); s != ro->end(); ++s) {
