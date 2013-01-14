@@ -21,20 +21,6 @@ class AgentFunctionHeaderSnippets;
 // Abstract base class for repeating a code snipper for each var
 class SingleVarSnippet : public CodeGenerator {
   public:
-    inline SingleVarSnippet() {
-      Init();
-    }
-    
-    inline SingleVarSnippet(const std::string& var) {
-      Add(var);
-      Init();
-    }
-    
-    inline SingleVarSnippet(const std::vector<std::string>& var_vector) {
-      Add(var_vector);
-      Init();
-    }
-    
     inline void Generate(Printer& printer) const {
       const char* snippet = GetSnippetText();
       std::vector<std::string>::const_iterator i;
@@ -52,8 +38,6 @@ class SingleVarSnippet : public CodeGenerator {
     }
     
   protected:
-    // overload this to make RequireHeader() calls
-    virtual void Init(void) {}
 
     // must overload this to provide snippet to generate
     // Use $VAR$ as placeholder for where variables are inserter
@@ -73,11 +57,12 @@ class RegisterAgentFuncSnippets : public SingleVarSnippet {
 
 
 class AgentFunctionHeaderSnippets : public SingleVarSnippet {
-  protected:
-    void Init(void) {
+  public:
+    AgentFunctionHeaderSnippets() {
       RequireHeader("flame2.hpp");
     }
-
+    
+  protected:
     const char* GetSnippetText(void) const {
       return "FLAME_AGENT_FUNCTION($VAR$);\n";
     }
