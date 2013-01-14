@@ -21,16 +21,16 @@ namespace xml = flame::io::xml;
 BOOST_AUTO_TEST_SUITE(xmodel_validation)
 
 BOOST_AUTO_TEST_CASE(validate_model) {
-    int rc;
-    flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-    model::XModel model;
+  int rc;
+  flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+  model::XModel model;
 
-    /* Test model validation using single file with all errors.
-     * Possibly in future use a correct file and mutate for each
-     * error and test separately. */
-    iomanager.loadModel("io/models/all_not_valid.xml", &model);
-    rc = model.validate();
-    BOOST_CHECK(rc == 42);
+  /* Test model validation using single file with all errors.
+   * Possibly in future use a correct file and mutate for each
+   * error and test separately. */
+  iomanager.loadModel("io/models/all_not_valid.xml", &model);
+  rc = model.validate();
+  BOOST_CHECK(rc == 42);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

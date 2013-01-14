@@ -23,14 +23,14 @@ class IOManager {
     enum FileType { xml = 0 };
 
     static IOManager& GetInstance() {
-          static IOManager instance;
-          return instance;
-        }
+      static IOManager instance;
+      return instance;
+    }
 
     void loadModel(std::string const& file, flame::model::XModel * model);
     void readPop(std::string file_name,
-            model::XModel * model,
-            FileType fileType);
+        model::XModel * model,
+        FileType fileType);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();

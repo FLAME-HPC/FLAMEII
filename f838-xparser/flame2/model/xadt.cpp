@@ -28,36 +28,36 @@ XADT::XADT() : holdsDynamicArray_(false) {}
  * Prints out XADT name and variables.
  */
 void XADT::print() {
-    boost::ptr_vector<XVariable>::iterator it;
-    std::printf("\tADT Name: %s\n", getName().c_str());
-    for (it = variables_.begin(); it != variables_.end(); it++)
-        (*it).print();
+  boost::ptr_vector<XVariable>::iterator it;
+  std::printf("\tADT Name: %s\n", getName().c_str());
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    (*it).print();
 }
 
 void XADT::setName(std::string name) {
-    name_ = name;
+  name_ = name;
 }
 
 std::string XADT::getName() {
-    return name_;
+  return name_;
 }
 
 XVariable * XADT::addVariable() {
-    XVariable * xvariable = new XVariable;
-    variables_.push_back(xvariable);
-    return xvariable;
+  XVariable * xvariable = new XVariable;
+  variables_.push_back(xvariable);
+  return xvariable;
 }
 
 boost::ptr_vector<XVariable> * XADT::getVariables() {
-    return &variables_;
+  return &variables_;
 }
 
 void XADT::setHoldsDynamicArray(bool b) {
-    holdsDynamicArray_ = b;
+  holdsDynamicArray_ = b;
 }
 
 bool XADT::holdsDynamicArray() {
-    return holdsDynamicArray_;
+  return holdsDynamicArray_;
 }
 
 }}  // namespace flame::model

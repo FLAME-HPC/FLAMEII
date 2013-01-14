@@ -35,9 +35,9 @@ typedef struct {
 
 // The structure must support the << operator for it to be store in the board
 inline std::ostream &operator<<(std::ostream &os,
-        const my_location_message& ob) {
-    os << "{" << ob.x << ", " << ob.y << ", " << ob.id << "}";
-    return os;
+    const my_location_message& ob) {
+  os << "{" << ob.x << ", " << ob.y << ", " << ob.id << "}";
+  return os;
 }
 
 BOOST_AUTO_TEST_SUITE(Simulation)
@@ -46,90 +46,90 @@ BOOST_AUTO_TEST_SUITE(Simulation)
 #define distance(x1, y1, x2, y2) (sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)))
 
 FLAME_AGENT_FUNCTION(outputdata) {
-    // printf("outputdata\n");
+  // printf("outputdata\n");
 
-    my_location_message msg;
-    msg.x = FLAME.GetMem<double>("x");
-    msg.y = FLAME.GetMem<double>("y");
-    msg.id = FLAME.GetMem<int>("id");
+  my_location_message msg;
+  msg.x = FLAME.GetMem<double>("x");
+  msg.y = FLAME.GetMem<double>("y");
+  msg.id = FLAME.GetMem<int>("id");
 
-    FLAME.PostMessage<my_location_message>("location", msg);
-    return FLAME_AGENT_ALIVE;
+  FLAME.PostMessage<my_location_message>("location", msg);
+  return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNCTION(inputdata) {
-    MessageIterator iter;
-    my_location_message msg;
-    double x = FLAME.GetMem<double>("x");
-    double y = FLAME.GetMem<double>("y");
-    double diameter = FLAME.GetMem<double>("radius") * 2;
+  MessageIterator iter;
+  my_location_message msg;
+  double x = FLAME.GetMem<double>("x");
+  double y = FLAME.GetMem<double>("y");
+  double diameter = FLAME.GetMem<double>("radius") * 2;
 
-    /* tmp vars */
-    double p, core_distance;
-    double fx = 0, fy = 0;
+  /* tmp vars */
+  double p, core_distance;
+  double fx = 0, fy = 0;
 
-    /* loop through messages */
-    iter = FLAME.GetMessageIterator("location");
-    for (; !iter.AtEnd(); iter.Next()) {
-      msg = iter.GetMessage<my_location_message>();
-      if (msg.id != FLAME.GetMem<int>("id")) {
-        core_distance = distance(x, y, msg.x, msg.y);
+  /* loop through messages */
+  iter = FLAME.GetMessageIterator("location");
+  for (; !iter.AtEnd(); iter.Next()) {
+    msg = iter.GetMessage<my_location_message>();
+    if (msg.id != FLAME.GetMem<int>("id")) {
+      core_distance = distance(x, y, msg.x, msg.y);
 
-        if (core_distance < diameter) {
-          p = kr * diameter / core_distance;
-          /* accumulate forces */
-          fx += (x - msg.x) * p;
-          fy += (y - msg.y) * p;
-        }
+      if (core_distance < diameter) {
+        p = kr * diameter / core_distance;
+        /* accumulate forces */
+        fx += (x - msg.x) * p;
+        fy += (y - msg.y) * p;
       }
     }
+  }
 
-    /* store forces in agent mem */
-    FLAME.SetMem<double>("fx", fx);
-    FLAME.SetMem<double>("fy", fy);
-    return FLAME_AGENT_ALIVE;
+  /* store forces in agent mem */
+  FLAME.SetMem<double>("fx", fx);
+  FLAME.SetMem<double>("fy", fy);
+  return FLAME_AGENT_ALIVE;
 }
 
 FLAME_AGENT_FUNCTION(move) {
-    /* update position based on accumulated forces */
-    FLAME.SetMem<double>("x", FLAME.GetMem<double>("x") +
-            FLAME.GetMem<double>("fx"));
-    FLAME.SetMem<double>("y", FLAME.GetMem<double>("y") +
-            FLAME.GetMem<double>("fy"));
-    return FLAME_AGENT_ALIVE;
+  /* update position based on accumulated forces */
+  FLAME.SetMem<double>("x", FLAME.GetMem<double>("x") +
+      FLAME.GetMem<double>("fx"));
+  FLAME.SetMem<double>("y", FLAME.GetMem<double>("y") +
+      FLAME.GetMem<double>("fy"));
+  return FLAME_AGENT_ALIVE;
 }
 
 BOOST_AUTO_TEST_CASE(test_simulation) {
-    // Create model
-    flame::model::Model m("sim/models/circles/circles.xml");
-    // Register agent functions
-    m.registerAgentFunction("outputdata", &outputdata);
-    m.registerAgentFunction("inputdata", &inputdata);
-    m.registerAgentFunction("move", &move);
+  // Create model
+  flame::model::Model m("sim/models/circles/circles.xml");
+  // Register agent functions
+  m.registerAgentFunction("outputdata", &outputdata);
+  m.registerAgentFunction("inputdata", &inputdata);
+  m.registerAgentFunction("move", &move);
 
-    sim::Simulation s(&m, "sim/models/circles/0.xml");
+  sim::Simulation s(&m, "sim/models/circles/0.xml");
 
-    // Register message types
-    m.registerMessageType<my_location_message>("location");
+  // Register message types
+  m.registerMessageType<my_location_message>("location");
 
-    s.start(1);
+  s.start(1);
 
-    // Reset memory manager
-    flame::mem::MemoryManager::GetInstance().Reset();
+  // Reset memory manager
+  flame::mem::MemoryManager::GetInstance().Reset();
 
-    // Try and use generated output as input
-    BOOST_CHECK_NO_THROW(
-        sim::Simulation s2(&m, "sim/models/circles/1.xml"));
+  // Try and use generated output as input
+  BOOST_CHECK_NO_THROW(
+      sim::Simulation s2(&m, "sim/models/circles/1.xml"));
 
-    /* Remove created all_data.xsd */
-    if (remove("sim/models/circles/1.xml") != 0)
+  /* Remove created all_data.xsd */
+  if (remove("sim/models/circles/1.xml") != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-            "sim/models/circles/1.xml");
+        "sim/models/circles/1.xml");
 
-    // Reset memory manager
-    flame::mem::MemoryManager::GetInstance().Reset();
-    flame::exe::TaskManager::GetInstance().Reset();
-    flame::mb::MessageBoardManager::GetInstance().Reset();
+  // Reset memory manager
+  flame::mem::MemoryManager::GetInstance().Reset();
+  flame::exe::TaskManager::GetInstance().Reset();
+  flame::mb::MessageBoardManager::GetInstance().Reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

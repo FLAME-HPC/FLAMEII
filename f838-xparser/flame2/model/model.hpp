@@ -51,6 +51,7 @@ class Model {
     void addMessage(std::string name);
     void addMessageVariable(std::string message_name,
             std::string type, std::string name);
+
   private:
     flame::model::XModel model_;
 };
