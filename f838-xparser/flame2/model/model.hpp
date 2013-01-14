@@ -54,6 +54,8 @@ class Model {
 
   private:
     flame::model::XModel model_;
+
+    XMachine * getAgent(std::string name);
 };
 
 }}  // namespace flame::model

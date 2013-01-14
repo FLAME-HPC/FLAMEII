@@ -66,8 +66,7 @@ XVariable * XMachine::getVariable(std::string name) {
   boost::ptr_vector<XVariable>::iterator it;
   for (it = variables_.begin(); it != variables_.end(); it++)
     if ((*it).getName() == name) return &(*it);
-  throw flame::exceptions::flame_model_exception(
-      "Variable does not exist");
+  return 0;
 }
 
 XFunction * XMachine::addFunction() {

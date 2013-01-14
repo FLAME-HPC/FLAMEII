@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(test_readPop) {
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_variable.xml",
       &model,
-      io::IOManager::xml), e::flame_io_exception);
+      io::IOManager::xml), e::flame_io_exception); // Variable does not exist
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_var_not_int.xml",

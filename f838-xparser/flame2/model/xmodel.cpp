@@ -253,8 +253,7 @@ XMachine * XModel::getAgent(std::string name) {
   boost::ptr_vector<XMachine>::iterator it;
   for (it = agents_.begin(); it != agents_.end(); ++it)
     if (name == (*it).getName()) return &(*it);
-  throw flame::exceptions::flame_model_exception(
-      "Agent does not exist");
+  return 0;
 }
 
 XMessage * XModel::addMessage() {
@@ -281,8 +280,7 @@ XMessage * XModel::getMessage(std::string name) {
   boost::ptr_vector<XMessage>::iterator it;
   for (it =  messages_.begin(); it != messages_.end(); ++it)
     if (name == (*it).getName()) return &(*it);
-  throw flame::exceptions::flame_model_exception(
-      "Message does not exist");
+  return 0;
 }
 
 boost::ptr_vector<XMessage> * XModel::getMessages() {

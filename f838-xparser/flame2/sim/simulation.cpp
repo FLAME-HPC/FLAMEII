@@ -38,7 +38,9 @@ void Simulation::start(size_t iterations, size_t num_cores) {
 
   size_t ii;
   for (ii = 1; ii <= iterations; ++ii) {
+#ifndef TESTBUILD
     printf("Iteration - %lu\n", ii);
+#endif
     s.RunIteration();
   }
 }
