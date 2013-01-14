@@ -19,12 +19,6 @@ namespace model {
 
 Model::Model() {}
 
-/*!
- * \brief Constructs Model
- *
- * Initialises Model by loading model using path string and
- * validates the model.
- */
 Model::Model(std::string path_to_model) {
   // Load model
   flame::io::IOManager::GetInstance().loadModel(path_to_model, &model_);
