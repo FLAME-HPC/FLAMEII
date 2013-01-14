@@ -180,13 +180,13 @@ void generate_agents(flame::model::XModel *model,
       boost::ptr_vector<flame::model::XIOput>::iterator ioput;
       boost::ptr_vector<flame::model::XIOput> * outputs = f->getOutputs();
       for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput) {
-        gen_func.AddInput(ioput->getMessageName());
+        gen_func.AddOutput(ioput->getMessageName());
       }
       
       // loop inputs
       boost::ptr_vector<flame::model::XIOput> * inputs = f->getInputs();
       for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput) {
-        gen_func.AddOutput(ioput->getMessageName());
+        gen_func.AddInput(ioput->getMessageName());
       }
 
       // memory access
