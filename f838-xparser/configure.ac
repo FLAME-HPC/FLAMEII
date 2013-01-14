@@ -121,6 +121,15 @@ if test "x${BUILDS}" = "x"; then
   AC_MSG_ERROR([All build types disabled. Nothing left to do.])
 fi
 
+# Sets LOWEST_BUILD_SUFFIX to the lowest level library suffix available
+if test $WANT_TEST_BUILD = 1; then
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [test])
+elif test $WANT_DBG_BUILD = 1; then
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [dbg])
+else
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [prod])
+fi
+
 ##### CHECK BOOST #####
 
 # Check boost version
