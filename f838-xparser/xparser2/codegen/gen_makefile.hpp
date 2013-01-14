@@ -21,7 +21,7 @@ class GenMakefile : public CodeGenerator {
     GenMakefile() {}
     void AddHeaderFile(const std::string& filename);
     void AddSourceFile(const std::string& filename);
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
     
   private:
     StringSet headers_;

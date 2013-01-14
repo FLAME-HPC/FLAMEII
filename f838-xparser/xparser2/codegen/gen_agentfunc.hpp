@@ -25,7 +25,7 @@ class GenAgentFunc : public CodeGenerator {
     void AddInput(const std::string& message_name);
     void AddReadWriteVar(const std::string& var_name);
     void AddReadOnlyVar(const std::string& var_name);
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
     
   private:
     std::string agent_name_;
@@ -38,10 +38,10 @@ class GenAgentFunc : public CodeGenerator {
     std::vector<std::string> read_only_vars_;
     bool memory_access_info_available_;
 
-    void print_outputs_(Printer& printer) const;
-    void print_inputs_(Printer& printer) const;
-    void print_read_write_vars_(Printer& printer) const;
-    void print_read_only_vars_(Printer& printer) const;
+    void print_outputs_(Printer* printer) const;
+    void print_inputs_(Printer* printer) const;
+    void print_read_write_vars_(Printer* printer) const;
+    void print_read_only_vars_(Printer* printer) const;
 };
 
 }}  // namespace xparser::codegen

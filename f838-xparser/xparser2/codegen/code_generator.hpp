@@ -22,7 +22,7 @@ class CodeGenerator {
 
     inline CodeGenerator() {}
     virtual ~CodeGenerator() {}
-    virtual void Generate(Printer& printer) const = 0;
+    virtual void Generate(Printer* printer) const = 0;
 
     inline const StringSet& GetRequiredSysHeaders() const {
       return required_sys_headers_;

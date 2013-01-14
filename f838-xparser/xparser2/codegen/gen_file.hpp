@@ -16,7 +16,7 @@ namespace xparser { namespace codegen {
 
 class GenFile : public CodeGenerator {
   public:
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
 
     template <typename T>
     inline void Insert(const T& generator) {
@@ -29,8 +29,8 @@ class GenFile : public CodeGenerator {
     }
     
   protected:
-    void GenerateIncludeStatements(Printer& printer) const;
-    void GenerateInsertedContent(Printer& printer) const;
+    void GenerateIncludeStatements(Printer* printer) const;
+    void GenerateInsertedContent(Printer* printer) const;
 
   private:
     typedef boost::ptr_vector<CodeGenerator> GeneratorVector;

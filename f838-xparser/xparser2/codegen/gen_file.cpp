@@ -11,35 +11,35 @@
 #include "gen_file.hpp"
 namespace xparser { namespace codegen {
 
-void GenFile::Generate(Printer& printer) const {
+void GenFile::Generate(Printer* printer) const {
   // Insert include statements
   GenerateIncludeStatements(printer);
   // content
   GenerateInsertedContent(printer);
 }
 
-void GenFile::GenerateInsertedContent(Printer& printer) const {
+void GenFile::GenerateInsertedContent(Printer* printer) const {
   GeneratorVector::const_iterator g;
   for (g = generators_.begin(); g != generators_.end(); ++g) {
     g->Generate(printer);
-    printer.Print("\n");
+    printer->Print("\n");
   }
 }
 
-void GenFile::GenerateIncludeStatements(Printer& printer) const {
+void GenFile::GenerateIncludeStatements(Printer* printer) const {
   // sys header includes
   StringSet::const_iterator i;
   const StringSet& sysheaders = GetRequiredSysHeaders();
   for (i = sysheaders.begin(); i != sysheaders.end(); ++i) {
-    printer.Print("#include <$HEADER$>\n", "HEADER", *i);
+    printer->Print("#include <$HEADER$>\n", "HEADER", *i);
   }
       
   // header includes
   const StringSet& headers = GetRequiredHeaders();
   for (i = headers.begin(); i != headers.end(); ++i) {
-    printer.Print("#include \"$HEADER$\"\n", "HEADER", *i);
+    printer->Print("#include \"$HEADER$\"\n", "HEADER", *i);
   }
-  printer.Print("\n");
+  printer->Print("\n");
 }
     
 }}  // namespace xparser::codegen

@@ -27,7 +27,7 @@ class GenAgent : public CodeGenerator {
     
     explicit GenAgent(const std::string& agent_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
     
   private:
     // store in vector rather than a map so vars can be output in the same
@@ -37,7 +37,7 @@ class GenAgent : public CodeGenerator {
     VarnameSet dupe_check_;
     std::string agent_name_;
 
-    void print_vars_(Printer& printer) const;
+    void print_vars_(Printer* printer) const;
 };
 
 }}  // namespace xparser::codegen

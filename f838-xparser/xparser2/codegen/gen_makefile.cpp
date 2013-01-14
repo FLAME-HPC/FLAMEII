@@ -21,7 +21,7 @@ void GenMakefile::AddSourceFile(const std::string& filename) {
   sources_.insert(filename);
 }
 
-void GenMakefile::Generate(Printer& printer) const {
+void GenMakefile::Generate(Printer* printer) const {
   // first, we make sure the template exists
   static const char* tmpl_name = "Makefile.tmpl";
   std::string makefile_tmpl = xparser::utils::locate_template(tmpl_name);
@@ -31,14 +31,14 @@ void GenMakefile::Generate(Printer& printer) const {
   }
 
   // Define list of source and header files
-  printer.Print("SOURCES = $FILES$\n", "FILES",
-                boost::algorithm::join(sources_, " "));
-  printer.Print("HEADERS = $FILES$\n", "FILES",
-                boost::algorithm::join(headers_, " "));
+  printer->Print("SOURCES = $FILES$\n", "FILES",
+                 boost::algorithm::join(sources_, " "));
+  printer->Print("HEADERS = $FILES$\n", "FILES",
+                 boost::algorithm::join(headers_, " "));
                    
   // Append template to output
-  printer.PrintRaw("\n");
-  printer.PrintRawFromFile(makefile_tmpl);
+  printer->PrintRaw("\n");
+  printer->PrintRawFromFile(makefile_tmpl);
 }
 
 }}  // namespace xparser::codegen

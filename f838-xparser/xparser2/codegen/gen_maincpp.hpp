@@ -15,7 +15,7 @@ namespace xparser { namespace codegen {
 class GenMainCpp : public GenFile {
   public:
     GenMainCpp();
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
 };
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_MAINCPP_HPP_

@@ -21,7 +21,7 @@ GenMainCpp::GenMainCpp() {
   RequireSysHeader("sys/time.h");
 }
 
-void GenMainCpp::Generate(Printer& printer) const {
+void GenMainCpp::Generate(Printer* printer) const {
   // Insert include statements
   GenerateIncludeStatements(printer);
 
@@ -32,14 +32,14 @@ void GenMainCpp::Generate(Printer& printer) const {
     throw flame::exceptions::file_not_found(
       std::string("Could not locate template file") + header_tmpl);
   }
-  printer.Print("\n");
-  printer.PrintRawFromFile(tmpl);
-  printer.Print("\n");
+  printer->Print("\n");
+  printer->PrintRawFromFile(tmpl);
+  printer->Print("\n");
   
   // Insert content from attached generators
-  printer.Indent();
+  printer->Indent();
   GenerateInsertedContent(printer);
-  printer.Outdent();
+  printer->Outdent();
 
   // Insert boiler plate code to start main() function
   static const char* footer_tmpl = "main_footer.cpp.tmpl";
@@ -48,8 +48,8 @@ void GenMainCpp::Generate(Printer& printer) const {
     throw flame::exceptions::file_not_found(
       std::string("Could not locate template file") + footer_tmpl);
   }
-  printer.Print("\n");
-  printer.PrintRawFromFile(tmpl2);
+  printer->Print("\n");
+  printer->PrintRawFromFile(tmpl2);
 }
 }}  // namespace xparser::codegen
 

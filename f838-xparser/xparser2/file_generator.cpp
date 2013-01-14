@@ -46,7 +46,7 @@ void FileGenerator::Output(const std::string& outfile,
   boost::filesystem::path outpath = outdir / outfile;
 
 #ifndef TESTBUILD
-    printf("Writing file: %s\n", outpath.string().c_str());
+  printf("Writing file: %s\n", outpath.string().c_str());
 #endif
 
   // open file for writing
@@ -57,7 +57,7 @@ void FileGenerator::Output(const std::string& outfile,
 
   // instantiate printer and dump code into it
   xparser::Printer printer(f);
-  g.Generate(printer);
+  g.Generate(&printer);
   f.close();
 }
 

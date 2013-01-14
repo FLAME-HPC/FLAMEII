@@ -37,11 +37,11 @@ class SingleVarSnippet : public CodeGenerator {
     virtual ~SingleVarSnippet() {}
 
     //! Generates output text, once per added variablr
-    inline void Generate(Printer& printer) const {
+    inline void Generate(Printer* printer) const {
       const char* snippet = GetSnippetText();
       std::vector<std::string>::const_iterator i;
       for (i = vars_.begin(); i != vars_.end(); ++i) {
-        printer.Print(snippet, "VAR", *i);
+        printer->Print(snippet, "VAR", *i);
       }
     }
 

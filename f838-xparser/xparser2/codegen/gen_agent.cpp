@@ -27,21 +27,22 @@ void GenAgent::AddVar(const std::string& var_type,
   dupe_check_.insert(var_name);  // remember var name for dupe check
 }
 
-void GenAgent::Generate(Printer& printer) const {
+void GenAgent::Generate(Printer* printer) const {
   // generate agent
-  printer.Print("model.addAgent(\"$AGENT$\");\n", "AGENT", agent_name_);
+  printer->Print("model.addAgent(\"$AGENT$\");\n", "AGENT", agent_name_);
   print_vars_(printer);  // print variables
 }
 
-void GenAgent::print_vars_(Printer& printer) const {
+void GenAgent::print_vars_(Printer* printer) const {
   std::map<std::string, std::string> variables;
   variables["AGENT"] = agent_name_;
   VarPairVector::const_iterator i = vars_.begin();
   for (; i != vars_.end(); ++i) {
     variables["TYPE"] = i->first;
     variables["VAR"] = i->second;
-    printer.Print("model.addAgentVariable(\"$AGENT$\", \"$TYPE$\", \"$VAR$\");\n",
-            variables);
+    printer->Print("model.addAgentVariable"
+                   "(\"$AGENT$\", \"$TYPE$\", \"$VAR$\");\n",
+                   variables);
   }
 }
 

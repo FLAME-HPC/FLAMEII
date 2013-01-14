@@ -21,7 +21,7 @@ class GenDataStruct : public CodeGenerator {
   public:
     explicit GenDataStruct(const std::string& struct_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
     
   private:
     typedef std::pair<std::string, std::string> VarPair;
@@ -35,8 +35,8 @@ class GenDataStruct : public CodeGenerator {
     VarnameSet dupe_check_;
     std::string struct_name_;
     
-    void print_vars_(Printer& printer) const ;
-    void print_stream_op_(Printer& printer) const ;
+    void print_vars_(Printer* printer) const ;
+    void print_stream_op_(Printer* printer) const ;
 };
 
 }}  // namespace xparser::codegen

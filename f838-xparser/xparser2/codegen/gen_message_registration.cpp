@@ -20,23 +20,23 @@ void GenMessageRegistration::AddVar(const std::string& var_type,
   vars_.push_back(VarPair(var_type, var_name));  // store type and var
 }
 
-void GenMessageRegistration::Generate(Printer& printer) const {
+void GenMessageRegistration::Generate(Printer* printer) const {
   // register message with model
-  printer.Print("model.addMessage(\"$MSG$\");\n", "MSG", name_);
+  printer->Print("model.addMessage(\"$MSG$\");\n", "MSG", name_);
   
   // add vars to message
   VarPairVector::const_iterator i = vars_.begin();
   for (; i != vars_.end(); ++i) {
-    printer.Print("model.addMessageVariable(\"$MSG$\", "
-                  "\"$VARTYPE$\", \"$VARNAME$\");\n",
-                  "MSG", name_,
-                  "VARTYPE", i->first,
-                  "VARNAME", i->second);
+    printer->Print("model.addMessageVariable(\"$MSG$\", "
+                   "\"$VARTYPE$\", \"$VARNAME$\");\n",
+                   "MSG", name_,
+                   "VARTYPE", i->first,
+                   "VARNAME", i->second);
   }
   
   // register message datatype
-  printer.Print("model.registerMessageType<$MSG$_message>(\"$MSG$\");\n",
-                "MSG", name_);
+  printer->Print("model.registerMessageType<$MSG$_message>(\"$MSG$\");\n",
+                 "MSG", name_);
 }
 
 }}  // namespace xparser::codegen

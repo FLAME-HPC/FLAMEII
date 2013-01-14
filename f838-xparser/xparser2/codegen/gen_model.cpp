@@ -23,9 +23,9 @@ GenModel::GenModel() {
   RequireHeader("agent_function_definitions.hpp");
 }
 
-void GenModel::Generate(Printer& printer) const {
+void GenModel::Generate(Printer* printer) const {
   // create model object
-  printer.Print("flame::model::Model model;\n");
+  printer->Print("flame::model::Model model;\n");
   // handle model environment stuff here
   // ...
 }

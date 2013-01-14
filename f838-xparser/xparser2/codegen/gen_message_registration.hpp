@@ -19,7 +19,7 @@ class GenMessageRegistration : public CodeGenerator {
 public:
     explicit GenMessageRegistration(const std::string& msg_name);
     void AddVar(const std::string& var_type, const std::string& var_name);
-    void Generate(Printer& printer) const;
+    void Generate(Printer* printer) const;
     
   private:
     typedef std::pair<std::string, std::string> VarPair;
