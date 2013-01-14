@@ -74,7 +74,7 @@ class VectorWrapper: public VectorWrapperBase {
 
     VectorWrapper() { data_type_ = &typeid(T); }
 
-    explicit VectorWrapper(const VectorWrapper& v) {
+    explicit VectorWrapper(const VectorWrapper& v) : VectorWrapperBase(v) {
       data_type_ = v.data_type_;
       v_ = v.v_;
     }
