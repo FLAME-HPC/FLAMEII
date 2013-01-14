@@ -83,7 +83,7 @@ void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
 
     /* Print out diagnostics */
 #ifndef TESTBUILD
-    fprintf(stdout, "Reading '%s'\n", file_name.c_str());
+    fprintf(stdout, "Reading file: %s\n", file_name.c_str());
 #endif
     /* Save absolute path to check the file is not read again */
     model->setPath(boost::filesystem::absolute(filePath).string());

@@ -37,8 +37,10 @@ void Simulation::start(size_t iterations, size_t num_cores) {
     s.AssignType(q, exe::Task::IO_FUNCTION);
 
     size_t ii;
-    for (ii = 0; ii < iterations; ++ii)
-       s.RunIteration();
+    for (ii = 1; ii <= iterations; ++ii) {
+      printf("Iteration - %lu\n", ii);
+      s.RunIteration();
+    }
 }
 
 }}  // namespace flame::sim

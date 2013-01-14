@@ -98,7 +98,7 @@ void IOXMLPop::finaliseData() {
     file_name.append(".xml");
 
 #ifndef TESTBUILD
-    printf("Writing file: '%s'\n", file_name.c_str());
+    printf("Writing file: %s\n", file_name.c_str());
 #endif
 
     /* Open file to write to, with no compression */
@@ -158,7 +158,7 @@ void IOXMLPop::readPop(std::string file_name, model::XModel * model) {
         throw exc::inaccessable_file("Unable to open xml pop file");
 
 #ifndef TESTBUILD
-    printf("Reading file: '%s'\n", file_name.c_str());
+    printf("Reading file: %s\n", file_name.c_str());
 #endif
 
     /* Read the first node */
@@ -353,7 +353,7 @@ void IOXMLPop::createDataSchema(std::string const& file,
     xmlTextWriterPtr writer;
 
 #ifndef TESTBUILD
-    printf("Writing file: '%s'\n", file.c_str());
+    printf("Writing file: %s\n", file.c_str());
 #endif
 
     /* Open file to write to, with no compression */
