@@ -24,7 +24,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <boost/lexical_cast.hpp>
 #include "flame2/io/io_manager.hpp"
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"

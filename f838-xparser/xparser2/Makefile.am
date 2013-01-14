@@ -26,10 +26,9 @@ sources = \
   codegen/gen_agentfunc.cpp
  
 headers = \
-  xparser2.hpp \
+  utils.hpp \
   printer.hpp \
   file_generator.hpp \
-  utils.hpp \
   codegen/code_generator.hpp \
   codegen/gen_snippets.hpp \
   codegen/gen_datastruct.hpp \
@@ -47,18 +46,21 @@ templates = \
   templates/main_header.cpp.tmpl \
   templates/main_footer.cpp.tmpl
 
-LIBADD_LIST = \
+LDADD_LIST = \
   $(top_srcdir)/flame2/model/lib_flame_model \
   $(top_srcdir)/flame2/mem/lib_flame_mem \
   $(top_srcdir)/flame2/exe/lib_flame_exe \
   $(top_srcdir)/flame2/io/lib_flame_io \
   $(top_srcdir)/flame2/mb/lib_flame_mb
 
+# Use test libs is available, else use debug libs. If both not available, use prod
+LDADD_LIBFLAME = $(LDADD_LIST:=-@LOWEST_BUILD_SUFFIX@.la)
+
 bin_PROGRAMS = xparser2
 xparser2_LIBS = @COMMON_LIBS@
 xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
 xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
-xparser2_LDADD = $(LIBADD_LIST:=-dbg.la) @COMMON_LIBS@
+xparser2_LDADD = $(LDADD_LIBFLAME) @COMMON_LIBS@
 xparser2_SOURCES = $(sources)
 noinst_HEADERS = $(headers)
 dist_pkgdata_DATA = $(templates)
