@@ -46,7 +46,7 @@ const char* get_cstr_from_file(const std::string& filename) {
 
 namespace xparser {
 
-Printer::Printer(std::ostream &s, char delimiter)
+Printer::Printer(std::ostream *s, char delimiter)
   : s_(s), delim_(delimiter), at_start_of_line_(true) {
 }
 
@@ -65,9 +65,9 @@ void Printer::Outdent() {
 void Printer::write_(const char* data, int size) {
   if (at_start_of_line_ && (size > 0) && (data[0] != '\n')) {
     at_start_of_line_ = false;
-    s_.write(indent_.data(), indent_.size());  // place indent string
+    s_->write(indent_.data(), indent_.size());  // place indent string
   }
-  s_.write(data, size);
+  s_->write(data, size);
 }
 
 void Printer::Print(const char* text,

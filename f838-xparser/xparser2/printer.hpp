@@ -29,7 +29,7 @@ class Printer {
      * \param s Output stream to print output to
      * \param delimiter variable delimiter for identifying variables in input
      */
-    Printer(std::ostream &s, char delimiter = '$');
+    Printer(std::ostream *s, char delimiter = '$');
 
     //! Prints text with the corrent indentation inserted at each new line.
     void Print(const char* text);
@@ -96,7 +96,7 @@ class Printer {
     void Outdent();
 
   private:
-    std::ostream &s_;  //! Output stream
+    std::ostream *s_;  //! Output stream
     std::string indent_;  //! String representing the indent
     char delim_;  //! Delimiter character used to identify variables in text
     bool at_start_of_line_;  //! Flag to indicate start of line (needs indent)

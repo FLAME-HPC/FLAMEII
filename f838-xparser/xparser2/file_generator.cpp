@@ -56,7 +56,7 @@ void FileGenerator::Output(const std::string& outfile,
   }
 
   // instantiate printer and dump code into it
-  xparser::Printer printer(f);
+  xparser::Printer printer(&f);
   g.Generate(&printer);
   f.close();
 }
