@@ -18,11 +18,14 @@ GenModel::GenModel() {
   // System headers used
   RequireHeader("flame2/model/model.hpp");
   RequireHeader("flame2/sim/simulation.hpp");
+  // Generated model headers
+  RequireHeader("message_datatypes.hpp");
+  RequireHeader("agent_function_definitions.hpp");
 }
 
 void GenModel::Generate(Printer& printer) const {
   // create model object
-  printer.Print("model::Model model;\n");
+  printer.Print("flame::model::Model model;\n");
   // handle model environment stuff here
   // ...
 }
