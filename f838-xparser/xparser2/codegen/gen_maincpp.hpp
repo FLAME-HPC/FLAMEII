@@ -10,14 +10,17 @@
 #ifndef XPARSER__CODEGEN__GEN_MAINCPP_HPP_
 #define XPARSER__CODEGEN__GEN_MAINCPP_HPP_
 #include "gen_file.hpp"
+
 namespace xparser { namespace codegen {
 
 //! Generates main.ccp file
 class GenMainCpp : public GenFile {
   public:
     GenMainCpp();
+    //! Prints the generated code to the printer instance
     void Generate(Printer* printer) const;
 };
+
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_MAINCPP_HPP_
 

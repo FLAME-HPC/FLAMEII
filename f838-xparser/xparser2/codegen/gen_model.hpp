@@ -14,27 +14,15 @@
 #include <utility>
 #include <string>
 #include "code_generator.hpp"
+
 namespace xparser { namespace codegen {
 
+//! \brief Generates code to register a model
 class GenModel : public CodeGenerator {
   public:
-    typedef std::pair<std::string, std::string> VarPair;
-    typedef std::vector<VarPair> VarPairVector;
-    typedef std::set<std::string> VarnameSet;
-
     GenModel();
+    //! Prints the generated code to the printer instance
     void Generate(Printer* printer) const;
-
-  private:
-    // store in vector rather than a map so vars can be output in the same
-    // order they were added
-    VarPairVector vars_;
-    // Keep track of added vars to avoid dups
-    VarnameSet dupe_check_;
-    std::string struct_name_;
-
-    void print_vars_(Printer* printer) const;
-    void print_stream_op_(Printer* printer) const;
 };
 
 }}  // namespace xparser::codegen

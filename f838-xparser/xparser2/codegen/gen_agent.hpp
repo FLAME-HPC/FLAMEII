@@ -17,26 +17,34 @@
 #include <map>
 #include "code_generator.hpp"
 #include "gen_agentfunc.hpp"
+
 namespace xparser { namespace codegen {
 
+//! \brief Generates code to register an agent and its memory
 class GenAgent : public CodeGenerator {
   public:
-    typedef std::pair<std::string, std::string> VarPair;
-    typedef std::vector<VarPair> VarPairVector;
-    typedef std::set<std::string> VarnameSet;
+    typedef std::pair<std::string, std::string> VarPair; //! type name pair
+    typedef std::vector<VarPair> VarPairVector; //! Collection of VarPair
+    typedef std::set<std::string> VarnameSet; //! Set of var names
 
     explicit GenAgent(const std::string& agent_name);
+    //! Adds an agent variable and its type
     void AddVar(const std::string& var_type, const std::string& var_name);
+    //! Prints the generated code to the printer instance
     void Generate(Printer* printer) const;
 
   private:
-    // store in vector rather than a map so vars can be output in the same
-    // order they were added
+    /*! \brief Collection of VarPair
+     *
+     * A Vector is used rather that a map so variables can be output in the
+     * same order they were added
+     */
     VarPairVector vars_;
-    // Keep track of added vars to avoid dups
+    //! Keep track of added var names to avoid duplicates
     VarnameSet dupe_check_;
-    std::string agent_name_;
+    std::string agent_name_;  //!< Agent name
 
+    //! Prints agent memory registration code
     void print_vars_(Printer* printer) const;
 };
 
