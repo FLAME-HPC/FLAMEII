@@ -27,7 +27,7 @@ void GenDataStruct::AddVar(const std::string& var_type,
     throw flame::exceptions::logic_error("variable already exists");
   }
   vars_.push_back(VarPair(var_type, var_name));  // store type and var
-  dupe_check_.insert(var_name);  // remember var name for dupe check    
+  dupe_check_.insert(var_name);  // remember var name for dupe check
 }
 
 void GenDataStruct::Generate(Printer* printer) const {
@@ -59,7 +59,7 @@ void GenDataStruct::print_stream_op_(Printer* printer) const {
     "inline std::ostream &operator<<(std::ostream &os, const $SN$& ob) {\n",
     "SN", struct_name_);
   printer->Indent();
-  
+
   // Output code that prints the struct in the form:
   //    struct_name {
   //      type1 var1 = value1;
@@ -74,7 +74,7 @@ void GenDataStruct::print_stream_op_(Printer* printer) const {
   }
   printer->Print("os << \"}\" << std::endl;\n");
   printer->Print("return os;\n");
-  
+
   // end function
   printer->Outdent();
   printer->Print("}\n");

@@ -33,7 +33,7 @@ void GenFile::GenerateIncludeStatements(Printer* printer) const {
   for (i = sysheaders.begin(); i != sysheaders.end(); ++i) {
     printer->Print("#include <$HEADER$>\n", "HEADER", *i);
   }
-      
+
   // header includes
   const StringSet& headers = GetRequiredHeaders();
   for (i = headers.begin(); i != headers.end(); ++i) {
@@ -41,5 +41,5 @@ void GenFile::GenerateIncludeStatements(Printer* printer) const {
   }
   printer->Print("\n");
 }
-    
+
 }}  // namespace xparser::codegen
