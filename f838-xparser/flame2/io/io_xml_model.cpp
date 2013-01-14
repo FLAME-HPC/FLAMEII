@@ -66,10 +66,6 @@ void IOXMLModel::validateXMLModelRootElement(
   }
 }
 
-void err2(void *ctx, const char *msg, ...) {
-  // Don't output error
-}
-
 void IOXMLModel::readXMLModel(std::string file_name, model::XModel * model) {
   /* Directory of the model file */
   std::string directory;
@@ -674,9 +670,9 @@ void IOXMLModel::readConditionTime(model::XCondition * xcondition,
     xmlNode *cur_node) {
   /* Update condition to indicate this
    * is a time condition not anything else */
-  xcondition->isTime = true;
-  xcondition->isValues = false;
-  xcondition->isConditions = false;
+  xcondition->setIsTime(true);
+  xcondition->setIsValues(false);
+  xcondition->setIsConditions(false);
   xmlNode *cur_node_2 = NULL;
   for (cur_node_2 = cur_node->children;
       cur_node_2; cur_node_2 = cur_node_2->next) {
@@ -685,12 +681,12 @@ void IOXMLModel::readConditionTime(model::XCondition * xcondition,
       std::string name_2 = getElementName(cur_node_2);
       /* Handle each time element */
       if (name_2 == "period") {
-        xcondition->timePeriod = getElementValue(cur_node_2);
+        xcondition->setTimePeriod(getElementValue(cur_node_2));
       } else if (name_2 == "phase") {
-        xcondition->timePhaseVariable = getElementValue(cur_node_2);
+        xcondition->setTimePhaseVariable(getElementValue(cur_node_2));
       } else if (name_2 == "duration") {
-        xcondition->foundTimeDuration = true;
-        xcondition->timeDurationString = getElementValue(cur_node_2);
+        xcondition->setFoundTimeDuration(true);
+        xcondition->setTimeDurationString(getElementValue(cur_node_2));
       } else {
         readUnknownElement(cur_node_2);
       }
@@ -698,23 +694,41 @@ void IOXMLModel::readConditionTime(model::XCondition * xcondition,
   }
 }
 
-void IOXMLModel::readConditionSide(model::XCondition * xcondition,
-    model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
-    bool * hsIsCondition, xmlNode *cur_node) {
+void IOXMLModel::readConditionLhs(model::XCondition * xc,
+    xmlNode *cur_node) {
   /* Set up and read lhs */
-  *hsCondition = new model::XCondition;
-  xcondition->tempValue = "";
-  readCondition(cur_node, *hsCondition);
+  xc->setLhsCondition(new model::XCondition);
+  xc->setTempValue("");
+  readCondition(cur_node, xc->lhsCondition());
   /* Handle if lhs is a value or a condition */
-  if ((*hsCondition)->tempValue != "") {
+  if (xc->lhsCondition()->tempValue() != "") {
     /* lhs is a value */
-    *hs = (*hsCondition)->tempValue;
-    *hsIsValue = true;
-    delete *hsCondition;
-    *hsCondition = 0;
+    xc->setLhs(xc->lhsCondition()->tempValue());
+    xc->setLhsIsValue(true);
+    delete xc->lhsCondition();
+    xc->setLhsCondition(0);
   } else {
     /* lhs is a nested condition */
-    *hsIsCondition = true;
+    xc->setLhsIsCondition(true);
+  }
+}
+
+void IOXMLModel::readConditionRhs(model::XCondition * xc,
+    xmlNode *cur_node) {
+  /* Set up and read rhs */
+  xc->setRhsCondition(new model::XCondition);
+  xc->setTempValue("");
+  readCondition(cur_node, xc->rhsCondition());
+  /* Handle if rhs is a value or a condition */
+  if (xc->rhsCondition()->tempValue() != "") {
+    /* rhs is a value */
+    xc->setRhs(xc->rhsCondition()->tempValue());
+    xc->setRhsIsValue(true);
+    delete xc->rhsCondition();
+    xc->setRhsCondition(0);
+  } else {
+    /* rhs is a nested condition */
+    xc->setRhsIsCondition(true);
   }
 }
 
@@ -730,19 +744,17 @@ void IOXMLModel::readCondition(xmlNode * node,
       std::string name = getElementName(cur_node);
       /* Handle each child and call appropriate
        * processing function */
-      if (name == "not") { xc->isNot = true;
+      if (name == "not") { xc->setIsNot(true);
       readCondition(cur_node, xc);
       } else if (name == "time") {
         readConditionTime(xc, cur_node);
       } else if (name == "lhs") {
-        readConditionSide(xc, &(xc->lhsCondition), &(xc->lhs),
-            &(xc->lhsIsValue), &(xc->lhsIsCondition), cur_node);
-      } else if (name == "op") { xc->op = getElementValue(cur_node);
+        readConditionLhs(xc, cur_node);
+      } else if (name == "op") { xc->setOp(getElementValue(cur_node));
       } else if (name == "rhs") {
-        readConditionSide(xc, &(xc->rhsCondition), &(xc->rhs),
-            &(xc->rhsIsValue), &(xc->rhsIsCondition), cur_node);
+        readConditionRhs(xc, cur_node);
       } else if (name == "value") {
-        xc->tempValue = getElementValue(cur_node);
+        xc->setTempValue(getElementValue(cur_node));
       } else {
         readUnknownElement(cur_node);
       }

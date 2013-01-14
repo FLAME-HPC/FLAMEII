@@ -62,9 +62,10 @@ class IOXMLModel {
     void readSort(xmlNode * node, model::XIOput * xioput);
     void readCondition(xmlNode * node, model::XCondition * xcondition);
     void readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
-    void readConditionSide(model::XCondition * xcondition,
-        model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
-        bool * hsIsCondition, xmlNode *cur_node);
+    void readConditionLhs(model::XCondition * xcondition,
+        xmlNode *cur_node);
+    void readConditionRhs(model::XCondition * xcondition,
+        xmlNode *cur_node);
     void readMemoryAccess(xmlNode * node, model::XFunction * xfunction);
     void readMemoryAccessVariables(xmlNode * node,
         std::vector<std::string> * variables);

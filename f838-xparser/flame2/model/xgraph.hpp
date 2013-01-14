@@ -109,7 +109,7 @@ class XGraph {
     void removeRedundantDependencies();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
-    void AddVariableOutput(boost::ptr_vector<XVariable> * variables);
+    void AddVariableOutput();
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Vertex getVertex(Task * t);

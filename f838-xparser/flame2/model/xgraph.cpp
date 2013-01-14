@@ -179,7 +179,7 @@ int XGraph::generateDependencyGraph(boost::ptr_vector<XVariable> * variables) {
   writeGraphviz(agentName_ + "_3.dot");
 #endif
   // Add data output tasks
-  AddVariableOutput(variables);
+  AddVariableOutput();
 #ifdef USE_VARIABLE_VERTICES
   // Contract variable vertices
   contractVariableVertices();
@@ -736,7 +736,7 @@ bool XGraph::compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
   return true;
 }
 
-void XGraph::AddVariableOutput(boost::ptr_vector<XVariable> * variables) {
+void XGraph::AddVariableOutput() {
   // For each function that last writes a variable add dependency
   // to the data output of that variable
   VarMapToVertices::iterator vwit;

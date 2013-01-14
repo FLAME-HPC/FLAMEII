@@ -27,35 +27,34 @@ namespace flame { namespace model {
  *
  * Initialise all condition variables.
  */
-XCondition::XCondition() {
-  timePhaseValue = 0;
-  timePhaseIsVariable = false;
-  isNot = false;
-  isTime = false;
-  isValues = false;
-  isConditions = false;
-  lhsCondition = 0;
-  rhsCondition = 0;
-  lhsIsAgentVariable = false;
-  rhsIsAgentVariable = false;
-  lhsIsMessageVariable = false;
-  rhsIsMessageVariable = false;
-  lhsIsValue = false;
-  rhsIsValue = false;
-  lhsIsCondition = false;
-  rhsIsCondition = false;
-  timePeriod = "";
-  timePhaseVariable = "";
-  timeDurationString = "";
-  timeDuration = 0;
-  foundTimeDuration = false;
-  tempValue = "";
-  lhs = "";
-  op = "";
-  rhs = "";
-  lhsDouble = 0.0;
-  rhsDouble = 0.0;
-}
+XCondition::XCondition()
+  : tempValue_(""),
+  lhs_(""),
+  op_(""),
+  rhs_(""),
+  isNot_(false),
+  isTime_(false),
+  timePeriod_(""),
+  timePhaseVariable_(""),
+  timeDurationString_(""),
+  timePhaseValue_(0),
+  timePhaseIsVariable_(false),
+  timeDuration_(0),
+  foundTimeDuration_(false),
+  isValues_(false),
+  lhsIsValue_(false),
+  rhsIsValue_(false),
+  lhsIsAgentVariable_(false),
+  rhsIsAgentVariable_(false),
+  lhsIsMessageVariable_(false),
+  rhsIsMessageVariable_(false),
+  lhsDouble_(0.0),
+  rhsDouble_(0.0),
+  isConditions_(false),
+  lhsIsCondition_(false),
+  rhsIsCondition_(false),
+  lhsCondition_(0),
+  rhsCondition_(0) {}
 
 /*!
  * \brief Cleans up XCondtion
@@ -64,60 +63,50 @@ XCondition::XCondition() {
  */
 XCondition::~XCondition() {
   /* Delete any nested conditions */
-  delete lhsCondition;
-  delete rhsCondition;
+  delete lhsCondition_;
+  delete rhsCondition_;
 }
 
-std::set<std::string> * XCondition::getReadOnlyVariables() {
-  return &readOnlyVariables_;
-}
-
-void XCondition::printValues(std::string lhs, std::string op, std::string rhs,
-    bool lhsIsAgentVariable, bool rhsIsAgentVariable,
-    bool lhsIsMessageVariable, bool rhsIsMessageVariable,
-    bool lhsIsValue, bool rhsIsValue, double lhsDouble, double rhsDouble) {
+void XCondition::printValues() {
   /* Handle lhs */
-  if (lhsIsAgentVariable) std::fprintf(stdout, "a.%s", lhs.c_str());
-  else if (lhsIsMessageVariable) std::fprintf(stdout, "m.%s", lhs.c_str());
-  else if (lhsIsValue) std::fprintf(stdout, "%f", lhsDouble);
+  if (lhsIsAgentVariable_) std::fprintf(stdout, "a.%s", lhs_.c_str());
+  else if (lhsIsMessageVariable_) std::fprintf(stdout, "m.%s", lhs_.c_str());
+  else if (lhsIsValue_) std::fprintf(stdout, "%f", lhsDouble_);
   std::fprintf(stdout, " ");
   /* Handle operator */
-  std::fprintf(stdout, "%s", op.c_str());
+  std::fprintf(stdout, "%s", op_.c_str());
   std::fprintf(stdout, " ");
   /* Handle rhs */
-  if (rhsIsAgentVariable) std::fprintf(stdout, "a.%s", rhs.c_str());
-  else if (rhsIsMessageVariable) std::fprintf(stdout, "m.%s", rhs.c_str());
-  else if (rhsIsValue) std::fprintf(stdout, "%f", rhsDouble);
+  if (rhsIsAgentVariable_) std::fprintf(stdout, "a.%s", rhs_.c_str());
+  else if (rhsIsMessageVariable_) std::fprintf(stdout, "m.%s", rhs_.c_str());
+  else if (rhsIsValue_) std::fprintf(stdout, "%f", rhsDouble_);
 }
 
-void XCondition::printConditions(XCondition * lhsCondition,
-    std::string op, XCondition * rhsCondition) {
+void XCondition::printConditions() {
   std::fprintf(stdout, "(");
   std::fprintf(stdout, "\n");
-  lhsCondition->print();
+  lhsCondition_->print();
   std::fprintf(stdout, "\t\t");
   std::fprintf(stdout, ") ");
-  std::fprintf(stdout, "%s", op.c_str());
+  std::fprintf(stdout, "%s", op_.c_str());
   std::fprintf(stdout, " (");
   std::fprintf(stdout, "\n");
-  rhsCondition->print();
+  rhsCondition_->print();
   std::fprintf(stdout, "\t\t");
   std::fprintf(stdout, ")");
 }
 
-void XCondition::printTime(std::string timePeriod,
-    std::string timePhaseVariable, int timePhaseValue, int timeDuration,
-    bool timePhaseIsVariable, bool foundTimeDuration) {
+void XCondition::printTime() {
   std::fprintf(stdout, "time(");
-  std::fprintf(stdout, "%s", timePeriod.c_str());
+  std::fprintf(stdout, "%s", timePeriod_.c_str());
   std::fprintf(stdout, ", ");
-  if (timePhaseIsVariable) std::fprintf(stdout, "a.%s",
-      timePhaseVariable.c_str());
+  if (timePhaseIsVariable_) std::fprintf(stdout, "a.%s",
+      timePhaseVariable_.c_str());
   else
-    std::fprintf(stdout, "%d", timePhaseValue);
-  if (foundTimeDuration) {
+    std::fprintf(stdout, "%d", timePhaseValue_);
+  if (foundTimeDuration_) {
     std::fprintf(stdout, ", ");
-    std::fprintf(stdout, "%d", timeDuration);
+    std::fprintf(stdout, "%d", timeDuration_);
   }
   std::fprintf(stdout, ")");
 }
@@ -129,56 +118,40 @@ void XCondition::printTime(std::string timePeriod,
  */
 void XCondition::print() {
   std::fprintf(stdout, "\t\t");
-  if (isNot) {
-    std::fprintf(stdout, "not(");
-  }
-  if (isValues) {
-    printValues(lhs, op, rhs,
-        lhsIsAgentVariable, rhsIsAgentVariable,
-        lhsIsMessageVariable, rhsIsMessageVariable,
-        lhsIsValue, rhsIsValue,
-        lhsDouble, rhsDouble);
-  }
-  if (isConditions) {
-    printConditions(lhsCondition, op, rhsCondition);
-  }
-  if (isTime) {
-    printTime(timePeriod, timePhaseVariable,
-        timePhaseValue, timeDuration, timePhaseIsVariable,
-        foundTimeDuration);
-  }
-  if (isNot) {
-    std::fprintf(stdout, ")");
-  }
+  if (isNot_) std::fprintf(stdout, "not(");
+  if (isValues_) printValues();
+  if (isConditions_) printConditions();
+  if (isTime_) printTime();
+  if (isNot_) std::fprintf(stdout, ")");
   std::fprintf(stdout, "\n");
 }
 
 int XCondition::processSymbolsTime() {
   int errors = 0;
   /* Handle agent phase variable */
-  if (boost::starts_with(timePhaseVariable, "a.")) {
-    timePhaseVariable.erase(0, 2);
-    timePhaseIsVariable = true;
+  if (boost::starts_with(timePhaseVariable_, "a.")) {
+    timePhaseVariable_.erase(0, 2);
+    timePhaseIsVariable_ = true;
   } else {
-    timePhaseIsVariable = false;
+    timePhaseIsVariable_ = false;
     /* Handle phase
            by trying to cast to int */
     try {
-      timePhaseValue = boost::lexical_cast<int>(timePhaseVariable);
+      timePhaseValue_ = boost::lexical_cast<int>(timePhaseVariable_);
     } catch(const boost::bad_lexical_cast& E) {
       printErr("Error: Cannot cast time phase to an integer: %s\n",
-          timePhaseVariable.c_str());
+          timePhaseVariable_.c_str());
       ++errors;
     }
   }
-  if (foundTimeDuration) {
+  if (foundTimeDuration_) {
     /* Handle duration number
            by trying to cast to int */
     try {
-      timeDuration = boost::lexical_cast<int>(timeDurationString);
+      timeDuration_ = boost::lexical_cast<int>(timeDurationString_);
     } catch(const boost::bad_lexical_cast& E) {
       printErr("Error: Cannot cast time duration to an integer: %s\n",
-          timeDurationString.c_str());
+          timeDurationString_.c_str());
       ++errors;
     }
   }
@@ -217,28 +190,28 @@ int XCondition::processSymbolsValues() {
   int errors = 0;
 
   /* Process lhs value */
-  errors += processSymbolsValue(&lhs, &lhsIsAgentVariable,
-      &lhsIsValue, &lhsIsMessageVariable, &lhsDouble);
+  errors += processSymbolsValue(&lhs_, &lhsIsAgentVariable_,
+      &lhsIsValue_, &lhsIsMessageVariable_, &lhsDouble_);
   /* Process rhs value */
-  errors += processSymbolsValue(&rhs, &rhsIsAgentVariable,
-      &rhsIsValue, &rhsIsMessageVariable, &rhsDouble);
+  errors += processSymbolsValue(&rhs_, &rhsIsAgentVariable_,
+      &rhsIsValue_, &rhsIsMessageVariable_, &rhsDouble_);
   /* Process operator */
-  if (op == "EQ") {
-    op = "==";
-  } else if (op == "NEQ") {
-    op = "!=";
-  } else if (op == "LEQ") {
-    op = "<=";
-  } else if (op == "GEQ") {
-    op = ">=";
-  } else if (op == "LT") {
-    op = "<";
-  } else if (op == "GT") {
-    op = ">";
+  if (op_ == "EQ") {
+    op_ = "==";
+  } else if (op_ == "NEQ") {
+    op_ = "!=";
+  } else if (op_ == "LEQ") {
+    op_ = "<=";
+  } else if (op_ == "GEQ") {
+    op_ = ">=";
+  } else if (op_ == "LT") {
+    op_ = "<";
+  } else if (op_ == "GT") {
+    op_ = ">";
   } else {
     /* Handle unknown operator */
     printErr("Error: Condition/filter op value not recognised: %s\n",
-        op.c_str());
+        op_.c_str());
     ++errors;
   }
 
@@ -249,18 +222,18 @@ int XCondition::processSymbolsConditions() {
   int errors = 0;
   int rc;
 
-  rc = lhsCondition->processSymbols();
+  rc = lhsCondition_->processSymbols();
   errors += rc;
-  rc = rhsCondition->processSymbols();
+  rc = rhsCondition_->processSymbols();
   errors += rc;
 
-  if (op == "AND") {
-    op = "&&";
-  } else if (op == "OR") {
-    op = "||";
+  if (op_ == "AND") {
+    op_ = "&&";
+  } else if (op_ == "OR") {
+    op_ = "||";
   } else {
     printErr("Error: Condition/filter op value not recognised: %s\n",
-        op.c_str());
+        op_.c_str());
     ++errors;
   }
 
@@ -275,15 +248,15 @@ int XCondition::processSymbolsConditions() {
 int XCondition::processSymbols() {
   int errors = 0;
 
-  if (isTime) {
+  if (isTime_) {
     errors += processSymbolsTime();
   } else {
     /* Check lhs and rhs are both values or both conditions else error */
-    if (lhsIsValue && rhsIsValue) {
-      isValues = true;
+    if (lhsIsValue_ && rhsIsValue_) {
+      isValues_ = true;
       errors += processSymbolsValues();
-    } else if (lhsIsCondition && rhsIsCondition) {
-      isConditions = true;
+    } else if (lhsIsCondition_ && rhsIsCondition_) {
+      isConditions_ = true;
       errors += processSymbolsConditions();
     } else {
       printErr(
@@ -300,30 +273,30 @@ int XCondition::validateTime(XMachine * agent, XModel * model,
   int errors = 0;
   boost::ptr_vector<XTimeUnit>::iterator it;
   /* Check time period is valid time unit */
-  bool validPeriod = false;
+  bool validPeriod_ = false;
   for (it = model->getTimeUnits()->begin();
       it != model->getTimeUnits()->end(); ++it) {
-    if (timePeriod == (*it).getName())
-      validPeriod = true;
+    if (timePeriod_ == (*it).getName())
+      validPeriod_ = true;
   }
   /* Handle invalid time period */
-  if (!validPeriod) {
+  if (!validPeriod_) {
     printErr("Error: time period is not a valid time unit: %s\n",
-        timePeriod.c_str());
+        timePeriod_.c_str());
     ++errors;
   }
   /* If time phase is an agent variable then validate it */
-  if (timePhaseIsVariable) {
+  if (timePhaseIsVariable_) {
     /* Handle invalid time phase variable */
-    if (!agent->validateVariableName(timePhaseVariable)) {
+    if (!agent->validateVariableName(timePhaseVariable_)) {
       printErr("Error: time phase variable is not a valid agent variable: %s\n",
-          timePhaseVariable.c_str());
+          timePhaseVariable_.c_str());
       ++errors;
     } else {
       // If agent variable is valid then add to
       // read only variable list
       rootCondition->readOnlyVariables_.insert(
-          agent->getVariable(timePhaseVariable)->getName());
+          agent->getVariable(timePhaseVariable_)->getName());
     }
   }
   return errors;
@@ -369,10 +342,10 @@ int XCondition::validateValues(XMachine * agent, XMessage * xmessage,
     XCondition * rootCondition) {
   int errors = 0;
   /* If values validate any agent or message variables */
-  errors += validateValue(agent, xmessage, &lhsIsAgentVariable,
-      &lhs, &lhsIsMessageVariable, rootCondition);
-  errors += validateValue(agent, xmessage, &rhsIsAgentVariable,
-      &rhs, &rhsIsMessageVariable, rootCondition);
+  errors += validateValue(agent, xmessage, &lhsIsAgentVariable_,
+      &lhs_, &lhsIsMessageVariable_, rootCondition);
+  errors += validateValue(agent, xmessage, &rhsIsAgentVariable_,
+      &rhs_, &rhsIsMessageVariable_, rootCondition);
 
   return errors;
 }
@@ -382,20 +355,20 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
   int rc, errors = 0;
 
   // Based upon lhs and rhs define condition type
-  if (lhsIsCondition && rhsIsCondition) isConditions = true;
-  else if (lhsIsValue && rhsIsValue) isValues = true;
+  if (lhsIsCondition_ && rhsIsCondition_) isConditions_ = true;
+  else if (lhsIsValue_ && rhsIsValue_) isValues_ = true;
 
-  if (isTime) {
+  if (isTime_) {
     // Validate time
     errors += validateTime(agent, model, rootCondition);
-  } else if (isValues) {
+  } else if (isValues_) {
     // Validate values
     errors += validateValues(agent, xmessage, rootCondition);
-  } else if (isConditions) {
+  } else if (isConditions_) {
     // If nested conditions validate them
-    rc = lhsCondition->validate(agent, xmessage, model, rootCondition);
+    rc = lhsCondition_->validate(agent, xmessage, model, rootCondition);
     errors += rc;
-    rc = rhsCondition->validate(agent, xmessage, model, rootCondition);
+    rc = rhsCondition_->validate(agent, xmessage, model, rootCondition);
     errors += rc;
   } else {
     // If not proper type then give error
@@ -404,6 +377,230 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
   }
 
   return errors;
+}
+
+std::set<std::string> * XCondition::getReadOnlyVariables() {
+  return &readOnlyVariables_;
+}
+
+void XCondition::addReadOnlyVariable(std::string s) {
+  readOnlyVariables_.insert(s);
+}
+
+bool XCondition::isNot() {
+  return isNot_;
+}
+
+void XCondition::setIsNot(bool b) {
+  isNot_ = b;
+}
+
+bool XCondition::isTime() {
+  return isTime_;
+}
+
+void XCondition::setIsTime(bool b) {
+  isTime_ = b;
+}
+
+bool XCondition::isValues() {
+  return isValues_;
+}
+
+void XCondition::setIsValues(bool b) {
+  isValues_ = b;
+}
+
+bool XCondition::isConditions() {
+  return isConditions_;
+}
+
+void XCondition::setIsConditions(bool b) {
+  isConditions_ = b;
+}
+
+bool XCondition::lhsIsAgentVariable() {
+  return lhsIsAgentVariable_;
+}
+
+void XCondition::setLhsIsAgentVariable(bool b) {
+  lhsIsAgentVariable_ = b;
+}
+
+bool XCondition::rhsIsAgentVariable() {
+  return rhsIsAgentVariable_;
+}
+
+void XCondition::setRhsIsAgentVariable(bool b) {
+  rhsIsAgentVariable_ = b;
+}
+
+bool XCondition::lhsIsValue() {
+  return lhsIsValue_;
+}
+
+void XCondition::setLhsIsValue(bool b) {
+  lhsIsValue_ = b;
+}
+
+bool XCondition::rhsIsValue() {
+  return rhsIsValue_;
+}
+
+void XCondition::setRhsIsValue(bool b) {
+  rhsIsValue_ = b;
+}
+
+bool XCondition::lhsIsCondition() {
+  return lhsIsCondition_;
+}
+
+void XCondition::setLhsIsCondition(bool b) {
+  lhsIsCondition_ = b;
+}
+
+bool XCondition::rhsIsCondition() {
+  return rhsIsCondition_;
+}
+
+void XCondition::setRhsIsCondition(bool b) {
+  rhsIsCondition_ = b;
+}
+
+bool XCondition::lhsIsMessageVariable() {
+  return lhsIsMessageVariable_;
+}
+
+void XCondition::setLhsIsMessageVariable(bool b) {
+  lhsIsMessageVariable_ = b;
+}
+
+bool XCondition::rhsIsMessageVariable() {
+  return rhsIsMessageVariable_;
+}
+
+void XCondition::setRhsIsMessageVariable(bool b) {
+  rhsIsMessageVariable_ = b;
+}
+
+double XCondition::lhsDouble() {
+  return lhsDouble_;
+}
+
+void XCondition::setLhsDouble(double d) {
+  lhsDouble_ = d;
+}
+
+double XCondition::rhsDouble() {
+  return rhsDouble_;
+}
+
+void XCondition::setRhsDouble(double d) {
+  rhsDouble_ = d;
+}
+
+std::string XCondition::tempValue() {
+  return tempValue_;
+}
+
+void XCondition::setTempValue(std::string s) {
+  tempValue_ = s;
+}
+
+std::string XCondition::lhs() {
+  return lhs_;
+}
+
+void XCondition::setLhs(std::string s) {
+  lhs_ = s;
+}
+
+std::string XCondition::op() {
+  return op_;
+}
+
+void XCondition::setOp(std::string s) {
+  op_ = s;
+}
+
+std::string XCondition::rhs() {
+  return rhs_;
+}
+
+void XCondition::setRhs(std::string s) {
+  rhs_ = s;
+}
+
+std::string XCondition::timePeriod() {
+  return timePeriod_;
+}
+
+void XCondition::setTimePeriod(std::string s) {
+  timePeriod_ = s;
+}
+
+std::string XCondition::timePhaseVariable() {
+  return timePhaseVariable_;
+}
+
+void XCondition::setTimePhaseVariable(std::string s) {
+  timePhaseVariable_ = s;
+}
+
+std::string XCondition::timeDurationString() {
+  return timeDurationString_;
+}
+
+void XCondition::setTimeDurationString(std::string s) {
+  timeDurationString_ = s;
+}
+
+int XCondition::timePhaseValue() {
+  return timePhaseValue_;
+}
+
+void XCondition::setTimePhaseValue(int i) {
+  timePhaseValue_ = i;
+}
+
+bool XCondition::timePhaseIsVariable() {
+  return timePhaseIsVariable_;
+}
+
+void XCondition::setTimePhaseIsVariable(bool b) {
+  timePhaseIsVariable_ = b;
+}
+
+int XCondition::timeDuration() {
+  return timeDuration_;
+}
+
+void XCondition::setTimeDuration(int i) {
+  timeDuration_ = i;
+}
+
+bool XCondition::foundTimeDuration() {
+  return foundTimeDuration_;
+}
+
+void XCondition::setFoundTimeDuration(bool b) {
+  foundTimeDuration_ = b;
+}
+
+XCondition * XCondition::lhsCondition() {
+  return lhsCondition_;
+}
+
+void XCondition::setLhsCondition(XCondition * c) {
+  lhsCondition_ = c;
+}
+
+XCondition * XCondition::rhsCondition() {
+  return rhsCondition_;
+}
+
+void XCondition::setRhsCondition(XCondition * c) {
+  rhsCondition_ = c;
 }
 
 }}  // namespace flame::model
