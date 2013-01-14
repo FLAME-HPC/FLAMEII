@@ -122,7 +122,6 @@ void Printer::Print(const char* text,
 
   // Write the rest.
   write_(text + pos, size - pos);
-
 }
 
 void Printer::Print(const char* text) {
@@ -156,7 +155,6 @@ void Printer::Print(const char* text,
   vars[var3] = value3;
   Print(text, vars);
 }
-
 
 void Printer::PrintRaw(const std::string& text) {
   write_(text.data(), text.size());
@@ -199,6 +197,5 @@ void Printer::PrintRawFromFile(const std::string& filename) {
   PrintRaw(buffer);
   delete buffer;
 }
-
 
 }  // namespace xparser

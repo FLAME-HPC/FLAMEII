@@ -13,7 +13,6 @@
 namespace xparser { namespace utils {
 
 std::string locate_template(const char* template_name) {
-
   // first, look for the file relative to the current working directory
   boost::filesystem::path cwd(boost::filesystem::current_path());
   boost::filesystem::path out = cwd / "xparser2/templates" / template_name;
@@ -51,6 +50,5 @@ std::string gen_random_string(const int len) {
   }
   return s;
 }
-
 
 }}  // namespace xparser::utils

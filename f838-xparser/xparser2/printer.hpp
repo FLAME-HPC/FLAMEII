@@ -58,7 +58,7 @@ class Printer {
     void Print(const char* text,
                const char* var1, const std::string& value1,
                const char* var2, const std::string& value2);
-               
+
     //! Alternative form of Print() that does not require a map
     void Print(const char* text,
                const char* var1, const std::string& value1,
