@@ -11,14 +11,31 @@
 #define BOOST_TEST_MODULE Flame Test Suite
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/test/unit_test.hpp>
 
 // Empty libxml error handler
 void err(void* /*ctx*/, const char* /*msg*/, ...) {}
 
+namespace fw = boost::unit_test::framework;
+namespace fs = boost::filesystem;
+
 struct TestConfig {
     // global setup
     TestConfig() {
+        // make sure that test launced from the ./tests directory
+        // - assume that the binary has not been moved and use binary path
+        //   as expected launch
+        fs::path exe_file(fw::master_test_suite().argv[0]);
+        fs::path exe_dir = fs::canonical(exe_file.parent_path());
+        fs::path pwd = fs::canonical(fs::current_path());
+        if (exe_dir != pwd) {
+          std::cerr << "ERROR: Test must be launched from the "
+                    << "tests directory (" << exe_dir << ")" << std::endl;
+          exit(1);
+        }
+
         // Stop libxml error output
         xmlGenericErrorFunc handler = (xmlGenericErrorFunc)err;
         initGenericErrorDefaultFunc(&handler);
