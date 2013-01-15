@@ -341,6 +341,9 @@ int XModelValidate::processAgentFunction(XFunction * function,
   // If memory access information was not given set all memory
   // variable access as being read write.
   if (!function->getMemoryAccessInfoAvailable()) {
+    // output a warning
+    printErr("Warning: Agent function does not have memory access info: %s\n",
+            function->getName().c_str());
     function->setMemoryAccessInfoAvailable(true);
     for (variable2 = variables->begin();
         variable2 != variables->end(); ++variable2) {
