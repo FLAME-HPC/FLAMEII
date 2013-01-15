@@ -71,7 +71,7 @@ run_tests_SOURCES += \
 run_tests_SOURCES += \
   xparser2/test_xparser2_utils.cpp \
   xparser2/test_xparser2_printer.cpp \
-  xparser2/test_xparser2_file_generator.cpp
+  xparser2/test_xparser2_code_generator.cpp
   
 else
 run: all

@@ -1,5 +1,5 @@
 /*!
- * \file tests/xparser2/test_xparser2_utils.cpp
+ * \file tests/xparser2/test_xparser2_file_generator.cpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
