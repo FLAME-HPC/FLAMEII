@@ -45,6 +45,7 @@ void Model::addAgent(std::string name) {
 }
 
 XMachine * Model::getAgent(std::string name) {
+  // try and get named agent
   XMachine * agent = model_.getAgent(name);
   // if agent exists return
   if (agent) return agent;
@@ -54,45 +55,60 @@ XMachine * Model::getAgent(std::string name) {
 
 void Model::addAgentVariable(std::string agent_name,
     std::string type, std::string name) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
+  // add variable
   agent->addVariable(type, name);
 }
 
 void Model::addAgentFunction(std::string agent_name, std::string name,
     std::string current_state, std::string next_state) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
-  XFunction * func = agent->addFunction(name, current_state, next_state);
-  func->setMemoryAccessInfoAvailable(true);
+  // add function
+  agent->addFunction(name, current_state, next_state);
 }
 
 void Model::addAgentFunctionInput(std::string agent_name, std::string func_name,
     std::string current_state, std::string next_state, std::string name) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
+  // get named function
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
+  // add input
   func->addInput(name);
 }
 
 void Model::addAgentFunctionOutput(std::string agent_name,
     std::string func_name, std::string current_state, std::string next_state,
     std::string name) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
+  // get named function
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
+  // add output
   func->addOutput(name);
 }
 
 void Model::addAgentFunctionReadWriteVariable(std::string agent_name,
     std::string func_name, std::string current_state, std::string next_state,
     std::string name) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
+  // get named function
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
+  // add read write variable
   func->addReadWriteVariable(name);
 }
 
 void Model::addAgentFunctionReadOnlyVariable(std::string agent_name,
     std::string func_name, std::string current_state, std::string next_state,
     std::string name) {
+  // get named agent
   XMachine * agent = getAgent(agent_name);
+  // get named function
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
+  // add read only variable
   func->addReadOnlyVariable(name);
 }
 
@@ -102,7 +118,9 @@ void Model::addMessage(std::string name) {
 
 void Model::addMessageVariable(std::string message_name,
     std::string type, std::string name) {
+  // get named message
   XMessage * message = model_.getMessage(message_name);
+  // add variable
   message->addVariable(type, name);
 }
 

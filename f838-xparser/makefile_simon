@@ -195,7 +195,7 @@ lint:
 
 CCCCSUMMARY = /Users/stc/workspace/flame/scripts/ccccsummary.py
 cccc:
-	cccc $(SOURCES) $(HEADERS) --outdir=cccc; \
+	cccc $(SOURCES) $(HEADERS) $(XPARSER2_SRC) --outdir=cccc; \
 	$(CCCCSUMMARY) cccc
 
 # dsymutil - only relevent on Mac OS X

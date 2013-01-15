@@ -22,6 +22,7 @@
 #include "io_xml_pop.hpp"
 
 namespace model = flame::model;
+namespace mem = flame::mem;
 namespace exc = flame::exceptions;
 
 namespace flame {
@@ -53,41 +54,37 @@ struct VarVecData {
 void IOXMLPop::writeAgents(xmlTextWriterPtr writer) {
   std::vector<std::string>::iterator sit;
 
-  // For each agent type in the model
+  // for each agent type in the model
   agentVarMap::iterator it;
   for (it = agentVarMap_.begin(); it != agentVarMap_.end(); ++it) {
-    // For each agent variable save name, pointer to data and
+    // for each agent variable save name, pointer to data and
     // pointer to vector wrapper
     std::vector<VarVecData> dataMap;
-    std::vector<VarVecData>::iterator dit;
+    std::vector<VarVecData>::iterator d;
     bool stillData = true;
     for (sit = (*it).second.begin(); sit != (*it).second.end(); ++sit) {
-      flame::mem::VectorWrapperBase* vw =
-          flame::mem::MemoryManager::GetInstance().GetVectorWrapper((*it).first,
-              (*sit));
+      mem::VectorWrapperBase* vw = mem::MemoryManager::GetInstance().
+          GetVectorWrapper((*it).first, (*sit));
       dataMap.push_back(VarVecData((*sit), vw->GetRawPtr(), vw));
-      if (vw->GetRawPtr() == NULL)
-        stillData = false;
+      if (vw->GetRawPtr() == NULL) stillData = false;
     }
 
-    // While there is still data write out each agent to xml
+    // while there is still data write out each agent to xml
     while (stillData) {
-      /* Open root tag */
+      // open root tag
       writeXMLTag(writer, "xagent");
-      /* Write agent name */
+      // write agent name
       writeXMLTag(writer, "name", (*it).first);
-      for (dit = dataMap.begin(); dit != dataMap.end(); ++dit) {
-        if (strcmp((*dit).vw->GetDataType()->name(), "i") == 0)
-          writeXMLTag(writer, (*dit).varName,
-              *reinterpret_cast<int*>((*dit).p));
-        if (strcmp((*dit).vw->GetDataType()->name(), "d") == 0)
-          writeXMLTag(writer, (*dit).varName,
-              *reinterpret_cast<double*>((*dit).p));
-        (*dit).p = (*dit).vw->StepRawPtr((*dit).p);
-        if ((*dit).p == NULL && dit + 1 == dataMap.end())
-          stillData = false;
+      for (d = dataMap.begin(); d != dataMap.end(); ++d) {
+        if (strcmp((*d).vw->GetDataType()->name(), "i") == 0)
+          writeXMLTag(writer, (*d).varName, *reinterpret_cast<int*>((*d).p));
+        if (strcmp((*d).vw->GetDataType()->name(), "d") == 0)
+          writeXMLTag(writer, (*d).varName,
+              *reinterpret_cast<double*>((*d).p));
+        (*d).p = (*d).vw->StepRawPtr((*d).p);
+        if ((*d).p == NULL && d + 1 == dataMap.end()) stillData = false;
       }
-      /* Close the element named xagent. */
+      // close the element named xagent
       writeXMLEndTag(writer);
     }
   }

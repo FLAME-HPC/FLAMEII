@@ -59,7 +59,7 @@ XCondition::XCondition()
 /*!
  * \brief Cleans up XCondtion
  *
- * Cleans up XCondtion by deleting any nexted conditions.
+ * Cleans up XCondtion by deleting any nested conditions.
  */
 XCondition::~XCondition() {
   /* Delete any nested conditions */
@@ -222,11 +222,14 @@ int XCondition::processSymbolsConditions() {
   int errors = 0;
   int rc;
 
+  // process lhs condition
   rc = lhsCondition_->processSymbols();
   errors += rc;
+  // process rhs condition
   rc = rhsCondition_->processSymbols();
   errors += rc;
 
+  // process logic operator
   if (op_ == "AND") {
     op_ = "&&";
   } else if (op_ == "OR") {
@@ -251,7 +254,8 @@ int XCondition::processSymbols() {
   if (isTime_) {
     errors += processSymbolsTime();
   } else {
-    /* Check lhs and rhs are both values or both conditions else error */
+    // Check lhs and rhs are both values or
+    // both conditions else error
     if (lhsIsValue_ && rhsIsValue_) {
       isValues_ = true;
       errors += processSymbolsValues();
@@ -329,9 +333,8 @@ int XCondition::validateValue(XMachine * agent, XMessage * xmessage,
         return 1;
       }
     } else {
-      printErr(
-          "Error: cannot validate value as the message type is invalid: %s\n",
-          hs->c_str());
+      printErr("Error: cannot validate value %s: %s\n",
+          "as the message type is invalid", hs->c_str());
       return 1;
     }
   }
@@ -365,9 +368,10 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
     // Validate values
     errors += validateValues(agent, xmessage, rootCondition);
   } else if (isConditions_) {
-    // If nested conditions validate them
+    // validate lhs condition
     rc = lhsCondition_->validate(agent, xmessage, model, rootCondition);
     errors += rc;
+    // validate rhs condition
     rc = rhsCondition_->validate(agent, xmessage, model, rootCondition);
     errors += rc;
   } else {
@@ -378,6 +382,16 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
 
   return errors;
 }
+
+// the following
+// methods are
+// get and set
+// methods for
+// private
+// variables
+// of the
+// condition
+// class
 
 std::set<std::string> * XCondition::getReadOnlyVariables() {
   return &readOnlyVariables_;
