@@ -46,15 +46,16 @@ templates = \
   templates/main_header.cpp.tmpl \
   templates/main_footer.cpp.tmpl
 
-LDADD_LIST = \
-  $(top_srcdir)/flame2/model/lib_flame_model \
-  $(top_srcdir)/flame2/mem/lib_flame_mem \
-  $(top_srcdir)/flame2/exe/lib_flame_exe \
-  $(top_srcdir)/flame2/io/lib_flame_io \
-  $(top_srcdir)/flame2/mb/lib_flame_mb
+#LDADD_LIST = \
+#  $(top_srcdir)/flame2/model/lib_flame_model \
+#  $(top_srcdir)/flame2/mem/lib_flame_mem \
+#  $(top_srcdir)/flame2/exe/lib_flame_exe \
+#  $(top_srcdir)/flame2/io/lib_flame_io \
+#  $(top_srcdir)/flame2/mb/lib_flame_mb
 
 # Use test libs is available, else use debug libs. If both not available, use prod
-LDADD_LIBFLAME = $(LDADD_LIST:=-@LOWEST_BUILD_SUFFIX@.la)
+#LDADD_LIBFLAME = $(LDADD_LIST:=-@LOWEST_BUILD_SUFFIX@.la)
+LDADD_LIBFLAME = $(top_srcdir)/libflame2-@LOWEST_BUILD_SUFFIX@.la
 
 noinst_HEADERS = $(headers)
 dist_pkgdata_DATA = $(templates)
