@@ -10,6 +10,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <cstdio>
 #include <fstream>
+#include <string>
 #include <boost/test/unit_test.hpp>
 #include "xparser2/utils.hpp"
 #include "xparser2/file_generator.hpp"
@@ -43,8 +44,7 @@ class DummyCodeGeneratorWithHeader : public xparser::codegen::CodeGenerator {
     }
 };
 
-std::string get_file_contents(const char *filename)
-{
+std::string get_file_contents(const char *filename) {
   std::ifstream in(filename, std::ios::in | std::ios::binary);
   if (in) {
     std::string contents;
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(xp_filegen) {
   outfile_generator.Insert(h1);
 
   // expected output content
-  std::string expected_output("#include <string>\n" 
+  std::string expected_output("#include <string>\n"
                               "#include <vector>\n"
                               "#include \"goodbye/world.hpp\"\n"
                               "#include \"hello/world.hpp\"\n\n"
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(xp_filegen) {
                               "// Testing DummyCodeGenerator\n\n"
                               "// Testing DummyCodeGeneratorWithHeader\n\n"
                               "// Testing DummyCodeGeneratorWithHeader\n\n");
-                             
+
   // generate output filename
   std::string outfilename("testfile_");
   outfilename += xparser::utils::gen_random_string(5);
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(xp_filegen) {
   BOOST_CHECK(file_content == expected_output);
   // delete file
   remove(outfilename.c_str());
-  
+
   // --- generate output in a different directory
   xparser::FileGenerator f2("./xparser2/data");
   f2.Output(outfilename, outfile_generator);
