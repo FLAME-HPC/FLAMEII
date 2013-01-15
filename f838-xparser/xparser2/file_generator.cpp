@@ -45,10 +45,6 @@ void FileGenerator::Output(const std::string& outfile,
   boost::filesystem::path outdir(outdir_);
   boost::filesystem::path outpath = outdir / outfile;
 
-#ifndef TESTBUILD
-  printf("Writing file: %s\n", outpath.string().c_str());
-#endif
-
   // open file for writing
   std::ofstream f(outpath.string().c_str());
   if (!f.is_open()) {
