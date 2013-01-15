@@ -19,7 +19,10 @@ namespace {  // utility functions for use within this file only
 
 // Allocates a char* buffer with size equal to the file size, copies in
 // the file content and returns the buffer.
-// The deallocation of the buffer is left to the caller.
+// The deallocation of the buffer is left to the caller, e.g.
+//    const char *buffer = get_cstr_from_file(filename);
+//    // ...
+//    delete[] buffer;
 const char* get_cstr_from_file(const std::string& filename) {
   // open file for reading
   std::ifstream in(filename.c_str());
@@ -167,14 +170,14 @@ void Printer::PrintRaw(const char* text) {
 void Printer::PrintFromFile(const std::string& filename) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer);
-  delete buffer;
+  delete[] buffer;
 }
 
 void Printer::PrintFromFile(const std::string& filename,
                             const std::map<std::string, std::string>& vars) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, vars);
-  delete buffer;
+  delete[] buffer;
 }
 
 /*
@@ -182,7 +185,7 @@ void Printer::PrintFromFile(const std::string& filename,
                             const char* var, const std::string& value) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, var, value);
-  delete buffer;
+  delete[] buffer;
 }
 
 void Printer::PrintFromFile(const std::string& filename,
@@ -190,14 +193,14 @@ void Printer::PrintFromFile(const std::string& filename,
                             const char* var2, const std::string& value2) {
   const char* buffer = get_cstr_from_file(filename);
   Print(buffer, var1, value1, var2, value2);
-  delete buffer;
+  delete[] buffer;
 }
 */
 
 void Printer::PrintRawFromFile(const std::string& filename) {
   const char* buffer = get_cstr_from_file(filename);
   PrintRaw(buffer);
-  delete buffer;
+  delete[] buffer;
 }
 
 }  // namespace xparser
