@@ -36,10 +36,10 @@ std::string locate_template(const char* template_name) {
 }
 
 std::string gen_random_string(const int len) {
-  static const char char_pool[] = "0123456789"
+  static const char pool[] = "0123456789"
                                   "abcdefghijklmnopqrstuvwxyz"
                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static const int pool_size = sizeof(char_pool) - 1;  // exclude EOL anchor
+  static const int pool_size = sizeof(pool) - 1;  // exclude EOL anchor
   if (len < 1) {
     return "";
   }
@@ -47,7 +47,7 @@ std::string gen_random_string(const int len) {
   std::string s;
   s.reserve(len + 1);  // so we allocate memory only once
   for (int i = 0; i < len; ++i) {
-    s.append(1, char_pool[rand() % pool_size]);  // (size_t, char)
+    s.append(1, pool[rand() % pool_size]);  // NOLINT(runtime/threadsafe_fn)
   }
   return s;
 }
