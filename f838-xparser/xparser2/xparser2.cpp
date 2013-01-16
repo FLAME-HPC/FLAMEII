@@ -43,13 +43,11 @@ void generate_agents(model::XModel *model, gen::GenMainCpp *maincpp);
 
 void generate_agent_functions(model::XMachine *agent, gen::GenMainCpp *maincpp);
 
-void generate_agent_func_definition(model::XModel *model,
-    gen::GenMainCpp *maincpp,
-    gen::GenHeaderFile *func_def_hpp);
+void generate_agent_func_def(model::XModel *model,
+    gen::GenMainCpp *maincpp, std::string file_name);
 
 void generate_messages(model::XModel *model,
-    gen::GenMainCpp *maincpp,
-    gen::GenHeaderFile *msg_datatype_h);
+    gen::GenMainCpp *maincpp, std::string file_name);
 
 void handle_parameter_errors(int argc, const char* argv[]);
 
@@ -77,18 +75,17 @@ int main(int argc, const char* argv[]) {
   generate_agents(&model, &maincpp);
 
   // Write out header file for agent function definitions
-  gen::GenHeaderFile func_def_hpp;
-  generate_agent_func_definition(&model, &maincpp, &func_def_hpp);
-  filegen.Output("agent_function_definitions.hpp", func_def_hpp);
+  generate_agent_func_def(&model, &maincpp, "agent_function_definitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
   // Define and register messages
-  gen::GenHeaderFile msg_datatype_h;
-  generate_messages(&model, &maincpp, &msg_datatype_h);
-  filegen.Output("message_datatypes.hpp", msg_datatype_h);
+  generate_messages(&model, &maincpp, "message_datatypes.hpp");
   makefile.AddHeaderFile("message_datatypes.hpp");
 
   // output completed main.cpp file
+#ifndef TESTBUILD
+  printf("Writing file: %s\n", "main.cpp");
+#endif
   filegen.Output("main.cpp", maincpp);
   makefile.AddSourceFile("main.cpp");
 
@@ -98,6 +95,9 @@ int main(int argc, const char* argv[]) {
   for (; ff != ffs->end(); ++ff) makefile.AddSourceFile((*ff));
 
   // Output Makefile now that all hpp and cpp files have been added
+#ifndef TESTBUILD
+  printf("Writing file: %s\n", "Makefile");
+#endif
   filegen.Output("Makefile", makefile);
 
   return 0;
@@ -111,9 +111,10 @@ void handle_parameter_errors(int argc, const char* argv[]) {
   }
 }
 
-void generate_agent_func_definition(model::XModel *model,
-    gen::GenMainCpp *maincpp,
-    gen::GenHeaderFile *func_def_hpp) {
+void generate_agent_func_def(model::XModel *model,
+    gen::GenMainCpp *maincpp, std::string file_name) {
+  xparser::FileGenerator filegen;
+  gen::GenHeaderFile func_def_hpp;
   gen::AgentFunctionHeaderSnippets agent_func_headers;
   gen::RegisterAgentFuncSnippets register_agent_func;
   boost::ptr_vector<flame::model::XFunction>::iterator func;
@@ -129,17 +130,27 @@ void generate_agent_func_definition(model::XModel *model,
     }
   }
 
-  // append generated content to apropriate files
+  // append generated content to appropriate files
   maincpp->Insert(register_agent_func);
-  func_def_hpp->Insert(agent_func_headers);
+  func_def_hpp.Insert(agent_func_headers);
+
+#ifndef TESTBUILD
+  printf("Writing file: %s\n", file_name.c_str());
+#endif
+  filegen.Output(file_name, func_def_hpp);
 }
 
 void generate_messages(model::XModel *model,
-    gen::GenMainCpp *maincpp,
-    gen::GenHeaderFile *msg_datatype_h) {
+    gen::GenMainCpp *maincpp, std::string file_name) {
+  // file generator
+  xparser::FileGenerator filegen;
+  // header file generator
+  gen::GenHeaderFile msg_datatype_h;
+
   boost::ptr_vector<model::XVariable>::iterator v;
   boost::ptr_vector<model::XMessage>::iterator m;
   boost::ptr_vector<model::XMessage> *messages = model->getMessages();
+  // for each model messsage
   for (m = messages->begin(); m != messages->end(); ++m) {
     gen::GenMessageRegistration msg_reg(m->getName());
     gen::GenDataStruct msg_datatype(m->getName() + "_message");
@@ -155,8 +166,14 @@ void generate_messages(model::XModel *model,
     maincpp->Insert(msg_reg);
 
     // Append to message_datatype.hpp
-    msg_datatype_h->Insert(msg_datatype);
+    msg_datatype_h.Insert(msg_datatype);
   }
+
+  // output header to file using file_name
+#ifndef TESTBUILD
+  printf("Writing file: %s\n", file_name.c_str());
+#endif
+  filegen.Output(file_name, msg_datatype_h);
 }
 
 void generate_agent_functions(model::XMachine *agent,
