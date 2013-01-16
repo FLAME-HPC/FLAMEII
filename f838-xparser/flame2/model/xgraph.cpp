@@ -35,9 +35,8 @@ namespace flame { namespace model {
 XGraph::XGraph() {
   // Initialise pointers
   graph_ = new Graph;
-  vertex2task_ = new std::vector<Task *>;
+  vertex2task_ = new std::vector<TaskPtr>;
   edge2dependency_ = new EdgeMap;
-  taskImported_ = false;
   endTask_ = 0;
   startTask_ = 0;
 }
@@ -45,10 +44,6 @@ XGraph::XGraph() {
 XGraph::~XGraph() {
   std::vector<Task *>::iterator vit;
   EdgeMap::iterator eit;
-  /* Free task memory */
-  if (!taskImported_)
-    for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
-      delete (*vit);
   // Free vertex task mapping
   delete vertex2task_;
   // Free edge dependency mapping
@@ -60,12 +55,8 @@ XGraph::~XGraph() {
   delete graph_;
 }
 
-std::vector<Task *> * XGraph::getVertexTaskMap() {
+std::vector<TaskPtr> * XGraph::getVertexTaskMap() {
   return vertex2task_;
-}
-
-void XGraph::setTasksImported(bool b) {
-  taskImported_ = b;
 }
 
 void XGraph::setAgentName(std::string agentName) {
@@ -75,8 +66,19 @@ void XGraph::setAgentName(std::string agentName) {
 Vertex XGraph::addVertex(Task * t) {
   // Add vertex to graph
   Vertex v = add_vertex(*graph_);
+  // create new shared ptr for Task pointer
+  TaskPtr ptr(t);
   // Add task to vertex task mapping
-  vertex2task_->push_back(t);
+  vertex2task_->push_back(ptr);
+  // Return vertex
+  return v;
+}
+
+Vertex XGraph::addVertex(TaskPtr ptr) {
+  // Add vertex to graph
+  Vertex v = add_vertex(*graph_);
+  // Add task to vertex task mapping
+  vertex2task_->push_back(ptr);
   // Return vertex
   return v;
 }
@@ -98,8 +100,6 @@ void XGraph::removeVertex(Vertex v) {
   // Remove all edges in set of edges to be removed
   for (eit = edgesToRemove.begin(); eit != edgesToRemove.end(); ++eit)
     removeDependency(*eit);
-  // Free task associated with vertex
-  delete vertex2task_->at(v);
   // Remove task from vertex to task mapping mapping
   vertex2task_->erase(vertex2task_->begin() + v);
   // Remove edge from graph
@@ -145,13 +145,13 @@ Vertex XGraph::getVertex(Task * t) {
   // Find index of task in vertex task mapping
   // The index corresponds to the vertex number
   for (ii = 0; ii < vertex2task_->size(); ++ii)
-    if (vertex2task_->at(ii) == t) return ii;
+    if (vertex2task_->at(ii).get() == t) return ii;
   return 0;
 }
 
 Task * XGraph::getTask(Vertex v) {
   // Return task at index v
-  return vertex2task_->at(v);
+  return vertex2task_->at(v).get();
 }
 
 Dependency * XGraph::getDependency(Edge e) {
@@ -199,10 +199,10 @@ int XGraph::generateDependencyGraph(boost::ptr_vector<XVariable> * variables) {
 Task * XGraph::generateStateGraphStatesAddStateToGraph(std::string name,
     std::string startState) {
   // Check if state has already been added
-  std::vector<Task *>::iterator vit;
+  std::vector<TaskPtr>::iterator vit;
   for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
-    if ((*vit)->getTaskType() == Task::xstate &&
-        (*vit)->getName() == name) return (*vit);
+    if ((*vit).get()->getTaskType() == Task::xstate &&
+        (*vit).get()->getName() == name) return (*vit).get();
 
   // Add state as a task to the task list
   Task * task = new Task(agentName_, name, Task::xstate);
@@ -258,10 +258,10 @@ void XGraph::generateStateGraphVariables(XFunction * function, Task * task) {
 
 Task * XGraph::generateStateGraphMessagesAddMessageToGraph(std::string name) {
   // Check if state has already been added
-  std::vector<Task *>::iterator vit;
+  std::vector<TaskPtr>::iterator vit;
   for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
-    if ((*vit)->getTaskType() == Task::xmessage &&
-        (*vit)->getName() == name) return (*vit);
+    if ((*vit).get()->getTaskType() == Task::xmessage &&
+        (*vit).get()->getName() == name) return (*vit).get();
 
   // Add state as a task to the task list
   Task * task = new Task(name, name, Task::xmessage);
@@ -874,8 +874,8 @@ void XGraph::removeRedundantDependencies() {
   size_t ii;
   // The resultant transitive reduction graph
   Graph * trgraph = new Graph;
-  std::vector<Task *> * trvertex2task =
-      new std::vector<Task *>(vertex2task_->size());
+  std::vector<TaskPtr> * trvertex2task =
+      new std::vector<TaskPtr>(vertex2task_->size());
 
   // Create a map to get a property of a graph, in this case the vertex index
   typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
@@ -933,7 +933,7 @@ void XGraph::changeMessageTasksToSync() {
   size_t ii;
   // For each task
   for (ii = 0; ii < vertex2task_->size(); ++ii) {
-    Task * t = vertex2task_->at(ii);
+    Task * t = vertex2task_->at(ii).get();
     // If message task
     if (t->getTaskType() == Task::xmessage) {
       // Create start and finish syncs
@@ -962,7 +962,7 @@ void XGraph::changeMessageTasksToSync() {
 }
 
 void XGraph::import(XGraph * graph) {
-  std::vector<Task *> * v2t = graph->getVertexTaskMap();
+  std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
   size_t ii;
   std::map<Vertex, Vertex> import2new;
   EdgeIterator eit, end;
@@ -990,8 +990,6 @@ void XGraph::import(XGraph * graph) {
     Vertex nt = (*(import2new.find(t))).second;
     add_edge(ns, nt, *graph_);
   }
-
-  graph->setTasksImported(true);
 }
 
 void XGraph::importGraphs(std::set<XGraph*> graphs) {
@@ -1128,9 +1126,9 @@ int XGraph::checkFunctionConditions() {
 }
 
 struct vertex_label_writer {
-    explicit vertex_label_writer(std::vector<Task *> * vm) : vertex2task(vm) {}
+    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
     void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = vertex2task->at(v);
+      Task * t = vertex2task->at(v).get();
       if (t->getTaskType() == Task::io_pop_write) {
         out << " [label=\"";
         std::set<std::string>::iterator it;
@@ -1177,7 +1175,7 @@ struct vertex_label_writer {
     }
 
   protected:
-    std::vector<Task *> * vertex2task;
+    std::vector<TaskPtr> * vertex2task;
 };
 
 struct edge_label_writer {

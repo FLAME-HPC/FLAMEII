@@ -11,6 +11,7 @@
 #define MODEL__XGRAPH_HPP_
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/property_map/property_map.hpp>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
 #include <map>
@@ -42,6 +43,9 @@ typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
 /* \brief Define edge mapping */
 typedef std::map<Edge, Dependency *> EdgeMap;
 
+//! Use a shared pointer to automatically handle Task pointers
+typedef boost::shared_ptr<Task> TaskPtr;
+
 class XGraph {
   public:
     XGraph();
@@ -61,8 +65,7 @@ class XGraph {
             std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
-    void setTasksImported(bool b);
-    std::vector<Task *> * getVertexTaskMap();
+    std::vector<TaskPtr> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
     void importGraphs(std::set<XGraph*> graphs);
@@ -76,6 +79,16 @@ class XGraph {
 #endif
 
   private:
+    /*! \brief Ptr to a graph so that graphs can be swapped */
+    Graph * graph_;
+    /*! \brief Ptr to vertex task so that mappings can be swapped */
+    std::vector<TaskPtr> * vertex2task_;
+    EdgeMap * edge2dependency_;
+    Task * startTask_;
+    std::set<Task *> endTasks_;
+    Task * endTask_;
+    std::string agentName_;
+
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();
     void addMessageClearTasks();
@@ -84,6 +97,7 @@ class XGraph {
     int registerAllowMessage(flame::exe::Task * task,
             std::set<std::string> * messages, bool post);
     Vertex addVertex(Task * t);
+    Vertex addVertex(TaskPtr ptr);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
     Task * generateStateGraphStatesAddStateToGraph(
@@ -118,16 +132,6 @@ class XGraph {
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    /*! \brief Ptr to a graph so that graphs can be swapped */
-    Graph * graph_;
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
-    std::vector<Task *> * vertex2task_;
-    EdgeMap * edge2dependency_;
-    Task * startTask_;
-    std::set<Task *> endTasks_;
-    Task * endTask_;
-    std::string agentName_;
-    bool taskImported_;
 };
 
 }}  // namespace flame::model

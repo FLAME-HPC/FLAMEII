@@ -27,18 +27,18 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   model::XGraph graph;
 
   // Add function tasks to graph
-  model::Task f0("agent", "f0", model::Task::xfunction);
-  f0.addReadOnlyVariable("a");
-  model::Task f1("agent", "f1", model::Task::xfunction);
-  f1.addReadOnlyVariable("a");
-  model::Task f2("agent", "f2", model::Task::xfunction);
-  f2.addReadWriteVariable("a");
-  model::Task f3("agent", "f3", model::Task::xfunction);
-  f3.addReadOnlyVariable("a");
-  model::Vertex v0 = graph.addTestVertex(&f0);
-  model::Vertex v1 = graph.addTestVertex(&f1);
-  model::Vertex v2 = graph.addTestVertex(&f2);
-  model::Vertex v3 = graph.addTestVertex(&f3);
+  model::Task * f0 = new model::Task("agent", "f0", model::Task::xfunction);
+  f0->addReadOnlyVariable("a");
+  model::Task * f1 = new model::Task("agent", "f1", model::Task::xfunction);
+  f1->addReadOnlyVariable("a");
+  model::Task * f2 = new model::Task("agent", "f2", model::Task::xfunction);
+  f2->addReadWriteVariable("a");
+  model::Task * f3 = new model::Task("agent", "f3", model::Task::xfunction);
+  f3->addReadOnlyVariable("a");
+  model::Vertex v0 = graph.addTestVertex(f0);
+  model::Vertex v1 = graph.addTestVertex(f1);
+  model::Vertex v2 = graph.addTestVertex(f2);
+  model::Vertex v3 = graph.addTestVertex(f3);
   // Add dependencies between tasks
   graph.addTestEdge(v0, v1, "", model::Dependency::state);
   graph.addTestEdge(v1, v2, "", model::Dependency::state);
@@ -46,9 +46,8 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   // Set up graph for processing
   boost::ptr_vector<model::XVariable> variables;
   variables.push_back(new model::XVariable("a"));
-  graph.setTestStartTask(&f0);
-  graph.addTestEndTask(&f3);
-  graph.setTasksImported(true);
+  graph.setTestStartTask(f0);
+  graph.addTestEndTask(f3);
   graph.setAgentName("test_xgraph");
   // Process graph
   graph.generateDependencyGraph(&variables);
