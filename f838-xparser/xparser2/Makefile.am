@@ -59,14 +59,14 @@ dist_pkgdata_DATA = $(templates)
 noinst_LTLIBRARIES = lib_xparser2.la
 lib_xparser2_la_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
 lib_xparser2_la_SOURCES = $(sources)
-lib_xparser2_la_LIBADD = $(top_srcdir)/libflame2-@LOWEST_BUILD_SUFFIX@.la
+#lib_xparser2_la_LIBADD = $(top_srcdir)/libflame2-@LOWEST_BUILD_SUFFIX@.la
 #lib_xparser2_la_LIBADD = $(flame_libraries:=-@LOWEST_BUILD_SUFFIX@.la)
 
-bin_PROGRAMS = xparser2
-xparser2_LIBS = @COMMON_LIBS@
-xparser2_SOURCES = xparser2.cpp
-xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
-xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
-xparser2_LDADD = lib_xparser2.la @COMMON_LIBS@ 
+#bin_PROGRAMS = xparser2
+#xparser2_LIBS = @COMMON_LIBS@
+#xparser2_SOURCES = xparser2.cpp
+#xparser2_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
+#xparser2_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
+#xparser2_LDADD = lib_xparser2.la @COMMON_LIBS@ 
 
 
