@@ -35,7 +35,7 @@ headers = \
   codegen/gen_makefile.hpp \
   codegen/gen_file.hpp \
   codegen/gen_headerfile.hpp \
-  codegen/gen_maincpp.cpp \
+  codegen/gen_maincpp.hpp \
   codegen/gen_model.hpp \
   codegen/gen_agent.hpp \
   codegen/gen_message_registration.hpp \
