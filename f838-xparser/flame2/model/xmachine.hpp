@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <utility>
 #include "xvariable.hpp"
 #include "xfunction.hpp"
 #include "xgraph.hpp"

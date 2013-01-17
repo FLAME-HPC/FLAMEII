@@ -11,6 +11,7 @@
 #define BOOST_TEST_MODULE Flame Test Suite
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
+#include <string>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/test/unit_test.hpp>
@@ -31,7 +32,7 @@ struct TestConfig {
         fs::path pwd = fs::canonical(fs::current_path());
         fs::path exe_file(fw::master_test_suite().argv[0]);
         fs::path exe_dir = fs::canonical(exe_file.parent_path());
-        
+
         // in the case where libtool creates the binary in .libs and replaces
         // the binary with a wrapper script, the exe_dir would point to the
         // .libs entry instead. Remove that.
