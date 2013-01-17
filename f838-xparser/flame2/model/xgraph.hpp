@@ -16,6 +16,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
 #include "task.hpp"
@@ -32,15 +33,15 @@ namespace flame { namespace model {
  */
 typedef boost::adjacency_list
         <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-/* \brief Define vertex descriptor type */
+//! \brief Define vertex descriptor type
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-/* \brief Define edge descriptor type */
+//! \brief Define edge descriptor type
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-/* \brief Define vertex iterator */
+//! \brief Define vertex iterator
 typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-/* \brief Define edge iterator */
+//! \brief Define edge iterator
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-/* \brief Define edge mapping */
+//! \brief Define edge mapping
 typedef std::map<Edge, Dependency *> EdgeMap;
 
 //! Use a shared pointer to automatically handle Task pointers
@@ -53,8 +54,15 @@ class XGraph {
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
-    int checkCyclicDependencies();
-    int checkFunctionConditions();
+    //! Checks for cyclic dependencies within a graph
+    //! \return first integer for number of errors,
+    //!         second string for error message
+    std::pair<int, std::string> checkCyclicDependencies();
+    //! Checks for conditions on functions from a state
+    //! with more than one out edge
+    //! \return first integer for number of errors,
+    //!         second string for error message
+    std::pair<int, std::string> checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
     int registerAgentTask(Task * t,
             std::map<std::string, flame::exe::TaskFunction> funcMap);

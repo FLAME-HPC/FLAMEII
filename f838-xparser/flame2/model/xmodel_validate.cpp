@@ -15,6 +15,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <utility>  // for std::pair
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include "flame2/config.hpp"
@@ -110,7 +111,10 @@ int XModelValidate::validateTimeUnits(
 }
 
 int XModelValidate::validateAgentStateGraph(XMachine * agent) {
+  // return code and number of errors
   int rc, errors = 0;
+  // return error (code and error message)
+  std::pair<int, std::string> rerr;
 
   // Validate single start state
   rc = agent->findStartEndStates();
@@ -126,10 +130,18 @@ int XModelValidate::validateAgentStateGraph(XMachine * agent) {
     // Generate state graph
     errors += agent->generateStateGraph();
     // Check graph for no cyclic dependencies
-    errors += agent->checkCyclicDependencies();
+    rerr = agent->checkCyclicDependencies();
+    if (rerr.first > 0) {
+      errors += rerr.first;
+      printErr(rerr.second.c_str());
+    }
     // Check functions from state with more than one
     // out going function all have conditions
-    errors += agent->checkFunctionConditions();
+    rerr = agent->checkFunctionConditions();
+    if (rerr.first > 0) {
+      errors += rerr.first;
+      printErr(rerr.second.c_str());
+    }
   }
   return errors;
 }

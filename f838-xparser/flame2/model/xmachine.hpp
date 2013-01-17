@@ -41,8 +41,8 @@ class XMachine {
     std::set<std::string> getEndStates();
     int generateStateGraph();
     XGraph * getFunctionDependencyGraph();
-    int checkCyclicDependencies();
-    int checkFunctionConditions();
+    std::pair<int, std::string> checkCyclicDependencies();
+    std::pair<int, std::string> checkFunctionConditions();
     int generateDependencyGraph();
     void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);

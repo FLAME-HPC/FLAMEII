@@ -169,11 +169,11 @@ XGraph * XMachine::getFunctionDependencyGraph() {
   return &functionDependencyGraph_;
 }
 
-int XMachine::checkCyclicDependencies() {
+std::pair<int, std::string> XMachine::checkCyclicDependencies() {
   return functionDependencyGraph_.checkCyclicDependencies();
 }
 
-int XMachine::checkFunctionConditions() {
+std::pair<int, std::string> XMachine::checkFunctionConditions() {
   return functionDependencyGraph_.checkFunctionConditions();
 }
 

@@ -28,8 +28,6 @@
 #include "xfunction.hpp"
 #include "task.hpp"
 
-void printErr(const char *format, ...);
-
 namespace flame { namespace model {
 
 XGraph::XGraph() {
@@ -1068,8 +1066,10 @@ struct cycle_detector : public boost::default_dfs_visitor {
     }
 };
 
-int XGraph::checkCyclicDependencies() {
-  // Visitor cycle detector for use with depth_first_search
+std::pair<int, std::string> XGraph::checkCyclicDependencies() {
+  // error message
+  std::string error_msg;
+  // visitor cycle detector for use with depth_first_search
   cycle_detector vis;
 
   try {
@@ -1082,20 +1082,22 @@ int XGraph::checkCyclicDependencies() {
     // Find associated tasks
     Task * t1 = getTask(boost::source(err.edge(), *graph_));
     Task * t2 = getTask(boost::target(err.edge(), *graph_));
-    std::string error = "Error: cycle detected %s -> %s -> %s\n";
-    error.append(t1->getName());
-    error.append(" -> ");
-    error.append(d->getName());
-    error.append(" -> ");
-    error.append(t2->getName());
-    printErr("%s\n", error.c_str());
-    return 1;
+    error_msg.append("Error: cycle detected ");
+    error_msg.append(t1->getName());
+    error_msg.append(" -> ");
+    error_msg.append(d->getName());
+    error_msg.append(" -> ");
+    error_msg.append(t2->getName());
+    error_msg.append("\n");
+    return std::make_pair(1, error_msg);
   }
 
-  return 0;
+  return std::make_pair(0, error_msg);
 }
 
-int XGraph::checkFunctionConditions() {
+std::pair<int, std::string> XGraph::checkFunctionConditions() {
+  // error message
+  std::string error_msg;
   std::pair<VertexIterator, VertexIterator> vp;
   // For each vertex
   for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
@@ -1111,18 +1113,18 @@ int XGraph::checkFunctionConditions() {
           Task * t = getTask(boost::target((Edge)*oei, *graph_));
           // If condition is null then return an error
           if (!t->hasCondition()) {
-            printErr(
-                "Error: Function '%s' from a state with more than one %s\n",
-                t->getName().c_str(),
-                "out going function does not have a condition.");
-            return 1;
+            error_msg.append("Error: Function '");
+            error_msg.append(t->getName());
+            error_msg.append("' from a state with more than one out ");
+            error_msg.append("going function does not have a condition.\n");
+            return std::make_pair(1, error_msg);
           }
         }
       }
     }
   }
 
-  return 0;
+  return std::make_pair(0, error_msg);
 }
 
 struct vertex_label_writer {
