@@ -64,11 +64,16 @@ class Model {
     //! Add a message variable
     void addMessageVariable(std::string message_name,
             std::string type, std::string name);
+    //! Check the model has been validated
+    bool isValidated();
 
   private:
+    bool validated_;  //!< Check for a validated model
     flame::model::XModel model_;  //!< The underlying model
 
-    XMachine * getAgent(std::string name);  //!< Return the named agent
+    //! getAgent handled in Model because XModel returns 0 if
+    //! there is no agent so Model throws the exception
+    XMachine * getAgent(std::string name);
 };
 
 }}  // namespace flame::model

@@ -17,7 +17,8 @@
 namespace flame {
 namespace model {
 
-Model::Model() {}
+Model::Model()
+  : validated_(false) {}
 
 Model::Model(std::string path_to_model) {
   // Load model
@@ -38,10 +39,13 @@ void Model::registerAgentFunction(std::string name,
 void Model::validate() {
   if (model_.validate() != 0) throw flame::exceptions::flame_model_exception(
       "Model could not be validated");
+  validated_ = true;
 }
 
 void Model::addAgent(std::string name) {
   model_.addAgent(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 XMachine * Model::getAgent(std::string name) {
@@ -59,6 +63,8 @@ void Model::addAgentVariable(std::string agent_name,
   XMachine * agent = getAgent(agent_name);
   // add variable
   agent->addVariable(type, name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addAgentFunction(std::string agent_name, std::string name,
@@ -67,6 +73,8 @@ void Model::addAgentFunction(std::string agent_name, std::string name,
   XMachine * agent = getAgent(agent_name);
   // add function
   agent->addFunction(name, current_state, next_state);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addAgentFunctionInput(std::string agent_name, std::string func_name,
@@ -77,6 +85,8 @@ void Model::addAgentFunctionInput(std::string agent_name, std::string func_name,
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
   // add input
   func->addInput(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addAgentFunctionOutput(std::string agent_name,
@@ -88,6 +98,8 @@ void Model::addAgentFunctionOutput(std::string agent_name,
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
   // add output
   func->addOutput(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addAgentFunctionReadWriteVariable(std::string agent_name,
@@ -99,6 +111,8 @@ void Model::addAgentFunctionReadWriteVariable(std::string agent_name,
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
   // add read write variable
   func->addReadWriteVariable(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addAgentFunctionReadOnlyVariable(std::string agent_name,
@@ -110,10 +124,14 @@ void Model::addAgentFunctionReadOnlyVariable(std::string agent_name,
   XFunction * func = agent->getFunction(func_name, current_state, next_state);
   // add read only variable
   func->addReadOnlyVariable(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addMessage(std::string name) {
   model_.addMessage(name);
+  // model changed so not validated
+  validated_ = false;
 }
 
 void Model::addMessageVariable(std::string message_name,
@@ -122,6 +140,12 @@ void Model::addMessageVariable(std::string message_name,
   XMessage * message = model_.getMessage(message_name);
   // add variable
   message->addVariable(type, name);
+  // model changed so not validated
+  validated_ = false;
+}
+
+bool Model::isValidated() {
+  return validated_;
 }
 
 }}  // namespace flame::model

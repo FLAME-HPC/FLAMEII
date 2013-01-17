@@ -13,12 +13,17 @@
 #include "flame2/io/io_manager.hpp"
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/scheduler.hpp"
+#include "flame2/exceptions/sim.hpp"
 #include "simulation.hpp"
 
 namespace flame { namespace sim {
 
 Simulation::Simulation(flame::model::Model * model, std::string pop_file) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
+
+  // check model has been validated
+  if (!model->isValidated()) throw flame::exceptions::flame_sim_exception(
+      "Model added to a simulation has not be validated");
 
   model_ = model->getXModel();
 

@@ -14,10 +14,10 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include "flame2/exceptions/sim.hpp"
 #include "flame2/sim/sim_manager.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/model/model.hpp"
-
 #include "flame2/mb/client.hpp"
 #include "flame2/mb/message_iterator.hpp"
 #include "flame2/mb/message_board_manager.hpp"
@@ -27,6 +27,7 @@
 namespace sim = flame::sim;
 namespace io = flame::io;
 namespace model = flame::model;
+namespace e = flame::exceptions;
 
 typedef struct {
     double x, y;
@@ -130,6 +131,14 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
   flame::mem::MemoryManager::GetInstance().Reset();
   flame::exe::TaskManager::GetInstance().Reset();
   flame::mb::MessageBoardManager::GetInstance().Reset();
+}
+
+//! Check exception throwing of unvalidated model being added to a simulation
+BOOST_AUTO_TEST_CASE(unvalidated_model) {
+  // unvalidated model
+  flame::model::Model model;
+
+  BOOST_CHECK_THROW(sim::Simulation s2(&model, ""), e::flame_sim_exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
