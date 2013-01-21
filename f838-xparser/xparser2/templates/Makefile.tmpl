@@ -1,5 +1,12 @@
-## --- the following section is dumped from Makefile.tmpl ----
 ## SOURCES and HEADERS must be defined above 
+
+# conditionally include custom Makefile vars
+# use "sinclude" so error is not raised if file does not exist
+sinclude Makefile.inc
+SOURCES += $(extra_SOURCES)
+HEADERS += $(extra_HEADERS)
+extra_COMPILE_FLAGS = $(extra_CPPFLAGS)
+extra_LINK_FLAGS = $(extra_LDFLAGS)
 
 # Required scripts
 FLAME2_CONFIG = flame2-config
@@ -58,13 +65,13 @@ ifeq ($(static),1)
 else
 	@echo "Linking executable '$@'"
 endif
-	@$(LINK_COMMAND)  $(OBJECTS) -o $@ $(LINK_FLAGS)
+	@$(LINK_COMMAND)  $(OBJECTS) -o $@ $(LINK_FLAGS) $(extra_LINK_FLAGS)
 
 $(OBJECTS): $(DEPS)
 
 .cpp.o:
 	@echo "[$(MODE)] Compiling $<"
-	@$(CXX) -c $(COMPILE_FLAGS) $< -o $@
+	@$(CXX) -c $(COMPILE_FLAGS) $(extra_COMPILE_FLAGS) $< -o $@
 	
 clean:
 	rm -f $(EXECUTABLE) $(OBJECTS)
