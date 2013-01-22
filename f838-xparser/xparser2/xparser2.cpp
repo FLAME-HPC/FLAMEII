@@ -75,7 +75,7 @@ int main(int argc, const char* argv[]) {
   generate_agents(&model, &maincpp);
 
   // Write out header file for agent function definitions
-  generate_agent_func_def(&model, &maincpp, "agent_function_defsinitions.hpp");
+  generate_agent_func_def(&model, &maincpp, "agent_function_definitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
   // Define and register messages
