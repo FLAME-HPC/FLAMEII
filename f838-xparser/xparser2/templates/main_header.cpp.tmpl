@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
   }
 
   #ifdef DEBUG
-    srand(0);  // for debug, fix random seed
+    srand(1);  // for debug, fix random seed
   #else
     srand(time(NULL)); 
   #endif
