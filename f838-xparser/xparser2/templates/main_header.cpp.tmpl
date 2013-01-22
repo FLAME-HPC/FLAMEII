@@ -6,7 +6,6 @@ static double get_time(void) {
 }
 
 int main(int argc, const char* argv[]) {
-
   if (argc < 3 || argc > 4) {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " POP_DATA NUM_ITERATIONS [NUM_CORES]" << std::endl;
@@ -20,7 +19,7 @@ int main(int argc, const char* argv[]) {
     exit(2);
   }
 
-  size_t num_cores = 1; // default to single core run
+  size_t num_cores = 1;  // default to single core run
   if (argc > 3) {
     num_cores = (size_t)atoi(argv[3]);
     if (num_cores == 0) {
@@ -32,5 +31,5 @@ int main(int argc, const char* argv[]) {
   #ifdef DBGBUILD
     srand(1);  // for debug, fix random seed
   #else
-    srand(time(NULL)); 
+    srand(time(NULL));
   #endif

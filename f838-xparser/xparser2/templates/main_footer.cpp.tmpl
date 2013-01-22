@@ -1,6 +1,6 @@
   // Validate model
   model.validate();
-  
+
   // Create simulation using model and path to initial pop
   flame::sim::Simulation s(&model, pop_path);
 
@@ -13,9 +13,9 @@
   stop_time = get_time();
   total_time = stop_time - start_time;
   printf("Execution time - %d:%02d:%03d [mins:secs:msecs]\n",
-           (int)(total_time/60), 
-           ((int)total_time)%60, 
-           (((int)(total_time * 1000.0)) % 1000));
-  
+           static_cast<int>(total_time/60),
+           (static_cast<int>(total_time%60),
+           ((static_cast<int>(total_time * 1000.0)) % 1000));
+
   return 0;
 }
