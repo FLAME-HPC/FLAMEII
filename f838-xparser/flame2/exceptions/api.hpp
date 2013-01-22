@@ -19,10 +19,10 @@ class flame_api_exception : public flame_exception {
   public:
     flame_api_exception(const std::string& func, const std::string& msg)
         : flame_exception(msg), f_(func), m_(msg) {}
-        
-    ~flame_api_exception () throw() {}
-    
-    const char* what() const throw () {
+
+    ~flame_api_exception() throw() {}
+
+    const char* what() const throw() {
       std::ostringstream out;
       out << "Usage Error: [" << f_ << "] " << m_ << std::endl;
       return out.str().c_str();

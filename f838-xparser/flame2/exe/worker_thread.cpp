@@ -39,7 +39,7 @@ void WorkerThread::ProcessQueue() {
   #else
     srand(time(NULL));
   #endif
-  
+
   // #ifdef TESTBUILD
   //   boost::thread::id tid = boost::this_thread::get_id();
   //   std::cout << ">> Thread started : " << tid << std::endl;

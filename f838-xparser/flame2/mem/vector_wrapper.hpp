@@ -47,7 +47,7 @@ class VectorWrapperBase {
     virtual void* StepRawPtr(void* ptr) = 0;
 
     //! Prints the contents of the vector to the given stream
-    virtual void OutputToStream(std::ostream& os, std::string delim) = 0;
+    virtual void OutputToStream(std::ostream* os, std::string delim) = 0;
 
     //! Appends to vector using value wrapped in boost::any
     virtual void push_back(boost::any value) = 0;
@@ -119,13 +119,13 @@ class VectorWrapper: public VectorWrapperBase {
     }
 
     //! Prints the contents of the vector to the given stream
-    void OutputToStream(std::ostream& os, std::string delim) {
+    void OutputToStream(std::ostream* os, std::string delim) {
       typedef typename std::vector<T>::const_iterator const_iterator;
       const_iterator b = v_.begin();
       const_iterator e = v_.end();
       for (const_iterator i = b; i != e; ++i) {
-        if (i != b) os << delim;
-        os << *i;
+        if (i != b) *os << delim;
+        *os << *i;
       }
     }
 

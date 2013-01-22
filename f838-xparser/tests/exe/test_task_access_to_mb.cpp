@@ -54,7 +54,7 @@ FLAME_AGENT_FUNCTION(func_post_message) {
 FLAME_AGENT_FUNCTION(func_read_message) {
   int checksum = 0;
   location_message msg;
-  
+
   MessageIterator iter;
   iter = FLAME.GetMessageIterator("location");
   for (; !iter.AtEnd(); iter.Next()) {
@@ -68,7 +68,6 @@ FLAME_AGENT_FUNCTION(func_read_message) {
 
 
 BOOST_AUTO_TEST_CASE(exe_test_msg_post) {
-
   // Define agents and population
   mem::MemoryManager& mem_mgr = mem::MemoryManager::GetInstance();
   mem_mgr.RegisterAgent("Circle");
