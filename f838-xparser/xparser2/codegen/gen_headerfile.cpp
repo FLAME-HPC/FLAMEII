@@ -32,4 +32,9 @@ void GenHeaderFile::Generate(Printer* printer) const {
   // close include guard
   printer->Print("#endif  // $GUARD$\n", "GUARD", include_guard);
 }
+
+void GenHeaderFile::AddRequiredHeader(const std::string& header) {
+  RequireHeader(header);
+}
+
 }}  // namespace xparser::codegen

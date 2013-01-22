@@ -75,12 +75,23 @@ int main(int argc, const char* argv[]) {
   generate_agents(&model, &maincpp);
 
   // Write out header file for agent function definitions
-  generate_agent_func_def(&model, &maincpp, "agent_function_definitions.hpp");
+  generate_agent_func_def(&model, &maincpp, "agent_function_defsinitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
   // Define and register messages
   generate_messages(&model, &maincpp, "message_datatypes.hpp");
   makefile.AddHeaderFile("message_datatypes.hpp");
+
+  // Umbrella header file which all model function files should include
+  static const char* common_header_name = "flame_api.hpp";
+  gen::GenHeaderFile common_header;  // flame_model.hpp generator
+  common_header.AddRequiredHeader("flame2.hpp");
+  common_header.AddRequiredHeader("message_datatypes.hpp");
+#ifndef TESTBUILD
+  printf("Writing file: %s\n", common_header_name);
+#endif
+  filegen.Output(common_header_name, common_header);
+  makefile.AddHeaderFile(common_header_name);
 
   // output completed main.cpp file
 #ifndef TESTBUILD
@@ -293,7 +304,7 @@ void generateConditionCreation(std::string cname, flame::model::XCondition * con
     if (condition->isNot) p->Print("$cname$->isNot = true;\n", variables);
     if (condition->isValues) {
         p->Print("$cname$->isValues = true;\n", variables);
-        // Handle lhs 
+        // Handle lhs
         if (condition->lhsIsAgentVariable) {
             p->Print("$cname$->lhsIsAgentVariable = true;\n", variables);
             variables["lhs"] = condition->lhs;
@@ -309,10 +320,10 @@ void generateConditionCreation(std::string cname, flame::model::XCondition * con
             variables["lhs"] = boost::lexical_cast<std::string>(condition->lhsDouble);
             p->Print("$cname$->lhsDouble = $lhs$;\n", variables);
         }
-        // Handle operator 
+        // Handle operator
         variables["op"] = condition->op;
         p->Print("$cname$->op = \"$op$\";\n", variables);
-        // Handle rhs 
+        // Handle rhs
         if (condition->rhsIsAgentVariable) {
             p->Print("$cname$->rhsIsAgentVariable = true;\n", variables);
             variables["rhs"] = condition->lhs;

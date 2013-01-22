@@ -9,6 +9,7 @@
  */
 #ifndef XPARSER__CODEGEN__GEN_HEADERFILE_HPP_
 #define XPARSER__CODEGEN__GEN_HEADERFILE_HPP_
+#include <string>
 #include "gen_file.hpp"
 namespace xparser { namespace codegen {
 
@@ -21,6 +22,9 @@ class GenHeaderFile : public GenFile {
   public:
     //! Writes header file to printer instance
     void Generate(Printer* printer) const;
+
+    //! Adds additional header requirements
+    void AddRequiredHeader(const std::string& header);
 };
 }}  // namespace xparser::codegen
 #endif  // XPARSER__CODEGEN__GEN_HEADERFILE_HPP_
