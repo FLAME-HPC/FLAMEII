@@ -14,7 +14,7 @@
   total_time = stop_time - start_time;
   printf("Execution time - %d:%02d:%03d [mins:secs:msecs]\n",
            static_cast<int>(total_time/60),
-           (static_cast<int>(total_time%60),
+           static_cast<int>(total_time) % 60,
            ((static_cast<int>(total_time * 1000.0)) % 1000));
 
   return 0;
