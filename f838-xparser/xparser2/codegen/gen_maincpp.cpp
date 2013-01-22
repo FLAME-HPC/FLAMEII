@@ -16,10 +16,10 @@ namespace xparser { namespace codegen {
 
 GenMainCpp::GenMainCpp() {
   // System headers used
+  RequireSysHeader("ctime");
   RequireSysHeader("cstdio");
   RequireSysHeader("string");
   RequireSysHeader("iostream");
-  RequireSysHeader("sys/time.h");
   // flame headers
   RequireHeader("flame2/sim/simulation.hpp");  // used in main_footer.cpp.tmpl
 }

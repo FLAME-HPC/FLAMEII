@@ -28,3 +28,9 @@ int main(int argc, const char* argv[]) {
       exit(3);
     }
   }
+
+  #ifdef DEBUG
+    srand(0);  // for debug, fix random seed
+  #else
+    srand(time(NULL)); 
+  #endif
