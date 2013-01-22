@@ -29,7 +29,7 @@ int main(int argc, const char* argv[]) {
     }
   }
 
-  #ifdef DEBUG
+  #ifdef DBGBUILD
     srand(1);  // for debug, fix random seed
   #else
     srand(time(NULL)); 

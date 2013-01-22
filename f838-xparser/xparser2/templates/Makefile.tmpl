@@ -12,6 +12,11 @@ extra_LINK_FLAGS = $(extra_LDFLAGS)
 FLAME2_CONFIG = flame2-config
 LIBTOOL = flame2-libtool
 
+# command and flags to link binary to libflame2
+LINK_COMMAND = $(LIBTOOL) --tag=CXX --mode=link --silent $(CXX)
+LINK_FLAGS_DBG = $(shell $(FLAME2_CONFIG) --libs --rpath)
+LINK_FLAGS_PROD = $(shell $(FLAME2_CONFIG) --libs --rpath --production)
+
 # Compiler flags for different modes
 COMPILE_FLAGS_COMMON = -Wall
 COMPILE_FLAGS_DBG = $(shell $(FLAME2_CONFIG) --cflags)
@@ -20,10 +25,7 @@ COMPILE_FLAGS_PROD = $(shell $(FLAME2_CONFIG) --cflags --production)
 # set default build type to devel
 MODE = devel
 COMPILE_FLAGS = $(COMPILE_FLAGS_COMMON) $(COMPILE_FLAGS_DBG)
-
-# command and flags to link binary to libflame2
-LINK_COMMAND = $(LIBTOOL) --tag=CXX --mode=link --silent $(CXX)
-LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --rpath)
+LINK_FLAGS = $(LINK_FLAGS_DBG)
 
 # conditionally force libtool to statically link all depencies
 ifeq ($(static),1)
@@ -47,6 +49,7 @@ f2config:
 # alternative build target
 production: MODE = production
 production: COMPILE_FLAGS = $(COMPILE_FLAGS_COMMON) $(COMPILE_FLAGS_PROD)
+production: LINK_FLAGS = $(LINK_FLAGS_PROD)
 production: $(EXECUTABLE)
 	
 show:

@@ -34,7 +34,7 @@ void WorkerThread::join() {
  * Termination task is issued.
  */
 void WorkerThread::ProcessQueue() {
-  #ifdef DEBUG
+  #ifdef DBGBUILD
     srand(1);  // for debug, fix thread-local random seed
   #else
     srand(time(NULL));
