@@ -43,22 +43,29 @@ namespace gen = xparser::codegen;  // namespace shorthand
 namespace model = flame::model;
 
 // Functions defined further down
+void build_output(model::XModel* model);
 void generate_agents(model::XModel *model, gen::GenMainCpp *maincpp);
 void generate_agent_functions(model::XMachine *agent, gen::GenMainCpp *maincpp);
 void generate_agent_func_def(model::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
 void generate_messages(model::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
-void validate_input_args(int argc, const char* argv[]);
 
 // Print error message then quit with given return code
-void die(const std::string& message, int rc = 1) {
+void die(const std::string& message, int rc = 2) {
   std::cerr << "ERROR: " << message << std::endl;
   exit(rc);
 }
 
 int main(int argc, const char* argv[]) {
-  validate_input_args(argc, argv);
+  if (argc != 2) {
+    std::cerr << "Usage: " << argv[0] << " MODEL_FILE" << std::endl;
+    exit(1);
+  }
+
+  if (!boost::filesystem::is_regular_file(argv[1])) {
+    die(std::string(argv[1]) + " is not a valid file.");
+  }
 
   // Load and validate model
   model::XModel model;
@@ -69,6 +76,17 @@ int main(int argc, const char* argv[]) {
   }
   assert(model.validate() == 0);  // just in case exception not properly thrown
 
+  // Generate output files based on model
+  try {
+    build_output(&model);
+  } catch(const flame::exceptions::flame_exception& e) {
+    die(e.what());
+  }
+
+  return 0;
+}
+
+void build_output(model::XModel* model) {
   // File generator to manage file writing
   xparser::FileGenerator filegen;
   gen::GenMakefile makefile;  // Makefile generator
@@ -79,14 +97,14 @@ int main(int argc, const char* argv[]) {
   maincpp.Insert(genmodel);
 
   // output to main.cpp code to define agents
-  generate_agents(&model, &maincpp);
+  generate_agents(model, &maincpp);
 
   // Write out header file for agent function definitions
-  generate_agent_func_def(&model, &maincpp, "agent_function_definitions.hpp");
+  generate_agent_func_def(model, &maincpp, "agent_function_definitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
   // Define and register messages
-  generate_messages(&model, &maincpp, "message_datatypes.hpp");
+  generate_messages(model, &maincpp, "message_datatypes.hpp");
   makefile.AddHeaderFile("message_datatypes.hpp");
 
   // Umbrella header file which all model function files should include
@@ -108,7 +126,7 @@ int main(int argc, const char* argv[]) {
   makefile.AddSourceFile("main.cpp");
 
   // Add user agent function files to Makefile
-  std::vector<std::string> * ffs = model.getFunctionFiles();
+  std::vector<std::string> * ffs = model->getFunctionFiles();
   std::vector<std::string>::iterator ff = ffs->begin();
   for (; ff != ffs->end(); ++ff) makefile.AddSourceFile((*ff));
 
@@ -117,21 +135,8 @@ int main(int argc, const char* argv[]) {
   printf("Writing file: %s\n", "Makefile");
 #endif
   filegen.Output("Makefile", makefile);
-
-  return 0;
 }
 
-void validate_input_args(int argc, const char* argv[]) {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0];
-    std::cerr << " MODEL_FILE" << std::endl;
-    exit(1);
-  }
-
-  if (!boost::filesystem::is_regular_file(argv[1])) {
-    die(std::string(argv[1]) + " is not a valid file.");
-  }
-}
 
 void generate_agent_func_def(model::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name) {
