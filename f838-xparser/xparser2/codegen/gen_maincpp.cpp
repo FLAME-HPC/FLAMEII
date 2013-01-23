@@ -23,7 +23,6 @@ GenMainCpp::GenMainCpp() {
   // flame headers
   RequireHeader("flame2/sim/simulation.hpp");  // used in main_footer.cpp.tmpl
   RequireHeader("flame2/exceptions/io.hpp");
-  RequireHeader("flame2/exceptions/exe.hpp");
 }
 
 void GenMainCpp::Generate(Printer* printer) const {
