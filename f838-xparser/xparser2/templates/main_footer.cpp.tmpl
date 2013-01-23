@@ -1,14 +1,18 @@
   // Validate model
   model.validate();
 
-  // Create simulation using model and path to initial pop
-  flame::sim::Simulation s(&model, pop_path);
-
   double start_time, stop_time, total_time;
-  start_time = get_time();
+  // Create simulation using model and path to initial pop, then run simulation
+  try {
+    flame::sim::Simulation s(&model, pop_path);
+    start_time = get_time();
 
-  // Run simulation
-  s.start((size_t)num_iters, num_cores);
+    // Run simulation
+    s.start(static_cast<size_t>(num_iters),
+            static_cast<size_t>(num_cores));
+  } catch(const flame::exceptions::flame_io_exception& e) {
+    die(std::string("Invalid data file\n") + e.what());
+  }
 
   stop_time = get_time();
   total_time = stop_time - start_time;

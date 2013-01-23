@@ -5,6 +5,11 @@ static double get_time(void) {
   return now.tv_sec + (now.tv_usec * 1.e-6);
 }
 
+void die(const std::string& message, int rc = 2) {
+  std::cerr << "ERROR: " << message << std::endl;
+  exit(rc);
+}
+
 int main(int argc, const char* argv[]) {
   if (argc < 3 || argc > 4) {
     std::cerr << "Usage: " << argv[0];
@@ -13,18 +18,17 @@ int main(int argc, const char* argv[]) {
   }
 
   std::string pop_path = argv[1];
+  
   int num_iters = atoi(argv[2]);
   if (num_iters < 1) {
-    std::cerr << "Invalid value for NUM_ITERATIONS" << std::endl;
-    exit(2);
+    die("Invalid value for NUM_ITERATIONS");
   }
 
-  size_t num_cores = 1;  // default to single core run
+  int num_cores = 1;  // default to single core run
   if (argc > 3) {
-    num_cores = (size_t)atoi(argv[3]);
-    if (num_cores == 0) {
-      std::cerr << "Invalid value for NUM_CORES" << std::endl;
-      exit(3);
+    num_cores = atoi(argv[3]);
+    if (num_cores < 1) {
+      die("Invalid value for NUM_CORES", 3);
     }
   }
 
