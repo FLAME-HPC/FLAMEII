@@ -40,15 +40,15 @@
 #include "file_generator.hpp"
 
 namespace gen = xparser::codegen;  // namespace shorthand
-namespace model = flame::model;
+namespace m = flame::model;
 
 // Functions defined further down
-void build_output(model::XModel* model);
-void generate_agents(model::XModel *model, gen::GenMainCpp *maincpp);
-void generate_agent_functions(model::XMachine *agent, gen::GenMainCpp *maincpp);
-void generate_agent_func_def(model::XModel *model,
+void build_output(m::XModel* model);
+void generate_agents(m::XModel *model, gen::GenMainCpp *maincpp);
+void generate_agent_functions(m::XMachine *agent, gen::GenMainCpp *maincpp);
+void generate_agent_func_def(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
-void generate_messages(model::XModel *model,
+void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
 
 // Print error message then quit with given return code
@@ -68,7 +68,7 @@ int main(int argc, const char* argv[]) {
   }
 
   // Load and validate model
-  model::XModel model;
+  m::XModel model;
   try {
     flame::io::IOManager::GetInstance().loadModel(argv[1], &model);
   } catch(const flame::exceptions::flame_io_exception& e) {
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[]) {
   return 0;
 }
 
-void build_output(model::XModel* model) {
+void build_output(m::XModel* model) {
   // File generator to manage file writing
   xparser::FileGenerator filegen;
   gen::GenMakefile makefile;  // Makefile generator
@@ -138,19 +138,19 @@ void build_output(model::XModel* model) {
 }
 
 
-void generate_agent_func_def(model::XModel *model,
+void generate_agent_func_def(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name) {
   xparser::FileGenerator filegen;
   gen::GenHeaderFile func_def_hpp;
   gen::AgentFunctionHeaderSnippets agent_func_headers;
   gen::RegisterAgentFuncSnippets register_agent_func;
-  boost::ptr_vector<flame::model::XFunction>::iterator func;
-  boost::ptr_vector<flame::model::XMachine>::iterator agent;
-  boost::ptr_vector<flame::model::XMachine> *agents = model->getAgents();
+  boost::ptr_vector<m::XFunction>::iterator func;
+  boost::ptr_vector<m::XMachine>::iterator agent;
+  boost::ptr_vector<m::XMachine> *agents = model->getAgents();
 
   // for each agent function
   for (agent = agents->begin(); agent != agents->end(); ++agent) {
-    boost::ptr_vector<model::XFunction> * funcs = agent->getFunctions();
+    boost::ptr_vector<m::XFunction> * funcs = agent->getFunctions();
     for (func = funcs->begin(); func != funcs->end(); ++func) {
       agent_func_headers.Add(func->getName());   // func declaration
       register_agent_func.Add(func->getName());  // func registrations
@@ -167,23 +167,23 @@ void generate_agent_func_def(model::XModel *model,
   filegen.Output(file_name, func_def_hpp);
 }
 
-void generate_messages(model::XModel *model,
+void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name) {
   // file generator
   xparser::FileGenerator filegen;
   // header file generator
   gen::GenHeaderFile msg_datatype_h;
 
-  boost::ptr_vector<model::XVariable>::iterator v;
-  boost::ptr_vector<model::XMessage>::iterator m;
-  boost::ptr_vector<model::XMessage> *messages = model->getMessages();
+  boost::ptr_vector<m::XVariable>::iterator v;
+  boost::ptr_vector<m::XMessage>::iterator m;
+  boost::ptr_vector<m::XMessage> *messages = model->getMessages();
   // for each model messsage
   for (m = messages->begin(); m != messages->end(); ++m) {
     gen::GenMessageRegistration msg_reg(m->getName());
     gen::GenDataStruct msg_datatype(m->getName() + "_message");
 
     // populate message vars
-    boost::ptr_vector<model::XVariable> *vars = m->getVariables();
+    boost::ptr_vector<m::XVariable> *vars = m->getVariables();
     for (v = vars->begin(); v != vars->end(); ++v) {
       msg_reg.AddVar(v->getType(), v->getName());
       msg_datatype.AddVar(v->getType(), v->getName());
@@ -203,22 +203,22 @@ void generate_messages(model::XModel *model,
   filegen.Output(file_name, msg_datatype_h);
 }
 
-void generate_agent_functions(model::XMachine *agent,
+void generate_agent_functions(m::XMachine *agent,
     gen::GenMainCpp *maincpp) {
   // iterate throught agent functions
-  boost::ptr_vector<model::XFunction> *funcs = agent->getFunctions();
-  boost::ptr_vector<model::XFunction>::iterator f = funcs->begin();
+  boost::ptr_vector<m::XFunction> *funcs = agent->getFunctions();
+  boost::ptr_vector<m::XFunction>::iterator f = funcs->begin();
   for (; f != funcs->end(); ++f) {
     gen::GenAgentFunc gen_func(agent->getName(), f->getName(),
         f->getCurrentState(), f->getNextState());
     // loop outputs
-    boost::ptr_vector<model::XIOput>::iterator ioput;
-    boost::ptr_vector<model::XIOput> * outputs = f->getOutputs();
+    boost::ptr_vector<m::XIOput>::iterator ioput;
+    boost::ptr_vector<m::XIOput> * outputs = f->getOutputs();
     for (ioput = outputs->begin(); ioput != outputs->end(); ++ioput)
       gen_func.AddOutput(ioput->getMessageName());
 
     // loop inputs
-    boost::ptr_vector<model::XIOput> * inputs = f->getInputs();
+    boost::ptr_vector<m::XIOput> * inputs = f->getInputs();
     for (ioput = inputs->begin(); ioput != inputs->end(); ++ioput)
       gen_func.AddInput(ioput->getMessageName());
 
@@ -236,17 +236,17 @@ void generate_agent_functions(model::XMachine *agent,
   }
 }
 
-void generate_agents(model::XModel *model,
+void generate_agents(m::XModel *model,
     xparser::codegen::GenMainCpp *maincpp) {
-  boost::ptr_vector<model::XMachine>::iterator agent;
-  boost::ptr_vector<model::XMachine> *agents = model->getAgents();
+  boost::ptr_vector<m::XMachine>::iterator agent;
+  boost::ptr_vector<m::XMachine> *agents = model->getAgents();
   for (agent = agents->begin(); agent != agents->end(); ++agent) {
     std::string agent_name = agent->getName();
     gen::GenAgent gen_agent(agent_name);
 
     // iterate through agent memory var
-    boost::ptr_vector<model::XVariable> *vars = agent->getVariables();
-    boost::ptr_vector<model::XVariable>::iterator v = vars->begin();
+    boost::ptr_vector<m::XVariable> *vars = agent->getVariables();
+    boost::ptr_vector<m::XVariable>::iterator v = vars->begin();
     for (; v != vars->end(); ++v) gen_agent.AddVar(v->getType(), v->getName());
     maincpp->Insert(gen_agent);
 
@@ -256,7 +256,7 @@ void generate_agents(model::XModel *model,
 }
 
 /*
-void generateConditionFunction(flame::model::XCondition * condition, xparser::Printer * p) {
+void generateConditionFunction(m::XCondition * condition, xparser::Printer * p) {
     std::map<std::string, std::string> variables;
 
     if (condition->isNot) p->Print("!");
@@ -313,7 +313,7 @@ void generateConditionFunction(flame::model::XCondition * condition, xparser::Pr
     p->Print(")");
 }
 
-void generateConditionCreation(std::string cname, flame::model::XCondition * condition, xparser::Printer * p) {
+void generateConditionCreation(std::string cname, m::XCondition * condition, xparser::Printer * p) {
     std::map<std::string, std::string> variables;
     variables["cname"] = cname;
 
@@ -358,11 +358,11 @@ void generateConditionCreation(std::string cname, flame::model::XCondition * con
     }
     if (condition->isConditions) {
         p->Print("$cname$->isConditions = true;\n", variables);
-        p->Print("$cname$->lhsCondition = new model::XCondition;\n", variables);
+        p->Print("$cname$->lhsCondition = new m::XCondition;\n", variables);
         generateConditionCreation(cname + "->lhsCondition", condition->lhsCondition, p);
         variables["op"] = condition->op;
         p->Print("$cname$->op = \"$op$\";\n", variables);
-        p->Print("$cname$->rhsCondition = new model::XCondition;\n", variables);
+        p->Print("$cname$->rhsCondition = new m::XCondition;\n", variables);
         generateConditionCreation(cname + "->rhsCondition", condition->rhsCondition, p);
     }
     if (condition->isTime) {
@@ -385,9 +385,9 @@ void generateConditionCreation(std::string cname, flame::model::XCondition * con
     }
 }
 
-void generateConditionFunctionFiles(flame::model::XModel * model) {
-    boost::ptr_vector<flame::model::XMachine>::iterator agent;
-    boost::ptr_vector<flame::model::XFunction>::iterator func;
+void generateConditionFunctionFiles(m::XModel * model) {
+    boost::ptr_vector<m::XMachine>::iterator agent;
+    boost::ptr_vector<m::XFunction>::iterator func;
     std::map<std::string, std::string> variables;
 
     // Condition functions cpp
@@ -398,10 +398,10 @@ void generateConditionFunctionFiles(flame::model::XModel * model) {
     p2.Print("#include \"flame2.hpp\"\n");
     p2.Print("#include \"flame_generated_message_datatypes.hpp\"\n");
     // Generate function condition functions
-    boost::ptr_vector<flame::model::XMachine> * agents = model->getAgents();
+    boost::ptr_vector<m::XMachine> * agents = model->getAgents();
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         variables["agent_name"] = (*agent).getName();
-        boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
+        boost::ptr_vector<m::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
             // Conditions
             if ((*func).getCondition()) {
@@ -433,7 +433,7 @@ void generateConditionFunctionFiles(flame::model::XModel * model) {
     // Generate function condition functions
     for (agent = agents->begin(); agent != agents->end(); ++agent) {
         variables["agent_name"] = (*agent).getName();
-        boost::ptr_vector<flame::model::XFunction> * funcs = (*agent).getFunctions();
+        boost::ptr_vector<m::XFunction> * funcs = (*agent).getFunctions();
         for (func = funcs->begin(); func != funcs->end(); ++func) {
             // Conditions
             if ((*func).getCondition()) {
