@@ -410,6 +410,7 @@ void IOXMLPop::validateData(std::string const& data_file,
   xmlSchemaParserCtxtPtr parser_ctxt = NULL;
   xmlSchemaPtr schema = NULL;
   xmlDocPtr schema_doc = NULL;
+  int rc;
 
   /* Try and open pop data xml */
   openXMLDoc(&doc, data_file);
@@ -418,7 +419,7 @@ void IOXMLPop::validateData(std::string const& data_file,
 
   /* 0 if valid, positive error code otherwise
    * -1 in case of internal or API error */
-  xmlSchemaValidateDoc(valid_ctxt, doc);
+  rc = xmlSchemaValidateDoc(valid_ctxt, doc);
 
   /* Free all pointers */
   xmlSchemaFreeValidCtxt(valid_ctxt);
@@ -426,6 +427,13 @@ void IOXMLPop::validateData(std::string const& data_file,
   xmlSchemaFreeParserCtxt(parser_ctxt);
   xmlFreeDoc(schema_doc);
   xmlFreeDoc(doc);
+
+  // check error code from validation
+  if (rc == -1) {
+    throw exc::flame_io_exception("Internal error validating pop file");
+  } else if (rc != 0) {
+    throw exc::flame_io_exception("Error validating pop file");
+  }
 }
 
 void IOXMLPop::processStartNode(std::vector<std::string> * tags,
