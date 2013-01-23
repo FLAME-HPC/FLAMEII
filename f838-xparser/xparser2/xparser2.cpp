@@ -37,6 +37,7 @@
 #include "codegen/gen_agent.hpp"
 #include "codegen/gen_agentfunc.hpp"
 #include "codegen/gen_message_registration.hpp"
+#include "utils.hpp"
 #include "file_generator.hpp"
 
 namespace gen = xparser::codegen;  // namespace shorthand
@@ -66,6 +67,9 @@ int main(int argc, const char* argv[]) {
   if (!boost::filesystem::is_regular_file(argv[1])) {
     die(std::string(argv[1]) + " is not a valid file.");
   }
+
+  // print header
+  xparser::utils::print_template("xparser_header.tmpl");
 
   // Load and validate model
   m::XModel model;

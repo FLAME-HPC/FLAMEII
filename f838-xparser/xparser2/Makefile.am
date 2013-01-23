@@ -44,7 +44,8 @@ headers = \
 templates = \
   templates/Makefile.tmpl \
   templates/main_header.cpp.tmpl \
-  templates/main_footer.cpp.tmpl
+  templates/main_footer.cpp.tmpl \
+  templates/xparser_header.tmpl
 
 #flame_libraries = \
 #  $(top_srcdir)/flame2/model/lib_flame_model \

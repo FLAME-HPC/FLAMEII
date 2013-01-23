@@ -8,8 +8,10 @@
  * \brief Misc utility functions
  */
 #include <string>
+#include <iostream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include "printer.hpp"
 
 namespace xparser { namespace utils {
 
@@ -50,6 +52,11 @@ std::string gen_random_string(const int len) {
     s.append(1, pool[rand() % pool_size]);  // NOLINT(runtime/threadsafe_fn)
   }
   return s;
+}
+
+void print_template(const char* template_name) {
+  xparser::Printer out(&std::cout);
+  out.PrintRawFromFile(locate_template(template_name));
 }
 
 }}  // namespace xparser::utils
