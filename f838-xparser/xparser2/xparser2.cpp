@@ -24,6 +24,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cassert>
+#include <boost/filesystem/operations.hpp>
+#include "flame2/exceptions/io.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
@@ -39,28 +42,32 @@
 namespace gen = xparser::codegen;  // namespace shorthand
 namespace model = flame::model;
 
+// Functions defined further down
 void generate_agents(model::XModel *model, gen::GenMainCpp *maincpp);
-
 void generate_agent_functions(model::XMachine *agent, gen::GenMainCpp *maincpp);
-
 void generate_agent_func_def(model::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
-
 void generate_messages(model::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
+void validate_input_args(int argc, const char* argv[]);
 
-void handle_parameter_errors(int argc, const char* argv[]);
+// Print error message then quit with given return code
+void die(const std::string& message, int rc = 1) {
+  std::cerr << "ERROR: " << message << std::endl;
+  exit(rc);
+}
 
 int main(int argc, const char* argv[]) {
-  handle_parameter_errors(argc, argv);
+  validate_input_args(argc, argv);
 
   // Load and validate model
   model::XModel model;
-  flame::io::IOManager::GetInstance().loadModel(argv[1], &model);
-  if (model.validate() != 0) {
-    std::cerr << "Invalid model" << std::endl;
-    exit(2);
+  try {
+    flame::io::IOManager::GetInstance().loadModel(argv[1], &model);
+  } catch(const flame::exceptions::flame_io_exception& e) {
+    die(std::string("Invalid Model file\n") + e.what());
   }
+  assert(model.validate() == 0);  // just in case exception not properly thrown
 
   // File generator to manage file writing
   xparser::FileGenerator filegen;
@@ -114,11 +121,15 @@ int main(int argc, const char* argv[]) {
   return 0;
 }
 
-void handle_parameter_errors(int argc, const char* argv[]) {
+void validate_input_args(int argc, const char* argv[]) {
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " MODEL_FILE" << std::endl;
     exit(1);
+  }
+
+  if (!boost::filesystem::is_regular_file(argv[1])) {
+    die(std::string(argv[1]) + " is not a valid file.");
   }
 }
 
