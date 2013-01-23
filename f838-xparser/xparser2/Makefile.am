@@ -45,6 +45,7 @@ templates = \
   templates/Makefile.tmpl \
   templates/main_header.cpp.tmpl \
   templates/main_footer.cpp.tmpl \
+  templates/xparser_footer.tmpl \
   templates/xparser_header.tmpl
 
 #flame_libraries = \

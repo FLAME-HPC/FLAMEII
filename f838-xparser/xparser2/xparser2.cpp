@@ -87,6 +87,9 @@ int main(int argc, const char* argv[]) {
     die(e.what());
   }
 
+  // print header
+  xparser::utils::print_template("xparser_footer.tmpl");
+
   return 0;
 }
 
