@@ -19,6 +19,7 @@ library_include_HEADERS = \
   io.hpp \
   api.hpp \
   model.hpp \
+  sim.hpp \
   mem.hpp
   
 
