@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
   if (file == NULL) {
     BOOST_FAIL("Error: Could not create 0.xml for test");
   } else {
-    fprintf(file, "<states></states>");
+    fprintf(file, "<states><itno>0</itno></states>");
     fclose(file);
 
     BOOST_CHECK_NO_THROW(
