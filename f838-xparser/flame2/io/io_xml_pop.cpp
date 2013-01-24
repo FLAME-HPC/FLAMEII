@@ -111,7 +111,8 @@ void IOXMLPop::finaliseData() {
   /* Open file to write to, with no compression */
   writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
   if (writer == NULL)
-    throw exc::flame_io_exception("Opening xml population file to write to");
+    throw exc::flame_io_exception("Could not open xml population "
+                                  "file for writing");
   /* Write tags on new lines */
   xmlTextWriterSetIndent(writer, 1);
 
@@ -354,7 +355,7 @@ void IOXMLPop::createDataSchema(std::string const& file,
   /* Open file to write to, with no compression */
   writer = xmlNewTextWriterFilename(file.c_str(), 0);
   if (writer == NULL)
-    throw exc::flame_io_exception("Opening data schema file");
+    throw exc::flame_io_exception("Could not load data schema file");
   /* Write tags on new lines */
   xmlTextWriterSetIndent(writer, 1);
   createDataSchemaHead(writer);
@@ -374,7 +375,7 @@ void IOXMLPop::openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
   *doc = xmlReadFile(data_file.c_str(), NULL, 0);
   /* Return error if the file was not successfully parsed */
   if (*doc == NULL)
-    throw exc::flame_io_exception("Opening xml file");
+    throw exc::flame_io_exception("Parsing of XML file failed");
 }
 
 int IOXMLPop::openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt,
@@ -591,7 +592,7 @@ void IOXMLPop::writeXMLEndTag(xmlTextWriterPtr writer) {
   int rc;
   rc = xmlTextWriterEndElement(writer);
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML end element");
 }
 
 void IOXMLPop::writeXMLEndTag(xmlTextWriterPtr writer, int count) {
@@ -604,7 +605,7 @@ void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name) {
   int rc;
   rc = xmlTextWriterStartElement(writer, BAD_CAST name.c_str());
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML file");
 }
 
 void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
@@ -613,7 +614,7 @@ void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
   rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(), "%d",
       value);
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML file");
 }
 
 void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
@@ -622,7 +623,7 @@ void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
   rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(), "%f",
       value);
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML file");
 }
 
 void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
@@ -631,7 +632,7 @@ void IOXMLPop::writeXMLTag(xmlTextWriterPtr writer, std::string name,
   rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST name.c_str(), "%s",
       value.c_str());
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML file");
 }
 
 void IOXMLPop::writeXMLTagAttribute(xmlTextWriterPtr writer, std::string name,
@@ -640,7 +641,7 @@ void IOXMLPop::writeXMLTagAttribute(xmlTextWriterPtr writer, std::string name,
   rc = xmlTextWriterWriteAttribute(writer, BAD_CAST name.c_str(),
       BAD_CAST value.c_str());
   if (rc < 0)
-    throw exc::flame_io_exception("Writing to xml file");
+    throw exc::flame_io_exception("Failed while writing XML file");
 }
 
 void IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
@@ -672,7 +673,7 @@ void IOXMLPop::writeXMLTagAndAttribute(xmlTextWriterPtr writer, std::string tag,
 void IOXMLPop::endXMLDoc(xmlTextWriterPtr writer) {
   int rc = xmlTextWriterEndDocument(writer);
   if (rc < 0)
-    throw exc::flame_io_exception("Closing xml file");
+    throw exc::flame_io_exception("Could not close xml file");
 }
 
 void IOXMLPop::setIteration(size_t i) {
