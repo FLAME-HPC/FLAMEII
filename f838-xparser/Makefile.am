@@ -73,7 +73,8 @@ include_HEADERS = \
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
   tests/io/models \
   tests/sim/models \
-  tests/model/models
+  tests/model/models \
+  tests/xparser2/data
 
 # Install custom libtool along with distribution
 bin_SCRIPTS = libtool
