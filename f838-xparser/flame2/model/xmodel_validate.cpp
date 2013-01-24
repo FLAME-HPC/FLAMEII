@@ -354,24 +354,22 @@ int XModelValidate::processAgentFunction(XFunction * function,
   // variable access as being read write.
   if (!function->getMemoryAccessInfoAvailable()) {
     // output a warning
-    printErr("Warning: Agent function does not have memory access info: %s\n",
-            function->getName().c_str());
+    printErr("Warning: Agent function does not have memory access info: %s\n"
+      "         Defaulting memory access to read write for all agent memory\n",
+      function->getName().c_str());
     function->setMemoryAccessInfoAvailable(true);
     for (variable2 = variables->begin();
-        variable2 != variables->end(); ++variable2) {
+        variable2 != variables->end(); ++variable2)
       function->addReadWriteVariable((*variable2).getName());
-    }
     // Else check memory access variables are valid
   } else {
     // Check variable names are valid variables in memory
     for (variable = function->getReadOnlyVariables()->begin();
-        variable != function->getReadOnlyVariables()->end();
-        ++variable)
+        variable != function->getReadOnlyVariables()->end(); ++variable)
       errors += processMemoryAccessVariable(
           (*variable), variables, &usedVariables);
     for (variable = function->getReadWriteVariables()->begin();
-        variable != function->getReadWriteVariables()->end();
-        ++variable)
+        variable != function->getReadWriteVariables()->end(); ++variable)
       errors += processMemoryAccessVariable(
           (*variable), variables, &usedVariables);
   }
