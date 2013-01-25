@@ -6,8 +6,8 @@
  <description>Test model</description>
  <environment>
  <functionFiles>
- <file>functions.c</file>
- <file>functions.notc</file>
+ <file>functions.cpp</file>
+ <file>functions.notcpp</file>
  </functionFiles>
  <constants>
    <variable><type>not_valid_type</type><name>a</name><description></description></variable>
