@@ -1,18 +1,20 @@
-#include "flame.h"
+/*!
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ */
+#include <flame.h>
 
 #define kr 0.1 /* Stiffness variable for repulsion */
 #define ka 0.0 /* Stiffness variable for attraction */
 
-double distance (double x, double y)
-{
-	return (sqrt(x*x+y+x));
+double distance(double x, double y) {
+  return (sqrt(x*x+y+x));
 }
 /** \fn outputdata()
  * \brief Output message containing location and radius
  */
 
-FLAME_AGENT_FUNCTION(outputdata)
-{
+FLAME_AGENT_FUNCTION(outputdata) {
     printf("outputdata\n");
 /*    double x, y;
 	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
@@ -21,14 +23,13 @@ FLAME_AGENT_FUNCTION(outputdata)
  
 	add_location_message(xmemory->id, (xmemory->radius * 3), x, y, 0.0);
 	*/
-	return 0;
+  return 0;
 }
 
 /** \fn inputdata()
  * \brief Read all messages from other agents
  */
-FLAME_AGENT_FUNCTION(inputdata)
-{
+FLAME_AGENT_FUNCTION(inputdata) {
     printf("inputdata\n");
 /*	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
 	double x1, y1, x2, y2;
@@ -62,19 +63,18 @@ FLAME_AGENT_FUNCTION(inputdata)
 	
 	FINISH_LOCATION_MESSAGE_LOOP
 	*/
-	return 0;
+  return 0;
 }
 
 /** \fn move()
  * \brief Update location
  */
-FLAME_AGENT_FUNCTION(move)
-{
+FLAME_AGENT_FUNCTION(move) {
     printf("move\n");
 /*	xmachine_memory_Circle * xmemory = current_xmachine->xmachine_Circle;
 	
 	xmemory->x += xmemory->fx;
 	xmemory->y += xmemory->fy;
 	*/
-	return 0;
+  return 0;
 }
