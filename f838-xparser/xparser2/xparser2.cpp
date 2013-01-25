@@ -187,7 +187,7 @@ void generate_messages(m::XModel *model,
   // for each model messsage
   for (m = messages->begin(); m != messages->end(); ++m) {
     gen::GenMessageRegistration msg_reg(m->getName());
-    gen::GenDataStruct msg_datatype(m->getName() + "_message");
+    gen::GenDataStruct msg_datatype(m->getName() + "_message_t");
 
     // populate message vars
     boost::ptr_vector<m::XVariable> *vars = m->getVariables();

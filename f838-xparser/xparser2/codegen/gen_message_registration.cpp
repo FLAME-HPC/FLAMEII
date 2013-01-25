@@ -36,7 +36,7 @@ void GenMessageRegistration::Generate(Printer* printer) const {
   }
 
   // register message datatype
-  printer->Print("model.registerMessageType<$MSG$_message>(\"$MSG$\");\n",
+  printer->Print("model.registerMessageType<$MSG$_message_t>(\"$MSG$\");\n",
                  "MSG", name_);
 }
 
