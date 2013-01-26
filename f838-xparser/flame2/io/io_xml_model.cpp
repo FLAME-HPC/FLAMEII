@@ -204,7 +204,7 @@ void IOXMLModel::readIncludedModel(xmlNode * node,
     std::string directory, model::XModel * model, xmlDoc *doc) {
   xmlNode *cur_node = NULL;
   std::string fileName;
-  bool enable;
+  bool enable = true;
 
   /* Loop through each child of dataType */
   for (cur_node = node->children; cur_node; cur_node = cur_node->next) {

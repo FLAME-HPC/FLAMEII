@@ -41,10 +41,10 @@ void Simulation::start(size_t iterations, size_t num_cores) {
   s.AssignType(q, exe::Task::MB_FUNCTION);
   s.AssignType(q, exe::Task::IO_FUNCTION);
 
-  size_t ii;
+  unsigned int ii;
   for (ii = 1; ii <= iterations; ++ii) {
 #ifndef TESTBUILD
-    printf("Iteration - %lu\n", ii);
+    printf("Iteration - %u\n", ii);
 #endif
     s.RunIteration();
   }
