@@ -8,6 +8,7 @@
  * \brief Test suite for xparser2
  */
 #define BOOST_TEST_DYN_LINK
+#include <unistd.h>  // for chdir()
 #include <set>
 #include <string>
 #include <boost/filesystem/operations.hpp>
@@ -45,6 +46,11 @@ BOOST_AUTO_TEST_CASE(xp_locate_template) {
   // We cannot easily test for templates in PKGDATA_INSTALL_DIRECTORY.
   // Do what we can and just test for known templates within the distribution
   std::string s;
+  std::string cwd = boost::filesystem::current_path().string();
+
+  // Change working dir to source root
+  chdir("../");
+
   s = xparser::utils::locate_template("unknown");
   BOOST_CHECK(s.empty());
 
@@ -52,6 +58,9 @@ BOOST_AUTO_TEST_CASE(xp_locate_template) {
   s = xparser::utils::locate_template("Makefile.tmpl");
   BOOST_CHECK(!s.empty());
   BOOST_CHECK(boost::filesystem::exists(s));
+
+  // restore working directory
+  chdir(cwd.c_str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
