@@ -30,49 +30,49 @@ XTimeUnit::XTimeUnit() : period_(0), id_(0) {}
  * period.
  */
 void XTimeUnit::print() {
-    std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());
-    std::fprintf(stdout, "\tUnit  : %s\n", getUnit().c_str());
-    std::fprintf(stdout, "\tPeriod: %d\n", getPeriod());
+  std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());
+  std::fprintf(stdout, "\tUnit  : %s\n", getUnit().c_str());
+  std::fprintf(stdout, "\tPeriod: %d\n", getPeriod());
 }
 
 void XTimeUnit::setName(std::string name) {
-    name_ = name;
+  name_ = name;
 }
 
 std::string XTimeUnit::getName() {
-    return name_;
+  return name_;
 }
 
 void XTimeUnit::setUnit(std::string unit) {
-    unit_ = unit;
+  unit_ = unit;
 }
 
 std::string XTimeUnit::getUnit() {
-    return unit_;
+  return unit_;
 }
 
 void XTimeUnit::setPeriodString(std::string period) {
-    periodString_ = period;
+  periodString_ = period;
 }
 
 std::string XTimeUnit::getPeriodString() {
-    return periodString_;
+  return periodString_;
 }
 
 void XTimeUnit::setPeriod(int period) {
-    period_ = period;
+  period_ = period;
 }
 
 int XTimeUnit::getPeriod() {
-    return period_;
+  return period_;
 }
 
 void XTimeUnit::setID(int id) {
-    id_ = id;
+  id_ = id;
 }
 
 int XTimeUnit::getID() {
-    return id_;
+  return id_;
 }
 
 }}  // namespace flame::model

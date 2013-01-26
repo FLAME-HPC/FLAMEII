@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   BOOST_CHECK_EQUAL(pi->size(), (size_t)3);
 
   std::stringstream stream1;
-  pi->OutputToStream(stream1, ", ");
+  pi->OutputToStream(&stream1, ", ");
   BOOST_CHECK_EQUAL("1, 2, 3", stream1.str());
 
   BOOST_CHECK(vd->empty());
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test_vector_wrapper) {
   BOOST_CHECK_EQUAL(pd->size(), (size_t)3);
 
   std::stringstream stream2;
-  pd->OutputToStream(stream2, ", ");
+  pd->OutputToStream(&stream2, ", ");
   BOOST_CHECK_EQUAL("10.1, 20.2, 30.3", stream2.str());
 
   // check GetRawPtr with different offsets

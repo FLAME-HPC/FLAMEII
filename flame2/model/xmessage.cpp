@@ -20,7 +20,8 @@ namespace flame { namespace model {
  *
  * Initialises id to be zero and start and finish tasks to be null.
  */
-XMessage::XMessage() : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
+XMessage::XMessage()
+  : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
 
 /*!
  * \brief Prints XMessage
@@ -28,62 +29,69 @@ XMessage::XMessage() : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
  * Prints XMessage to standard out.
  */
 void XMessage::print() {
-    boost::ptr_vector<XVariable>::iterator it;
-    std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
-    for (it = variables_.begin(); it != variables_.end(); it++)
-        (*it).print();
+  boost::ptr_vector<XVariable>::iterator it;
+  std::fprintf(stdout, "\tMessage Name: %s\n", getName().c_str());
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    (*it).print();
 }
 
 void XMessage::setName(std::string name) {
-    name_ = name;
+  name_ = name;
 }
 
 std::string XMessage::getName() {
-    return name_;
+  return name_;
 }
 
 XVariable * XMessage::addVariable() {
-    XVariable * xvariable = new XVariable;
-    variables_.push_back(xvariable);
-    return xvariable;
+  XVariable * xvariable = new XVariable;
+  variables_.push_back(xvariable);
+  return xvariable;
+}
+
+XVariable * XMessage::addVariable(std::string type, std::string name) {
+  XVariable * xvariable = addVariable();
+  xvariable->setType(type);
+  xvariable->setName(name);
+  return xvariable;
 }
 
 boost::ptr_vector<XVariable> * XMessage::getVariables() {
-    return &variables_;
+  return &variables_;
 }
 
 /*!
  * \brief Finds a variable name in the message memory
  */
 bool XMessage::validateVariableName(std::string name) {
-    boost::ptr_vector<XVariable>::iterator it;
-    for (it = variables_.begin(); it != variables_.end(); it++)
-        if (name == (*it).getName()) return true;
-    return false;
+  boost::ptr_vector<XVariable>::iterator it;
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    if (name == (*it).getName()) return true;
+  return false;
 }
 
 void XMessage::setSyncStartTask(Task * task) {
-    syncStartTask_ = task;
+  syncStartTask_ = task;
 }
 
 Task * XMessage::getSyncStartTask() {
-    return syncStartTask_;
+  return syncStartTask_;
 }
 
 void XMessage::setSyncFinishTask(Task * task) {
-    syncFinishTask_ = task;
+  syncFinishTask_ = task;
 }
 
 Task * XMessage::getSyncFinishTask() {
-    return syncFinishTask_;
+  return syncFinishTask_;
 }
 
 void XMessage::setID(int id) {
-    id_ = id;
+  id_ = id;
 }
 
 int XMessage::getID() {
-    return id_;
+  return id_;
 }
 
 }}  // namespace flame::model

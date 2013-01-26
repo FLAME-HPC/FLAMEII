@@ -11,10 +11,12 @@
 #define MODEL__XGRAPH_HPP_
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/property_map/property_map.hpp>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
+#include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
 #include "task.hpp"
@@ -31,16 +33,19 @@ namespace flame { namespace model {
  */
 typedef boost::adjacency_list
         <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-/* \brief Define vertex descriptor type */
+//! \brief Define vertex descriptor type
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-/* \brief Define edge descriptor type */
+//! \brief Define edge descriptor type
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-/* \brief Define vertex iterator */
+//! \brief Define vertex iterator
 typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-/* \brief Define edge iterator */
+//! \brief Define edge iterator
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-/* \brief Define edge mapping */
+//! \brief Define edge mapping
 typedef std::map<Edge, Dependency *> EdgeMap;
+
+//! Use a shared pointer to automatically handle Task pointers
+typedef boost::shared_ptr<Task> TaskPtr;
 
 class XGraph {
   public:
@@ -49,8 +54,15 @@ class XGraph {
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
-    int checkCyclicDependencies();
-    int checkFunctionConditions();
+    //! Checks for cyclic dependencies within a graph
+    //! \return first integer for number of errors,
+    //!         second string for error message
+    std::pair<int, std::string> checkCyclicDependencies();
+    //! Checks for conditions on functions from a state
+    //! with more than one out edge
+    //! \return first integer for number of errors,
+    //!         second string for error message
+    std::pair<int, std::string> checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
     int registerAgentTask(Task * t,
             std::map<std::string, flame::exe::TaskFunction> funcMap);
@@ -61,8 +73,7 @@ class XGraph {
             std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
-    void setTasksImported(bool b);
-    std::vector<Task *> * getVertexTaskMap();
+    std::vector<TaskPtr> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
     void importGraphs(std::set<XGraph*> graphs);
@@ -76,6 +87,16 @@ class XGraph {
 #endif
 
   private:
+    /*! \brief Ptr to a graph so that graphs can be swapped */
+    Graph * graph_;
+    /*! \brief Ptr to vertex task so that mappings can be swapped */
+    std::vector<TaskPtr> * vertex2task_;
+    EdgeMap * edge2dependency_;
+    Task * startTask_;
+    std::set<Task *> endTasks_;
+    Task * endTask_;
+    std::string agentName_;
+
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();
     void addMessageClearTasks();
@@ -84,6 +105,7 @@ class XGraph {
     int registerAllowMessage(flame::exe::Task * task,
             std::set<std::string> * messages, bool post);
     Vertex addVertex(Task * t);
+    Vertex addVertex(TaskPtr ptr);
     Edge addEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
     Task * generateStateGraphStatesAddStateToGraph(
@@ -109,7 +131,7 @@ class XGraph {
     void removeRedundantDependencies();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
-    void AddVariableOutput(boost::ptr_vector<XVariable> * variables);
+    void AddVariableOutput();
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Vertex getVertex(Task * t);
@@ -118,16 +140,6 @@ class XGraph {
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
     void removeDependency(Edge e);
-    /*! \brief Ptr to a graph so that graphs can be swapped */
-    Graph * graph_;
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
-    std::vector<Task *> * vertex2task_;
-    EdgeMap * edge2dependency_;
-    Task * startTask_;
-    std::set<Task *> endTasks_;
-    Task * endTask_;
-    std::string agentName_;
-    bool taskImported_;
 };
 
 }}  // namespace flame::model

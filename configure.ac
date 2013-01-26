@@ -29,8 +29,8 @@ AM_INIT_AUTOMAKE
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 AC_COPYRIGHT([
-  Copyright (c) 2012 STFC Rutherford Appleton Laboratory
-  Copyright (c) 2012 University of Sheffield
+  Copyright (c) 2013 STFC Rutherford Appleton Laboratory
+  Copyright (c) 2013 University of Sheffield
 ])
 
 # Specify any unique file in the src directory
@@ -119,6 +119,15 @@ if test $WANT_DBG_BUILD = 1; then BUILDS="debug $BUILDS"; fi
 
 if test "x${BUILDS}" = "x"; then
   AC_MSG_ERROR([All build types disabled. Nothing left to do.])
+fi
+
+# Sets LOWEST_BUILD_SUFFIX to the lowest level library suffix available
+if test $WANT_TEST_BUILD = 1; then
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [test])
+elif test $WANT_DBG_BUILD = 1; then
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [dbg])
+else
+  AC_SUBST([LOWEST_BUILD_SUFFIX], [prod])
 fi
 
 ##### CHECK BOOST #####
@@ -331,6 +340,8 @@ flame2/sim/Makefile
 flame2/model/Makefile
 flame2/api/Makefile
 flame2/exceptions/Makefile
+xparser2/Makefile
+xparser2/templates/xparser_header.tmpl
 ])
 
 ############# Output upon successfule configuration ######################

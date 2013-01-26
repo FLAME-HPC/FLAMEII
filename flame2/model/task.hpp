@@ -23,8 +23,8 @@ typedef std::map<std::string, std::set<size_t> > VarMapToVertices;
 class Task {
   public:
     enum TaskType { xfunction = 0, xstate, xmessage_sync, xmessage_clear,
-                    io_pop_write, start_agent, finish_agent, xcondition,
-                    xvariable, start_model, finish_model, xmessage};
+      io_pop_write, start_agent, finish_agent, xcondition,
+      xvariable, start_model, finish_model, xmessage};
     Task(std::string parentName, std::string name, TaskType type);
     std::string getTaskName();
     void setParentName(std::string parentName);

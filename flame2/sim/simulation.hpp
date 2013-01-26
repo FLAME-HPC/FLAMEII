@@ -17,7 +17,7 @@ namespace flame { namespace sim {
 class Simulation {
   public:
     Simulation(flame::model::Model * model, std::string pop_file);
-    void start(size_t iterations);
+    void start(size_t iterations, size_t num_cores = 1);
 
   private:
     flame::model::XModel * model_;

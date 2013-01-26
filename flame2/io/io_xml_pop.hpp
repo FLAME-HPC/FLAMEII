@@ -54,7 +54,7 @@ class IOXMLPop {
     void createDataSchemaAgentVars(xmlTextWriterPtr writer,
         flame::model::XModel * model);
     void createDataSchemaAgentVar(xmlTextWriterPtr writer,
-            boost::ptr_vector<model::XVariable>::iterator variable);
+        boost::ptr_vector<model::XVariable>::iterator variable);
     void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
     void createDataSchemaDefineTags(xmlTextWriterPtr writer);
     void writeXMLEndTag(xmlTextWriterPtr writer);
@@ -81,7 +81,7 @@ class IOXMLPop {
         const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
         xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
     void processStartNode(std::vector<std::string> * tags, std::string name,
-            xmlTextReaderPtr reader);
+        xmlTextReaderPtr reader);
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,

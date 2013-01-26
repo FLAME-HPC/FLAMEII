@@ -70,7 +70,7 @@ class AgentShadow {
     ConstVectorMap vec_map_;  //! map accessible vars
 
     bool IsRegistered(const std::string& var_name) const;
-    
+
   private:
     // size_t size_;  //! Size if memory vectors
     AgentMemory* am_;  //! Pointer to parent AgentMemory object

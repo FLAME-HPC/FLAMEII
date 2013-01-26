@@ -23,13 +23,13 @@ namespace flame { namespace model {
  * scaler (not an array).
  */
 XVariable::XVariable()
-    : isDynamicArray_(false),
-    isStaticArray_(false),
-    staticArraySize_(0),
-    hasADTType_(false),
-    holdsDynamicArray_(false),
-    constantSet_(false),
-    constant_(false) {}
+: isDynamicArray_(false),
+  isStaticArray_(false),
+  staticArraySize_(0),
+  hasADTType_(false),
+  holdsDynamicArray_(false),
+  constantSet_(false),
+  constant_(false) {}
 
 /*!
  * \brief Initialises XVariable
@@ -37,14 +37,14 @@ XVariable::XVariable()
  * Initialises XVariable using a name.
  */
 XVariable::XVariable(std::string name)
-    : name_(name),
-    isDynamicArray_(false),
-    isStaticArray_(false),
-    staticArraySize_(0),
-    hasADTType_(false),
-    holdsDynamicArray_(false),
-    constantSet_(false),
-    constant_(false) {}
+: name_(name),
+  isDynamicArray_(false),
+  isStaticArray_(false),
+  staticArraySize_(0),
+  hasADTType_(false),
+  holdsDynamicArray_(false),
+  constantSet_(false),
+  constant_(false) {}
 
 /*!
  * \brief Prints XVariable
@@ -53,91 +53,91 @@ XVariable::XVariable(std::string name)
  * standard out.
  */
 void XVariable::print() {
-    std::fprintf(stdout, "\t%s %s\n",
-            getType().c_str(), getName().c_str());
+  std::fprintf(stdout, "\t%s %s\n",
+      getType().c_str(), getName().c_str());
 }
 
 /* All other functions are for setting and getting
  * class variables */
 
 void XVariable::setName(std::string name) {
-    name_ = name;
+  name_ = name;
 }
 
 std::string XVariable::getName() {
-    return name_;
+  return name_;
 }
 
 void XVariable::setType(std::string type) {
-    type_ = type;
+  type_ = type;
 }
 
 std::string XVariable::getType() {
-    return type_;
+  return type_;
 }
 
 void XVariable::setIsDynamicArray(bool b) {
-    isDynamicArray_ = b;
+  isDynamicArray_ = b;
 }
 
 bool XVariable::isDynamicArray() {
-    return isDynamicArray_;
+  return isDynamicArray_;
 }
 
 void XVariable::setIsStaticArray(bool b) {
-    isStaticArray_ = b;
+  isStaticArray_ = b;
 }
 
 bool XVariable::isStaticArray() {
-    return isStaticArray_;
+  return isStaticArray_;
 }
 
 void XVariable::setStaticArraySize(int size) {
-    staticArraySize_ = size;
+  staticArraySize_ = size;
 }
 
 int XVariable::getStaticArraySize() {
-    return staticArraySize_;
+  return staticArraySize_;
 }
 
 void XVariable::setHasADTType(bool b) {
-    hasADTType_ = b;
+  hasADTType_ = b;
 }
 
 bool XVariable::hasADTType() {
-    return hasADTType_;
+  return hasADTType_;
 }
 
 void XVariable::setHoldsDynamicArray(bool b) {
-    holdsDynamicArray_ = b;
+  holdsDynamicArray_ = b;
 }
 
 bool XVariable::holdsDynamicArray() {
-    return holdsDynamicArray_;
+  return holdsDynamicArray_;
 }
 
 void XVariable::setConstantString(std::string name) {
-    constantString_ = name;
+  constantString_ = name;
 }
 
 std::string XVariable::getConstantString() {
-    return constantString_;
+  return constantString_;
 }
 
 void XVariable::setConstantSet(bool set) {
-    constantSet_ = set;
+  constantSet_ = set;
 }
 
 bool XVariable::isConstantSet() {
-    return constantSet_;
+  return constantSet_;
 }
 
 void XVariable::setConstant(bool constant) {
-    constant_ = constant;
+  constant_ = constant;
 }
 
 bool XVariable::isConstant() {
-    return constant_;
+  return constant_;
 }
 
 }}  // namespace flame::model

@@ -21,45 +21,44 @@ namespace flame { namespace model {
  * Initialises Dependency.
  */
 Dependency::Dependency(std::string name, DependencyType type)
-    : name_(name), dependencyType_(type)
-{}
+  : name_(name), dependencyType_(type) {}
 
 void Dependency::setName(std::string name) {
-    name_ = name;
+  name_ = name;
 }
 
 std::string Dependency::getName() {
-    return name_;
+  return name_;
 }
 
 void Dependency::setDependencyType(DependencyType type) {
-    dependencyType_ = type;
+  dependencyType_ = type;
 }
 
 Dependency::DependencyType Dependency::getDependencyType() {
-    return dependencyType_;
+  return dependencyType_;
 }
 
 std::string Dependency::getGraphName() {
-    std::string graphName;
-    // If communication
-    if (dependencyType_ == Dependency::communication)
-        graphName.append("Message");
-    // If data
-    else if (dependencyType_ == Dependency::data ||
-            dependencyType_ == Dependency::variable)
-        graphName.append("Data");
-    // If state
-    else if (dependencyType_ == Dependency::state)
-        graphName.append("State");
-    // If condition
-    else if (dependencyType_ == Dependency::condition)
-            graphName.append("Condition");
-    // If initialisation
-    else if (dependencyType_ == Dependency::init)
-        graphName.append("");
-    // graphName.append(name_);
-    return graphName;
+  std::string graphName;
+  // If communication
+  if (dependencyType_ == Dependency::communication)
+    graphName.append("Message");
+  // If data
+  else if (dependencyType_ == Dependency::data ||
+      dependencyType_ == Dependency::variable)
+    graphName.append("Data");
+  // If state
+  else if (dependencyType_ == Dependency::state)
+    graphName.append("State");
+  // If condition
+  else if (dependencyType_ == Dependency::condition)
+    graphName.append("Condition");
+  // If initialisation
+  else if (dependencyType_ == Dependency::init)
+    graphName.append("");
+  // graphName.append(name_);
+  return graphName;
 }
 
 }}  // namespace flame::model

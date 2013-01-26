@@ -24,6 +24,7 @@ class XMessage {
     void setName(std::string name);
     std::string getName();
     XVariable * addVariable();
+    XVariable * addVariable(std::string type, std::string name);
     boost::ptr_vector<XVariable> * getVariables();
     bool validateVariableName(std::string name);
     void setSyncStartTask(Task * task);

@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "flame2/exe/task_interface.hpp"
+#include <utility>
 #include "xvariable.hpp"
 #include "xfunction.hpp"
 #include "xgraph.hpp"
@@ -31,6 +31,10 @@ class XMachine {
     boost::ptr_vector<XVariable> * getVariables();
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
+    XFunction * addFunction(std::string name,
+            std::string currentState, std::string nextState);
+    XFunction * getFunction(std::string name,
+            std::string current_state, std::string next_state);
     boost::ptr_vector<XFunction> * getFunctions();
     bool validateVariableName(std::string name);
     int findStartEndStates();
@@ -38,8 +42,8 @@ class XMachine {
     std::set<std::string> getEndStates();
     int generateStateGraph();
     XGraph * getFunctionDependencyGraph();
-    int checkCyclicDependencies();
-    int checkFunctionConditions();
+    std::pair<int, std::string> checkCyclicDependencies();
+    std::pair<int, std::string> checkFunctionConditions();
     int generateDependencyGraph();
     void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);

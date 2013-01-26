@@ -22,7 +22,6 @@ namespace flame { namespace io { namespace xml {
 class IOXMLModel {
   public:
     IOXMLModel() {}
-
     void readXMLModel(std::string file_name, model::XModel * model);
 
   private:
@@ -30,16 +29,16 @@ class IOXMLModel {
     std::string getElementName(xmlNode * node);
     std::string getElementValue(xmlNode * node);
     void validateXMLModelRootElement(
-            xmlNode *root_element, std::string file_name, xmlDoc *doc);
+        xmlNode *root_element, std::string file_name, xmlDoc *doc);
     void readModelElements(xmlNode *root_element, model::XModel * model,
-            std::string directory, xmlDoc *doc);
+        std::string directory, xmlDoc *doc);
     void readUnknownElement(xmlNode * node);
     void readIncludedModels(xmlNode * node,
-            std::string directory, model::XModel * model, xmlDoc *doc);
+        std::string directory, model::XModel * model, xmlDoc *doc);
     void readIncludedModel(xmlNode * node,
-            std::string directory, model::XModel * model, xmlDoc *doc);
+        std::string directory, model::XModel * model, xmlDoc *doc);
     void readIncludedModelValidate(std::string directory, std::string fileName,
-            model::XModel * model, bool enable, xmlDoc *doc);
+        model::XModel * model, bool enable, xmlDoc *doc);
     void readEnvironment(xmlNode * node, model::XModel * model);
     void readFunctionFiles(xmlNode * node, model::XModel * model);
     void readDataTypes(xmlNode * node, model::XModel * model);
@@ -47,9 +46,9 @@ class IOXMLModel {
     void readTimeUnits(xmlNode * node, model::XModel * model);
     void readTimeUnit(xmlNode * node, model::XModel * model);
     void readVariables(xmlNode * node,
-            boost::ptr_vector<model::XVariable> * variables);
+        boost::ptr_vector<model::XVariable> * variables);
     void readVariable(xmlNode * node,
-            boost::ptr_vector<model::XVariable> * variables);
+        boost::ptr_vector<model::XVariable> * variables);
     void readAgents(xmlNode * node, model::XModel * model);
     void readAgent(xmlNode * node, model::XModel * model);
     void readTransitions(xmlNode * node, model::XMachine * machine);
@@ -63,9 +62,10 @@ class IOXMLModel {
     void readSort(xmlNode * node, model::XIOput * xioput);
     void readCondition(xmlNode * node, model::XCondition * xcondition);
     void readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
-    void readConditionSide(model::XCondition * xcondition,
-        model::XCondition ** hsCondition, std::string * hs, bool * hsIsValue,
-        bool * hsIsCondition, xmlNode *cur_node);
+    void readConditionLhs(model::XCondition * xcondition,
+        xmlNode *cur_node);
+    void readConditionRhs(model::XCondition * xcondition,
+        xmlNode *cur_node);
     void readMemoryAccess(xmlNode * node, model::XFunction * xfunction);
     void readMemoryAccessVariables(xmlNode * node,
         std::vector<std::string> * variables);

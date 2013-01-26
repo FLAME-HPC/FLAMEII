@@ -34,10 +34,10 @@ class flame_task_exception : public flame_exe_exception {
                             const std::string& msg)
         : flame_exe_exception(msg),
           agent_(agent_name), task_(task_name), msg_(msg) {}
-        
-    ~flame_task_exception () throw() {}
-    
-    const char* what() const throw () {
+
+    ~flame_task_exception() throw() {}
+
+    const char* what() const throw() {
       std::ostringstream out;
       out << std::endl;
       out << "Runtime Error Detected" << std::endl;

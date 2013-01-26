@@ -29,59 +29,114 @@ class XCondition {
     int processSymbolsValues();
     int processSymbolsConditions();
     int validate(XMachine * agent, XMessage * message, XModel * model,
-            XCondition * rootCondition);
+        XCondition * rootCondition);
     int validateTime(XMachine * agent, XModel * model,
-            XCondition * rootCondition);
+        XCondition * rootCondition);
     int validateValues(XMachine * agent, XMessage * xmessage,
-            XCondition * rootCondition);
+        XCondition * rootCondition);
     std::set<std::string> * getReadOnlyVariables();
-    bool isNot;
-    bool isTime;
-    bool isValues;
-    bool isConditions;
-    bool lhsIsAgentVariable;
-    bool rhsIsAgentVariable;
-    bool lhsIsValue;
-    bool rhsIsValue;
-    bool lhsIsCondition;
-    bool rhsIsCondition;
-    bool lhsIsMessageVariable;
-    bool rhsIsMessageVariable;
-    double lhsDouble;
-    double rhsDouble;
+    void addReadOnlyVariable(std::string s);
+    bool isNot();
+    void setIsNot(bool b);
+    bool isTime();
+    void setIsTime(bool b);
+    bool isValues();
+    void setIsValues(bool b);
+    bool isConditions();
+    void setIsConditions(bool b);
+    bool lhsIsAgentVariable();
+    void setLhsIsAgentVariable(bool b);
+    bool rhsIsAgentVariable();
+    void setRhsIsAgentVariable(bool b);
+    bool lhsIsValue();
+    void setLhsIsValue(bool b);
+    bool rhsIsValue();
+    void setRhsIsValue(bool b);
+    bool lhsIsCondition();
+    void setLhsIsCondition(bool b);
+    bool rhsIsCondition();
+    void setRhsIsCondition(bool b);
+    bool lhsIsMessageVariable();
+    void setLhsIsMessageVariable(bool b);
+    bool rhsIsMessageVariable();
+    void setRhsIsMessageVariable(bool b);
+    double lhsDouble();
+    void setLhsDouble(double d);
+    double rhsDouble();
+    void setRhsDouble(double d);
     /*! \brief tempValue holds a value before being set as lhs or rhs */
-    std::string tempValue;
-    std::string lhs;
-    std::string op;
-    std::string rhs;
-    std::string timePeriod;
-    std::string timePhaseVariable;
-    std::string timeDurationString;
-    int timePhaseValue;
-    bool timePhaseIsVariable;
-    int timeDuration;
-    bool foundTimeDuration;
-    XCondition * lhsCondition;
-    XCondition * rhsCondition;
+    std::string tempValue();
+    void setTempValue(std::string s);
+    std::string lhs();
+    void setLhs(std::string s);
+    std::string op();
+    void setOp(std::string s);
+    std::string rhs();
+    void setRhs(std::string s);
+    std::string timePeriod();
+    void setTimePeriod(std::string s);
+    std::string timePhaseVariable();
+    void setTimePhaseVariable(std::string s);
+    std::string timeDurationString();
+    void setTimeDurationString(std::string s);
+    int timePhaseValue();
+    void setTimePhaseValue(int i);
+    bool timePhaseIsVariable();
+    void setTimePhaseIsVariable(bool b);
+    int timeDuration();
+    void setTimeDuration(int i);
+    bool foundTimeDuration();
+    void setFoundTimeDuration(bool b);
+    XCondition * lhsCondition();
+    void setLhsCondition(XCondition * c);
+    XCondition * rhsCondition();
+    void setRhsCondition(XCondition * c);
+
+  private:
+    /* read in values */
+    /*! \brief tempValue holds a value before being set as lhs or rhs */
+    std::string tempValue_;
+    std::string lhs_;
+    std::string op_;
+    std::string rhs_;
+    /* condition is negated */
+    bool isNot_;
+    /* condition is time based */
+    bool isTime_;
+    std::string timePeriod_;
+    std::string timePhaseVariable_;
+    std::string timeDurationString_;
+    int timePhaseValue_;
+    bool timePhaseIsVariable_;
+    int timeDuration_;
+    bool foundTimeDuration_;
+    /* condition uses values */
+    bool isValues_;
+    bool lhsIsValue_;
+    bool rhsIsValue_;
+    bool lhsIsAgentVariable_;
+    bool rhsIsAgentVariable_;
+    bool lhsIsMessageVariable_;
+    bool rhsIsMessageVariable_;
+    double lhsDouble_;
+    double rhsDouble_;
+    /* condition is a nested condition */
+    bool isConditions_;
+    bool lhsIsCondition_;
+    bool rhsIsCondition_;
+    XCondition * lhsCondition_;
+    XCondition * rhsCondition_;
     /*! \brief Agent variables that the condition reads */
     std::set<std::string> readOnlyVariables_;
 
-  private:
-    void printValues(std::string lhs, std::string op, std::string rhs,
-            bool lhsIsAgentVariable, bool rhsIsAgentVariable,
-            bool lhsIsMessageVariable, bool rhsIsMessageVariable,
-            bool lhsIsValue, bool rhsIsValue,
-            double lhsDouble, double rhsDouble);
-    void printConditions(XCondition * lhsCondition,
-            std::string op, XCondition * rhsCondition);
-    void printTime(std::string timePeriod, std::string timePhaseVariable,
-            int timePhaseValue, int timeDuration, bool timePhaseIsVariable,
-            bool foundTimeDuration);
+    void printValues();
+    void printConditions();
+    void printTime();
     int processSymbolsValue(std::string * hs, bool * hsIsAgentVariable,
-            bool * hsIsValue, bool * hsIsMessageVariable, double * hsDouble);
+        bool * hsIsValue, bool * hsIsMessageVariable, double * hsDouble);
     int validateValue(XMachine * agent, XMessage * xmessage,
-            bool * hsIsAgentVariable, std::string * hs,
-            bool * hsIsMessageVariable, XCondition * rootCondition);
+        bool * hsIsAgentVariable, std::string * hs,
+        bool * hsIsMessageVariable, XCondition * rootCondition);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XCONDITION_HPP_

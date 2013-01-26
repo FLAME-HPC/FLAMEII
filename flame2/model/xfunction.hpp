@@ -33,8 +33,10 @@ class XFunction {
     void setNextState(std::string name);
     std::string getNextState();
     XIOput * addInput();
+    XIOput * addInput(std::string name);
     boost::ptr_vector<XIOput> * getInputs();
     XIOput * addOutput();
+    XIOput * addOutput(std::string name);
     boost::ptr_vector<XIOput> * getOutputs();
     XCondition * addCondition();
     XCondition * getCondition();

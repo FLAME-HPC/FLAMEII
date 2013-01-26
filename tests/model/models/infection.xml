@@ -8,7 +8,7 @@
 <environment>
 
 <functionFiles>
-  <file>functions.c</file>
+  <file>functions.cpp</file>
 </functionFiles>
 
 </environment>

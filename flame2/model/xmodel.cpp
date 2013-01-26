@@ -14,16 +14,17 @@
 #include <map>
 #include "flame2/config.hpp"
 #include "flame2/mb/message_board_manager.hpp"
+#include "flame2/exceptions/model.hpp"
 #include "xmodel.hpp"
 
 namespace flame { namespace model {
 
 XModel::XModel() {
-    /* Initialise list of data types */
-    addAllowedDataType("int");
-    addAllowedDataType("float");
-    addAllowedDataType("double");
-    addAllowedDataType("char"); /* Allow? */
+  /* Initialise list of data types */
+  addAllowedDataType("int");
+  addAllowedDataType("float");
+  addAllowedDataType("double");
+  addAllowedDataType("char"); /* Allow? */
 }
 
 /*!
@@ -32,112 +33,99 @@ XModel::XModel() {
  * Print a whole model out to standard out.
  */
 void XModel::print() {
-    boost::ptr_vector<XVariable>::iterator c_it;
-    boost::ptr_vector<XTimeUnit>::iterator tu_it;
-    boost::ptr_vector<XADT>::iterator adt_it;
-    boost::ptr_vector<XMessage>::iterator m_it;
-    boost::ptr_vector<XMachine>::iterator a_it;
-    std::vector<std::string>::iterator s_it;
+  boost::ptr_vector<XVariable>::iterator c_it;
+  boost::ptr_vector<XTimeUnit>::iterator tu_it;
+  boost::ptr_vector<XADT>::iterator adt_it;
+  boost::ptr_vector<XMessage>::iterator m_it;
+  boost::ptr_vector<XMachine>::iterator a_it;
+  std::vector<std::string>::iterator s_it;
 
-    std::printf("Model Name: %s\n", name_.c_str());
-    std::printf("Constants:\n");
-    for (c_it = constants_.begin(); c_it != constants_.end(); ++c_it)
-            (*c_it).print();
-    std::printf("Data types:\n");
-    for (adt_it = adts_.begin(); adt_it != adts_.end(); ++adt_it)
-        (*adt_it).print();
-    std::printf("Time units:\n");
-    for (tu_it = timeUnits_.begin(); tu_it != timeUnits_.end(); ++tu_it)
-        (*tu_it).print();
-    std::printf("Function files:\n");
-    for (s_it = functionFiles_.begin(); s_it != functionFiles_.end(); ++s_it)
-        std::printf("\t%s\n", (*s_it).c_str());
-    std::printf("Agents:\n");
-    for (a_it = agents_.begin(); a_it != agents_.end(); ++a_it)
-        (*a_it).print();
-    std::printf("Messages:\n");
-    for (m_it = messages_.begin(); m_it != messages_.end(); ++m_it)
-        (*m_it).print();
+  std::printf("Model Name: %s\n", name_.c_str());
+  std::printf("Constants:\n");
+  for (c_it = constants_.begin(); c_it != constants_.end(); ++c_it)
+    (*c_it).print();
+  std::printf("Data types:\n");
+  for (adt_it = adts_.begin(); adt_it != adts_.end(); ++adt_it)
+    (*adt_it).print();
+  std::printf("Time units:\n");
+  for (tu_it = timeUnits_.begin(); tu_it != timeUnits_.end(); ++tu_it)
+    (*tu_it).print();
+  std::printf("Function files:\n");
+  for (s_it = functionFiles_.begin(); s_it != functionFiles_.end(); ++s_it)
+    std::printf("\t%s\n", (*s_it).c_str());
+  std::printf("Agents:\n");
+  for (a_it = agents_.begin(); a_it != agents_.end(); ++a_it)
+    (*a_it).print();
+  std::printf("Messages:\n");
+  for (m_it = messages_.begin(); m_it != messages_.end(); ++m_it)
+    (*m_it).print();
 }
 
 int XModel::validate() {
-    XModelValidate validator(this);
-    return validator.validate();
+  XModelValidate validator(this);
+  return validator.validate();
 }
 
 void XModel::registerAgentFunction(std::string name,
-        flame::exe::TaskFunction f_ptr) {
-    funcMap_.insert(std::make_pair(name, f_ptr));
+    flame::exe::TaskFunction f_ptr) {
+  funcMap_.insert(std::make_pair(name, f_ptr));
 }
 
 void XModel::registerWithMemoryManager() {
-    boost::ptr_vector<XMachine>::iterator agent;
+  boost::ptr_vector<XMachine>::iterator agent;
 
-    // For each agent register with memory manager
-    for (agent = getAgents()->begin(); agent != getAgents()->end(); ++agent)
-        (*agent).registerWithMemoryManager();
-}
-
-// TODO(sc): This method has been temporarily crippled. RegisterMessage<T>(..)
-//           is now a templated method and so cannot be called this way.
-void XModel::registerWithMessageBoardManager() {
-    mb::MessageBoardManager& mgr = mb::MessageBoardManager::GetInstance();
-    boost::ptr_vector<XMessage>::iterator m;
-
-    // For each message
-    /*
-    for (m = messages_.begin(); m != messages_.end(); ++m)
-        mgr.RegisterMessage((*m).getName());
-    */
+  // For each agent register with memory manager
+  for (agent = getAgents()->begin(); agent != getAgents()->end(); ++agent)
+    (*agent).registerWithMemoryManager();
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {
-    boost::ptr_vector<XMachine>::iterator agent;
-    std::set<XGraph *> graphs;
+  boost::ptr_vector<XMachine>::iterator agent;
+  std::set<XGraph *> graphs;
 
-    modelGraph->setAgentName(name_);
+  modelGraph->setAgentName(name_);
 
-    // Consolidate agent graphs into a model graph
-    for (agent = agents_.begin();
-            agent != agents_.end(); ++agent) {
-        // Generate agent graph
-        (*agent).generateDependencyGraph();
-        // Add to model graph
-        // (*agent)->addToModelGraph(&modelGraph);
-        graphs.insert((*agent).getFunctionDependencyGraph());
-    }
+  // Consolidate agent graphs into a model graph
+  for (agent = agents_.begin();
+      agent != agents_.end(); ++agent) {
+    // Generate agent graph
+    (*agent).generateDependencyGraph();
+    // Add to model graph
+    // (*agent)->addToModelGraph(&modelGraph);
+    graphs.insert((*agent).getFunctionDependencyGraph());
+  }
 
-    modelGraph->importGraphs(graphs);
+  modelGraph->importGraphs(graphs);
 
 #ifdef OUTPUT_GRAPHS
-    modelGraph->writeGraphviz(name_ + ".dot");
+  modelGraph->writeGraphviz(name_ + ".dot");
 #endif
 }
 
 void XModel::registerWithTaskManager() {
-    XGraph modelGraph;
+  XGraph modelGraph;
 
-    generateGraph(&modelGraph);
+  generateGraph(&modelGraph);
 
-    modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
+  modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 }
 
 void XModel::setPath(std::string path) {
-    path_ = path;
+  path_ = path;
 }
 
 std::string XModel::getPath() {
-    return path_;
+  return path_;
 }
 
 void XModel::setName(std::string name) {
-    // If name is not set then set name
-    // This stops sub models renaming the root model
-    if (name_ == "") name_ = name;
+  // If name is not set then set name
+  // This stops sub models renaming the root model
+  if (name_ == "") name_ = name;
 }
 
 std::string XModel::getName() {
-    return name_;
+  return name_;
 }
 
 /*!
@@ -148,34 +136,34 @@ std::string XModel::getName() {
  * If not then false is returned.
  */
 bool XModel::addIncludedModel(std::string path) {
-    unsigned int ii;
+  unsigned int ii;
 
-    for (ii = 0; ii < includedModels_.size(); ++ii) {
-        if (includedModels_.at(ii) == path) return false;
-    }
+  for (ii = 0; ii < includedModels_.size(); ++ii) {
+    if (includedModels_.at(ii) == path) return false;
+  }
 
-    includedModels_.push_back(path);
-    return true;
+  includedModels_.push_back(path);
+  return true;
 }
 
 std::vector<std::string> * XModel::getIncludedModels() {
-    return &includedModels_;
+  return &includedModels_;
 }
 
 XVariable * XModel::addConstant() {
-    XVariable * xvariable = new XVariable;
-    constants_.push_back(xvariable);
-    return xvariable;
+  XVariable * xvariable = new XVariable;
+  constants_.push_back(xvariable);
+  return xvariable;
 }
 
 boost::ptr_vector<XVariable> * XModel::getConstants() {
-    return &constants_;
+  return &constants_;
 }
 
 XADT * XModel::addADT() {
-    XADT * xadt = new XADT;
-    adts_.push_back(xadt);
-    return xadt;
+  XADT * xadt = new XADT;
+  adts_.push_back(xadt);
+  return xadt;
 }
 
 /*!
@@ -186,79 +174,86 @@ XADT * XModel::addADT() {
  * pointer to the object if valid.
  */
 XADT * XModel::getADT(std::string name) {
-    boost::ptr_vector<XADT>::iterator it;
-    for (it = adts_.begin(); it != adts_.end(); ++it)
-        if (name == (*it).getName()) return &(*it);
-    return 0;
+  boost::ptr_vector<XADT>::iterator it;
+  for (it = adts_.begin(); it != adts_.end(); ++it)
+    if (name == (*it).getName()) return &(*it);
+  throw flame::exceptions::flame_model_exception(
+      "ADT does not exist");
 }
 
 boost::ptr_vector<XADT> * XModel::getADTs() {
-    return &adts_;
+  return &adts_;
 }
 
 void XModel::addTimeUnit(XTimeUnit * tU) {
-    boost::ptr_vector<XTimeUnit>::iterator it;
+  boost::ptr_vector<XTimeUnit>::iterator it;
 
-    // Check time unit does not already exist
-    for (it = timeUnits_.begin(); it != timeUnits_.end(); ++it)
-        if (tU->getName() == (*it).getName() &&
-                tU->getUnit() == (*it).getUnit() &&
-                tU->getPeriodString() == (*it).getPeriodString()) {
-            // Free time unit
-            delete tU;
-            // Return and do not add to time units
-            return;
-        }
+  // Check time unit does not already exist
+  for (it = timeUnits_.begin(); it != timeUnits_.end(); ++it)
+    if (tU->getName() == (*it).getName() &&
+        tU->getUnit() == (*it).getUnit() &&
+        tU->getPeriodString() == (*it).getPeriodString()) {
+      // Free time unit
+      delete tU;
+      // Return and do not add to time units
+      return;
+    }
 
-    // Add time unit id
-    tU->setID(timeUnits_.size());
-    // Add time unit to vector
-    timeUnits_.push_back(tU);
+  // Add time unit id
+  tU->setID(timeUnits_.size());
+  // Add time unit to vector
+  timeUnits_.push_back(tU);
 }
 
 boost::ptr_vector<XTimeUnit> * XModel::getTimeUnits() {
-    return &timeUnits_;
+  return &timeUnits_;
 }
 
 void XModel::addFunctionFile(std::string file) {
-    functionFiles_.push_back(file);
+  functionFiles_.push_back(file);
 }
 
 std::vector<std::string> * XModel::getFunctionFiles() {
-    return &functionFiles_;
+  return &functionFiles_;
 }
 
 XMachine * XModel::addAgent(std::string name) {
-    // Try and get agent
-    XMachine * xmachine = getAgent(name);
-    // If agent already exists then return it
-    if (xmachine) return xmachine;
-    // If agent does not exist then create new agent
-    xmachine = new XMachine;
-    // Assign name to new agent
-    xmachine->setName(name);
-    // Set ID
-    xmachine->setID(agents_.size());
-    agents_.push_back(xmachine);
-    return xmachine;
+  // Try and get agent
+  XMachine * xmachine = getAgent(name);
+  // If agent already exists then return it
+  if (xmachine) return xmachine;
+  // If agent does not exist then create new agent
+  xmachine = new XMachine;
+  // Assign name to new agent
+  xmachine->setName(name);
+  // Set ID
+  xmachine->setID(agents_.size());
+  agents_.push_back(xmachine);
+  return xmachine;
 }
 
 boost::ptr_vector<XMachine> * XModel::getAgents() {
-    return &agents_;
+  return &agents_;
 }
 
 XMachine * XModel::getAgent(std::string name) {
-    boost::ptr_vector<XMachine>::iterator it;
-    for (it = agents_.begin(); it != agents_.end(); ++it)
-        if (name == (*it).getName()) return &(*it);
-    return 0;
+  boost::ptr_vector<XMachine>::iterator it;
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (name == (*it).getName()) return &(*it);
+  return 0;
 }
 
 XMessage * XModel::addMessage() {
-    XMessage * xmessage = new XMessage;
-    xmessage->setID(messages_.size());
-    messages_.push_back(xmessage);
-    return xmessage;
+  XMessage * xmessage = new XMessage;
+  xmessage->setID(messages_.size());
+  messages_.push_back(xmessage);
+  return xmessage;
+}
+
+XMessage * XModel::addMessage(std::string name) {
+  XMessage * xmessage = addMessage();
+  xmessage->setName(name);
+  return xmessage;
 }
 
 /*!
@@ -269,26 +264,26 @@ XMessage * XModel::addMessage() {
  * pointer to the object if valid.
  */
 XMessage * XModel::getMessage(std::string name) {
-    boost::ptr_vector<XMessage>::iterator it;
-    for (it =  messages_.begin(); it != messages_.end(); ++it)
-        if (name == (*it).getName()) return &(*it);
-    return 0;
+  boost::ptr_vector<XMessage>::iterator it;
+  for (it =  messages_.begin(); it != messages_.end(); ++it)
+    if (name == (*it).getName()) return &(*it);
+  return 0;
 }
 
 boost::ptr_vector<XMessage> * XModel::getMessages() {
-    return &messages_;
+  return &messages_;
 }
 
 void XModel::addAllowedDataType(std::string name) {
-    allowedDataTypes_.push_back(name);
+  allowedDataTypes_.push_back(name);
 }
 
 std::vector<std::string> * XModel::getAllowedDataTypes() {
-    return &allowedDataTypes_;
+  return &allowedDataTypes_;
 }
 
 std::map<std::string, flame::exe::TaskFunction> XModel::getFuncMap() {
-    return funcMap_;
+  return funcMap_;
 }
 
 }}  // namespace flame::model

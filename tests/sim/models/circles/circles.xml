@@ -8,7 +8,7 @@
 <environment>
 
 <functionFiles>
-  <file>circles.c</file>
+  <file>circles.cpp</file>
 </functionFiles>
 
 </environment>

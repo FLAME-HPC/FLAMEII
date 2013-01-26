@@ -21,9 +21,8 @@ SUBDIRS = \
   flame2/exceptions \
   flame2/model \
   flame2/sim \
-  utils
-
-
+  utils \
+  xparser2
 
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests
@@ -74,10 +73,19 @@ include_HEADERS = \
 EXTRA_DIST = AUTHORS NEWS INSTALL README ChangeLog \
   tests/io/models \
   tests/sim/models \
-  tests/model/models
+  tests/model/models \
+  tests/xparser2/data
 
 # Install custom libtool along with distribution
 bin_SCRIPTS = libtool
+
+# build xparser2 binary
+bin_PROGRAMS = xparser
+xparser_LIBS = @COMMON_LIBS@
+xparser_SOURCES = xparser2/xparser2.cpp
+xparser_CPPFLAGS = @COMMON_CPPFLAGS@ @CPPFLAGS_DBG@ @AM_CPPFLAGS@ -DPKGDATADIR="\"$(pkgdatadir)\""
+xparser_LDFLAGS = @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@
+xparser_LDADD = xparser2/lib_xparser2.la libflame2-@LOWEST_BUILD_SUFFIX@.la @COMMON_LIBS@ 
 
 # Commands to run after installation complete
 install-exec-hook:

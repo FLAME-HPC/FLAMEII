@@ -7,6 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief Basic worker thread
  */
+#include <ctime>
+#include <cstdlib>
 #include <boost/thread/mutex.hpp>
 #include "flame2/config.hpp"
 #include "task_queue_interface.hpp"
@@ -32,6 +34,12 @@ void WorkerThread::join() {
  * Termination task is issued.
  */
 void WorkerThread::ProcessQueue() {
+  #ifdef DBGBUILD
+    srand(1);  // for debug, fix thread-local random seed
+  #else
+    srand(time(NULL));
+  #endif
+
   // #ifdef TESTBUILD
   //   boost::thread::id tid = boost::this_thread::get_id();
   //   std::cout << ">> Thread started : " << tid << std::endl;
