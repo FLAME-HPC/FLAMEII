@@ -29,7 +29,7 @@ LINK_FLAGS = $(LINK_FLAGS_DBG)
 
 # conditionally force libtool to statically link all depencies
 ifeq ($(static),1)
-LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --static) 
+LINK_FLAGS = $(shell $(FLAME2_CONFIG) --libs --static) -lz
 endif
 
 EXECUTABLE = run
