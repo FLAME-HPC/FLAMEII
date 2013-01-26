@@ -1,0 +1,33 @@
+<states>
+ <itno>1</itno>
+ <xagent>
+  <name>agent_a</name>
+  <int_single>1</int_single>
+  <double_single>0.100000</double_single>
+ </xagent>
+ <xagent>
+  <name>agent_a</name>
+  <int_single>2</int_single>
+  <double_single>0.200000</double_single>
+ </xagent>
+ <xagent>
+  <name>agent_a</name>
+  <int_single>3</int_single>
+  <double_single>0.300000</double_single>
+ </xagent>
+ <xagent>
+  <name>agent_b</name>
+  <double_single>11.110000</double_single>
+  <int_single>1111</int_single>
+ </xagent>
+ <xagent>
+  <name>agent_b</name>
+  <double_single>22.220000</double_single>
+  <int_single>2222</int_single>
+ </xagent>
+ <xagent>
+  <name>agent_b</name>
+  <double_single>33.330000</double_single>
+  <int_single>3333</int_single>
+ </xagent>
+</states>
