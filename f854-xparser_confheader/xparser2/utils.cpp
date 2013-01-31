@@ -11,6 +11,7 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include "flame2/build_config.hpp"  // for FLAME2_INSTALL_DATADIR
 #include "printer.hpp"
 
 namespace xparser { namespace utils {
@@ -25,8 +26,8 @@ std::string locate_template(const char* template_name) {
   }
 
   // if package data install dir defined, look there next
-  #ifdef PKGDATADIR
-    boost::filesystem::path pkgdir(PKGDATADIR);
+  #ifdef FLAME2_INSTALL_DATADIR
+    boost::filesystem::path pkgdir(FLAME2_INSTALL_DATADIR);
     out = pkgdir / template_name;
     if (boost::filesystem::exists(out) &&
       boost::filesystem::is_regular_file(out)) {

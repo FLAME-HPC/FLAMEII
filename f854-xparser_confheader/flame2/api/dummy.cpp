@@ -8,3 +8,8 @@
  * \brief Dummy file to appease libtool (mainly for OSX builds)
  */
 #include "flame2/config.hpp"
+
+// Force rebuild when build config changes (e.g. --prefix). This
+// then causes all the libs to be relinked which solves the problem of
+// rpaths being wrong for post-make --prefix changes.
+#include "flame2/build_config.hpp"

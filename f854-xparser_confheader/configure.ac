@@ -303,9 +303,15 @@ AC_SUBST(FLAME2_CONFIG_DATE)
 AC_SUBST(FLAME2_CONFIG_USER)
 AC_SUBST(FLAME2_CONFIG_ARGS)
 
-AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
-AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
-AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+AC_SUBST_DIR([FLAME2_INSTALL_BINDIR], [bindir])
+AC_SUBST_DIR([FLAME2_INSTALL_LIBDIR], [libdir])
+AC_SUBST_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir])
+AC_SUBST_DIR([FLAME2_INSTALL_DATADIR], datadir/$PACKAGE)
+
+#AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
+#AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
+#AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+#AC_DEFINE_DIR([FLAME2_INSTALL_DATADIR], datadir/$PACKAGE, [Install dir for data files])
 
 if test "x${enable_shared}" = "xyes"; then
   BUILD_SHARED="yes"
@@ -340,6 +346,7 @@ flame2/sim/Makefile
 flame2/model/Makefile
 flame2/api/Makefile
 flame2/exceptions/Makefile
+flame2/build_config.hpp
 xparser2/Makefile
 xparser2/templates/xparser_header.tmpl
 ])
