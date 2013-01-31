@@ -11,6 +11,7 @@
 #ifndef MODEL__MODEL_HPP_
 #define MODEL__MODEL_HPP_
 #include <string>
+#include <map>
 #include "flame2/model/xmodel.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 
@@ -29,8 +30,6 @@ class Model {
     void registerMessageType(std::string name) {
       flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
     }
-    //! Return the underlying model
-    flame::model::XModel * getXModel();
     //! Validate the model
     void validate();
     //! Add an agent
@@ -64,12 +63,25 @@ class Model {
     //! Add a message variable
     void addMessageVariable(std::string message_name,
             std::string type, std::string name);
+    flame::exe::TaskFunction getAgentFunctionPointer(std::string name) const;
+
     //! Check the model has been validated
-    bool isValidated();
+    bool isValidated() const;
+    AgentMemory getAgentMemoryInfo() const;
+    StringPairSet getAgentTasks() const;
+    StringPairSet getIOTasks() const;
+    StringPairSet getMessageBoardTasks() const;
+    StringPairSet getTaskDependencies() const;
+    StringSet getReadOnlyVariables(std::string func_name, std::string agent_name) const;
+    StringSet getWriteVariables(std::string func_name, std::string agent_name) const;
+    StringSet getOutputMessages(std::string func_name, std::string agent_name) const;
+    StringSet getInputMessages(std::string func_name, std::string agent_name) const;
 
   private:
     bool validated_;  //!< Check for a validated model
     flame::model::XModel model_;  //!< The underlying model
+    //! \brief A map from function name to function pointer
+    std::map<std::string, flame::exe::TaskFunction> funcMap_;
 
     //! getAgent handled in Model because XModel returns 0 if
     //! there is no agent so Model throws the exception

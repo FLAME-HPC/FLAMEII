@@ -27,13 +27,9 @@ Model::Model(std::string path_to_model) {
   validate();
 }
 
-flame::model::XModel * Model::getXModel() {
-  return &model_;
-}
-
 void Model::registerAgentFunction(std::string name,
     flame::exe::TaskFunction f_ptr) {
-  model_.registerAgentFunction(name, f_ptr);
+  funcMap_.insert(std::make_pair(name, f_ptr));
 }
 
 void Model::validate() {
@@ -144,8 +140,56 @@ void Model::addMessageVariable(std::string message_name,
   validated_ = false;
 }
 
-bool Model::isValidated() {
+flame::exe::TaskFunction Model::getAgentFunctionPointer(std::string name) const {
+  std::map<std::string, flame::exe::TaskFunction>::const_iterator it;
+  int rc = 0;
+
+  // Try and find function pointer from map
+  it = funcMap_.find(name);
+  if (it == funcMap_.end()) throw flame::exceptions::flame_model_exception(
+      std::string("Agent function has not be registered: ").append(name));
+
+  return (*it).second;
+}
+
+bool Model::isValidated() const {
   return validated_;
+}
+
+AgentMemory Model::getAgentMemoryInfo() const {
+  return model_.getAgentMemoryInfo();
+}
+
+StringPairSet Model::getAgentTasks() const {
+  return model_.getAgentTasks();
+}
+
+StringPairSet Model::getIOTasks() const {
+  return model_.getIOTasks();
+}
+
+StringPairSet Model::getMessageBoardTasks() const {
+  return model_.getMessageBoardTasks();
+}
+
+StringPairSet Model::getTaskDependencies() const {
+  return model_.getTaskDependencies();
+}
+
+StringSet Model::getReadOnlyVariables(std::string func_name, std::string agent_name) const {
+  return model_.getReadOnlyVariables(func_name, agent_name);
+}
+
+StringSet Model::getWriteVariables(std::string func_name, std::string agent_name) const {
+  return model_.getWriteVariables(func_name, agent_name);
+}
+
+StringSet Model::getOutputMessages(std::string func_name, std::string agent_name) const {
+  return model_.getOutputMessages(func_name, agent_name);
+}
+
+StringSet Model::getInputMessages(std::string func_name, std::string agent_name) const {
+  return model_.getInputMessages(func_name, agent_name);
 }
 
 }}  // namespace flame::model

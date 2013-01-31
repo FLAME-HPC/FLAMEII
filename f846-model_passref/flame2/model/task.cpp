@@ -68,7 +68,7 @@ void Task::setParentName(std::string parentName) {
   parentName_ = parentName;
 }
 
-std::string Task::getParentName() {
+std::string Task::getParentName() const {
   return parentName_;
 }
 
@@ -76,7 +76,7 @@ void Task::setName(std::string name) {
   name_ = name;
 }
 
-std::string Task::getName() {
+std::string Task::getName() const {
   return name_;
 }
 

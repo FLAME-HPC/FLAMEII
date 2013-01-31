@@ -22,14 +22,15 @@
 
 namespace flame { namespace model {
 
+typedef std::pair<std::string, std::string> AgentVar;
+typedef std::map<std::string, std::set<AgentVar> > AgentMemory;
+typedef std::set< std::pair<std::string, std::string> > StringPairSet;
+
 class XModel {
   public:
     XModel();
     void print();
     int validate();
-    void registerWithMemoryManager();
-    void registerWithTaskManager();
-    void registerAgentFunction(std::string, flame::exe::TaskFunction);
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);
@@ -54,29 +55,37 @@ class XModel {
     boost::ptr_vector<XMessage> * getMessages();
     void addAllowedDataType(std::string name);
     std::vector<std::string> * getAllowedDataTypes();
-    std::map<std::string, flame::exe::TaskFunction> getFuncMap();
+
+    AgentMemory getAgentMemoryInfo() const;
+    StringPairSet getAgentTasks() const;
+    StringPairSet getIOTasks() const;
+    StringPairSet getMessageBoardTasks() const;
+    StringPairSet getTaskDependencies() const;
+    StringSet getReadOnlyVariables(std::string func_name, std::string agent_name) const;
+    StringSet getWriteVariables(std::string func_name, std::string agent_name) const;
+    StringSet getOutputMessages(std::string func_name, std::string agent_name) const;
+    StringSet getInputMessages(std::string func_name, std::string agent_name) const;
+
 #ifdef TESTBUILD
-    void generateGraph(XGraph * modelGraph);
+    XGraph * getGraph() { return &modelGraph_; }
 #endif
 
   private:
-#ifndef TESTBUILD
     void generateGraph(XGraph * modelGraph);
-#endif
     std::string name_;
-    /*! \brief The absolute path to the model file */
+    //! \brief The absolute path to the model file
     std::string path_;
     std::vector<std::string> includedModels_;
     std::vector<std::string> functionFiles_;
-    /*! \brief A list of allowed data types to check variables */
+    //! \brief A list of allowed data types to check variables
     std::vector<std::string> allowedDataTypes_;
     boost::ptr_vector<XVariable> constants_;
     boost::ptr_vector<XADT> adts_;
     boost::ptr_vector<XTimeUnit> timeUnits_;
     boost::ptr_vector<XMachine> agents_;
     boost::ptr_vector<XMessage> messages_;
-    /*! \brief A map from function name to function pointer */
-    std::map<std::string, flame::exe::TaskFunction> funcMap_;
+    //! \brief The model graph
+    XGraph modelGraph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_HPP_

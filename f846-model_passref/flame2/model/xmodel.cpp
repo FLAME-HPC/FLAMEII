@@ -13,7 +13,6 @@
 #include <set>
 #include <map>
 #include "flame2/config.hpp"
-#include "flame2/mb/message_board_manager.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "xmodel.hpp"
 
@@ -62,21 +61,19 @@ void XModel::print() {
 }
 
 int XModel::validate() {
+  int rc;
+
+  // try and validate model
   XModelValidate validator(this);
-  return validator.validate();
-}
+  rc = validator.validate();
 
-void XModel::registerAgentFunction(std::string name,
-    flame::exe::TaskFunction f_ptr) {
-  funcMap_.insert(std::make_pair(name, f_ptr));
-}
+  // if fail then return code
+  if (rc != 0) return rc;
 
-void XModel::registerWithMemoryManager() {
-  boost::ptr_vector<XMachine>::iterator agent;
+  // if success then generate graph
+  generateGraph(&modelGraph_);
 
-  // For each agent register with memory manager
-  for (agent = getAgents()->begin(); agent != getAgents()->end(); ++agent)
-    (*agent).registerWithMemoryManager();
+  return 0;
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {
@@ -100,14 +97,6 @@ void XModel::generateGraph(XGraph * modelGraph) {
 #ifdef OUTPUT_GRAPHS
   modelGraph->writeGraphviz(name_ + ".dot");
 #endif
-}
-
-void XModel::registerWithTaskManager() {
-  XGraph modelGraph;
-
-  generateGraph(&modelGraph);
-
-  modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 }
 
 void XModel::setPath(std::string path) {
@@ -282,8 +271,48 @@ std::vector<std::string> * XModel::getAllowedDataTypes() {
   return &allowedDataTypes_;
 }
 
-std::map<std::string, flame::exe::TaskFunction> XModel::getFuncMap() {
-  return funcMap_;
+AgentMemory XModel::getAgentMemoryInfo() const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  AgentMemory agentMemory;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it) {
+    std::set<AgentVar> vars = (*it).getVariablesSet();
+    agentMemory.insert( std::pair<std::string, std::set<AgentVar> >((*it).getName(), vars) );
+  }
+
+  return agentMemory;
+}
+
+StringPairSet XModel::getAgentTasks() const {
+  return modelGraph_.getAgentTasks();
+}
+
+StringPairSet XModel::getIOTasks() const {
+  return modelGraph_.getIOTasks();
+}
+
+StringPairSet XModel::getMessageBoardTasks() const {
+  return modelGraph_.getMessageBoardTasks();
+}
+
+StringPairSet XModel::getTaskDependencies() const {
+  return modelGraph_.getTaskDependencies();
+}
+
+StringSet XModel::getReadOnlyVariables(std::string func_name, std::string agent_name) const {
+  return modelGraph_.getReadOnlyVariables(func_name, agent_name);
+}
+
+StringSet XModel::getWriteVariables(std::string func_name, std::string agent_name) const {
+  return modelGraph_.getWriteVariables(func_name, agent_name);
+}
+
+StringSet XModel::getOutputMessages(std::string func_name, std::string agent_name) const {
+  return modelGraph_.getOutputMessages(func_name, agent_name);
+}
+
+StringSet XModel::getInputMessages(std::string func_name, std::string agent_name) const {
+  return modelGraph_.getInputMessages(func_name, agent_name);
 }
 
 }}  // namespace flame::model

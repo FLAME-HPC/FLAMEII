@@ -16,11 +16,18 @@ namespace flame { namespace sim {
 
 class Simulation {
   public:
-    Simulation(flame::model::Model * model, std::string pop_file);
+    Simulation(const flame::model::Model &model, std::string pop_file);
     void start(size_t iterations, size_t num_cores = 1);
+#ifdef TESTBUILD
+    Simulation() {}
+    void registerModelWithMemoryManagerTest(const flame::model::Model &model);
+    void registerModelWithTaskManagerTest(const flame::model::Model &model);
+#endif
 
   private:
-    flame::model::XModel * model_;
+    void registerModelWithMessageManager(const flame::model::Model &model);
+    void registerModelWithMemoryManager(const flame::model::Model &model);
+    void registerModelWithTaskManager(const flame::model::Model &model);
 };
 }}  // namespace flame::sim
 #endif  // SIM__SIMULATION_HPP_
