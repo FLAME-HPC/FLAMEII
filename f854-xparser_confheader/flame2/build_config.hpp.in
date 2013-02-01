@@ -15,12 +15,15 @@
  * for in the rpaths of libs as well as in sources that rely on the path
  * (such as the xparser when locating installed templates).
  */
-#ifndef XPARSER__CONFIG_HPP_
-#define XPARSER__CONFIG_HPP_
+#ifndef FLAME2__BUILD_CONFIG_HPP_
+#define FLAME2__BUILD_CONFIG_HPP_
+#include <string>
 
-#define FLAME2_INSTALL_DATADIR "/home/lsc/test/flame2/share/flame2"
+namespace flame { namespace build_config {
 
-#define PACKAGE_NAME "flame2"
-#define VERSION "0.0.1"
+const std::string packageDataDir("@FLAME2_INSTALL_DATADIR@");
+const std::string packageName("@PACKAGE_NAME@");
+const std::string version("@VERSION@");
 
-#endif  // XPARSER__CONFIG_HPP_
+}}  // namespace flame::build_config
+#endif  // FLAME2__BUILD_CONFIG_HPP_
