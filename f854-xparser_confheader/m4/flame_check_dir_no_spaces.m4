@@ -18,7 +18,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 #
-# $Id: $
+# $Id$
 
 AC_DEFUN([FLAME_CHECK_DIRS_NO_SPACES],
 [
