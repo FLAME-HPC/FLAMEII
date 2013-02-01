@@ -34,6 +34,7 @@ AC_DEFUN([FLAME_CHECK_DIRS_NO_SPACES],
   
   AC_MSG_CHECKING(for spaces in paths)
   func_check_path_in_var "prefix"
+  func_check_path_in_var "exec_prefix"
   func_check_path_in_var "bindir"
   func_check_path_in_var "sbindir"
   func_check_path_in_var "libexecdir"
