@@ -20,8 +20,14 @@ BOOST_AUTO_TEST_SUITE(TaskManager)
 namespace exe = flame::exe;
 namespace mem = flame::mem;
 
+// Macro to suppress "unused parameter" compiler warnings when API not used
+#define API_UNUSED ((void)(FLAME));
+
 // dummy function
-FLAME_AGENT_FUNCTION(func1) { return 0; }
+FLAME_AGENT_FUNCTION(func1) {
+  API_UNUSED;
+  return 0;
+}
 
 BOOST_AUTO_TEST_CASE(taskmgr_initialise_and_test_singleton) {
   std::string task_name = "test_task";
