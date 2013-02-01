@@ -33,6 +33,9 @@ AC_COPYRIGHT([
   Copyright (c) 2013 University of Sheffield
 ])
 
+# check user-defined paths to make sure the do not contain spaces
+FLAME_CHECK_DIRS_NO_SPACES
+
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
 AC_CONFIG_SRCDIR([flame2/mem/agent_memory.cpp])
