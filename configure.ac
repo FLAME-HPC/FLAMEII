@@ -21,7 +21,7 @@
 
 # Note: first 3 segments of the version number should contain only digits
 # Note: package name (1st arg) must match the src directory name
-AC_INIT(flame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(flame2, 0.0.2-pre, shawn.chin@_NOSPAM_stfc.ac.uk)
 
 # Automake
 AM_INIT_AUTOMAKE
@@ -32,6 +32,9 @@ AC_COPYRIGHT([
   Copyright (c) 2013 STFC Rutherford Appleton Laboratory
   Copyright (c) 2013 University of Sheffield
 ])
+
+# check user-defined paths to make sure the do not contain spaces
+FLAME_CHECK_DIRS_NO_SPACES
 
 # Specify any unique file in the src directory
 # used by generated script to validate path provided by --srcdir
@@ -303,9 +306,15 @@ AC_SUBST(FLAME2_CONFIG_DATE)
 AC_SUBST(FLAME2_CONFIG_USER)
 AC_SUBST(FLAME2_CONFIG_ARGS)
 
-AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
-AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
-AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+AC_SUBST_DIR([FLAME2_INSTALL_BINDIR], [bindir])
+AC_SUBST_DIR([FLAME2_INSTALL_LIBDIR], [libdir])
+AC_SUBST_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir])
+AC_SUBST_DIR([FLAME2_INSTALL_DATADIR], datadir/$PACKAGE)
+
+#AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
+#AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
+#AC_DEFINE_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+#AC_DEFINE_DIR([FLAME2_INSTALL_DATADIR], datadir/$PACKAGE, [Install dir for data files])
 
 if test "x${enable_shared}" = "xyes"; then
   BUILD_SHARED="yes"
@@ -340,6 +349,7 @@ flame2/sim/Makefile
 flame2/model/Makefile
 flame2/api/Makefile
 flame2/exceptions/Makefile
+flame2/build_config.hpp
 xparser2/Makefile
 xparser2/templates/xparser_header.tmpl
 ])

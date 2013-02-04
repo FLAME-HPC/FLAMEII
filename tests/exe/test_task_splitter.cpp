@@ -18,11 +18,15 @@
 
 BOOST_AUTO_TEST_SUITE(ExeModule)
 
+// Macro to suppress "unused parameter" compiler warnings when API not used
+#define API_UNUSED ((void)(FLAME));
+
 namespace e = flame::exceptions;
 namespace exe = flame::exe;
 namespace mem = flame::mem;
 
 FLAME_AGENT_FUNCTION(dummy_func) {
+  API_UNUSED; 
   return FLAME_AGENT_ALIVE;
 }
 
