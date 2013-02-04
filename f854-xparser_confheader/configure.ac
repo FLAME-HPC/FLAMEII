@@ -21,7 +21,7 @@
 
 # Note: first 3 segments of the version number should contain only digits
 # Note: package name (1st arg) must match the src directory name
-AC_INIT(flame2, 0.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(flame2, 0.0.2-pre, shawn.chin@_NOSPAM_stfc.ac.uk)
 
 # Automake
 AM_INIT_AUTOMAKE
