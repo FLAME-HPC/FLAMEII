@@ -27,7 +27,7 @@ AC_DEFUN([FLAME_CHECK_DIRS_NO_SPACES],
     eval _PATH_VAR="\$[]1"
     eval _CHECK_PATH="\$[$_PATH_VAR]"
 
-    if echo -n "$_CHECK_PATH" | grep -q " "; then
+    if echo "$_CHECK_PATH" | grep -q " "; then
       AC_MSG_ERROR(path defined with --$_PATH_VAR should not contain spaces)
     fi
   }
