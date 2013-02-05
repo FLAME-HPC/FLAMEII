@@ -70,13 +70,6 @@ class XGraph {
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
-    int registerAgentTask(Task * t,
-            std::map<std::string, flame::exe::TaskFunction> funcMap);
-    void registerDataTask(Task * t);
-    int registerMessageTask(Task * t);
-    int registerDependencies();
-    int registerTasksAndDependenciesWithTaskManager(
-            std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
     std::vector<TaskPtr> * getVertexTaskMap();
