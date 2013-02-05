@@ -8,6 +8,8 @@
  * \brief Simulation: holds and manages simulation information
  */
 #include <string>
+#include <set>
+#include <map>
 #include <cstdio>
 #include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
@@ -18,12 +20,20 @@
 
 namespace flame { namespace sim {
 
-typedef std::pair<std::string, std::string> AgentVar;
-typedef std::map<std::string, std::set<AgentVar> > AgentMemory;
+namespace exe = flame::exe;
+
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
-Simulation::Simulation(const flame::model::Model &model, std::string pop_file) {
+typedef size_t TaskId;
+typedef std::set<TaskId> TaskIdSet;
+typedef std::map<TaskId, TaskId> TaskIdMap;
+
+typedef std::pair<std::string, std::string> Var;
+typedef std::vector<Var> VarVec;
+typedef std::map<std::string, VarVec> AgentMemory;
+
+Simulation::Simulation(const m::Model &model, std::string pop_file) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
   // check model has been validated
@@ -32,11 +42,11 @@ Simulation::Simulation(const flame::model::Model &model, std::string pop_file) {
 
   // register model with memory and task manager
   registerModelWithMessageManager(model);
-  registerModelWithMemoryManager(model);
+  registerModelWithMemoryManager(model.getAgentMemoryInfo());
   registerModelWithTaskManager(model);
 
-  // remember to uncomment and fix
-  //iomanager.readPop(pop_file, model, io::IOManager::xml);
+  // read pop data
+  iomanager.readPop(pop_file, model.getAgentMemoryInfo(), io::IOManager::xml);
 }
 
 void Simulation::start(size_t iterations, size_t num_cores) {
@@ -55,18 +65,16 @@ void Simulation::start(size_t iterations, size_t num_cores) {
   }
 }
 
-void Simulation::registerModelWithMessageManager(const flame::model::Model &model) {
+void Simulation::registerModelWithMessageManager(const m::Model &/*model*/) {
 }
 
-void Simulation::registerModelWithMemoryManager(const flame::model::Model &model) {
-  AgentMemory::iterator agent;
-  std::set<AgentVar>::iterator var;
+void Simulation::registerModelWithMemoryManager(const AgentMemory& agentMemory) {
+  AgentMemory::const_iterator agent;
+  VarVec::const_iterator var;
 
   // get memory manager
   flame::mem::MemoryManager& memoryManager =
               flame::mem::MemoryManager::GetInstance();
-  // get agent memory info
-  AgentMemory agentMemory = model.getAgentMemoryInfo();
 
   for (agent = agentMemory.begin(); agent != agentMemory.end(); ++agent) {
     // printf("memoryManager.RegisterAgent %s\n", (*agent).first.c_str());
@@ -87,31 +95,109 @@ void Simulation::registerModelWithMemoryManager(const flame::model::Model &model
   }
 }
 
-void Simulation::registerModelWithTaskManager(const flame::model::Model &model) {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  StringPairSet::iterator it;
-  StringPairSet agentTasks = model.getAgentTasks();
+void registerAllowAccess(exe::Task * task,
+    StringSet vars, bool writeable) {
+  StringSet::iterator sit;
 
+  // For each variable name
+  for (sit = vars.begin(); sit != vars.end(); ++sit)
+    task->AllowAccess((*sit), writeable);
+}
+
+void registerAllowMessage(exe::Task * task,
+    StringSet messages, bool post) {
+  StringSet::iterator sit;
+
+  // For each message
+  for (sit = messages.begin();
+      sit != messages.end(); ++sit) {
+    // Update task with appropriate access
+    // If output message then allow post
+    if (post) task->AllowMessagePost((*sit));
+    // If input message then allow read
+    else
+      task->AllowMessageRead((*sit));
+  }
+}
+
+void Simulation::registerModelWithTaskManager(const m::Model &model) {
+  exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+  TaskIdSet::iterator it;
+
+  TaskIdSet agentTasks = model.getAgentTasks();
   for (it = agentTasks.begin(); it != agentTasks.end(); ++it) {
+    // printf("agentTask %s %s\n", (*it).first.c_str(), (*it).second.c_str());
+    TaskId id = (*it);
+    std::string function_name = model.getTaskFunctionName(id);
+    std::string task_name = model.getTaskName(id);
+    std::string agent_name = model.getTaskAgentName(id);
+
     flame::exe::Task& task = taskManager.CreateAgentTask(
-      (*it).first, (*it).second, model.getAgentFunctionPointer((*it).first));
-//    StringSet rov = model.getReadOnlyVariables((*it).second, (*it).first);
-//    StringSet rwv = model.getWriteVariables((*it).second, (*it).first);
-//    StringSet out = model.getOutputMessages((*it).second, (*it).first);
-//    StringSet in = model.getInputMessages((*it).second, (*it).first);
+      task_name, agent_name, model.getAgentFunctionPointer(function_name));
+    registerAllowAccess(&task, model.getTaskReadOnlyVariables(id), false);
+    registerAllowAccess(&task, model.getTaskWriteVariables(id), true);
+    registerAllowMessage(&task, model.getTaskOutputMessages(id), true);
+    registerAllowMessage(&task, model.getTaskInputMessages(id), false);
   }
 
+  TaskIdSet ioTasks = model.getAgentIOTasks();
+  for (it = ioTasks.begin(); it != ioTasks.end(); ++it) {
+    TaskId id = (*it);
+    std::string agent_name = model.getTaskAgentName(id);
+    StringSet::iterator sit;
+    StringSet vars = model.getTaskWriteVariables(id);
+    for (sit = vars.begin(); sit != vars.end(); ++sit) {
+      std::string var = *sit;
+      std::string taskName = "AD_";
+      taskName.append(agent_name);
+      taskName.append("_");
+      taskName.append(var);
+      taskManager.CreateIOTask(taskName, agent_name, var,
+          flame::exe::IOTask::OP_OUTPUT);
+    }
+  }
 
-  StringPairSet ioTasks = model.getIOTasks();
-  StringPairSet messageboardTasks = model.getMessageBoardTasks();
+  TaskId initIOTask = model.getInitIOTask();
+  taskManager.CreateIOTask(model.getTaskName(initIOTask), "", "",
+          flame::exe::IOTask::OP_INIT);
+  TaskId finIOTask = model.getFinIOTask();
+  taskManager.CreateIOTask(model.getTaskName(finIOTask), "", "",
+          flame::exe::IOTask::OP_FIN);
+
+  TaskIdSet messageboardSyncTasks = model.getMessageBoardSyncTasks();
+  for (it = messageboardSyncTasks.begin(); it != messageboardSyncTasks.end(); ++it) {
+    TaskId id = (*it);
+    std::string message_name = model.getTaskFunctionName(id);
+    std::string task_name = model.getTaskName(id);
+    taskManager.CreateMessageBoardTask(task_name, message_name,
+            exe::MessageBoardTask::OP_SYNC);
+  }
+  TaskIdSet messageboardClearTasks = model.getMessageBoardClearTasks();
+  for (it = messageboardClearTasks.begin(); it != messageboardClearTasks.end(); ++it) {
+    TaskId id = (*it);
+    std::string message_name = model.getTaskFunctionName(id);
+    std::string task_name = model.getTaskName(id);
+    taskManager.CreateMessageBoardTask(task_name, message_name,
+            exe::MessageBoardTask::OP_CLEAR);
+  }
+
+  // Register dependencies with the Task Manager
+  TaskIdMap dependencies = model.getTaskDependencies();
+  TaskIdMap::iterator mit;
+  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit) {
+    taskManager.AddDependency(model.getTaskName((*mit).first), model.getTaskName((*mit).second));
+  }
+
+  // once finalised, tasks and dependencies can no longer be added
+  taskManager.Finalise();
 }
 
 #ifdef TESTBUILD
-void Simulation::registerModelWithMemoryManagerTest(const flame::model::Model &model) {
-  registerModelWithMemoryManager(model);
+void Simulation::registerModelWithMemoryManagerTest(const AgentMemory& agentMemory) {
+  registerModelWithMemoryManager(agentMemory);
 }
 
-void Simulation::registerModelWithTaskManagerTest(const flame::model::Model &model) {
+void Simulation::registerModelWithTaskManagerTest(const m::Model &model) {
   registerModelWithTaskManager(model);
 }
 #endif

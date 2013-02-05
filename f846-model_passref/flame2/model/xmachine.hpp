@@ -32,6 +32,7 @@ class XMachine {
     XVariable * addVariable(std::string type, std::string name);
     boost::ptr_vector<XVariable> * getVariables();
     std::set<Var> getVariablesSet() const;
+    std::vector<Var> getVariablesVector() const;
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
     XFunction * addFunction(std::string name,

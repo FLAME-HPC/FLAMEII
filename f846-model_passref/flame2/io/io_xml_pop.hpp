@@ -26,16 +26,18 @@ typedef std::vector<int>* intVecPtr;
 typedef std::vector<double>* doubleVecPtr;
 typedef std::map<std::string, std::vector<std::string> > agentVarMap;
 
+typedef std::pair<std::string, std::string> Var;
+typedef std::vector<Var> VarVec;
+typedef std::map<std::string, VarVec> AgentMemory;
+
 class IOXMLPop {
   public:
     IOXMLPop();
-    void readPop(std::string file_name,
-        model::XModel * model);
+    void readPop(std::string file_name, const AgentMemory& agentMemory);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();
-    void createDataSchema(std::string const& file,
-        flame::model::XModel * model);
+    void createDataSchema(std::string const& file, const AgentMemory& agentMemory);
     void validateData(std::string const& data_file,
         std::string const& schema_file);
     bool xmlPopPathIsSet();
@@ -44,17 +46,17 @@ class IOXMLPop {
     void setIteration(size_t i);
 
   private:
-    void saveAgentVariableData(model::XModel * model);
+    void saveAgentVariableData(const AgentMemory& agentMemory);
     void writeAgents(xmlTextWriterPtr writer);
     void createDataSchemaHead(xmlTextWriterPtr writer);
     void createDataSchemaAgentNameType(xmlTextWriterPtr writer,
-        flame::model::XModel * model);
+        const AgentMemory& agentMemory);
     void createDataSchemaAgentVarChoice(xmlTextWriterPtr writer,
-        flame::model::XModel * model);
+        const AgentMemory& agentMemory);
     void createDataSchemaAgentVars(xmlTextWriterPtr writer,
-        flame::model::XModel * model);
+        const AgentMemory& agentMemory);
     void createDataSchemaAgentVar(xmlTextWriterPtr writer,
-        boost::ptr_vector<model::XVariable>::iterator variable);
+        std::string type, std::string name);
     void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
     void createDataSchemaDefineTags(xmlTextWriterPtr writer);
     void writeXMLEndTag(xmlTextWriterPtr writer);
@@ -85,16 +87,16 @@ class IOXMLPop {
     template <class T>
     int processTextVariableCast(std::string value,
         std::vector<std::string> * tags,
-        model::XMachine ** agent, xmlTextReaderPtr reader);
+        std::string * agent, xmlTextReaderPtr reader);
     int processTextVariable(std::string value, std::vector<std::string> * tags,
-        model::XMachine ** agent, xmlTextReaderPtr reader);
+        std::string * agent, xmlTextReaderPtr reader, const AgentMemory& agentMemory);
     int processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
-        model::XMachine ** agent, model::XModel * model);
+        std::string * agent, const AgentMemory& agentMemory);
     int processEndNode(std::vector<std::string> * tags, std::string name,
-        model::XMachine ** agent);
-    int processNode(xmlTextReaderPtr reader, model::XModel * model,
-        std::vector<std::string> * tags, model::XMachine ** agent);
+        std::string * agent);
+    int processNode(xmlTextReaderPtr reader, const AgentMemory& agentMemory,
+        std::vector<std::string> * tags, std::string * agent);
     std::string xml_pop_path;
     size_t iteration_;
     bool xml_pop_path_is_set;

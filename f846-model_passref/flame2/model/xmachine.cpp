@@ -73,6 +73,16 @@ std::set<Var> XMachine::getVariablesSet() const {
   return varSet;
 }
 
+std::vector<Var> XMachine::getVariablesVector() const {
+  boost::ptr_vector<XVariable>::const_iterator it;
+  std::vector<Var> varVec;
+
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    varVec.push_back(std::make_pair((*it).getType(), (*it).getName()));
+
+  return varVec;
+}
+
 XVariable * XMachine::getVariable(std::string name) {
   boost::ptr_vector<XVariable>::iterator it;
   for (it = variables_.begin(); it != variables_.end(); it++)

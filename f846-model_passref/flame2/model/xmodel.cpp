@@ -271,48 +271,114 @@ std::vector<std::string> * XModel::getAllowedDataTypes() {
   return &allowedDataTypes_;
 }
 
+bool XModel::doesAgentExist(std::string agent_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) return true;
+  return false;
+}
+
+std::string XModel::getAgentVariableType(
+        std::string agent_name, std::string var_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  StringPairSet::const_iterator var;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) {
+      StringPairSet variables = (*it).getVariablesSet();
+      for (var = variables.begin(); var != variables.end(); ++var)
+          if (var_name == (*var).second) return (*var).first;
+      throw flame::exceptions::flame_model_exception(
+            "Agent variable does not exist");
+    }
+
+  throw flame::exceptions::flame_model_exception("Agent does not exist");
+}
+
+StringSet XModel::getAgentNames() const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  StringSet agents;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    agents.insert((*it).getName());
+
+  return agents;
+}
+
+StringPairSet XModel::getAgentVariables(std::string agent_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) return (*it).getVariablesSet();
+
+  throw flame::exceptions::flame_model_exception("Agent does not exist");
+}
+
 AgentMemory XModel::getAgentMemoryInfo() const {
   boost::ptr_vector<XMachine>::const_iterator it;
   AgentMemory agentMemory;
 
-  for (it = agents_.begin(); it != agents_.end(); ++it) {
-    std::set<AgentVar> vars = (*it).getVariablesSet();
-    agentMemory.insert( std::pair<std::string, std::set<AgentVar> >((*it).getName(), vars) );
-  }
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    agentMemory.insert( std::pair<std::string, std::vector<Var> >(
+        (*it).getName(), (*it).getVariablesVector()) );
 
   return agentMemory;
 }
 
-StringPairSet XModel::getAgentTasks() const {
+TaskIdSet XModel::getAgentTasks() const {
   return modelGraph_.getAgentTasks();
 }
 
-StringPairSet XModel::getIOTasks() const {
-  return modelGraph_.getIOTasks();
+TaskIdSet XModel::getAgentIOTasks() const {
+  return modelGraph_.getAgentIOTasks();
 }
 
-StringPairSet XModel::getMessageBoardTasks() const {
-  return modelGraph_.getMessageBoardTasks();
+TaskId XModel::getInitIOTask() const {
+  return modelGraph_.getInitIOTask();
 }
 
-StringPairSet XModel::getTaskDependencies() const {
+TaskId XModel::getFinIOTask() const {
+  return modelGraph_.getFinIOTask();
+}
+
+TaskIdSet XModel::getMessageBoardSyncTasks() const {
+  return modelGraph_.getMessageBoardSyncTasks();
+}
+
+TaskIdSet XModel::getMessageBoardClearTasks() const {
+  return modelGraph_.getMessageBoardClearTasks();
+}
+
+TaskIdMap XModel::getTaskDependencies() const {
   return modelGraph_.getTaskDependencies();
 }
 
-StringSet XModel::getReadOnlyVariables(std::string func_name, std::string agent_name) const {
-  return modelGraph_.getReadOnlyVariables(func_name, agent_name);
+std::string XModel::getTaskName(TaskId id) const {
+  return modelGraph_.getTaskName(id);
 }
 
-StringSet XModel::getWriteVariables(std::string func_name, std::string agent_name) const {
-  return modelGraph_.getWriteVariables(func_name, agent_name);
+std::string XModel::getTaskAgentName(TaskId id) const {
+  return modelGraph_.getTaskAgentName(id);
 }
 
-StringSet XModel::getOutputMessages(std::string func_name, std::string agent_name) const {
-  return modelGraph_.getOutputMessages(func_name, agent_name);
+std::string XModel::getTaskFunctionName(TaskId id) const {
+  return modelGraph_.getTaskFunctionName(id);
 }
 
-StringSet XModel::getInputMessages(std::string func_name, std::string agent_name) const {
-  return modelGraph_.getInputMessages(func_name, agent_name);
+StringSet XModel::getTaskReadOnlyVariables(TaskId id) const {
+  return modelGraph_.getTaskReadOnlyVariables(id);
+}
+
+StringSet XModel::getTaskWriteVariables(TaskId id) const {
+  return modelGraph_.getTaskWriteVariables(id);
+}
+
+StringSet XModel::getTaskOutputMessages(TaskId id) const {
+  return modelGraph_.getTaskOutputMessages(id);
+}
+
+StringSet XModel::getTaskInputMessages(TaskId id) const {
+  return modelGraph_.getTaskInputMessages(id);
 }
 
 }}  // namespace flame::model

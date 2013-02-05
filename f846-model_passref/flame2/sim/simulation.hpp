@@ -14,20 +14,25 @@
 
 namespace flame { namespace sim {
 
+namespace m = flame::model;
+
+typedef std::pair<std::string, std::string> Var;
+typedef std::map<std::string, std::vector<Var> > AgentMemory;
+
 class Simulation {
   public:
-    Simulation(const flame::model::Model &model, std::string pop_file);
+    Simulation(const m::Model &model, std::string pop_file);
     void start(size_t iterations, size_t num_cores = 1);
 #ifdef TESTBUILD
     Simulation() {}
-    void registerModelWithMemoryManagerTest(const flame::model::Model &model);
-    void registerModelWithTaskManagerTest(const flame::model::Model &model);
+    void registerModelWithMemoryManagerTest(const AgentMemory& agentMemory);
+    void registerModelWithTaskManagerTest(const m::Model &model);
 #endif
 
   private:
-    void registerModelWithMessageManager(const flame::model::Model &model);
-    void registerModelWithMemoryManager(const flame::model::Model &model);
-    void registerModelWithTaskManager(const flame::model::Model &model);
+    void registerModelWithMessageManager(const m::Model &model);
+    void registerModelWithMemoryManager(const AgentMemory& agentMemory);
+    void registerModelWithTaskManager(const m::Model &model);
 };
 }}  // namespace flame::sim
 #endif  // SIM__SIMULATION_HPP_

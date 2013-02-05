@@ -11,11 +11,16 @@
 #ifndef MODEL__MODEL_HPP_
 #define MODEL__MODEL_HPP_
 #include <string>
+#include <set>
 #include <map>
 #include "flame2/model/xmodel.hpp"
 #include "flame2/mb/message_board_manager.hpp"
 
 namespace flame { namespace model {
+
+typedef size_t TaskId;
+typedef std::set<TaskId> TaskIdSet;
+typedef std::map<TaskId, TaskId> TaskIdMap;
 
 //! \brief Used to create a model and register with framework
 class Model {
@@ -68,14 +73,20 @@ class Model {
     //! Check the model has been validated
     bool isValidated() const;
     AgentMemory getAgentMemoryInfo() const;
-    StringPairSet getAgentTasks() const;
-    StringPairSet getIOTasks() const;
-    StringPairSet getMessageBoardTasks() const;
-    StringPairSet getTaskDependencies() const;
-    StringSet getReadOnlyVariables(std::string func_name, std::string agent_name) const;
-    StringSet getWriteVariables(std::string func_name, std::string agent_name) const;
-    StringSet getOutputMessages(std::string func_name, std::string agent_name) const;
-    StringSet getInputMessages(std::string func_name, std::string agent_name) const;
+    TaskIdSet getAgentTasks() const;
+    TaskIdSet getAgentIOTasks() const;
+    TaskId getInitIOTask() const;
+    TaskId getFinIOTask() const;
+    TaskIdSet getMessageBoardSyncTasks() const;
+    TaskIdSet getMessageBoardClearTasks() const;
+    TaskIdMap getTaskDependencies() const;
+    std::string getTaskName(TaskId id) const;
+    std::string getTaskAgentName(TaskId id) const;
+    std::string getTaskFunctionName(TaskId id) const;
+    StringSet getTaskReadOnlyVariables(TaskId id) const;
+    StringSet getTaskWriteVariables(TaskId id) const;
+    StringSet getTaskOutputMessages(TaskId id) const;
+    StringSet getTaskInputMessages(TaskId id) const;
 
   private:
     bool validated_;  //!< Check for a validated model

@@ -49,6 +49,9 @@ typedef boost::shared_ptr<Task> TaskPtr;
 
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
+typedef size_t TaskId;
+typedef std::set<TaskId> TaskIdSet;
+typedef std::map<TaskId, TaskId> TaskIdMap;
 
 class XGraph {
   public:
@@ -80,14 +83,20 @@ class XGraph {
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
     void importGraphs(std::set<XGraph*> graphs);
-    StringPairSet getAgentTasks() const;
-    StringPairSet getIOTasks() const;
-    StringPairSet getMessageBoardTasks() const;
-    StringPairSet getTaskDependencies() const;
-    StringSet getReadOnlyVariables(std::string func_name, std::string agent_name) const;
-    StringSet getWriteVariables(std::string func_name, std::string agent_name) const;
-    StringSet getOutputMessages(std::string func_name, std::string agent_name) const;
-    StringSet getInputMessages(std::string func_name, std::string agent_name) const;
+    TaskIdSet getAgentTasks() const;
+    TaskIdSet getAgentIOTasks() const;
+    TaskId getInitIOTask() const;
+    TaskId getFinIOTask() const;
+    TaskIdSet getMessageBoardSyncTasks() const;
+    TaskIdSet getMessageBoardClearTasks() const;
+    TaskIdMap getTaskDependencies() const;
+    std::string getTaskName(TaskId id) const;
+    std::string getTaskAgentName(TaskId id) const;
+    std::string getTaskFunctionName(TaskId id) const;
+    StringSet getTaskReadOnlyVariables(TaskId id) const;
+    StringSet getTaskWriteVariables(TaskId id) const;
+    StringSet getTaskOutputMessages(TaskId id) const;
+    StringSet getTaskInputMessages(TaskId id) const;
 #ifdef TESTBUILD
     bool dependencyExists(std::string name1, std::string name2);
     Vertex addTestVertex(Task * t);

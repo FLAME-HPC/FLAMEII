@@ -160,36 +160,59 @@ AgentMemory Model::getAgentMemoryInfo() const {
   return model_.getAgentMemoryInfo();
 }
 
-StringPairSet Model::getAgentTasks() const {
+TaskIdSet Model::getAgentTasks() const {
   return model_.getAgentTasks();
 }
 
-StringPairSet Model::getIOTasks() const {
-  return model_.getIOTasks();
+TaskIdSet Model::getAgentIOTasks() const {
+  return model_.getAgentIOTasks();
 }
 
-StringPairSet Model::getMessageBoardTasks() const {
-  return model_.getMessageBoardTasks();
+TaskId Model::getInitIOTask() const {
+  return model_.getInitIOTask();
 }
 
-StringPairSet Model::getTaskDependencies() const {
+TaskId Model::getFinIOTask() const {
+  return model_.getFinIOTask();
+}
+
+TaskIdSet Model::getMessageBoardSyncTasks() const {
+  return model_.getMessageBoardSyncTasks();
+}
+TaskIdSet Model::getMessageBoardClearTasks() const {
+  return model_.getMessageBoardClearTasks();
+}
+
+TaskIdMap Model::getTaskDependencies() const {
   return model_.getTaskDependencies();
 }
 
-StringSet Model::getReadOnlyVariables(std::string func_name, std::string agent_name) const {
-  return model_.getReadOnlyVariables(func_name, agent_name);
+std::string Model::getTaskName(TaskId id) const {
+  return model_.getTaskName(id);
 }
 
-StringSet Model::getWriteVariables(std::string func_name, std::string agent_name) const {
-  return model_.getWriteVariables(func_name, agent_name);
+std::string Model::getTaskAgentName(TaskId id) const {
+  return model_.getTaskAgentName(id);
 }
 
-StringSet Model::getOutputMessages(std::string func_name, std::string agent_name) const {
-  return model_.getOutputMessages(func_name, agent_name);
+std::string Model::getTaskFunctionName(TaskId id) const {
+  return model_.getTaskFunctionName(id);
 }
 
-StringSet Model::getInputMessages(std::string func_name, std::string agent_name) const {
-  return model_.getInputMessages(func_name, agent_name);
+StringSet Model::getTaskReadOnlyVariables(TaskId id) const {
+  return model_.getTaskReadOnlyVariables(id);
+}
+
+StringSet Model::getTaskWriteVariables(TaskId id) const {
+  return model_.getTaskWriteVariables(id);
+}
+
+StringSet Model::getTaskOutputMessages(TaskId id) const {
+  return model_.getTaskOutputMessages(id);
+}
+
+StringSet Model::getTaskInputMessages(TaskId id) const {
+  return model_.getTaskInputMessages(id);
 }
 
 }}  // namespace flame::model

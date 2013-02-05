@@ -34,8 +34,7 @@ int removeFile(std::string file) {
 }
 
 void IOManager::readPop(std::string file_name,
-    model::XModel * model,
-    FileType fileType) {
+    AgentMemory AgentMemory, FileType fileType) {
   std::string xmlpopxsd;
 
   if (fileType == xml) {
@@ -44,12 +43,12 @@ void IOManager::readPop(std::string file_name,
     /* Validate xml first */
     xmlpopxsd = std::string(ioxmlpop.xmlPopPath()).append("xmlpop.xsd");
     /* Create data schema */
-    ioxmlpop.createDataSchema(xmlpopxsd, model);
+    ioxmlpop.createDataSchema(xmlpopxsd, AgentMemory);
     /* Validate data using schema */
     ioxmlpop.validateData(file_name, xmlpopxsd);
     removeFile(xmlpopxsd);
     /* Read validated pop xml */
-    ioxmlpop.readPop(file_name, model);
+    ioxmlpop.readPop(file_name, AgentMemory);
   } else {
     throw exc::flame_io_exception("unknown file type");
   }
