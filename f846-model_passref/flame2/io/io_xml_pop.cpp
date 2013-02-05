@@ -14,6 +14,7 @@
 #include <boost/variant.hpp>
 #include <string>
 #include <vector>
+#include <set>
 #include <cstdio>
 #include <utility>
 #include "flame2/config.hpp"
@@ -277,7 +278,8 @@ void IOXMLPop::createDataSchemaAgentVar(xmlTextWriterPtr writer,
   // Select correct schema data type
   if (type == "int") schema_type = "xs:integer";
   else if (type == "double") schema_type = "xs:double";
-  else schema_type = "xs:string";
+  else
+    schema_type = "xs:string";
   // Write schema data type attribute
   writeXMLTagAttribute(writer, "type", schema_type);
   // Close the element named xs:element
@@ -485,18 +487,21 @@ int IOXMLPop::processTextVariable(std::string value,
   int rc;
 
   AgentMemory::const_iterator it;
+  // get agent memory info of agent
   it = agentMemory.find(*agent);
+  // get variables of agent
   VarVec vars = (*it).second;
+  // try and find type of variable from tag name
   std::string var_type = "";
   VarVec::const_iterator var;
   for (var = vars.begin(); var != vars.end(); ++var) {
     if ((*var).second == tags->back()) var_type = (*var).first;
   }
+  // if variable name does not exist then throw exception
   if (var_type == "") throw exc::invalid_pop_file(
       std::string("Agent variable is not recognised: ").append(value));
 
-  // Check variable type for casting and
-  // use appropriate casting function
+  // check variable type for casting and use appropriate casting function
   if (var_type == "int") {
     rc = processTextVariableCast<int>(value, tags, agent, reader);
     if (rc != 0)
@@ -511,7 +516,8 @@ int IOXMLPop::processTextVariable(std::string value,
 }
 
 int IOXMLPop::processTextAgent(std::vector<std::string> * tags,
-    xmlTextReaderPtr reader, std::string * agent, const AgentMemory& agentMemory) {
+    xmlTextReaderPtr reader, std::string * agent,
+    const AgentMemory& agentMemory) {
   int rc = 0;
 
   /* Read value */
@@ -557,8 +563,9 @@ int IOXMLPop::processEndNode(std::vector<std::string> * tags, std::string name,
   return 0;
 }
 
-int IOXMLPop::processNode(xmlTextReaderPtr reader, const AgentMemory& agentMemory,
-    std::vector<std::string> * tags, std::string * agent) {
+int IOXMLPop::processNode(xmlTextReaderPtr reader,
+    const AgentMemory& agentMemory, std::vector<std::string> * tags,
+    std::string * agent) {
   int rc = 0;
   /* Node name */
   const xmlChar *xmlname;

@@ -170,4 +170,20 @@ std::set<std::string>* Task::getInputMessages() {
   return &inputMessages_;
 }
 
+std::set<std::string> Task::getReadOnlyVariablesConst() const {
+  return readOnlyVariables_;
+}
+
+std::set<std::string> Task::getWriteVariablesConst() const {
+  return writeVariables_;
+}
+
+std::set<std::string> Task::getOutputMessagesConst() const {
+  return outputMessages_;
+}
+
+std::set<std::string> Task::getInputMessagesConst() const {
+  return inputMessages_;
+}
+
 }}  // namespace flame::model

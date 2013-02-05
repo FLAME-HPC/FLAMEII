@@ -149,7 +149,7 @@ Vertex XGraph::getVertex(Task * t) {
 }
 
 Task * XGraph::getTask(Vertex v) const {
-  int index = (int)(v);
+  int index = static_cast<int>(v);
 
   if (index < 0 || index >= vertex2task_->size())
     throw flame::exceptions::flame_model_exception(
@@ -1331,7 +1331,7 @@ TaskIdMap XGraph::getTaskDependencies() const {
     // Get the target
     TaskId target = boost::target((Edge)*iei, *graph_);
     // Add dependency
-    dependencies.insert(std::pair<TaskId,TaskId>(target, source));
+    dependencies.insert(std::pair<TaskId, TaskId>(target, source));
   }
 
   return dependencies;

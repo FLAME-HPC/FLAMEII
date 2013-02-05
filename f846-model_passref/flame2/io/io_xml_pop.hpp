@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/model/xmodel.hpp"
 
@@ -37,7 +38,8 @@ class IOXMLPop {
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();
-    void createDataSchema(std::string const& file, const AgentMemory& agentMemory);
+    void createDataSchema(std::string const& file,
+        const AgentMemory& agentMemory);
     void validateData(std::string const& data_file,
         std::string const& schema_file);
     bool xmlPopPathIsSet();
@@ -89,7 +91,8 @@ class IOXMLPop {
         std::vector<std::string> * tags,
         std::string * agent, xmlTextReaderPtr reader);
     int processTextVariable(std::string value, std::vector<std::string> * tags,
-        std::string * agent, xmlTextReaderPtr reader, const AgentMemory& agentMemory);
+        std::string * agent, xmlTextReaderPtr reader,
+        const AgentMemory& agentMemory);
     int processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader,
         std::string * agent, const AgentMemory& agentMemory);

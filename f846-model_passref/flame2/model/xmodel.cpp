@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "xmodel.hpp"
@@ -319,7 +320,7 @@ AgentMemory XModel::getAgentMemoryInfo() const {
   AgentMemory agentMemory;
 
   for (it = agents_.begin(); it != agents_.end(); ++it)
-    agentMemory.insert( std::pair<std::string, std::vector<Var> >(
+    agentMemory.insert(std::pair<std::string, std::vector<Var> >(
         (*it).getName(), (*it).getVariablesVector()) );
 
   return agentMemory;

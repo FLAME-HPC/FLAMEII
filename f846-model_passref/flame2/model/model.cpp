@@ -9,10 +9,13 @@
  */
 #include <cstdio>
 #include <string>
+#include <map>
 #include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "model.hpp"
+
+namespace exe = flame::exe;
 
 namespace flame {
 namespace model {
@@ -27,8 +30,7 @@ Model::Model(std::string path_to_model) {
   validate();
 }
 
-void Model::registerAgentFunction(std::string name,
-    flame::exe::TaskFunction f_ptr) {
+void Model::registerAgentFunction(std::string name, exe::TaskFunction f_ptr) {
   funcMap_.insert(std::make_pair(name, f_ptr));
 }
 
@@ -140,8 +142,8 @@ void Model::addMessageVariable(std::string message_name,
   validated_ = false;
 }
 
-flame::exe::TaskFunction Model::getAgentFunctionPointer(std::string name) const {
-  std::map<std::string, flame::exe::TaskFunction>::const_iterator it;
+exe::TaskFunction Model::getAgentFunctionPointer(std::string name) const {
+  std::map<std::string, exe::TaskFunction>::const_iterator it;
   int rc = 0;
 
   // Try and find function pointer from map

@@ -14,6 +14,8 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include <utility>
+#include <map>
 #include "flame2/io/io_manager.hpp"
 #include "flame2/io/io_xml_model.hpp"
 #include "flame2/io/io_xml_pop.hpp"
@@ -36,6 +38,8 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
 
   /* Read model xml */
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
+  // get agent memory info
+  AgentMemory agentMemory = model.getAgentMemoryInfo();
 
   // Create 0.xml in program dir
   FILE *file;
@@ -47,10 +51,10 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     fclose(file);
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("0.xml", model.getAgentMemoryInfo(), flame::io::IOManager::xml));
+        iomanager.readPop("0.xml", agentMemory, flame::io::IOManager::xml));
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("./0.xml", model.getAgentMemoryInfo(), flame::io::IOManager::xml));
+        iomanager.readPop("./0.xml", agentMemory, flame::io::IOManager::xml));
 
     if (remove("0.xml") != 0)
       fprintf(stderr,
@@ -70,7 +74,8 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 
   /* Generate data schema */
   BOOST_CHECK_NO_THROW(
-      ioxmlpop.createDataSchema("io/models/all_data.xsd", model.getAgentMemoryInfo()));
+      ioxmlpop.createDataSchema("io/models/all_data.xsd",
+          model.getAgentMemoryInfo()));
 
   /* Validate data using schema */
   std::string xsd = "io/models/all_data.xsd";

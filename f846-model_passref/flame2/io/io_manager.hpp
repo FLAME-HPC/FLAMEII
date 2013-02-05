@@ -11,6 +11,8 @@
 #define IO__IO_MANAGER_HPP_
 #include <string>
 #include <vector>
+#include <map>
+#include <utility>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 #include "io_xml_pop.hpp"

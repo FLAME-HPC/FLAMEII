@@ -10,6 +10,9 @@
 #ifndef SIM__SIMULATION_HPP_
 #define SIM__SIMULATION_HPP_
 #include <string>
+#include <map>
+#include <utility>
+#include <vector>
 #include "flame2/model/model.hpp"
 
 namespace flame { namespace sim {
@@ -33,6 +36,9 @@ class Simulation {
     void registerModelWithMessageManager(const m::Model &model);
     void registerModelWithMemoryManager(const AgentMemory& agentMemory);
     void registerModelWithTaskManager(const m::Model &model);
+    void registerAgentTasksWithTaskManager(const m::Model &model);
+    void registerIOTasksWithTaskManager(const m::Model &model);
+    void registerMBTasksWithTaskManager(const m::Model &model);
 };
 }}  // namespace flame::sim
 #endif  // SIM__SIMULATION_HPP_

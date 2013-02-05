@@ -53,12 +53,10 @@ class Task {
     std::set<std::string>* getOutputMessages();
     void addInputMessage(std::string name);
     std::set<std::string>* getInputMessages();
-
-    std::set<std::string> getReadOnlyVariablesConst() const { return readOnlyVariables_;  }
-    std::set<std::string> getWriteVariablesConst() const { return writeVariables_;  }
-    std::set<std::string> getOutputMessagesConst() const { return outputMessages_;  }
-    std::set<std::string> getInputMessagesConst() const { return inputMessages_;  }
-
+    std::set<std::string> getReadOnlyVariablesConst() const;
+    std::set<std::string> getWriteVariablesConst() const;
+    std::set<std::string> getOutputMessagesConst() const;
+    std::set<std::string> getInputMessagesConst() const;
 
   private:
     // Agent name if function or output

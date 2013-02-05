@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include <utility>
 #include "xmachine.hpp"
 #include "xvariable.hpp"
 #include "xadt.hpp"
