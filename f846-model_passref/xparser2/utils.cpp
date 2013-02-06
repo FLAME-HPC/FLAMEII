@@ -11,6 +11,7 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include "flame2/build_config.hpp"  
 #include "printer.hpp"
 
 namespace xparser { namespace utils {
@@ -24,17 +25,15 @@ std::string locate_template(const char* template_name) {
     return out.string();
   }
 
-  // if package data install dir defined, look there next
-  #ifdef PKGDATADIR
-    boost::filesystem::path pkgdir(PKGDATADIR);
-    out = pkgdir / template_name;
-    if (boost::filesystem::exists(out) &&
-      boost::filesystem::is_regular_file(out)) {
+  // Next, look in  package data install dir
+  boost::filesystem::path pkgdir(flame::build_config::packageDataDir);
+  out = pkgdir / template_name;
+  if (boost::filesystem::exists(out) &&
+        boost::filesystem::is_regular_file(out)) {
     return out.string();
+  } else {
+    return "";
   }
-  #endif
-
-  return "";
 }
 
 std::string gen_random_string(const int len) {
