@@ -22,7 +22,8 @@ sources = \
   codegen/gen_maincpp.cpp \
   codegen/gen_model.cpp \
   codegen/gen_agent.cpp \
-  codegen/gen_message_registration.cpp \
+  codegen/gen_message.cpp \
+  codegen/gen_simulation.cpp \
   codegen/gen_agentfunc.cpp
  
 headers = \
@@ -38,7 +39,8 @@ headers = \
   codegen/gen_maincpp.hpp \
   codegen/gen_model.hpp \
   codegen/gen_agent.hpp \
-  codegen/gen_message_registration.hpp \
+  codegen/gen_message.hpp \
+  codegen/gen_simulation.hpp \
   codegen/gen_agentfunc.hpp
 
 templates = \

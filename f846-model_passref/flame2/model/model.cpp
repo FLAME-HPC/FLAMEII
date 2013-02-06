@@ -144,7 +144,6 @@ void Model::addMessageVariable(std::string message_name,
 
 exe::TaskFunction Model::getAgentFunctionPointer(std::string name) const {
   std::map<std::string, exe::TaskFunction>::const_iterator it;
-  int rc = 0;
 
   // Try and find function pointer from map
   it = funcMap_.find(name);

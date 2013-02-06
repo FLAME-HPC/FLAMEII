@@ -14,7 +14,6 @@
 #include <set>
 #include <map>
 #include "flame2/model/xmodel.hpp"
-#include "flame2/mb/message_board_manager.hpp"
 
 namespace flame { namespace model {
 
@@ -30,11 +29,6 @@ class Model {
     //! Register agent function with the framework
     void registerAgentFunction(std::string name,
             flame::exe::TaskFunction f_ptr);
-    //! Register message type with the framework
-    template <typename T>
-    void registerMessageType(std::string name) {
-      flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
-    }
     //! Validate the model
     void validate();
     //! Add an agent

@@ -1,14 +1,14 @@
 /*!
- * \file xparser2/gen_message_registration.hpp
+ * \file xparser2/gen_message.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2013 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Generate code to define and register messages
+ * \brief Generate code to define messages
  */
-#ifndef XPARSER__CODEGEN__GEN_MESSAGGES_HPP_
-#define XPARSER__CODEGEN__GEN_MESSAGGES_HPP_
+#ifndef XPARSER__CODEGEN__GEN_MESSAGGE_HPP_
+#define XPARSER__CODEGEN__GEN_MESSAGGE_HPP_
 #include <vector>
 #include <utility>
 #include <string>
@@ -16,9 +16,9 @@
 namespace xparser { namespace codegen {
 
 //! Generates code to register a message and register its datatype
-class GenMessageRegistration : public CodeGenerator {
+class GenMessage : public CodeGenerator {
   public:
-    explicit GenMessageRegistration(const std::string& msg_name);
+    explicit GenMessage(const std::string& msg_name);
     //! Adds a message variable and its type
     void AddVar(const std::string& var_type, const std::string& var_name);
     //! Prints the generated code to the printer instance
