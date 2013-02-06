@@ -33,7 +33,6 @@ class Simulation {
 #endif
 
   private:
-    void registerModelWithMessageManager(const m::Model &model);
     void registerModelWithMemoryManager(const AgentMemory& agentMemory);
     void registerModelWithTaskManager(const m::Model &model);
     void registerAgentTasksWithTaskManager(const m::Model &model);

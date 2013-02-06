@@ -64,6 +64,9 @@ class Model {
     StringSet getTaskWriteVariables(TaskId id) const;
     StringSet getTaskOutputMessages(TaskId id) const;
     StringSet getTaskInputMessages(TaskId id) const;
+#ifdef TESTBUILD
+    flame::model::XModel * getXModel() { return &model_; }
+#endif
 
   private:
     bool validated_;  //!< Check for a validated model

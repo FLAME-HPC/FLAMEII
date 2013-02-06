@@ -59,61 +59,58 @@ BOOST_AUTO_TEST_CASE(test_loadModel) {
   BOOST_CHECK_NO_THROW(m.loadModel("io/models/all_not_valid.xml",
       &model));
 }
-/*
+
 // test the reading of XML population files
 BOOST_AUTO_TEST_CASE(test_readPop) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-  model::XModel model;
+  model::Model model;
   flame::mem::MemoryManager& memoryManager =
       flame::mem::MemoryManager::GetInstance();
 
   // read model xml
-  iomanager.loadModel("io/models/all_data.xml", &model);
+  iomanager.loadModel("io/models/all_data.xml", model.getXModel());
 
-  model.validate();
   flame::sim::Simulation sim;
-  sim.registerModelWithMemoryManagerTest()
-
-  model.registerWithMemoryManagerTest();
+  sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_missing.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_malformed.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_tag.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_agent.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_variable.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_var_not_int.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_var_not_double.xml",
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
   BOOST_CHECK_NO_THROW(iomanager.readPop(zeroxml,
-      &model,
+      model.getAgentMemoryInfo(),
       io::IOManager::xml));
 
   // test pop data read in
@@ -140,14 +137,16 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
   flame::mem::MemoryManager& memoryManager =
       flame::mem::MemoryManager::GetInstance();
-  model::XModel model;
+  model::Model model;
   std::string zeroxml = "io/models/all_data_its/0.xml";
 
   // read model
-  iomanager.loadModel("io/models/all_data.xml", &model);
-  model.registerWithMemoryManager();
+  iomanager.loadModel("io/models/all_data.xml", model.getXModel());
+
+  flame::sim::Simulation sim;
+  sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
   // read pop
-  iomanager.readPop(zeroxml, &model, io::IOManager::xml);
+  iomanager.readPop(zeroxml, model.getAgentMemoryInfo(), io::IOManager::xml);
 
   // test pop data written out
   std::string onexml = "io/models/all_data_its/1.xml";
@@ -190,38 +189,40 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
   // reset memory manager as to not affect next test suite
   memoryManager.Reset();
 }
-
+/*
 BOOST_AUTO_TEST_CASE(test_writePop_1_agent_var) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
   flame::mem::MemoryManager& memoryManager =
       flame::mem::MemoryManager::GetInstance();
-  model::XModel model;
+  model::Model model;
   std::string zeroxml = "io/models/all_data_its/0.xml";
 
   // Read model
-  iomanager.loadModel("io/models/all_data.xml", &model);
-  model.registerWithMemoryManager();
+  iomanager.loadModel("io/models/all_data.xml", model.getXModel());
+  model.validate();
+  flame::sim::Simulation sim;
+  sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
   // Read pop
-  iomanager.readPop(zeroxml, &model, io::IOManager::xml);
+  iomanager.readPop(zeroxml, model.getAgentMemoryInfo(), io::IOManager::xml);
 
-    BOOST_CHECK_THROW(iomanager.writePop("na", "int_single"),
-            std::runtime_error);
+  BOOST_CHECK_THROW(iomanager.writePop("na", "int_single"),
+                    std::runtime_error);
 
-    BOOST_CHECK_THROW(iomanager.writePop("agent_a", "na"), std::runtime_error);
+  BOOST_CHECK_THROW(iomanager.writePop("agent_a", "na"), std::runtime_error);
 
   BOOST_CHECK_NO_THROW(iomanager.writePop("agent_a", "int_single"));
 
   // Check contents of 0_agent_a_int_single.xml
   FILE *file;
-    zeroFile = fopen(zeroxml.c_str(), "r");
-    if (file == 0)
-            fprintf(stderr, "Warning: Could not open the file: %s\n",
-                    zeroxml.c_str());
+  zeroFile = fopen(zeroxml.c_str(), "r");
+  if (file == 0)
+          fprintf(stderr, "Warning: Could not open the file: %s\n",
+                  zeroxml.c_str());
 
-    // Remove created 0_agent_a_int_single.xml
-    if (remove("0_agent_a_int_single.xml") != 0)
-        fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-                "0_agent_a_int_single.xml");
+  // Remove created 0_agent_a_int_single.xml
+  if (remove("0_agent_a_int_single.xml") != 0)
+      fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
+              "0_agent_a_int_single.xml");
 
   // Reset memory manager as to not affect next test suite
   memoryManager.Reset();

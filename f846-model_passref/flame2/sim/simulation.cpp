@@ -43,7 +43,6 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
       "Model added to a simulation has not been validated");
 
   // register model with memory and task manager
-  registerModelWithMessageManager(model);
   registerModelWithMemoryManager(model.getAgentMemoryInfo());
   registerModelWithTaskManager(model);
 
@@ -65,9 +64,6 @@ void Simulation::start(size_t iterations, size_t num_cores) {
 #endif
     s.RunIteration();
   }
-}
-
-void Simulation::registerModelWithMessageManager(const m::Model &/*model*/) {
 }
 
 void Simulation::registerModelWithMemoryManager(
