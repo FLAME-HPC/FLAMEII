@@ -7,16 +7,11 @@
  * \copyright GNU Lesser General Public License
  * \brief SimManager: simulation manager
  */
-#include <cstdio>
 #include "flame2/config.hpp"
 #include "sim_manager.hpp"
 
 namespace flame { namespace sim {
 
-SimManager::SimManager() {
-}
-
-SimManager::~SimManager() {
-}
+SimManager::SimManager() {}
 
 }}  // namespace flame::sim

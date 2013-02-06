@@ -14,7 +14,6 @@
 #include <utility>
 #include <vector>
 #include "flame2/model/model.hpp"
-#include "flame2/mb/message_board_manager.hpp"
 
 namespace flame { namespace sim {
 
@@ -26,11 +25,6 @@ typedef std::map<std::string, std::vector<Var> > AgentMemory;
 class Simulation {
   public:
     Simulation(const m::Model &model, std::string pop_file);
-    //! Register message type with the framework
-    template <typename T>
-    void registerMessageType(std::string name) {
-      flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
-    }
     void start(size_t iterations, size_t num_cores = 1);
 #ifdef TESTBUILD
     Simulation() {}

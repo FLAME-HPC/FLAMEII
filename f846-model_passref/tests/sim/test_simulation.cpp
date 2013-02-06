@@ -108,8 +108,9 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
   m.registerAgentFunction("inputdata", &inputdata);
   m.registerAgentFunction("move", &move);
 
+  sim::SimManager sim_mgr;
   // Register message types
-  m.registerMessageType<my_location_message>("location");
+  sim_mgr.registerMessageType<my_location_message>("location");
 
   sim::Simulation s(m, "sim/models/circles/0.xml");
 

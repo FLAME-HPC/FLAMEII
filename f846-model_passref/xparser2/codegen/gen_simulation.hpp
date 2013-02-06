@@ -10,7 +10,7 @@
  */
 #ifndef XPARSER__CODEGEN__GEN_SIMULATION_HPP_
 #define XPARSER__CODEGEN__GEN_SIMULATION_HPP_
-#include <vector>
+#include <set>
 #include <utility>
 #include <string>
 #include "code_generator.hpp"

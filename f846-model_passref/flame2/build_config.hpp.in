@@ -21,7 +21,8 @@
 
 namespace flame { namespace build_config {
 
-const std::string packageDataDir("@FLAME2_INSTALL_DATADIR@");
+const std::string packageDataDir(
+  "@FLAME2_INSTALL_DATADIR@");
 const std::string packageName("@PACKAGE_NAME@");
 const std::string version("@VERSION@");
 

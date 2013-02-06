@@ -143,9 +143,8 @@ TaskSplitterHandle AgentTask::SplitTask(size_t max_tasks,
   // calculate how many splits and split size
   size_t offset = (is_split_) ? offset_ : 0;
   size_t population = (is_split_) ? count_ : shadow_ptr_->get_size();
-  if (population < (min_task_size * 2)) {  // too small to split
+  if (population < (min_task_size * 2))  // too small to split
     return TaskSplitterHandle();  // return null handle
-  }
 
   size_t num_splits, size_per_task, remainder;
   if (population >= (min_task_size * max_tasks)) {
