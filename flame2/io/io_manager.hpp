@@ -11,12 +11,17 @@
 #define IO__IO_MANAGER_HPP_
 #include <string>
 #include <vector>
-#include "flame2/model/xmodel.hpp"
+#include <map>
+#include <utility>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 #include "io_xml_pop.hpp"
 
 namespace flame { namespace io {
+
+typedef std::pair<std::string, std::string> Var;
+typedef std::vector<Var> VarVec;
+typedef std::map<std::string, VarVec> AgentMemory;
 
 class IOManager {
   public:
@@ -28,8 +33,7 @@ class IOManager {
     }
 
     void loadModel(std::string const& file, flame::model::XModel * model);
-    void readPop(std::string file_name,
-        model::XModel * model,
+    void readPop(std::string file_name, AgentMemory AgentMemory,
         FileType fileType);
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();

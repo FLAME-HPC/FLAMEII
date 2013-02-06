@@ -14,14 +14,20 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
+#include <utility>
+#include <map>
 #include "flame2/io/io_manager.hpp"
 #include "flame2/io/io_xml_model.hpp"
 #include "flame2/io/io_xml_pop.hpp"
 #include "flame2/mem/memory_manager.hpp"
+#include "flame2/sim/simulation.hpp"
 
 namespace xml = flame::io::xml;
 namespace model = flame::model;
 namespace e = flame::exceptions;
+
+typedef std::pair<std::string, std::string> Var;
+typedef std::map<std::string, std::vector<Var> > AgentMemory;
 
 BOOST_AUTO_TEST_SUITE(IOPop)
 
@@ -32,6 +38,8 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
 
   /* Read model xml */
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
+  // get agent memory info
+  AgentMemory agentMemory = model.getAgentMemoryInfo();
 
   // Create 0.xml in program dir
   FILE *file;
@@ -43,10 +51,10 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     fclose(file);
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("0.xml", &model, flame::io::IOManager::xml));
+        iomanager.readPop("0.xml", agentMemory, flame::io::IOManager::xml));
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("./0.xml", &model, flame::io::IOManager::xml));
+        iomanager.readPop("./0.xml", agentMemory, flame::io::IOManager::xml));
 
     if (remove("0.xml") != 0)
       fprintf(stderr,
@@ -66,7 +74,8 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 
   /* Generate data schema */
   BOOST_CHECK_NO_THROW(
-      ioxmlpop.createDataSchema("io/models/all_data.xsd", &model));
+      ioxmlpop.createDataSchema("io/models/all_data.xsd",
+          model.getAgentMemoryInfo()));
 
   /* Validate data using schema */
   std::string xsd = "io/models/all_data.xsd";
@@ -78,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
         xsd.c_str());
 }
 
-/* Test the reading of XML population files. */
+// Test the reading of XML population files
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   unsigned int ii;
   xml::IOXMLPop ioxmlpop;
@@ -87,50 +96,52 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   flame::mem::MemoryManager& memoryManager =
       flame::mem::MemoryManager::GetInstance();
 
-  /* Read model xml */
+  // read model xml
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
-  /* Register agents with memory manager */
-  model.registerWithMemoryManager();
+  // register agents with memory manager
+  AgentMemory agentMemory = model.getAgentMemoryInfo();
+  flame::sim::Simulation sim;
+  sim.registerModelWithMemoryManagerTest(agentMemory);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_missing.xml", &model),
+      "io/models/all_data_its/0_missing.xml", agentMemory),
       e::inaccessable_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_malformed.xml", &model),
+      "io/models/all_data_its/0_malformed.xml", agentMemory),
       e::unparseable_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_tag.xml", &model),
+      "io/models/all_data_its/0_unknown_tag.xml", agentMemory),
       e::unparseable_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_agent.xml", &model),
+      "io/models/all_data_its/0_unknown_agent.xml", agentMemory),
       e::invalid_pop_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_variable.xml", &model),
+      "io/models/all_data_its/0_unknown_variable.xml", agentMemory),
       e::invalid_pop_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_var_not_int.xml", &model),
+      "io/models/all_data_its/0_var_not_int.xml", agentMemory),
       e::invalid_pop_file);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_var_not_double.xml", &model),
+      "io/models/all_data_its/0_var_not_double.xml", agentMemory),
       e::invalid_pop_file);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
-  BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, &model));
+  BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, agentMemory));
 
-  /* Test pop data read in */
-  /* Test ints data */
+  // Test pop data read in
+  // Test ints data
   std::vector<int>* roi =
       memoryManager.GetVector<int>("agent_a", "int_single");
   int expectedi[] = {1, 2, 3};
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedi, expectedi+3,
       roi->begin(), roi->end());
-  /* Test doubles data */
+  // test doubles data
   std::vector<double>* rod =
       memoryManager.GetVector<double>("agent_a", "double_single");
   double expectedd[] = {0.1, 0.2, 0.3};
@@ -138,12 +149,12 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     BOOST_CHECK_CLOSE(*(rod->begin()+ii), *(expectedd+ii), 0.0001);
   }
 
-  /* Test pop data written out */
+  // Test pop data written out
   std::string onexml = "io/models/all_data_its/1.xml";
   ioxmlpop.setIteration(1);
   ioxmlpop.setXmlPopPath(zeroxml);
   ioxmlpop.finaliseData();
-  /* Check 0.xml and 1.xml are identical */
+  // Check 0.xml and 1.xml are identical
   size_t differences = 1;
   int c0, c1;
   FILE *zeroFile, *oneFile;
@@ -159,24 +170,24 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
     differences = 0;
     c0 = fgetc(zeroFile);
     c1 = fgetc(oneFile);
-    /* While at least one file is not at the end */
+    // While at least one file is not at the end
     while (c0 != EOF || c1 != EOF) {
       if (c0 != c1) differences++;
       if (c0 != EOF) c0 = fgetc(zeroFile);
       if (c1 != EOF) c1 = fgetc(oneFile);
     }
   }
-  /* Close files */
+  // Close files
   fclose(zeroFile);
   fclose(oneFile);
   BOOST_CHECK(differences == 0);
 
-  /* Remove created 1.xml */
+  // Remove created 1.xml
   if (remove(onexml.c_str()) != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
         onexml.c_str());
 
-  /* Reset memory manager as to not affect next test suite */
+  // Reset memory manager as to not affect next test suite
   memoryManager.Reset();
 }
 

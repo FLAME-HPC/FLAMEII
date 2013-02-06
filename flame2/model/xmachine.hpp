@@ -20,15 +20,19 @@
 
 namespace flame { namespace model {
 
+typedef std::pair<std::string, std::string> Var;
+
 class XMachine {
   public:
     XMachine();
     void print();
     void setName(std::string name);
-    const std::string getName();
+    std::string getName() const;
     XVariable * addVariable();
     XVariable * addVariable(std::string type, std::string name);
     boost::ptr_vector<XVariable> * getVariables();
+    std::set<Var> getVariablesSet() const;
+    std::vector<Var> getVariablesVector() const;
     XVariable * getVariable(std::string name);
     XFunction * addFunction();
     XFunction * addFunction(std::string name,
@@ -45,7 +49,6 @@ class XMachine {
     std::pair<int, std::string> checkCyclicDependencies();
     std::pair<int, std::string> checkFunctionConditions();
     int generateDependencyGraph();
-    void registerWithMemoryManager();
     void addToModelGraph(XGraph * modelGraph);
     void setID(int id);
     int getID();

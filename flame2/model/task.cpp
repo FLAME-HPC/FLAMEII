@@ -68,7 +68,7 @@ void Task::setParentName(std::string parentName) {
   parentName_ = parentName;
 }
 
-std::string Task::getParentName() {
+std::string Task::getParentName() const {
   return parentName_;
 }
 
@@ -76,7 +76,7 @@ void Task::setName(std::string name) {
   name_ = name;
 }
 
-std::string Task::getName() {
+std::string Task::getName() const {
   return name_;
 }
 
@@ -168,6 +168,22 @@ void Task::addInputMessage(std::string name) {
 
 std::set<std::string>* Task::getInputMessages() {
   return &inputMessages_;
+}
+
+std::set<std::string> Task::getReadOnlyVariablesConst() const {
+  return readOnlyVariables_;
+}
+
+std::set<std::string> Task::getWriteVariablesConst() const {
+  return writeVariables_;
+}
+
+std::set<std::string> Task::getOutputMessagesConst() const {
+  return outputMessages_;
+}
+
+std::set<std::string> Task::getInputMessagesConst() const {
+  return inputMessages_;
 }
 
 }}  // namespace flame::model

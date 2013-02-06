@@ -23,6 +23,7 @@
 #include <algorithm>   // For sort
 #include "flame2/config.hpp"
 #include "flame2/exe/task_manager.hpp"
+#include "flame2/exceptions/model.hpp"
 #include "xgraph.hpp"
 #include "xcondition.hpp"
 #include "xfunction.hpp"
@@ -147,14 +148,25 @@ Vertex XGraph::getVertex(Task * t) {
   return 0;
 }
 
-Task * XGraph::getTask(Vertex v) {
+Task * XGraph::getTask(Vertex v) const {
+  int index = static_cast<int>(v);
+
+  if (index < 0 || index >= vertex2task_->size())
+    throw flame::exceptions::flame_model_exception(
+      "Task id does not exist");
+
   // Return task at index v
   return vertex2task_->at(v).get();
 }
 
 Dependency * XGraph::getDependency(Edge e) {
+  Dependency * d = edge2dependency_->find(e)->second;
+
+  if (d == 0) throw flame::exceptions::flame_model_exception(
+      "Model graph dependency not initialised");
+
   // Return dependency associated with the edge
-  return edge2dependency_->find(e)->second;
+  return d;
 }
 
 int XGraph::generateDependencyGraph(boost::ptr_vector<XVariable> * variables) {
@@ -329,162 +341,6 @@ void XGraph::generateTaskList(std::vector<Task*> * tasks) {
   for (vit = sorted_vertices.rbegin();
       vit != sorted_vertices.rend(); ++vit)
     tasks->push_back(getTask((*vit)));
-}
-
-int XGraph::registerAllowAccess(flame::exe::Task * task,
-    std::set<std::string> * vars, bool writeable) {
-  std::set<std::string>::iterator sit;
-
-  // For each variable name
-  for (sit = vars->begin(); sit != vars->end(); ++sit)
-    task->AllowAccess((*sit), writeable);
-
-  return 0;
-}
-
-int XGraph::registerAllowMessage(flame::exe::Task * task,
-    std::set<std::string> * messages, bool post) {
-  std::set<std::string>::iterator sit;
-
-  // For each message
-  for (sit = messages->begin();
-      sit != messages->end(); ++sit) {
-    // Update task with appropriate access
-    // If output message then allow post
-    if (post) task->AllowMessagePost((*sit));
-    // If input message then allow read
-    else
-      task->AllowMessageRead((*sit));
-  }
-
-  return 0;
-}
-
-int XGraph::registerAgentTask(Task * t,
-    std::map<std::string, flame::exe::TaskFunction> funcMap) {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  std::map<std::string, flame::exe::TaskFunction>::iterator it;
-  int rc = 0;
-
-  // Try and find function pointer from map
-  it = funcMap.find(t->getName());
-  if (it == funcMap.end()) {
-    fprintf(stderr, "Error: function '%s' has not be registered and %s\n",
-        t->getTaskName().c_str(),
-        "therefore a task cannot be created");
-    return 3;
-  }
-
-  // Create agent task
-  flame::exe::Task& task = taskManager.CreateAgentTask(
-      t->getTaskName(), t->getParentName(), ((*it).second));
-  // Allow access to read only variables
-  rc += registerAllowAccess(&task, t->getReadOnlyVariables(), false);
-  // Allow access to read write variables
-  rc += registerAllowAccess(&task, t->getWriteVariables(), true);
-  // Add access to output messages
-  rc += registerAllowMessage(&task, t->getOutputMessages(), true);
-  // Add access to input messages
-  rc += registerAllowMessage(&task, t->getInputMessages(), false);
-  if (rc != 0) return 1;
-
-  return 0;
-}
-
-void XGraph::registerDataTask(Task * t) {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  std::string taskName = t->getTaskName();
-  std::string agentName = t->getParentName();
-  Task::TaskType taskType = t->getTaskType();
-  std::set<std::string>::iterator it;
-
-  // If agent var data
-  if (taskType == Task::io_pop_write) {
-    // For each write variable
-    for (it = t->getWriteVariables()->begin();
-        it != t->getWriteVariables()->end(); ++it) {
-      taskName = "AD_";
-      taskName.append(agentName);
-      taskName.append("_");
-      taskName.append((*it));
-      taskManager.CreateIOTask(taskName, agentName, (*it),
-          flame::exe::IOTask::OP_OUTPUT);
-    }
-  }
-  // If model start data
-  if (taskType == Task::start_model)
-    taskManager.CreateIOTask(taskName, "", "",
-        flame::exe::IOTask::OP_INIT);
-  // If model finish data
-  if (taskType == Task::finish_model)
-    taskManager.CreateIOTask(taskName, "", "",
-        flame::exe::IOTask::OP_FIN);
-}
-
-int XGraph::registerMessageTask(Task * t) {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-
-  // If sync task then create sync task
-  if (t->getTaskType() == Task::xmessage_sync)
-    taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
-        exe::MessageBoardTask::OP_SYNC);
-  // If clear task then create clear task
-  if (t->getTaskType() == Task::xmessage_clear)
-    taskManager.CreateMessageBoardTask(t->getTaskName(), t->getName(),
-        exe::MessageBoardTask::OP_CLEAR);
-
-  return 0;
-}
-
-int XGraph::registerDependencies() {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  boost::graph_traits<Graph>::edge_iterator iei, iei_end;
-
-  // For each edge
-  for (boost::tie(iei, iei_end) = boost::edges(*graph_);
-      iei != iei_end; ++iei) {
-    // Get the source
-    std::string source = getTask(
-        boost::source((Edge)*iei, *graph_))->getTaskName();
-    // Get the target
-    std::string target = getTask(
-        boost::target((Edge)*iei, *graph_))->getTaskName();
-    // Add dependency
-    taskManager.AddDependency(target, source);
-  }
-
-  return 0;
-}
-
-int XGraph::registerTasksAndDependenciesWithTaskManager(
-    std::map<std::string, flame::exe::TaskFunction> funcMap) {
-  flame::exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  std::pair<VertexIterator, VertexIterator> vp;
-
-  // For each vertex
-  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
-    Task * t = getTask(*vp.first);
-    Task::TaskType type = t->getTaskType();
-
-    // If agent task
-    if (type == Task::xfunction || type == Task::xcondition)
-      registerAgentTask(t, funcMap);
-    // If data task
-    if (type == Task::io_pop_write ||
-        type == Task::start_model || type == Task::finish_model)
-      registerDataTask(t);
-    // If message task
-    if (type == Task::xmessage_sync || type == Task::xmessage_clear)
-      registerMessageTask(t);
-  }
-
-  // Register dependencies with the Task Manager
-  registerDependencies();
-
-  // Once finalised, tasks and dependencies can no longer be added
-  taskManager.Finalise();
-
-  return 0;
 }
 
 void clearVarWriteSet(std::string name,
@@ -747,13 +603,13 @@ void XGraph::AddVariableOutput() {
     Task * task = new Task(agentName_,
         boost::lexical_cast<std::string>(++count), Task::io_pop_write);
     Vertex vertex = addVertex(task);
-    task->getWriteVariables()->insert((*lws->begin()).first);
+    task->addWriteVariable((*lws->begin()).first);
     task->setName((*lws->begin()).first);
     // Check first var against other var task sets, if same then add to
     // current task and remove
     for (vwit = ++lws->begin(); vwit != lws->end();) {
       if (compareTaskSets((*lws->begin()).second, (*vwit).second)) {
-        task->getWriteVariables()->insert((*vwit).first);
+        task->addWriteVariable((*vwit).first);
         lws->erase(vwit++);
       } else {
         ++vwit;
@@ -852,6 +708,10 @@ void XGraph::contractStateVertices() {
   // If startTask a state (not a state converted to a condition
   // Todo add assert here for startTask_ != NULL
   // because if the model has not been validated then it is not set
+
+  if (startTask_ == 0) throw flame::exceptions::flame_model_exception(
+      "Model graph start task not initialised");
+
   if (startTask_->getTaskType() == Task::xstate)
     for (boost::tie(oei, oei_end) =
         boost::out_edges(getVertex(startTask_), *graph_);
@@ -1218,6 +1078,135 @@ void XGraph::writeGraphviz(std::string fileName) {
           graph_writer());
 
   graphfile.clear();
+}
+
+TaskIdSet XGraph::getAgentTasks() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+    Task * t = getTask(*vp.first);
+    Task::TaskType type = t->getTaskType();
+
+    // If agent task
+    if (type == Task::xfunction || type == Task::xcondition)
+      tasks.insert(*vp.first);
+  }
+
+  return tasks;
+}
+
+TaskIdSet XGraph::getAgentIOTasks() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first)
+    // If data task
+    if (getTask(*vp.first)->getTaskType() == Task::io_pop_write)
+      tasks.insert(*vp.first);
+
+  return tasks;
+}
+
+TaskId XGraph::getInitIOTask() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first)
+    // If start data task
+    if (getTask(*vp.first)->getTaskType() == Task::start_model)
+      return *vp.first;
+
+  throw flame::exceptions::flame_model_exception(
+        "Init IO Task does not exist");
+}
+
+TaskId XGraph::getFinIOTask() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first)
+    // If finish data task
+    if (getTask(*vp.first)->getTaskType() == Task::finish_model)
+      return *vp.first;
+
+  throw flame::exceptions::flame_model_exception(
+        "Init IO Task does not exist");
+}
+
+TaskIdSet XGraph::getMessageBoardSyncTasks() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first)
+    // if message sync task
+    if (getTask(*vp.first)->getTaskType() == Task::xmessage_sync)
+      tasks.insert(*vp.first);
+
+  return tasks;
+}
+
+TaskIdSet XGraph::getMessageBoardClearTasks() const {
+  std::pair<VertexIterator, VertexIterator> vp;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+    // if message clear task
+    if (getTask(*vp.first)->getTaskType() == Task::xmessage_clear)
+      tasks.insert(*vp.first);
+  }
+
+  return tasks;
+}
+
+TaskIdMap XGraph::getTaskDependencies() const {
+  boost::graph_traits<Graph>::edge_iterator iei, iei_end;
+  TaskIdMap dependencies;
+
+  // For each edge
+  for (boost::tie(iei, iei_end) = boost::edges(*graph_);
+      iei != iei_end; ++iei) {
+    // Get the source
+    TaskId source = boost::source((Edge)*iei, *graph_);
+    // Get the target
+    TaskId target = boost::target((Edge)*iei, *graph_);
+    // Add dependency
+    dependencies.insert(std::pair<TaskId, TaskId>(target, source));
+  }
+
+  return dependencies;
+}
+
+std::string XGraph::getTaskName(TaskId id) const {
+  return getTask(id)->getTaskName();
+}
+
+std::string XGraph::getTaskAgentName(TaskId id) const {
+  return getTask(id)->getParentName();
+}
+
+std::string XGraph::getTaskFunctionName(TaskId id) const {
+  return getTask(id)->getName();
+}
+
+StringSet XGraph::getTaskReadOnlyVariables(TaskId id) const {
+  return getTask(id)->getReadOnlyVariablesConst();
+}
+
+StringSet XGraph::getTaskWriteVariables(TaskId id) const {
+  return getTask(id)->getWriteVariablesConst();
+}
+
+StringSet XGraph::getTaskOutputMessages(TaskId id) const {
+  return getTask(id)->getOutputMessagesConst();
+}
+
+StringSet XGraph::getTaskInputMessages(TaskId id) const {
+  return getTask(id)->getInputMessagesConst();
 }
 
 #ifdef TESTBUILD

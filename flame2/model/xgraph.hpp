@@ -47,6 +47,12 @@ typedef std::map<Edge, Dependency *> EdgeMap;
 //! Use a shared pointer to automatically handle Task pointers
 typedef boost::shared_ptr<Task> TaskPtr;
 
+typedef std::set< std::pair<std::string, std::string> > StringPairSet;
+typedef std::set<std::string> StringSet;
+typedef size_t TaskId;
+typedef std::set<TaskId> TaskIdSet;
+typedef std::map<TaskId, TaskId> TaskIdMap;
+
 class XGraph {
   public:
     XGraph();
@@ -64,19 +70,26 @@ class XGraph {
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
-    int registerAgentTask(Task * t,
-            std::map<std::string, flame::exe::TaskFunction> funcMap);
-    void registerDataTask(Task * t);
-    int registerMessageTask(Task * t);
-    int registerDependencies();
-    int registerTasksAndDependenciesWithTaskManager(
-            std::map<std::string, flame::exe::TaskFunction> funcMap);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
     std::vector<TaskPtr> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(std::string fileName);
     void importGraphs(std::set<XGraph*> graphs);
+    TaskIdSet getAgentTasks() const;
+    TaskIdSet getAgentIOTasks() const;
+    TaskId getInitIOTask() const;
+    TaskId getFinIOTask() const;
+    TaskIdSet getMessageBoardSyncTasks() const;
+    TaskIdSet getMessageBoardClearTasks() const;
+    TaskIdMap getTaskDependencies() const;
+    std::string getTaskName(TaskId id) const;
+    std::string getTaskAgentName(TaskId id) const;
+    std::string getTaskFunctionName(TaskId id) const;
+    StringSet getTaskReadOnlyVariables(TaskId id) const;
+    StringSet getTaskWriteVariables(TaskId id) const;
+    StringSet getTaskOutputMessages(TaskId id) const;
+    StringSet getTaskInputMessages(TaskId id) const;
 #ifdef TESTBUILD
     bool dependencyExists(std::string name1, std::string name2);
     Vertex addTestVertex(Task * t);
@@ -101,9 +114,9 @@ class XGraph {
     void changeMessageTasksToSync();
     void addMessageClearTasks();
     int registerAllowAccess(flame::exe::Task * task,
-            std::set<std::string> * vars, bool writeable);
+            std::set<std::string> vars, bool writeable);
     int registerAllowMessage(flame::exe::Task * task,
-            std::set<std::string> * messages, bool post);
+            std::set<std::string> messages, bool post);
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);
     Edge addEdge(Vertex to, Vertex from, std::string name,
@@ -135,7 +148,7 @@ class XGraph {
     void contractVertices(Task::TaskType taskType,
             Dependency::DependencyType dependencyType);
     Vertex getVertex(Task * t);
-    Task * getTask(Vertex v);
+    Task * getTask(Vertex v) const;
     Dependency * getDependency(Edge e);
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);

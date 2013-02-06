@@ -26,7 +26,7 @@ namespace exe = flame::exe;
 namespace mem = flame::mem;
 
 FLAME_AGENT_FUNCTION(dummy_func) {
-  API_UNUSED; 
+  API_UNUSED;
   return FLAME_AGENT_ALIVE;
 }
 

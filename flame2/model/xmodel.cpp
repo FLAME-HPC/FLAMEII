@@ -12,8 +12,8 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
 #include "flame2/config.hpp"
-#include "flame2/mb/message_board_manager.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "xmodel.hpp"
 
@@ -62,21 +62,19 @@ void XModel::print() {
 }
 
 int XModel::validate() {
+  int rc;
+
+  // try and validate model
   XModelValidate validator(this);
-  return validator.validate();
-}
+  rc = validator.validate();
 
-void XModel::registerAgentFunction(std::string name,
-    flame::exe::TaskFunction f_ptr) {
-  funcMap_.insert(std::make_pair(name, f_ptr));
-}
+  // if fail then return code
+  if (rc != 0) return rc;
 
-void XModel::registerWithMemoryManager() {
-  boost::ptr_vector<XMachine>::iterator agent;
+  // if success then generate graph
+  generateGraph(&modelGraph_);
 
-  // For each agent register with memory manager
-  for (agent = getAgents()->begin(); agent != getAgents()->end(); ++agent)
-    (*agent).registerWithMemoryManager();
+  return 0;
 }
 
 void XModel::generateGraph(XGraph * modelGraph) {
@@ -100,14 +98,6 @@ void XModel::generateGraph(XGraph * modelGraph) {
 #ifdef OUTPUT_GRAPHS
   modelGraph->writeGraphviz(name_ + ".dot");
 #endif
-}
-
-void XModel::registerWithTaskManager() {
-  XGraph modelGraph;
-
-  generateGraph(&modelGraph);
-
-  modelGraph.registerTasksAndDependenciesWithTaskManager(funcMap_);
 }
 
 void XModel::setPath(std::string path) {
@@ -282,8 +272,114 @@ std::vector<std::string> * XModel::getAllowedDataTypes() {
   return &allowedDataTypes_;
 }
 
-std::map<std::string, flame::exe::TaskFunction> XModel::getFuncMap() {
-  return funcMap_;
+bool XModel::doesAgentExist(std::string agent_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) return true;
+  return false;
+}
+
+std::string XModel::getAgentVariableType(
+        std::string agent_name, std::string var_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  StringPairSet::const_iterator var;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) {
+      StringPairSet variables = (*it).getVariablesSet();
+      for (var = variables.begin(); var != variables.end(); ++var)
+          if (var_name == (*var).second) return (*var).first;
+      throw flame::exceptions::flame_model_exception(
+            "Agent variable does not exist");
+    }
+
+  throw flame::exceptions::flame_model_exception("Agent does not exist");
+}
+
+StringSet XModel::getAgentNames() const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  StringSet agents;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    agents.insert((*it).getName());
+
+  return agents;
+}
+
+StringPairSet XModel::getAgentVariables(std::string agent_name) const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    if (agent_name == (*it).getName()) return (*it).getVariablesSet();
+
+  throw flame::exceptions::flame_model_exception("Agent does not exist");
+}
+
+AgentMemory XModel::getAgentMemoryInfo() const {
+  boost::ptr_vector<XMachine>::const_iterator it;
+  AgentMemory agentMemory;
+
+  for (it = agents_.begin(); it != agents_.end(); ++it)
+    agentMemory.insert(std::pair<std::string, std::vector<Var> >(
+        (*it).getName(), (*it).getVariablesVector()) );
+
+  return agentMemory;
+}
+
+TaskIdSet XModel::getAgentTasks() const {
+  return modelGraph_.getAgentTasks();
+}
+
+TaskIdSet XModel::getAgentIOTasks() const {
+  return modelGraph_.getAgentIOTasks();
+}
+
+TaskId XModel::getInitIOTask() const {
+  return modelGraph_.getInitIOTask();
+}
+
+TaskId XModel::getFinIOTask() const {
+  return modelGraph_.getFinIOTask();
+}
+
+TaskIdSet XModel::getMessageBoardSyncTasks() const {
+  return modelGraph_.getMessageBoardSyncTasks();
+}
+
+TaskIdSet XModel::getMessageBoardClearTasks() const {
+  return modelGraph_.getMessageBoardClearTasks();
+}
+
+TaskIdMap XModel::getTaskDependencies() const {
+  return modelGraph_.getTaskDependencies();
+}
+
+std::string XModel::getTaskName(TaskId id) const {
+  return modelGraph_.getTaskName(id);
+}
+
+std::string XModel::getTaskAgentName(TaskId id) const {
+  return modelGraph_.getTaskAgentName(id);
+}
+
+std::string XModel::getTaskFunctionName(TaskId id) const {
+  return modelGraph_.getTaskFunctionName(id);
+}
+
+StringSet XModel::getTaskReadOnlyVariables(TaskId id) const {
+  return modelGraph_.getTaskReadOnlyVariables(id);
+}
+
+StringSet XModel::getTaskWriteVariables(TaskId id) const {
+  return modelGraph_.getTaskWriteVariables(id);
+}
+
+StringSet XModel::getTaskOutputMessages(TaskId id) const {
+  return modelGraph_.getTaskOutputMessages(id);
+}
+
+StringSet XModel::getTaskInputMessages(TaskId id) const {
+  return modelGraph_.getTaskInputMessages(id);
 }
 
 }}  // namespace flame::model

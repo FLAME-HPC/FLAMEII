@@ -9,15 +9,20 @@
  */
 #ifndef SIM__SIM_MANAGER_HPP_
 #define SIM__SIM_MANAGER_HPP_
-
+#include <string>
+#include "flame2/mb/message_board_manager.hpp"
 #include "simulation.hpp"
 
 namespace flame { namespace sim {
 
 class SimManager {
   public:
-    SimManager();
-    ~SimManager();
+    explicit SimManager();
+    //! Register message type with the framework
+    template <typename T>
+    void registerMessageType(std::string name) {
+      flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
+    }
 
   private:
 };

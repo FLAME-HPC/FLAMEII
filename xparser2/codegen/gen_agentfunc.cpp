@@ -57,14 +57,16 @@ void GenAgentFunc::Generate(Printer* printer) const {
   variables["FUNC"] = func_name_;
   variables["CURRENT"] = current_state_;
   variables["NEXT"] = next_state_;
-  printer->Print("model.addAgentFunction(\"$AGENT$\", \"$FUNC$\", "
-                 "\"$CURRENT$\", \"$NEXT$\");\n", variables);
+  printer->Print("flame::model::AgentFunction $AGENT$_$FUNC$_$CURRENT$_$NEXT$("
+      "\"$FUNC$\", \"$CURRENT$\", \"$NEXT$\");\n", variables);
   // print outputs and inputs
   print_outputs_(printer);
   print_inputs_(printer);
   // print memory access info
   print_read_write_vars_(printer);
   print_read_only_vars_(printer);
+  printer->Print("model.addAgentFunction(\"$AGENT$\", "
+      "$AGENT$_$FUNC$_$CURRENT$_$NEXT$);\n", variables);
 }
 
 void GenAgentFunc::print_outputs_(Printer* printer) const {
@@ -76,8 +78,8 @@ void GenAgentFunc::print_outputs_(Printer* printer) const {
   std::vector<std::string>::const_iterator s = outputs_.begin();
   for (; s != outputs_.end(); ++s) {
     variables["MESSAGE"] = (*s);
-    printer->Print("model.addAgentFunctionOutput(\"$AGENT$\", \"$FUNC$\", "
-                   "\"$CURRENT$\", \"$NEXT$\", \"$MESSAGE$\");\n", variables);
+    printer->Print("$AGENT$_$FUNC$_$CURRENT$_$NEXT$.addOutput("
+        "\"$MESSAGE$\");\n", variables);
   }
 }
 
@@ -90,8 +92,8 @@ void GenAgentFunc::print_inputs_(Printer* printer) const {
   std::vector<std::string>::const_iterator s = inputs_.begin();
   for (; s != inputs_.end(); ++s) {
     variables["MESSAGE"] = (*s);
-    printer->Print("model.addAgentFunctionInput(\"$AGENT$\", \"$FUNC$\", "
-                   "\"$CURRENT$\", \"$NEXT$\", \"$MESSAGE$\");\n", variables);
+    printer->Print("$AGENT$_$FUNC$_$CURRENT$_$NEXT$.addInput("
+        "\"$MESSAGE$\");\n", variables);
   }
 }
 
@@ -104,9 +106,8 @@ void GenAgentFunc::print_read_write_vars_(Printer* printer) const {
   std::vector<std::string>::const_iterator v = read_write_vars_.begin();
   for (; v != read_write_vars_.end(); ++v) {
     variables["VAR"] = (*v);
-    printer->Print("model.addAgentFunctionReadWriteVariable"
-                   "(\"$AGENT$\", \"$FUNC$\", "
-                   "\"$CURRENT$\", \"$NEXT$\", \"$VAR$\");\n", variables);
+    printer->Print("$AGENT$_$FUNC$_$CURRENT$_$NEXT$.addReadWriteVariable"
+                   "(\"$VAR$\");\n", variables);
   }
 }
 
@@ -119,9 +120,8 @@ void GenAgentFunc::print_read_only_vars_(Printer* printer) const {
   std::vector<std::string>::const_iterator v = read_only_vars_.begin();
   for (; v != read_only_vars_.end(); ++v) {
     variables["VAR"] = (*v);
-    printer->Print("model.addAgentFunctionReadOnlyVariable"
-                   "(\"$AGENT$\", \"$FUNC$\", "
-                   "\"$CURRENT$\", \"$NEXT$\", \"$VAR$\");\n", variables);
+    printer->Print("$AGENT$_$FUNC$_$CURRENT$_$NEXT$.addReadOnlyVariable"
+                   "(\"$VAR$\");\n", variables);
   }
 }
 

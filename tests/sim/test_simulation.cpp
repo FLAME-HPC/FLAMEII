@@ -108,21 +108,23 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
   m.registerAgentFunction("inputdata", &inputdata);
   m.registerAgentFunction("move", &move);
 
-  sim::Simulation s(&m, "sim/models/circles/0.xml");
-
+  sim::SimManager sim_mgr;
   // Register message types
-  m.registerMessageType<my_location_message>("location");
+  sim_mgr.registerMessageType<my_location_message>("location");
+
+  sim::Simulation s(m, "sim/models/circles/0.xml");
 
   s.start(1);
 
   // Reset memory manager
   flame::mem::MemoryManager::GetInstance().Reset();
+  flame::exe::TaskManager::GetInstance().Reset();
 
   // Try and use generated output as input
   BOOST_CHECK_NO_THROW(
-      sim::Simulation s2(&m, "sim/models/circles/1.xml"));
+      sim::Simulation s2(m, "sim/models/circles/1.xml"));
 
-  /* Remove created all_data.xsd */
+  // Remove created all_data.xsd
   if (remove("sim/models/circles/1.xml") != 0)
     fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
         "sim/models/circles/1.xml");
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_CASE(unvalidated_model) {
   // unvalidated model
   flame::model::Model model;
 
-  BOOST_CHECK_THROW(sim::Simulation s2(&model, ""), e::flame_sim_exception);
+  BOOST_CHECK_THROW(sim::Simulation s2(model, ""), e::flame_sim_exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

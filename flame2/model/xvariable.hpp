@@ -19,9 +19,9 @@ class XVariable {
     explicit XVariable(std::string name);
     void print();
     void setName(std::string name);
-    std::string getName();
+    std::string getName() const;
     void setType(std::string type);
-    std::string getType();
+    std::string getType() const;
     void setIsDynamicArray(bool b);
     bool isDynamicArray();
     void setIsStaticArray(bool b);

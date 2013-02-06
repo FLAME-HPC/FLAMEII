@@ -28,9 +28,9 @@ class Task {
     Task(std::string parentName, std::string name, TaskType type);
     std::string getTaskName();
     void setParentName(std::string parentName);
-    std::string getParentName();
+    std::string getParentName() const;
     void setName(std::string name);
-    std::string getName();
+    std::string getName() const;
     void setTaskType(TaskType type);
     TaskType getTaskType();
     void setLevel(size_t level);
@@ -53,6 +53,10 @@ class Task {
     std::set<std::string>* getOutputMessages();
     void addInputMessage(std::string name);
     std::set<std::string>* getInputMessages();
+    std::set<std::string> getReadOnlyVariablesConst() const;
+    std::set<std::string> getWriteVariablesConst() const;
+    std::set<std::string> getOutputMessagesConst() const;
+    std::set<std::string> getInputMessagesConst() const;
 
   private:
     // Agent name if function or output

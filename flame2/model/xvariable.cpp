@@ -64,7 +64,7 @@ void XVariable::setName(std::string name) {
   name_ = name;
 }
 
-std::string XVariable::getName() {
+std::string XVariable::getName() const {
   return name_;
 }
 
@@ -72,7 +72,7 @@ void XVariable::setType(std::string type) {
   type_ = type;
 }
 
-std::string XVariable::getType() {
+std::string XVariable::getType() const {
   return type_;
 }
 

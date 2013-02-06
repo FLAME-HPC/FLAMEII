@@ -11,7 +11,7 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
-#include "flame2/build_config.hpp"  
+#include "flame2/build_config.hpp"
 #include "printer.hpp"
 
 namespace xparser { namespace utils {

@@ -36,7 +36,8 @@
 #include "codegen/gen_model.hpp"
 #include "codegen/gen_agent.hpp"
 #include "codegen/gen_agentfunc.hpp"
-#include "codegen/gen_message_registration.hpp"
+#include "codegen/gen_message.hpp"
+#include "codegen/gen_simulation.hpp"
 #include "utils.hpp"
 #include "file_generator.hpp"
 
@@ -51,6 +52,7 @@ void generate_agent_func_def(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
 void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
+void setup_simulation(m::XModel *model, gen::GenMainCpp *maincpp);
 
 // Print error message then quit with given return code
 void die(const std::string& message, int rc = 2) {
@@ -110,9 +112,12 @@ void build_output(m::XModel* model) {
   generate_agent_func_def(model, &maincpp, "agent_function_definitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
-  // Define and register messages
+  // Define and messages
   generate_messages(model, &maincpp, "message_datatypes.hpp");
   makefile.AddHeaderFile("message_datatypes.hpp");
+
+  // output to main.cpp code to setup simulation
+  setup_simulation(model, &maincpp);
 
   // Umbrella header file which all model function files should include
   static const char* common_header_name = "flame_api.hpp";
@@ -186,7 +191,7 @@ void generate_messages(m::XModel *model,
   boost::ptr_vector<m::XMessage> *messages = model->getMessages();
   // for each model messsage
   for (m = messages->begin(); m != messages->end(); ++m) {
-    gen::GenMessageRegistration msg_reg(m->getName());
+    gen::GenMessage msg_reg(m->getName());
     gen::GenDataStruct msg_datatype(m->getName() + "_message_t");
 
     // populate message vars
@@ -260,6 +265,21 @@ void generate_agents(m::XModel *model,
     // generate agent functions
     generate_agent_functions(&(*agent), maincpp);
   }
+}
+
+void setup_simulation(m::XModel *model,
+    xparser::codegen::GenMainCpp *maincpp) {
+  boost::ptr_vector<m::XMessage>::iterator m;
+  boost::ptr_vector<m::XMessage> *messages = model->getMessages();
+
+  gen::GenSimulation gen_sim;
+
+  // for each model messsage
+  for (m = messages->begin(); m != messages->end(); ++m)
+    gen_sim.AddMessage((*m).getName());
+
+  // Append to main.cpp
+  maincpp->Insert(gen_sim);
 }
 
 /*

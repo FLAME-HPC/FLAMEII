@@ -42,7 +42,7 @@ void XMachine::setName(std::string name) {
   functionDependencyGraph_.setAgentName(name);
 }
 
-const std::string XMachine::getName() {
+std::string XMachine::getName() const {
   return name_;
 }
 
@@ -61,6 +61,26 @@ XVariable * XMachine::addVariable(std::string type, std::string name) {
 
 boost::ptr_vector<XVariable> * XMachine::getVariables() {
   return &variables_;
+}
+
+std::set<Var> XMachine::getVariablesSet() const {
+  boost::ptr_vector<XVariable>::const_iterator it;
+  std::set<Var> varSet;
+
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    varSet.insert(Var((*it).getType(), (*it).getName()));
+
+  return varSet;
+}
+
+std::vector<Var> XMachine::getVariablesVector() const {
+  boost::ptr_vector<XVariable>::const_iterator it;
+  std::vector<Var> varVec;
+
+  for (it = variables_.begin(); it != variables_.end(); it++)
+    varVec.push_back(std::make_pair((*it).getType(), (*it).getName()));
+
+  return varVec;
 }
 
 XVariable * XMachine::getVariable(std::string name) {
@@ -176,25 +196,6 @@ std::pair<int, std::string> XMachine::checkCyclicDependencies() {
 
 std::pair<int, std::string> XMachine::checkFunctionConditions() {
   return functionDependencyGraph_.checkFunctionConditions();
-}
-
-void XMachine::registerWithMemoryManager() {
-  boost::ptr_vector<XVariable>::iterator vit;
-  flame::mem::MemoryManager& memoryManager =
-      flame::mem::MemoryManager::GetInstance();
-
-  /* Register agent with memory manager */
-  memoryManager.RegisterAgent(name_);
-  /* Register agent memory variables */
-  for (vit = variables_.begin(); vit != variables_.end(); ++vit)
-    /* Register int variable */
-    if ((*vit).getType() == "int")
-      memoryManager.RegisterAgentVar<int>(name_, (*vit).getName());
-  /* Register double variable */
-    else if ((*vit).getType() == "double")
-      memoryManager.RegisterAgentVar<double>(name_, (*vit).getName());
-  /* Population Size hint */
-  memoryManager.HintPopulationSize(name_, 100);
 }
 
 void XMachine::addToModelGraph(XGraph * modelGraph) {

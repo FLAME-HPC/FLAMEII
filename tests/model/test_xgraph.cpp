@@ -59,29 +59,29 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
 BOOST_AUTO_TEST_CASE(test_xgraph) {
   flame::io::IOManager& m = flame::io::IOManager::GetInstance();
   flame::model::XModel model;
-  flame::model::XGraph graph;
+  flame::model::XGraph * graph;
 
   BOOST_CHECK_NO_THROW(m.loadModel(
       "model/models/infection.xml", &model));
   BOOST_CHECK(model.validate() == 0);
-  model.generateGraph(&graph);
+  graph = model.getGraph();
 
-  BOOST_CHECK(graph.dependencyExists("output_location", "0") == true);
-  BOOST_CHECK(graph.dependencyExists("0", "transit_disease") == true);
-  BOOST_CHECK(graph.dependencyExists("0", "update_resistance") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists("output_location", "0") == true);
+  BOOST_CHECK(graph->dependencyExists("0", "transit_disease") == true);
+  BOOST_CHECK(graph->dependencyExists("0", "update_resistance") == true);
+  BOOST_CHECK(graph->dependencyExists(
       "0", "calculate_connection_forces") == true);
-  BOOST_CHECK(graph.dependencyExists("0", "calculate_crowd_forces") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists("0", "calculate_crowd_forces") == true);
+  BOOST_CHECK(graph->dependencyExists(
       "transit_disease", "update_connections") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists(
       "calculate_connection_forces", "update_connections") == true);
-  BOOST_CHECK(graph.dependencyExists("update_connections", "move") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists("update_connections", "move") == true);
+  BOOST_CHECK(graph->dependencyExists(
       "calculate_crowd_forces", "move") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists(
       "transit_disease", "diagnosis_and_recovery") == true);
-  BOOST_CHECK(graph.dependencyExists(
+  BOOST_CHECK(graph->dependencyExists(
       "update_infection_status", "diagnosis") == true);
 }
 
