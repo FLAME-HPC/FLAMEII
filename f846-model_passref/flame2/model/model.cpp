@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <string>
 #include <map>
+#include <set>
 #include "flame2/config.hpp"
 #include "flame2/io/io_manager.hpp"
 #include "flame2/exceptions/model.hpp"
@@ -65,63 +66,27 @@ void Model::addAgentVariable(std::string agent_name,
   validated_ = false;
 }
 
-void Model::addAgentFunction(std::string agent_name, std::string name,
-    std::string current_state, std::string next_state) {
+void Model::addAgentFunction(std::string agent_name,
+    const AgentFunction& agentFunction) {
+  std::set<std::string>::iterator it;
   // get named agent
   XMachine * agent = getAgent(agent_name);
   // add function
-  agent->addFunction(name, current_state, next_state);
-  // model changed so not validated
-  validated_ = false;
-}
+  XFunction * func = agent->addFunction(agentFunction.getName(),
+      agentFunction.getCurrentState(), agentFunction.getNextState());
+  // for each input
+  std::set<std::string> inputs = agentFunction.getInputs();
+  for (it = inputs.begin(); it != inputs.end(); ++it) func->addInput(*it);
+  // for each output
+  std::set<std::string> outputs = agentFunction.getOutputs();
+  for (it = outputs.begin(); it != outputs.end(); ++it) func->addOutput(*it);
+  // for each read write variable
+  std::set<std::string> rw = agentFunction.getReadWriteVariables();
+  for (it = rw.begin(); it != rw.end(); ++it) func->addReadWriteVariable(*it);
+  // for each read write variable
+  std::set<std::string> ro = agentFunction.getReadOnlyVariables();
+  for (it = ro.begin(); it != ro.end(); ++it) func->addReadOnlyVariable(*it);
 
-void Model::addAgentFunctionInput(std::string agent_name, std::string func_name,
-    std::string current_state, std::string next_state, std::string name) {
-  // get named agent
-  XMachine * agent = getAgent(agent_name);
-  // get named function
-  XFunction * func = agent->getFunction(func_name, current_state, next_state);
-  // add input
-  func->addInput(name);
-  // model changed so not validated
-  validated_ = false;
-}
-
-void Model::addAgentFunctionOutput(std::string agent_name,
-    std::string func_name, std::string current_state, std::string next_state,
-    std::string name) {
-  // get named agent
-  XMachine * agent = getAgent(agent_name);
-  // get named function
-  XFunction * func = agent->getFunction(func_name, current_state, next_state);
-  // add output
-  func->addOutput(name);
-  // model changed so not validated
-  validated_ = false;
-}
-
-void Model::addAgentFunctionReadWriteVariable(std::string agent_name,
-    std::string func_name, std::string current_state, std::string next_state,
-    std::string name) {
-  // get named agent
-  XMachine * agent = getAgent(agent_name);
-  // get named function
-  XFunction * func = agent->getFunction(func_name, current_state, next_state);
-  // add read write variable
-  func->addReadWriteVariable(name);
-  // model changed so not validated
-  validated_ = false;
-}
-
-void Model::addAgentFunctionReadOnlyVariable(std::string agent_name,
-    std::string func_name, std::string current_state, std::string next_state,
-    std::string name) {
-  // get named agent
-  XMachine * agent = getAgent(agent_name);
-  // get named function
-  XFunction * func = agent->getFunction(func_name, current_state, next_state);
-  // add read only variable
-  func->addReadOnlyVariable(name);
   // model changed so not validated
   validated_ = false;
 }

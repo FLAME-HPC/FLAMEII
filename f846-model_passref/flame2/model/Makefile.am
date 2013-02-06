@@ -9,6 +9,7 @@
 # $Id$
 
 module_headers = \
+  agentfunction.hpp \
   dependency.hpp \
   model.hpp \
   task.hpp \
@@ -25,6 +26,7 @@ module_headers = \
   xvariable.hpp
 
 module_sources = \
+  agentfunction.cpp \
   dependency.cpp \
   model.cpp \
   task.cpp \

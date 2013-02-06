@@ -14,6 +14,7 @@
 #include <set>
 #include <map>
 #include "flame2/model/xmodel.hpp"
+#include "flame2/model/agentfunction.hpp"
 
 namespace flame { namespace model {
 
@@ -37,26 +38,8 @@ class Model {
     void addAgentVariable(std::string agent_name,
             std::string type, std::string name);
     //! Add an agent function
-    void addAgentFunction(std::string agent_name, std::string name,
-            std::string current_state, std::string next_state);
-    //! Add an agent function input
-    void addAgentFunctionInput(std::string agent_name, std::string func_name,
-            std::string current_state, std::string next_state,
-            std::string name);
-    //! Add an agent function output
-    void addAgentFunctionOutput(std::string agent_name, std::string func_name,
-            std::string current_state, std::string next_state,
-            std::string name);
-    //! Add an agent function read write variable access
-    void addAgentFunctionReadWriteVariable(std::string agent_name,
-            std::string func_name,
-            std::string current_state, std::string next_state,
-            std::string name);
-    //! Add an agent function read only variable access
-    void addAgentFunctionReadOnlyVariable(std::string agent_name,
-            std::string func_name,
-            std::string current_state, std::string next_state,
-            std::string name);
+    void addAgentFunction(std::string agent_name,
+        const AgentFunction& agentFunction);
     //! Add a message
     void addMessage(std::string name);
     //! Add a message variable
