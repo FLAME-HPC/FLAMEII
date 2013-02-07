@@ -11,12 +11,14 @@
 module_headers = \
   io_manager.hpp \
   io_xml_model.hpp \
-  io_xml_pop.hpp
+  io_xml_pop.hpp \
+  xml_writer.hpp
 
 module_sources = \
   io_manager.cpp \
   io_xml_model.cpp \
-  io_xml_pop.cpp
+  io_xml_pop.cpp \
+  xml_writer.cpp
 
 # Header install path
 library_includedir = $(pkgincludedir)/io

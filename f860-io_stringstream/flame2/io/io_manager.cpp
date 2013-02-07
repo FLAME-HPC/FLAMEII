@@ -17,13 +17,13 @@ namespace exc = flame::exceptions;
 
 void IOManager::loadModel(std::string const& file,
     flame::model::XModel * model) {
+  // read model
   ioxmlmodel.readXMLModel(file, model);
 }
 
 void IOManager::readPop(std::string const& file_name,
     AgentMemory AgentMemory, FileType fileType) {
-  std::string xmlpopxsd;
-
+  // if file type is xml
   if (fileType == xml) {
     // set path to xml pop location
     ioxmlpop.setXmlPopPath(file_name);
@@ -38,6 +38,7 @@ void IOManager::readPop(std::string const& file_name,
 
 void IOManager::writePop(
     std::string const& agent_name, std::string const& var_name) {
+  // write vector of agent variables
   ioxmlpop.writePop(agent_name, var_name);
 }
 
