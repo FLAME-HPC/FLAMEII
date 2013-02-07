@@ -38,10 +38,8 @@ class IOXMLPop {
     void writePop(std::string agent_name, std::string var_name);
     void initialiseData();
     void finaliseData();
-    void createDataSchema(std::string const& file,
-        const AgentMemory& agentMemory);
     void validateData(std::string const& data_file,
-        std::string const& schema_file);
+        const AgentMemory& agentMemory);
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
     void setXmlPopPath(std::string path);
@@ -61,6 +59,8 @@ class IOXMLPop {
         std::string type, std::string name);
     void createDataSchemaDefineAgents(xmlTextWriterPtr writer);
     void createDataSchemaDefineTags(xmlTextWriterPtr writer);
+    void createDataSchema(xmlBufferPtr * buf,
+        const AgentMemory& agentMemory);
     void writeXMLEndTag(xmlTextWriterPtr writer);
     void writeXMLEndTag(xmlTextWriterPtr writer, int count);
     void writeXMLTag(xmlTextWriterPtr writer, std::string name);
@@ -81,9 +81,9 @@ class IOXMLPop {
         std::string name3, std::string value3);
     void endXMLDoc(xmlTextWriterPtr writer);
     void openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
-    int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt, std::string
-        const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
-        xmlSchemaPtr * schema, xmlDocPtr * schema_doc);
+    int openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt,
+        xmlSchemaParserCtxtPtr * parser_ctxt,
+        xmlSchemaPtr * schema, xmlBufferPtr * schema_buf);
     void processStartNode(std::vector<std::string> * tags, std::string name,
         xmlTextReaderPtr reader);
     template <class T>

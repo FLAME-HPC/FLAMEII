@@ -33,9 +33,9 @@ class IOManager {
     }
 
     void loadModel(std::string const& file, flame::model::XModel * model);
-    void readPop(std::string file_name, AgentMemory AgentMemory,
+    void readPop(std::string const& file_name, AgentMemory AgentMemory,
         FileType fileType);
-    void writePop(std::string agent_name, std::string var_name);
+    void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
     void setIteration(size_t i);

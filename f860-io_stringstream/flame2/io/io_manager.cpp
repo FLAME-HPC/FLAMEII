@@ -20,41 +20,24 @@ void IOManager::loadModel(std::string const& file,
   ioxmlmodel.readXMLModel(file, model);
 }
 
-int removeFile(std::string file) {
-  if (remove(file.c_str()) != 0) {
-    fprintf(stderr, "Warning: Could not delete the file: %s\n", file.c_str());
-    return 1;
-  } else {
-#ifndef TESTBUILD
-    printf("Removing file: %s\n", file.c_str());
-#endif
-  }
-
-  return 0;
-}
-
-void IOManager::readPop(std::string file_name,
+void IOManager::readPop(std::string const& file_name,
     AgentMemory AgentMemory, FileType fileType) {
   std::string xmlpopxsd;
 
   if (fileType == xml) {
-    /* Set path to xml pop location */
+    // set path to xml pop location
     ioxmlpop.setXmlPopPath(file_name);
-    /* Validate xml first */
-    xmlpopxsd = std::string(ioxmlpop.xmlPopPath()).append("xmlpop.xsd");
-    /* Create data schema */
-    ioxmlpop.createDataSchema(xmlpopxsd, AgentMemory);
-    /* Validate data using schema */
-    ioxmlpop.validateData(file_name, xmlpopxsd);
-    removeFile(xmlpopxsd);
-    /* Read validated pop xml */
+    // validate data using a schema
+    ioxmlpop.validateData(file_name, AgentMemory);
+    // read validated pop xml
     ioxmlpop.readPop(file_name, AgentMemory);
   } else {
     throw exc::flame_io_exception("unknown file type");
   }
 }
 
-void IOManager::writePop(std::string agent_name, std::string var_name) {
+void IOManager::writePop(
+    std::string const& agent_name, std::string const& var_name) {
   ioxmlpop.writePop(agent_name, var_name);
 }
 

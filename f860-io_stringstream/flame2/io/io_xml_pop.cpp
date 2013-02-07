@@ -17,6 +17,8 @@
 #include <set>
 #include <cstdio>
 #include <utility>
+#include <iostream>
+#include <sstream>
 #include "flame2/config.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 #include "flame2/exceptions/io.hpp"
@@ -346,33 +348,34 @@ void IOXMLPop::createDataSchemaDefineTags(xmlTextWriterPtr writer) {
   writeXMLEndTag(writer, 4);
 }
 
-void IOXMLPop::createDataSchema(std::string const& file,
+void IOXMLPop::createDataSchema(xmlBufferPtr * buf,
     const AgentMemory& agentMemory) {
-  std::vector<model::XMachine*>::iterator agent;
-  std::vector<model::XVariable*>::iterator variable;
-  /* The xml text writer */
+  // XML text writer
   xmlTextWriterPtr writer;
 
-#ifndef TESTBUILD
-  printf("Writing file: %s\n", file.c_str());
-#endif
+  // create a new XML buffer
+  *buf = xmlBufferCreate();
+  if (*buf == NULL)
+    throw exc::flame_io_exception("Could not create buffer for XML schema");
 
   /* Open file to write to, with no compression */
-  writer = xmlNewTextWriterFilename(file.c_str(), 0);
+  writer = xmlNewTextWriterMemory(*buf, 0);
   if (writer == NULL)
-    throw exc::flame_io_exception("Could not load data schema file");
+    throw exc::flame_io_exception("Could not create writer for XML schema");
   /* Write tags on new lines */
-  xmlTextWriterSetIndent(writer, 1);
+  // xmlTextWriterSetIndent(writer, 1);
+
   createDataSchemaHead(writer);
   createDataSchemaAgentNameType(writer, agentMemory);
   createDataSchemaAgentVarChoice(writer, agentMemory);
   createDataSchemaAgentVars(writer, agentMemory);
   createDataSchemaDefineAgents(writer);
   createDataSchemaDefineTags(writer);
+
   /* End xml file, automatically ends schema tag */
   endXMLDoc(writer);
 
-  /* Free the xml writer */
+  // free XML writer
   xmlFreeTextWriter(writer);
 }
 
@@ -384,14 +387,11 @@ void IOXMLPop::openXMLDoc(xmlDocPtr * doc, std::string const& data_file) {
 }
 
 int IOXMLPop::openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt,
-    std::string const& schema_file, xmlSchemaParserCtxtPtr * parser_ctxt,
-    xmlSchemaPtr * schema, xmlDocPtr * schema_doc) {
-  *schema_doc = xmlReadFile(schema_file.c_str(), NULL, XML_PARSE_NONET);
-  /* the schema cannot be loaded or is not well-formed */
-  if (*schema_doc == NULL)
-    return -1;
-
-  *parser_ctxt = xmlSchemaNewDocParserCtxt(*schema_doc);
+    xmlSchemaParserCtxtPtr * parser_ctxt,
+    xmlSchemaPtr * schema, xmlBufferPtr * schema_buf) {
+  *parser_ctxt = xmlSchemaNewMemParserCtxt(
+      reinterpret_cast<const char *>(xmlBufferContent(*schema_buf)),
+      xmlBufferLength(*schema_buf));
   /* unable to create a parser context for the schema */
   if (*parser_ctxt == NULL)
     return -2;
@@ -410,18 +410,21 @@ int IOXMLPop::openXMLSchema(xmlSchemaValidCtxtPtr * valid_ctxt,
 }
 
 void IOXMLPop::validateData(std::string const& data_file,
-    std::string const& schema_file) {
+    const AgentMemory& agentMemory) {
   xmlDocPtr doc = NULL;
   xmlSchemaValidCtxtPtr valid_ctxt = NULL;
   xmlSchemaParserCtxtPtr parser_ctxt = NULL;
   xmlSchemaPtr schema = NULL;
   xmlDocPtr schema_doc = NULL;
+  // XML buffer, to which the XML doc will be written
+  xmlBufferPtr schema_buf;
   int rc;
 
   /* Try and open pop data xml */
   openXMLDoc(&doc, data_file);
   /* If successful try and open schema */
-  openXMLSchema(&valid_ctxt, schema_file, &parser_ctxt, &schema, &schema_doc);
+  createDataSchema(&schema_buf, agentMemory);
+  openXMLSchema(&valid_ctxt, &parser_ctxt, &schema, &schema_buf);
 
   /* 0 if valid, positive error code otherwise
    * -1 in case of internal or API error */
@@ -433,6 +436,7 @@ void IOXMLPop::validateData(std::string const& data_file,
   xmlSchemaFreeParserCtxt(parser_ctxt);
   xmlFreeDoc(schema_doc);
   xmlFreeDoc(doc);
+  xmlBufferFree(schema_buf);
 
   // check error code from validation
   if (rc == -1) {
