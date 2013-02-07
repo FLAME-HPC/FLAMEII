@@ -72,19 +72,10 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
   BOOST_CHECK_NO_THROW(
       ioxmlmodel.readXMLModel("io/models/all_data.xml", &model));
 
-  /* Generate data schema */
-  BOOST_CHECK_NO_THROW(
-      ioxmlpop.createDataSchema("io/models/all_data.xsd",
-          model.getAgentMemoryInfo()));
-
   /* Validate data using schema */
-  std::string xsd = "io/models/all_data.xsd";
   BOOST_CHECK_NO_THROW(
-      ioxmlpop.validateData("io/models/all_data_its/0.xml", xsd));
-  /* Remove created all_data.xsd */
-  if (remove(xsd.c_str()) != 0)
-    fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-        xsd.c_str());
+      ioxmlpop.validateData("io/models/all_data_its/0.xml",
+          model.getAgentMemoryInfo()));
 }
 
 // Test the reading of XML population files

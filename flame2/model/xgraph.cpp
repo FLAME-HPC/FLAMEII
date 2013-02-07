@@ -151,7 +151,7 @@ Vertex XGraph::getVertex(Task * t) {
 Task * XGraph::getTask(Vertex v) const {
   int index = static_cast<int>(v);
 
-  if (index < 0 || index >= vertex2task_->size())
+  if (index < 0 || index >= static_cast<int>(vertex2task_->size()))
     throw flame::exceptions::flame_model_exception(
       "Task id does not exist");
 
