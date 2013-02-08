@@ -17,8 +17,6 @@
 #include <set>
 #include <cstdio>
 #include <utility>
-#include <iostream>
-#include <sstream>
 #include "flame2/config.hpp"
 #include "flame2/mem/vector_wrapper.hpp"
 #include "flame2/exceptions/io.hpp"
