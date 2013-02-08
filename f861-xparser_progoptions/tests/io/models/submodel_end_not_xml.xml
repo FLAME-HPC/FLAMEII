@@ -1,0 +1,16 @@
+<xmodel version="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation='http://flame.ac.uk/schema/xmml_v2.xsd'>
+ <name>submodel_end_not_xml</name>
+ <version>1</version>
+ <author>Simon Coakley</author>
+ <description>Test model</description>
+ <models>
+   <model><file>conditions_sub.xmlx</file><enabled>true</enabled></model>
+ </models>
+ <environment>
+ </environment>
+ <agents>
+ </agents>
+ <messages>
+ </messages>
+</xmodel>
