@@ -49,6 +49,12 @@ namespace po = boost::program_options;
 // Functions defined further down
 void handle_options(int argc, const char* argv[], std::string* model_file,
     bool* output_state_graph, bool* output_dependency_graph);
+void build_options(po::options_description* cmdline_options,
+    po::options_description* visible,
+    po::positional_options_description* p,
+    std::string* model_file);
+void die_program_options(const std::string& prog,
+    const po::options_description& visible);
 void build_output(m::XModel* model);
 void generate_agents(m::XModel *model, gen::GenMainCpp *maincpp);
 void generate_agent_functions(m::XMachine *agent, gen::GenMainCpp *maincpp);
@@ -108,75 +114,82 @@ int main(int argc, const char* argv[]) {
   return 0;
 }
 
+void die_program_options(const std::string& prog,
+    const po::options_description& visible) {
+  std::cout << "Usage: " << prog << " MODEL_FILE [options]\n\n";
+  std::cout << visible << "\n";
+  exit(1);
+}
+
+void build_options(po::options_description* cmdline_options,
+    po::options_description* visible,
+    po::positional_options_description* p,
+    std::string* model_file) {
+  // create options description for version and help
+  po::options_description generic("Generic options");
+      generic.add_options()
+        ("version,v", "print version string")
+        ("help", "produce help message");
+
+  // create options description for configuration options
+  po::options_description config("Configuration");
+  config.add_options()
+      ("state_graph,s", "produce state graph file")
+      ("dependency_graph,d", "produce dependency graph file");
+
+  // create options description for required parameters
+  po::options_description hidden("Hidden options");
+  hidden.add_options()
+    ("model_file", po::value<std::string>(model_file)->required(),
+        "the model file");
+
+  // create cmd line options from generic, config and hidden
+  cmdline_options->add(generic).add(config).add(hidden);
+  // create user visible options from generic and config
+  visible->add(generic).add(config);
+  // create positional info for required parameter
+  p->add("model_file", -1);  // -1 means any position
+}
+
 void handle_options(int argc, const char* argv[], std::string* model_file,
     bool* output_state_graph, bool* output_dependency_graph) {
+  po::options_description cmdline_options;
+  po::options_description visible("Allowed options");
+  po::positional_options_description p;
+  po::variables_map vm;
+
+  // build the program options
+  build_options(&cmdline_options, &visible, &p, model_file);
+
   try {
-    po::options_description generic("Generic options");
-    generic.add_options()
-      ("version,v", "print version string")
-      ("help", "produce help message");
+    // parse command line depending on options and positional info
+    po::store(po::command_line_parser(argc, argv).
+        options(cmdline_options).positional(p).run(), vm);  // throws on error
 
-    po::options_description config("Configuration");
-    config.add_options()
-        ("state_graph,s", "produce state graph file")
-        ("dependency_graph,d", "produce dependency graph file");
-
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-      ("model_file", po::value<std::string>(model_file)->required(),
-          "the model file");
-
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(config).add(hidden);
-
-    po::options_description visible("Allowed options");
-    visible.add(generic).add(config);
-
-    po::positional_options_description p;
-    p.add("model_file", -1);
-
-    po::variables_map vm;
-
-    try {
-      po::store(po::command_line_parser(argc, argv).
-          options(cmdline_options).positional(p).run(), vm);  // throws on error
-
-      // -v option
-      if (vm.count("version")) {
-        // print xparser_header template
-        xparser::utils::print_template("xparser_header.tmpl");
-        exit(1);
-      }
-
-      // --help option
-      if (vm.count("help")) {
-        std::cout << "Usage: " << argv[0] << " MODEL_FILE [options]\n\n";
-        std::cout << visible << "\n";
-        exit(1);
-      }
-
-      if (vm.count("state_graph")) *output_state_graph = true;
-      if (vm.count("dependency_graph")) *output_dependency_graph = true;
-
-      po::notify(vm);  // throws on error
-    }
-    catch(const boost::program_options::required_option& e) {
-      // no model file given
-      std::cout << "Usage: " << argv[0] << " MODEL_FILE [options]\n\n";
-      std::cout << visible << "\n";
+    // -v option
+    if (vm.count("version")) {
+      // print xparser_header template
+      xparser::utils::print_template("xparser_header.tmpl");
       exit(1);
     }
-    catch(const boost::program_options::error& e) {
-      // options error
-      std::cerr << "Error: " << e.what() << std::endl << std::endl;
-      std::cout << visible << "\n";
-      exit(1);
-    }
+
+    // --help option
+    if (vm.count("help")) die_program_options(argv[0], visible);
+
+    // -- graph options
+    if (vm.count("state_graph")) *output_state_graph = true;
+    if (vm.count("dependency_graph")) *output_dependency_graph = true;
+
+    po::notify(vm);  // throws on error
   }
-  catch(const std::exception& e) {
-    // catch all error
-    std::cerr << "Error: " << e.what() << "\n";
-    exit(1);
+  catch(const boost::program_options::required_option& e) {
+    // no model file given
+    die_program_options(argv[0], visible);
+  }
+  catch(const boost::program_options::error& e) {
+    // options error
+    std::cerr << "Error: " << e.what() << std::endl << std::endl;
+    die_program_options(argv[0], visible);
   }
 }
 

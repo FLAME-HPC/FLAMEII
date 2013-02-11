@@ -23,3 +23,72 @@
 
   return 0;
 }
+
+void handle_program_options(int argc, const char* argv[],
+    std::string * pop_path, int * num_iters, int * num_cores) {
+  try {
+    po::options_description generic("Generic options");
+    generic.add_options()
+      ("help", "produce help message");
+
+    po::options_description config("Configuration");
+    config.add_options()
+      // default to single core run
+      ("num_cores,n", po::value<int>(num_cores)->default_value(1),
+        "number of cores");
+
+    po::options_description hidden("Hidden options");
+    hidden.add_options()
+      ("pop_file,p", po::value<std::string>(pop_path)->required(),
+          "the pop file")
+      ("no_iters,i", po::value<int>(num_iters)->required(),
+        "number of iterations");
+
+    po::options_description cmdline_options;
+    cmdline_options.add(generic).add(config).add(hidden);
+
+    po::options_description visible("Allowed options");
+    visible.add(generic).add(config);
+
+    po::positional_options_description p;
+    p.add("pop_file", 1);
+    p.add("no_iters", 2);
+
+    po::variables_map vm;
+
+    try {
+      po::store(po::command_line_parser(argc, argv).
+          options(cmdline_options).positional(p).run(), vm);  // throws on error
+
+      // --help option
+      if (vm.count("help")) {
+        std::cout << "Usage: " << argv[0] <<
+          " POP_DATA NUM_ITERATIONS [options]\n\n";
+        std::cout << visible << "\n";
+        exit(1);
+      }
+
+      po::notify(vm);  // throws on error
+    }
+    catch(const boost::program_options::required_option& e) {
+      // no model file given
+      std::cout << "Usage: " << argv[0] <<
+        " POP_DATA NUM_ITERATIONS [options]\n\n";
+      std::cout << visible << "\n";
+      exit(1);
+    }
+    catch(const boost::program_options::error& e) {
+      // options error
+      std::cerr << "Error: " << e.what() << std::endl << std::endl;
+      std::cout << "Usage: " << argv[0] <<
+        " POP_DATA NUM_ITERATIONS [options]\n\n";
+      std::cout << visible << "\n";
+      exit(1);
+    }
+  }
+  catch(const std::exception& e) {
+    // catch all error
+    std::cerr << "Error: " << e.what() << "\n";
+    exit(1);
+  }
+}
