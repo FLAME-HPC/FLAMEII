@@ -39,7 +39,7 @@ void XMachine::print() {
 
 void XMachine::setName(std::string name) {
   name_ = name;
-  functionDependencyGraph_.setAgentName(name);
+  graph_.setAgentName(name);
 }
 
 std::string XMachine::getName() const {
@@ -174,7 +174,7 @@ std::set<std::string> XMachine::getEndStates() {
 }
 
 int XMachine::generateDependencyGraph() {
-  return functionDependencyGraph_.generateDependencyGraph(getVariables());
+  return graph_.generateDependencyGraph(getVariables());
 }
 
 /*
@@ -182,24 +182,20 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-  return functionDependencyGraph_.generateStateGraph(
+  return graph_.generateStateGraph(
       &functions_, startState_, endStates_);
 }
 
-XGraph * XMachine::getFunctionDependencyGraph() {
-  return &functionDependencyGraph_;
+XGraph * XMachine::getGraph() {
+  return &graph_;
 }
 
 std::pair<int, std::string> XMachine::checkCyclicDependencies() {
-  return functionDependencyGraph_.checkCyclicDependencies();
+  return graph_.checkCyclicDependencies();
 }
 
 std::pair<int, std::string> XMachine::checkFunctionConditions() {
-  return functionDependencyGraph_.checkFunctionConditions();
-}
-
-void XMachine::addToModelGraph(XGraph * modelGraph) {
-  modelGraph->import(&functionDependencyGraph_);
+  return graph_.checkFunctionConditions();
 }
 
 void XMachine::setID(int id) {

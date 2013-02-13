@@ -84,12 +84,18 @@ class XModel {
     StringSet getTaskOutputMessages(TaskId id) const;
     StringSet getTaskInputMessages(TaskId id) const;
 
+    void outputStateGraph(const std::string& file_name) const;
+    void outputDependencyGraph(const std::string& file_name) const;
+
+    int generateStateGraph();
+    int checkCyclicDependencies();
+
 #ifdef TESTBUILD
     XGraph * getGraph() { return &modelGraph_; }
 #endif
 
   private:
-    void generateGraph(XGraph * modelGraph);
+    void generateGraph();
     std::string name_;
     //! \brief The absolute path to the model file
     std::string path_;
@@ -102,8 +108,10 @@ class XModel {
     boost::ptr_vector<XTimeUnit> timeUnits_;
     boost::ptr_vector<XMachine> agents_;
     boost::ptr_vector<XMessage> messages_;
-    //! \brief The model graph
+    //! \brief The model dependency graph
     XGraph modelGraph_;
+    //! \brief The model state graph
+    XGraph stateGraph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_HPP_

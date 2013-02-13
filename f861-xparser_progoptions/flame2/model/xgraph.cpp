@@ -873,6 +873,66 @@ void XGraph::importGraphs(std::set<XGraph*> graphs) {
   addMessageClearTasks();
 }
 
+void XGraph::importStateGraph(XGraph * graph,
+    std::map<std::string, Vertex> * message2task) {
+  std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
+  size_t ii;
+  std::map<Vertex, Vertex> import2new;
+  EdgeIterator eit, end;
+
+  std::map<std::string, Vertex>::iterator it;
+
+  // For each task vertex map
+  for (ii = 0; ii < v2t->size(); ++ii) {
+    // get task
+    Task * t = v2t->at(ii).get();
+    // if message task
+    if (t->getTaskType() == Task::xmessage) {
+      // get task name
+      std::string name = t->getName();
+      // try and find existing message task
+      it = message2task->find(name);
+      if (it == message2task->end()) {
+        // if not found
+        // add vertex to current graph
+        Vertex v = addVertex(v2t->at(ii));
+        // add vertex to vertex map
+        import2new.insert(std::make_pair(ii, v));
+        // add vertex to message map
+        message2task->insert(std::make_pair(name, v));
+      } else {
+        // add to vertex to vertex map
+        import2new.insert(std::make_pair(ii, (*it).second));
+      }
+    } else {
+      // add vertex to current graph
+      Vertex v = addVertex(v2t->at(ii));
+      // add to vertex to vertex map
+      import2new.insert(std::make_pair(ii, v));
+    }
+  }
+  // for each edge
+  for (boost::tie(eit, end) = boost::edges(*(graph->getGraph()));
+      eit != end; ++eit) {
+    // add edge using vertex to vertex map
+    Vertex s = boost::source(*eit, *(graph->getGraph()));
+    Vertex t = boost::target(*eit, *(graph->getGraph()));
+    Vertex ns = (*(import2new.find(s))).second;
+    Vertex nt = (*(import2new.find(t))).second;
+    add_edge(ns, nt, *graph_);
+  }
+}
+
+void XGraph::importStateGraphs(std::set<XGraph*> graphs) {
+  // message to task map used to check existing message tasks
+  std::map<std::string, Vertex> message2task;
+  std::set<XGraph*>::iterator it;
+
+  // import each graph
+  for (it = graphs.begin(); it != graphs.end(); ++it)
+      importStateGraph((*it), &message2task);
+}
+
 void XGraph::addMessageClearTasks() {
   VertexIterator vi, vi_end;
   boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
@@ -1026,7 +1086,8 @@ struct vertex_label_writer {
             t->getTaskType() == Task::xstate)
           out << " shape=ellipse, style=filled, fillcolor=white";
         if (t->getTaskType() == Task::xmessage_clear ||
-            t->getTaskType() == Task::xmessage_sync) {
+            t->getTaskType() == Task::xmessage_sync ||
+            t->getTaskType() == Task::xmessage) {
           out << " shape=parallelogram, style=filled, ";
           out << "fillcolor=lightblue";
         }
@@ -1067,7 +1128,7 @@ struct graph_writer {
     }
 };
 
-void XGraph::writeGraphviz(std::string fileName) {
+void XGraph::writeGraphviz(const std::string& fileName) const {
   std::fstream graphfile;
   graphfile.open(fileName.c_str(), std::fstream::out);
 

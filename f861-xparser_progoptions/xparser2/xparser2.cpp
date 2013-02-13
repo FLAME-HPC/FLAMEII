@@ -29,6 +29,7 @@
 #include <boost/program_options.hpp>
 #include "flame2/exceptions/io.hpp"
 #include "flame2/io/io_manager.hpp"
+#include "flame2/model/xmodel.hpp"
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
@@ -100,6 +101,19 @@ int main(int argc, const char* argv[]) {
     die(std::string("Invalid Model file\n") + e.what());
   }
   assert(model.validate() == 0);  // just in case exception not properly thrown
+
+  if (output_state_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: stategraph.dot\n");
+#endif
+    model.outputStateGraph("stategraph.dot");
+  }
+  if (output_dependency_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: dependencygraph.dot\n");
+#endif
+    model.outputDependencyGraph("dependencygraph.dot");
+  }
 
   // Generate output files based on model
   try {

@@ -45,11 +45,10 @@ class XMachine {
     std::string getStartState();
     std::set<std::string> getEndStates();
     int generateStateGraph();
-    XGraph * getFunctionDependencyGraph();
+    XGraph * getGraph();
     std::pair<int, std::string> checkCyclicDependencies();
     std::pair<int, std::string> checkFunctionConditions();
     int generateDependencyGraph();
-    void addToModelGraph(XGraph * modelGraph);
     void setID(int id);
     int getID();
 
@@ -60,7 +59,7 @@ class XMachine {
     boost::ptr_vector<XFunction> functions_;
     std::string startState_;
     std::set<std::string> endStates_;
-    XGraph functionDependencyGraph_;
+    XGraph graph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMACHINE_HPP_

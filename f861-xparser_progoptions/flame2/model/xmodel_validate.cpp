@@ -61,29 +61,31 @@ int XModelValidate::validate() {
   boost::ptr_vector<XMachine>::iterator a_it;
   boost::ptr_vector<XMessage>::iterator m_it;
 
-  /* Validate function files */
+  // validate function files
   for (it = functionFiles_->begin(); it != functionFiles_->end(); ++it)
     errors += validateFunctionFile(*it);
-  /* Validate data types */
+  // validate data types
   for (adt_it = adts_->begin(); adt_it != adts_->end(); ++adt_it)
     errors += validateADT(&(*adt_it));
-  /* Validate model constants */
+  // validate model constants
   rc = validateVariables(model->getConstants(), false);
   if (rc != 0) printErr("\tfrom environment constants.\n");
   errors += rc;
-  /* Validate time units */
+  // validate time units
   errors += validateTimeUnits(model->getTimeUnits());
-  /* Validate agents */
+  // validate agents
   for (a_it = agents_->begin(); a_it != agents_->end(); ++a_it)
     errors += validateAgent(&(*a_it));
-  /* Validate messages */
+  // validate messages
   for (m_it = messages_->begin(); m_it != messages_->end(); ++m_it)
     errors += validateMessage(&(*m_it));
+  // validate model graph
+  errors += validateModelGraph();
 
-  /* If errors print out information */
+  // if errors print out information
   if (errors > 0) printErr("%d error(s) found.\n", errors);
 
-  /* Return number of errors */
+  // return number of errors
   return errors;
 }
 
@@ -770,6 +772,18 @@ bool char_is_disallowed(char c) {
 bool XModelValidate::name_is_allowed(std::string name) {
   return std::find_if(name.begin(), name.end(),
       char_is_disallowed) == name.end();
+}
+
+int XModelValidate::validateModelGraph() {
+  int rc;
+  // create model state graph
+  rc = model->generateStateGraph();
+
+  // check for cyclic dependencies
+  if (rc != 0)
+    rc += model->checkCyclicDependencies();
+
+  return rc;
 }
 
 }}  // namespace flame::model

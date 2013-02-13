@@ -72,32 +72,31 @@ int XModel::validate() {
   if (rc != 0) return rc;
 
   // if success then generate graph
-  generateGraph(&modelGraph_);
+  generateGraph();
 
   return 0;
 }
 
-void XModel::generateGraph(XGraph * modelGraph) {
+void XModel::generateGraph() {
   boost::ptr_vector<XMachine>::iterator agent;
-  std::set<XGraph *> graphs;
+  std::set<XGraph*> graphs;
 
-  modelGraph->setAgentName(name_);
+  modelGraph_.setAgentName(name_);
+
+  // ToDo make xmachine only hold info
+  // Make this function hold all XGraph agent graphs
+  // Create state graph
+  // Create dependency graph
 
   // Consolidate agent graphs into a model graph
   for (agent = agents_.begin();
       agent != agents_.end(); ++agent) {
     // Generate agent graph
     (*agent).generateDependencyGraph();
-    // Add to model graph
-    // (*agent)->addToModelGraph(&modelGraph);
-    graphs.insert((*agent).getFunctionDependencyGraph());
+    graphs.insert((*agent).getGraph());
   }
 
-  modelGraph->importGraphs(graphs);
-
-#ifdef OUTPUT_GRAPHS
-  modelGraph->writeGraphviz(name_ + ".dot");
-#endif
+  modelGraph_.importGraphs(graphs);
 }
 
 void XModel::setPath(std::string path) {
@@ -380,6 +379,35 @@ StringSet XModel::getTaskOutputMessages(TaskId id) const {
 
 StringSet XModel::getTaskInputMessages(TaskId id) const {
   return modelGraph_.getTaskInputMessages(id);
+}
+
+void XModel::outputStateGraph(const std::string& file_name) const {
+  stateGraph_.writeGraphviz(file_name);
+}
+
+void XModel::outputDependencyGraph(const std::string& file_name) const {
+  modelGraph_.writeGraphviz(file_name);
+}
+
+int XModel::generateStateGraph() {
+  // for each agent import state graph
+  boost::ptr_vector<XMachine>::iterator agent;
+  std::set<XGraph*> graphs;
+
+  // Consolidate agent state graphs into a model state graph
+  for (agent = agents_.begin();
+      agent != agents_.end(); ++agent) {
+    graphs.insert((*agent).getGraph());
+  }
+
+  stateGraph_.importStateGraphs(graphs);
+
+  return 0;
+}
+
+int XModel::checkCyclicDependencies() {
+  // ToDo
+  return 0;
 }
 
 }}  // namespace flame::model

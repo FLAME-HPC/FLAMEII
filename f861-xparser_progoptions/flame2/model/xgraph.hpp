@@ -72,10 +72,13 @@ class XGraph {
     void generateTaskList(std::vector<Task*> * tasks);
     void setAgentName(std::string agentName);
     void import(XGraph * graph);
+    void importStateGraph(XGraph * graph,
+        std::map<std::string, Vertex> * message2task);
     std::vector<TaskPtr> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
-    void writeGraphviz(std::string fileName);
+    void writeGraphviz(const std::string& fileName) const;
     void importGraphs(std::set<XGraph*> graphs);
+    void importStateGraphs(std::set<XGraph*> graphs);
     TaskIdSet getAgentTasks() const;
     TaskIdSet getAgentIOTasks() const;
     TaskId getInitIOTask() const;

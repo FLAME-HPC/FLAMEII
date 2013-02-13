@@ -68,6 +68,7 @@ class XModelValidate {
     int validateMessage(XMessage * xmessage);
     bool name_is_allowed(std::string name);
     int validateTimeUnits(boost::ptr_vector<XTimeUnit> * timeUnits);
+    int validateModelGraph();
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_VALIDATE_HPP_
