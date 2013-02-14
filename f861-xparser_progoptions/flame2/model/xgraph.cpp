@@ -873,13 +873,11 @@ void XGraph::importGraphs(std::set<XGraph*> graphs) {
   addMessageClearTasks();
 }
 
-void XGraph::importStateGraph(XGraph * graph,
-    std::map<std::string, Vertex> * message2task) {
+void XGraph::importStateGraphTasks(XGraph * graph,
+    std::map<std::string, Vertex> * message2task,
+    std::map<Vertex, Vertex> * import2new) {
   std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
   size_t ii;
-  std::map<Vertex, Vertex> import2new;
-  EdgeIterator eit, end;
-
   std::map<std::string, Vertex>::iterator it;
 
   // For each task vertex map
@@ -897,29 +895,19 @@ void XGraph::importStateGraph(XGraph * graph,
         // add vertex to current graph
         Vertex v = addVertex(v2t->at(ii));
         // add vertex to vertex map
-        import2new.insert(std::make_pair(ii, v));
+        import2new->insert(std::make_pair(ii, v));
         // add vertex to message map
         message2task->insert(std::make_pair(name, v));
       } else {
         // add to vertex to vertex map
-        import2new.insert(std::make_pair(ii, (*it).second));
+        import2new->insert(std::make_pair(ii, (*it).second));
       }
     } else {
       // add vertex to current graph
       Vertex v = addVertex(v2t->at(ii));
       // add to vertex to vertex map
-      import2new.insert(std::make_pair(ii, v));
+      import2new->insert(std::make_pair(ii, v));
     }
-  }
-  // for each edge
-  for (boost::tie(eit, end) = boost::edges(*(graph->getGraph()));
-      eit != end; ++eit) {
-    // add edge using vertex to vertex map
-    Vertex s = boost::source(*eit, *(graph->getGraph()));
-    Vertex t = boost::target(*eit, *(graph->getGraph()));
-    Vertex ns = (*(import2new.find(s))).second;
-    Vertex nt = (*(import2new.find(t))).second;
-    add_edge(ns, nt, *graph_);
   }
 }
 
@@ -927,10 +915,24 @@ void XGraph::importStateGraphs(std::set<XGraph*> graphs) {
   // message to task map used to check existing message tasks
   std::map<std::string, Vertex> message2task;
   std::set<XGraph*>::iterator it;
+  EdgeIterator eit, end;
 
   // import each graph
-  for (it = graphs.begin(); it != graphs.end(); ++it)
-      importStateGraph((*it), &message2task);
+  for (it = graphs.begin(); it != graphs.end(); ++it) {
+    std::map<Vertex, Vertex> import2new;
+    // import tasks
+    importStateGraphTasks((*it), &message2task, &import2new);
+    // import edges
+    for (boost::tie(eit, end) = boost::edges(*((*it)->getGraph()));
+        eit != end; ++eit) {
+      // add edge using vertex to vertex map
+      Vertex s = boost::source(*eit, *((*it)->getGraph()));
+      Vertex t = boost::target(*eit, *((*it)->getGraph()));
+      Vertex ns = (*(import2new.find(s))).second;
+      Vertex nt = (*(import2new.find(t))).second;
+      add_edge(ns, nt, *graph_);
+    }
+  }
 }
 
 void XGraph::addMessageClearTasks() {
