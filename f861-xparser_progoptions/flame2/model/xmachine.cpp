@@ -16,10 +16,14 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "xmachine.hpp"
+#include "stategraph.hpp"
+#include "dependencygraph.hpp"
 
 namespace flame { namespace model {
 
-XMachine::XMachine() : id_(0) {}
+XMachine::XMachine()
+  : id_(0) {
+}
 
 /*!
  * \brief Prints XMachine
@@ -39,7 +43,8 @@ void XMachine::print() {
 
 void XMachine::setName(std::string name) {
   name_ = name;
-  graph_.setAgentName(name);
+  stateGraph_.setAgentName(name_);
+  dependencyGraph_.setAgentName(name_);
 }
 
 std::string XMachine::getName() const {
@@ -174,7 +179,8 @@ std::set<std::string> XMachine::getEndStates() {
 }
 
 int XMachine::generateDependencyGraph() {
-  return graph_.generateDependencyGraph(getVariables());
+  dependencyGraph_.importStateGraph(&stateGraph_);
+  return dependencyGraph_.generateDependencyGraph(getVariables());
 }
 
 /*
@@ -182,20 +188,24 @@ int XMachine::generateDependencyGraph() {
  * is then used to check for cycles and function conditions.
  */
 int XMachine::generateStateGraph() {
-  return graph_.generateStateGraph(
+  return stateGraph_.generateStateGraph(
       &functions_, startState_, endStates_);
 }
 
-XGraph * XMachine::getGraph() {
-  return &graph_;
+StateGraph * XMachine::getStateGraph() {
+  return &stateGraph_;
+}
+
+DependencyGraph * XMachine::getDependencyGraph() {
+  return &dependencyGraph_;
 }
 
 std::pair<int, std::string> XMachine::checkCyclicDependencies() {
-  return graph_.checkCyclicDependencies();
+  return stateGraph_.checkCyclicDependencies();
 }
 
 std::pair<int, std::string> XMachine::checkFunctionConditions() {
-  return graph_.checkFunctionConditions();
+  return stateGraph_.checkFunctionConditions();
 }
 
 void XMachine::setID(int id) {

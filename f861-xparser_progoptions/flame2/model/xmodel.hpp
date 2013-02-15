@@ -21,6 +21,8 @@
 #include "xtimeunit.hpp"
 #include "xmessage.hpp"
 #include "xmodel_validate.hpp"
+#include "stategraph.hpp"
+#include "dependencygraph.hpp"
 
 namespace flame { namespace model {
 
@@ -91,7 +93,7 @@ class XModel {
     int checkCyclicDependencies();
 
 #ifdef TESTBUILD
-    XGraph * getGraph() { return &modelGraph_; }
+    DependencyGraph * getGraph() { return &dependencyGraph_; }
 #endif
 
   private:
@@ -109,9 +111,9 @@ class XModel {
     boost::ptr_vector<XMachine> agents_;
     boost::ptr_vector<XMessage> messages_;
     //! \brief The model dependency graph
-    XGraph modelGraph_;
+    DependencyGraph dependencyGraph_;
     //! \brief The model state graph
-    XGraph stateGraph_;
+    StateGraph stateGraph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_HPP_

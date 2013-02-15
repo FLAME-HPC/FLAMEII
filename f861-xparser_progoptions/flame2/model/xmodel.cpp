@@ -79,9 +79,9 @@ int XModel::validate() {
 
 void XModel::generateGraph() {
   boost::ptr_vector<XMachine>::iterator agent;
-  std::set<XGraph*> graphs;
+  std::set<DependencyGraph*> graphs;
 
-  modelGraph_.setAgentName(name_);
+  dependencyGraph_.setAgentName(name_);
 
   // ToDo make xmachine only hold info
   // Make this function hold all XGraph agent graphs
@@ -93,10 +93,10 @@ void XModel::generateGraph() {
       agent != agents_.end(); ++agent) {
     // Generate agent graph
     (*agent).generateDependencyGraph();
-    graphs.insert((*agent).getGraph());
+    graphs.insert((*agent).getDependencyGraph());
   }
 
-  modelGraph_.importGraphs(graphs);
+  dependencyGraph_.importGraphs(graphs);
 }
 
 void XModel::setPath(std::string path) {
@@ -326,59 +326,59 @@ AgentMemory XModel::getAgentMemoryInfo() const {
 }
 
 TaskIdSet XModel::getAgentTasks() const {
-  return modelGraph_.getAgentTasks();
+  return dependencyGraph_.getAgentTasks();
 }
 
 TaskIdSet XModel::getAgentIOTasks() const {
-  return modelGraph_.getAgentIOTasks();
+  return dependencyGraph_.getAgentIOTasks();
 }
 
 TaskId XModel::getInitIOTask() const {
-  return modelGraph_.getInitIOTask();
+  return dependencyGraph_.getInitIOTask();
 }
 
 TaskId XModel::getFinIOTask() const {
-  return modelGraph_.getFinIOTask();
+  return dependencyGraph_.getFinIOTask();
 }
 
 TaskIdSet XModel::getMessageBoardSyncTasks() const {
-  return modelGraph_.getMessageBoardSyncTasks();
+  return dependencyGraph_.getMessageBoardSyncTasks();
 }
 
 TaskIdSet XModel::getMessageBoardClearTasks() const {
-  return modelGraph_.getMessageBoardClearTasks();
+  return dependencyGraph_.getMessageBoardClearTasks();
 }
 
 TaskIdMap XModel::getTaskDependencies() const {
-  return modelGraph_.getTaskDependencies();
+  return dependencyGraph_.getTaskDependencies();
 }
 
 std::string XModel::getTaskName(TaskId id) const {
-  return modelGraph_.getTaskName(id);
+  return dependencyGraph_.getTaskName(id);
 }
 
 std::string XModel::getTaskAgentName(TaskId id) const {
-  return modelGraph_.getTaskAgentName(id);
+  return dependencyGraph_.getTaskAgentName(id);
 }
 
 std::string XModel::getTaskFunctionName(TaskId id) const {
-  return modelGraph_.getTaskFunctionName(id);
+  return dependencyGraph_.getTaskFunctionName(id);
 }
 
 StringSet XModel::getTaskReadOnlyVariables(TaskId id) const {
-  return modelGraph_.getTaskReadOnlyVariables(id);
+  return dependencyGraph_.getTaskReadOnlyVariables(id);
 }
 
 StringSet XModel::getTaskWriteVariables(TaskId id) const {
-  return modelGraph_.getTaskWriteVariables(id);
+  return dependencyGraph_.getTaskWriteVariables(id);
 }
 
 StringSet XModel::getTaskOutputMessages(TaskId id) const {
-  return modelGraph_.getTaskOutputMessages(id);
+  return dependencyGraph_.getTaskOutputMessages(id);
 }
 
 StringSet XModel::getTaskInputMessages(TaskId id) const {
-  return modelGraph_.getTaskInputMessages(id);
+  return dependencyGraph_.getTaskInputMessages(id);
 }
 
 void XModel::outputStateGraph(const std::string& file_name) const {
@@ -386,18 +386,18 @@ void XModel::outputStateGraph(const std::string& file_name) const {
 }
 
 void XModel::outputDependencyGraph(const std::string& file_name) const {
-  modelGraph_.writeGraphviz(file_name);
+  dependencyGraph_.writeGraphviz(file_name);
 }
 
 int XModel::generateStateGraph() {
   // for each agent import state graph
   boost::ptr_vector<XMachine>::iterator agent;
-  std::set<XGraph*> graphs;
+  std::set<StateGraph*> graphs;
 
   // Consolidate agent state graphs into a model state graph
   for (agent = agents_.begin();
       agent != agents_.end(); ++agent) {
-    graphs.insert((*agent).getGraph());
+    graphs.insert((*agent).getStateGraph());
   }
 
   stateGraph_.importStateGraphs(graphs);

@@ -1,14 +1,14 @@
 /*!
- * \file flame2/model/xgraph.hpp
+ * \file flame2/model/stategraph.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief XGraph: holds graph information
+ * \brief StateGraph: holds state graph
  */
-#ifndef MODEL__XGRAPH_HPP_
-#define MODEL__XGRAPH_HPP_
+#ifndef MODEL__STATEGRAPH_HPP_
+#define MODEL__STATEGRAPH_HPP_
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/property_map/property_map.hpp>
 #include <boost/shared_ptr.hpp>
@@ -53,13 +53,12 @@ typedef size_t TaskId;
 typedef std::set<TaskId> TaskIdSet;
 typedef std::map<TaskId, TaskId> TaskIdMap;
 
-class XGraph {
+class StateGraph {
   public:
-    XGraph();
-    ~XGraph();
+    StateGraph();
+    ~StateGraph();
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
-    int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     //! Checks for cyclic dependencies within a graph
     //! \return first integer for number of errors,
     //!         second string for error message
@@ -69,39 +68,17 @@ class XGraph {
     //! \return first integer for number of errors,
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
-    void generateTaskList(std::vector<Task*> * tasks);
     void setAgentName(std::string agentName);
-    void import(XGraph * graph);
-    void importStateGraphTasks(XGraph * graph,
+    void importStateGraphTasks(StateGraph * graph,
         std::map<std::string, Vertex> * message2task,
         std::map<Vertex, Vertex> * import2new);
     std::vector<TaskPtr> * getVertexTaskMap();
+    EdgeMap * getEdgeDependencyMap();
     Graph * getGraph() { return graph_; }
     void writeGraphviz(const std::string& fileName) const;
-    void importGraphs(std::set<XGraph*> graphs);
-    void importStateGraphs(std::set<XGraph*> graphs);
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
-    TaskIdMap getTaskDependencies() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
-#ifdef TESTBUILD
-    bool dependencyExists(std::string name1, std::string name2);
-    Vertex addTestVertex(Task * t);
-    void addTestEdge(Vertex to, Vertex from, std::string name,
-            Dependency::DependencyType type);
-    void setTestStartTask(Task * task);
-    void addTestEndTask(Task * task);
-#endif
+    void importStateGraphs(std::set<StateGraph*> graphs);
+    Task * getStartTask();
+    std::set<Task*> getEndTasks();
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
@@ -111,16 +88,8 @@ class XGraph {
     EdgeMap * edge2dependency_;
     Task * startTask_;
     std::set<Task *> endTasks_;
-    Task * endTask_;
     std::string agentName_;
 
-    Vertex getMessageVertex(std::string name, Task::TaskType type);
-    void changeMessageTasksToSync();
-    void addMessageClearTasks();
-    int registerAllowAccess(flame::exe::Task * task,
-            std::set<std::string> vars, bool writeable);
-    int registerAllowMessage(flame::exe::Task * task,
-            std::set<std::string> messages, bool post);
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);
     Edge addEdge(Vertex to, Vertex from, std::string name,
@@ -132,25 +101,7 @@ class XGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
-    void addStartTask(boost::ptr_vector<XVariable> * variables);
-    void addEndTask();
-    void copyWritingAndReadingVerticesFromInEdges(Vertex v, Task * t);
-    void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
-    void addWriteDependencies(Vertex v, Task * t);
-    void addReadDependencies(Vertex v, Task * t);
-    void addWritingVerticesToList(Vertex v, Task * t);
-    void addDataDependencies(boost::ptr_vector<XVariable> * variables);
     void setStartTask(Task * task);
-    void transformConditionalStatesToConditions(
-            boost::ptr_vector<XVariable> * variables);
-    void contractStateVertices();
-    void contractVariableVertices();
-    void removeRedundantDependencies();
-    void removeStateDependencies();
-    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
-    void AddVariableOutput();
-    void contractVertices(Task::TaskType taskType,
-            Dependency::DependencyType dependencyType);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v) const;
     Dependency * getDependency(Edge e);
@@ -160,4 +111,4 @@ class XGraph {
 };
 
 }}  // namespace flame::model
-#endif  // MODEL__MODEL_MANAGER_HPP_
+#endif  // MODEL__STATEGRAPH_HPP_

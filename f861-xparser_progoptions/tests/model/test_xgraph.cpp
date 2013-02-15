@@ -14,7 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <string>
-#include "flame2/model/xgraph.hpp"
+#include "flame2/model/dependencygraph.hpp"
 #include "flame2/model/model.hpp"
 #include "flame2/io/io_manager.hpp"
 
@@ -24,7 +24,7 @@ namespace io = flame::io;
 BOOST_AUTO_TEST_SUITE(XGraph)
 
 BOOST_AUTO_TEST_CASE(test_raw_conflict) {
-  model::XGraph graph;
+  model::DependencyGraph dgraph;
 
   // Add function tasks to graph
   model::Task * f0 = new model::Task("agent", "f0", model::Task::xfunction);
@@ -35,31 +35,31 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   f2->addReadWriteVariable("a");
   model::Task * f3 = new model::Task("agent", "f3", model::Task::xfunction);
   f3->addReadOnlyVariable("a");
-  model::Vertex v0 = graph.addTestVertex(f0);
-  model::Vertex v1 = graph.addTestVertex(f1);
-  model::Vertex v2 = graph.addTestVertex(f2);
-  model::Vertex v3 = graph.addTestVertex(f3);
+  model::Vertex v0 = dgraph.addTestVertex(f0);
+  model::Vertex v1 = dgraph.addTestVertex(f1);
+  model::Vertex v2 = dgraph.addTestVertex(f2);
+  model::Vertex v3 = dgraph.addTestVertex(f3);
   // Add dependencies between tasks
-  graph.addTestEdge(v0, v1, "", model::Dependency::state);
-  graph.addTestEdge(v1, v2, "", model::Dependency::state);
-  graph.addTestEdge(v2, v3, "", model::Dependency::state);
+  dgraph.addTestEdge(v0, v1, "", model::Dependency::state);
+  dgraph.addTestEdge(v1, v2, "", model::Dependency::state);
+  dgraph.addTestEdge(v2, v3, "", model::Dependency::state);
   // Set up graph for processing
   boost::ptr_vector<model::XVariable> variables;
   variables.push_back(new model::XVariable("a"));
-  graph.setTestStartTask(f0);
-  graph.addTestEndTask(f3);
-  graph.setAgentName("test_xgraph");
+  dgraph.setTestStartTask(f0);
+  dgraph.addTestEndTask(f3);
+  dgraph.setAgentName("test_xgraph");
   // Process graph
-  graph.generateDependencyGraph(&variables);
+  dgraph.generateDependencyGraph(&variables);
   // Test outcome
-  BOOST_CHECK(graph.dependencyExists("f1", "f2") == true);
-  BOOST_CHECK(graph.dependencyExists("f0", "f2") == true);
+  BOOST_CHECK(dgraph.dependencyExists("f1", "f2") == true);
+  BOOST_CHECK(dgraph.dependencyExists("f0", "f2") == true);
 }
 
 BOOST_AUTO_TEST_CASE(test_xgraph) {
   flame::io::IOManager& m = flame::io::IOManager::GetInstance();
   flame::model::XModel model;
-  flame::model::XGraph * graph;
+  flame::model::DependencyGraph * graph;
 
   BOOST_CHECK_NO_THROW(m.loadModel(
       "model/models/infection.xml", &model));

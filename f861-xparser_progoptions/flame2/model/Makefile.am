@@ -11,12 +11,13 @@
 module_headers = \
   agentfunction.hpp \
   dependency.hpp \
+  dependencygraph.hpp \
   model.hpp \
+  stategraph.hpp \
   task.hpp \
   xadt.hpp \
   xcondition.hpp \
   xfunction.hpp \
-  xgraph.hpp \
   xioput.hpp \
   xmachine.hpp \
   xmessage.hpp \
@@ -28,12 +29,13 @@ module_headers = \
 module_sources = \
   agentfunction.cpp \
   dependency.cpp \
+  dependencygraph.cpp \
   model.cpp \
+  stategraph.cpp \
   task.cpp \
   xadt.cpp \
   xcondition.cpp \
   xfunction.cpp \
-  xgraph.cpp \
   xioput.cpp \
   xmachine.cpp \
   xmessage.cpp \
