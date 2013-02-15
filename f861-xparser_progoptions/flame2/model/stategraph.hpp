@@ -55,8 +55,11 @@ typedef std::map<TaskId, TaskId> TaskIdMap;
 
 class StateGraph {
   public:
+    //! Constructor
     StateGraph();
+    //! Deconstructor
     ~StateGraph();
+    //! Generate state graph from agent functions
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
     //! Checks for cyclic dependencies within a graph
@@ -68,17 +71,18 @@ class StateGraph {
     //! \return first integer for number of errors,
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
-    void setAgentName(std::string agentName);
-    void importStateGraphTasks(StateGraph * graph,
-        std::map<std::string, Vertex> * message2task,
-        std::map<Vertex, Vertex> * import2new);
+    //! set graph name (agent name or model name)
+    void setName(std::string name);
+    //! \return vertex task map
     std::vector<TaskPtr> * getVertexTaskMap();
+    //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
+    //! \return underlying graph
     Graph * getGraph() { return graph_; }
+    //! write out graph dot file
     void writeGraphviz(const std::string& fileName) const;
+    //! import set of state graphs and combine
     void importStateGraphs(std::set<StateGraph*> graphs);
-    Task * getStartTask();
-    std::set<Task*> getEndTasks();
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
@@ -86,9 +90,7 @@ class StateGraph {
     /*! \brief Ptr to vertex task so that mappings can be swapped */
     std::vector<TaskPtr> * vertex2task_;
     EdgeMap * edge2dependency_;
-    Task * startTask_;
-    std::set<Task *> endTasks_;
-    std::string agentName_;
+    std::string name_;
 
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);
@@ -101,13 +103,12 @@ class StateGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
-    void setStartTask(Task * task);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v) const;
     Dependency * getDependency(Edge e);
-    void removeVertex(Vertex v);
-    void removeVertices(std::vector<Vertex> * tasks);
-    void removeDependency(Edge e);
+    void importStateGraphTasks(StateGraph * graph,
+            std::map<std::string, Vertex> * message2task,
+            std::map<Vertex, Vertex> * import2new);
 };
 
 }}  // namespace flame::model

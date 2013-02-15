@@ -21,14 +21,29 @@ namespace flame { namespace model {
  * Initialises Task and sets level to be zero.
  */
 Task::Task(std::string parentName, std::string name, TaskType type)
-: parentName_(parentName), name_(name), taskType_(type) {
-  level_ = 0;
-  priorityLevel_ = 10;
-  hasCondition_ = false;
+  : parentName_(parentName), name_(name), taskType_(type), priorityLevel_(10),
+    level_(0), hasCondition_(false),
+    startTask_(false), endTask_(false) {
   if (type == Task::xmessage_sync) priorityLevel_ = 10;
   if (type == Task::xmessage_clear) priorityLevel_ = 1;
   if (type == Task::xfunction) priorityLevel_ = 5;
   if (type == Task::io_pop_write) priorityLevel_ = 0;
+}
+
+void Task::setStartTask(bool b) {
+  startTask_ = b;
+}
+
+bool Task::startTask() {
+  return startTask_;
+}
+
+void Task::setEndTask(bool b) {
+  endTask_ = b;
+}
+
+bool Task::endTask() {
+  return endTask_;
 }
 
 std::string Task::getTaskName() {

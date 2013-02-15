@@ -69,7 +69,7 @@ class DependencyGraph {
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
     void generateTaskList(std::vector<Task*> * tasks);
-    void setAgentName(std::string agentName);
+    void setName(std::string name);
     void import(DependencyGraph * graph);
     std::vector<TaskPtr> * getVertexTaskMap();
     Graph * getGraph() { return graph_; }
@@ -108,7 +108,7 @@ class DependencyGraph {
     Task * startTask_;
     std::set<Task *> endTasks_;
     Task * endTask_;
-    std::string agentName_;
+    std::string name_;
 
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();

@@ -81,7 +81,7 @@ void XModel::generateGraph() {
   boost::ptr_vector<XMachine>::iterator agent;
   std::set<DependencyGraph*> graphs;
 
-  dependencyGraph_.setAgentName(name_);
+  dependencyGraph_.setName(name_);
 
   // ToDo make xmachine only hold info
   // Make this function hold all XGraph agent graphs
@@ -393,6 +393,8 @@ int XModel::generateStateGraph() {
   // for each agent import state graph
   boost::ptr_vector<XMachine>::iterator agent;
   std::set<StateGraph*> graphs;
+
+  stateGraph_.setName(name_);
 
   // Consolidate agent state graphs into a model state graph
   for (agent = agents_.begin();

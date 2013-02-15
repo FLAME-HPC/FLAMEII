@@ -43,8 +43,8 @@ void XMachine::print() {
 
 void XMachine::setName(std::string name) {
   name_ = name;
-  stateGraph_.setAgentName(name_);
-  dependencyGraph_.setAgentName(name_);
+  stateGraph_.setName(name_);
+  dependencyGraph_.setName(name_);
 }
 
 std::string XMachine::getName() const {

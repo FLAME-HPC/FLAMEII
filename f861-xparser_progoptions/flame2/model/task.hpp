@@ -57,6 +57,10 @@ class Task {
     std::set<std::string> getWriteVariablesConst() const;
     std::set<std::string> getOutputMessagesConst() const;
     std::set<std::string> getInputMessagesConst() const;
+    void setStartTask(bool b);
+    bool startTask();
+    void setEndTask(bool b);
+    bool endTask();
 
   private:
     // Agent name if function or output
@@ -85,6 +89,10 @@ class Task {
     std::set<std::string> outputMessages_;
     /*! \brief Names of messages that are input */
     std::set<std::string> inputMessages_;
+    //!
+    bool startTask_;
+    //!
+    bool endTask_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__TASK_HPP_

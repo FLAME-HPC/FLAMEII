@@ -21,7 +21,7 @@
 namespace model = flame::model;
 namespace io = flame::io;
 
-BOOST_AUTO_TEST_SUITE(XGraph)
+BOOST_AUTO_TEST_SUITE(DependencyGraph)
 
 BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   model::DependencyGraph dgraph;
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   variables.push_back(new model::XVariable("a"));
   dgraph.setTestStartTask(f0);
   dgraph.addTestEndTask(f3);
-  dgraph.setAgentName("test_xgraph");
+  dgraph.setName("test_xgraph");
   // Process graph
   dgraph.generateDependencyGraph(&variables);
   // Test outcome
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   BOOST_CHECK(dgraph.dependencyExists("f0", "f2") == true);
 }
 
-BOOST_AUTO_TEST_CASE(test_xgraph) {
+BOOST_AUTO_TEST_CASE(test_dependencygraph) {
   flame::io::IOManager& m = flame::io::IOManager::GetInstance();
   flame::model::XModel model;
   flame::model::DependencyGraph * graph;

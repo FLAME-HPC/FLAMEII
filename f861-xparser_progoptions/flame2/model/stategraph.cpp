@@ -36,7 +36,6 @@ StateGraph::StateGraph() {
   graph_ = new Graph;
   vertex2task_ = new std::vector<TaskPtr>;
   edge2dependency_ = new EdgeMap;
-  startTask_ = 0;
 }
 
 StateGraph::~StateGraph() {
@@ -61,16 +60,8 @@ EdgeMap * StateGraph::getEdgeDependencyMap() {
   return edge2dependency_;
 }
 
-Task * StateGraph::getStartTask() {
-  return startTask_;
-}
-
-std::set<Task*> StateGraph::getEndTasks() {
-  return endTasks_;
-}
-
-void StateGraph::setAgentName(std::string agentName) {
-  agentName_ = agentName;
+void StateGraph::setName(std::string name) {
+  name_ = name;
 }
 
 Vertex StateGraph::addVertex(Task * t) {
@@ -91,51 +82,6 @@ Vertex StateGraph::addVertex(TaskPtr ptr) {
   vertex2task_->push_back(ptr);
   // Return vertex
   return v;
-}
-
-void StateGraph::removeVertex(Vertex v) {
-  // Iterators
-  boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-  boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
-  std::set<Edge>::iterator eit;
-  // Set of edges to remove
-  std::set<Edge> edgesToRemove;
-  // Add all in and out vertex edges to set of edges to be removed
-  for (boost::tie(iei, iei_end) = boost::in_edges(v, *graph_);
-      iei != iei_end; ++iei)
-    edgesToRemove.insert((Edge)*iei);
-  for (boost::tie(oei, oei_end) = boost::out_edges(v, *graph_);
-      oei != oei_end; ++oei)
-    edgesToRemove.insert((Edge)*oei);
-  // Remove all edges in set of edges to be removed
-  for (eit = edgesToRemove.begin(); eit != edgesToRemove.end(); ++eit)
-    removeDependency(*eit);
-  // Remove task from vertex to task mapping mapping
-  vertex2task_->erase(vertex2task_->begin() + v);
-  // Remove edge from graph
-  boost::remove_vertex(v, *graph_);
-}
-
-// Tasks removed largest first so that indexes are not changed
-void StateGraph::removeVertices(std::vector<Vertex> * tasks) {
-  std::vector<Vertex>::iterator vit;
-  // Sort vertices largest first
-  std::sort(tasks->begin(), tasks->end(), std::greater<size_t>());
-  // Remove tasks in order
-  for (vit = tasks->begin(); vit != tasks->end(); ++vit)
-    removeVertex((*vit));
-}
-
-void StateGraph::removeDependency(Edge e) {
-  // Find dependency
-  EdgeMap::iterator it = edge2dependency_->find(e);
-  // If found then free
-  if (it != edge2dependency_->end()) {
-    delete (*it).second;
-    edge2dependency_->erase(it);
-  }
-  // Remove edge from graph
-  boost::remove_edge(e, *graph_);
 }
 
 Edge StateGraph::addEdge(Vertex to, Vertex from, std::string name,
@@ -189,9 +135,9 @@ Task * StateGraph::generateStateGraphStatesAddStateToGraph(std::string name,
         (*vit).get()->getName() == name) return (*vit).get();
 
   // Add state as a task to the task list
-  Task * task = new Task(agentName_, name, Task::xstate);
+  Task * task = new Task(name_, name, Task::xstate);
   addVertex(task);
-  if (name == startState) startTask_ = task;
+  if (name == startState) task->setStartTask(true);
 
   return task;
 }
@@ -288,7 +234,7 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
   // For each transition function
   for (fit = functions->begin(); fit != functions->end(); ++fit) {
     // Add function as a task to the task list
-    Task * functionTask = new Task(agentName_,
+    Task * functionTask = new Task(name_,
         (*fit).getName(), Task::xfunction);
     // Add vertex for task
     addVertex(functionTask);
@@ -300,15 +246,10 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
     generateStateGraphMessages(&(*fit), functionTask);
     // If function next state is an end state
     if (endStates.find((*fit).getNextState()) != endStates.end())
-      // Add function task to end tasks list
-      endTasks_.insert(functionTask);
+    functionTask->setEndTask(true);
   }
 
   return 0;
-}
-
-void StateGraph::setStartTask(Task * task) {
-  startTask_ = task;
 }
 
 void StateGraph::importStateGraphTasks(StateGraph * graph,

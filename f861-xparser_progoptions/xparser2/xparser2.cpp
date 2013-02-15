@@ -64,6 +64,8 @@ void generate_agent_func_def(m::XModel *model,
 void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
 void setup_simulation(m::XModel *model, gen::GenMainCpp *maincpp);
+void output_graphs(const m::XModel& model,
+    bool output_state_graph, bool output_dependency_graph);
 
 // Print error message then quit with given return code
 void die(const std::string& message, int rc = 2) {
@@ -81,14 +83,8 @@ int main(int argc, const char* argv[]) {
   handle_options(argc, argv, &model_file,
       &output_state_graph, &output_dependency_graph);
 
-  // std::cout << "Model File: " << model_file << ".\n";
-  // if (output_state_graph) std::cout << "State graph to be output.\n";
-  // if (output_dependency_graph) std::cout <<
-  //     "Dependency graph to be output.\n";
-
-  if (!boost::filesystem::is_regular_file(model_file)) {
+  if (!boost::filesystem::is_regular_file(model_file))
     die(model_file + " is not a valid file.");
-  }
 
   // print header
   xparser::utils::print_template("xparser_header.tmpl");
@@ -102,18 +98,7 @@ int main(int argc, const char* argv[]) {
   }
   assert(model.validate() == 0);  // just in case exception not properly thrown
 
-  if (output_state_graph) {
-#ifndef TESTBUILD
-  printf("Writing file: stategraph.dot\n");
-#endif
-    model.outputStateGraph("stategraph.dot");
-  }
-  if (output_dependency_graph) {
-#ifndef TESTBUILD
-  printf("Writing file: dependencygraph.dot\n");
-#endif
-    model.outputDependencyGraph("dependencygraph.dot");
-  }
+  output_graphs(model, output_state_graph, output_dependency_graph);
 
   // Generate output files based on model
   try {
@@ -204,6 +189,22 @@ void handle_options(int argc, const char* argv[], std::string* model_file,
     // options error
     std::cerr << "Error: " << e.what() << std::endl << std::endl;
     die_program_options(argv[0], visible);
+  }
+}
+
+void output_graphs(const m::XModel& model,
+    bool output_state_graph, bool output_dependency_graph) {
+  if (output_state_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: stategraph.dot\n");
+#endif
+    model.outputStateGraph("stategraph.dot");
+  }
+  if (output_dependency_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: dependencygraph.dot\n");
+#endif
+    model.outputDependencyGraph("dependencygraph.dot");
   }
 }
 

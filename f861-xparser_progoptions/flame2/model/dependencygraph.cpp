@@ -58,8 +58,8 @@ std::vector<TaskPtr> * DependencyGraph::getVertexTaskMap() {
   return vertex2task_;
 }
 
-void DependencyGraph::setAgentName(std::string agentName) {
-  agentName_ = agentName;
+void DependencyGraph::setName(std::string name) {
+  name_ = name;
 }
 
 Vertex DependencyGraph::addVertex(Task * t) {
@@ -171,38 +171,38 @@ Dependency * DependencyGraph::getDependency(Edge e) {
 
 int DependencyGraph::generateDependencyGraph(
     boost::ptr_vector<XVariable> * variables) {
-#ifndef OUTPUT_GRAPHS
-  writeGraphviz(agentName_ + "_1.dot");
+#ifdef OUTPUT_GRAPHS
+  writeGraphviz(name_ + "_1.dot");
 #endif
   // Transform conditional states (more than one out edge)
   // into a condition task
   transformConditionalStatesToConditions(variables);
   // Contract state vertices
   contractStateVertices();
-#ifndef OUTPUT_GRAPHS
-  writeGraphviz(agentName_ + "_2.dot");
+#ifdef OUTPUT_GRAPHS
+  writeGraphviz(name_ + "_2.dot");
 #endif
   // Add data and condition dependencies
   addDataDependencies(variables);
   // Remove state dependencies
   removeStateDependencies();
-#ifndef OUTPUT_GRAPHS
-  writeGraphviz(agentName_ + "_3.dot");
+#ifdef OUTPUT_GRAPHS
+  writeGraphviz(name_ + "_3.dot");
 #endif
   // Add data output tasks
   AddVariableOutput();
-#ifndef USE_VARIABLE_VERTICES
+#ifdef USE_VARIABLE_VERTICES
   // Contract variable vertices
   contractVariableVertices();
 #endif
 
-#ifndef OUTPUT_GRAPHS
-  writeGraphviz(agentName_ + "_4.dot");
+#ifdef OUTPUT_GRAPHS
+  writeGraphviz(name_ + "_4.dot");
 #endif
   // Remove redundant dependencies
   removeRedundantDependencies();
-#ifndef OUTPUT_GRAPHS
-  writeGraphviz(agentName_ + "_5.dot");
+#ifdef OUTPUT_GRAPHS
+  writeGraphviz(name_ + "_5.dot");
 #endif
   return 0;
 }
@@ -255,7 +255,7 @@ void copyVarWriteSets(VarMapToVertices * from, VarMapToVertices * to) {
 void DependencyGraph::addStartTask(boost::ptr_vector<XVariable> * variables) {
   boost::ptr_vector<XVariable>::iterator i;
   // Add init function to provide first writes of all variables
-  Task * initTask = new Task(agentName_, std::string(agentName_),
+  Task * initTask = new Task(name_, std::string(name_),
       Task::start_agent);
   Vertex initVertex = addVertex(initTask);
   // Add edge from init to start vertex
@@ -274,7 +274,7 @@ void DependencyGraph::addStartTask(boost::ptr_vector<XVariable> * variables) {
 void DependencyGraph::addEndTask() {
   std::set<Task*>::iterator t_it;
   // Add end function to provide last writes to ioput
-  endTask_ = new Task(agentName_, std::string(agentName_),
+  endTask_ = new Task(name_, std::string(name_),
       Task::finish_agent);
   Vertex v = addVertex(endTask_);
   for (t_it = endTasks_.begin(); t_it != endTasks_.end(); ++t_it)
@@ -467,6 +467,18 @@ bool DependencyGraph::compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
   return true;
 }
 
+std::string concatStringSet(std::set<std::string>* sset) {
+  std::string str;
+  std::set<std::string>::iterator it;
+
+  for (it = sset->begin(); it != sset->end();) {
+    str.append((*it));
+    if (it++ != sset->end()) str.append(" ");
+  }
+
+  return str;
+}
+
 void DependencyGraph::AddVariableOutput() {
   // For each function that last writes a variable add dependency
   // to the data output of that variable
@@ -477,11 +489,10 @@ void DependencyGraph::AddVariableOutput() {
 
   while (!lws->empty()) {
     // Create new io write task
-    Task * task = new Task(agentName_,
+    Task * task = new Task(name_,
         boost::lexical_cast<std::string>(++count), Task::io_pop_write);
     Vertex vertex = addVertex(task);
     task->addWriteVariable((*lws->begin()).first);
-    task->setName((*lws->begin()).first);
     // Check first var against other var task sets, if same then add to
     // current task and remove
     for (vwit = ++lws->begin(); vwit != lws->end();) {
@@ -492,6 +503,9 @@ void DependencyGraph::AddVariableOutput() {
         ++vwit;
       }
     }
+    // Set name as names of variables
+    // task->setName(concatStringSet(task->getWriteVariables()));
+    task->setName((*lws->begin()).first);
     // Add edges from each writing vector to task
     for (sit = (*lws->begin()).second.begin();
         sit != (*lws->begin()).second.end(); ++sit)
@@ -704,9 +718,6 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
   EdgeIterator eit, end;
   EdgeMap * edgeDependencyMap = stateGraph->getEdgeDependencyMap();
 
-  startTask_ = stateGraph->getStartTask();
-  endTasks_ = stateGraph->getEndTasks();
-
   // For each task vertex map
   for (ii = 0; ii < v2t->size(); ++ii) {
     // Add vertex to current graph
@@ -719,6 +730,10 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
     // If task is a data output task then add edge
     if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
       add_edge(v, getVertex(endTask_), *graph_);
+    // If start task make start task
+    if (v2t->at(ii)->startTask()) startTask_ = v2t->at(ii).get();
+    // If end task add to end tasks
+    if (v2t->at(ii)->endTask()) endTasks_.insert(v2t->at(ii).get());
   }
   // For each edge
   for (boost::tie(eit, end) = boost::edges(*(stateGraph->getGraph()));
@@ -769,11 +784,11 @@ void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
   std::set<DependencyGraph*>::iterator it;
 
   // Add start task
-  Task * t = new Task(agentName_, "Start", Task::start_model);
+  Task * t = new Task(name_, "Start", Task::start_model);
   addVertex(t);
   startTask_ = t;
   // Add finish task
-  t = new Task(agentName_, "Finish", Task::finish_model);
+  t = new Task(name_, "Finish", Task::finish_model);
   addVertex(t);
   endTask_ = t;
 
