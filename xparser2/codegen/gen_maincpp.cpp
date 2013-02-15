@@ -20,6 +20,8 @@ GenMainCpp::GenMainCpp() {
   RequireSysHeader("cstdio");
   RequireSysHeader("string");
   RequireSysHeader("iostream");
+  // Boost headers
+  RequireSysHeader("boost/program_options.hpp");
   // flame headers
   RequireHeader("flame2/sim/sim_manager.hpp");  // used in main_footer.cpp.tmpl
   RequireHeader("flame2/model/model.hpp");

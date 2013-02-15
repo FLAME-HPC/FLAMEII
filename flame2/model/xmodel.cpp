@@ -72,32 +72,31 @@ int XModel::validate() {
   if (rc != 0) return rc;
 
   // if success then generate graph
-  generateGraph(&modelGraph_);
+  generateGraph();
 
   return 0;
 }
 
-void XModel::generateGraph(XGraph * modelGraph) {
+void XModel::generateGraph() {
   boost::ptr_vector<XMachine>::iterator agent;
-  std::set<XGraph *> graphs;
+  std::set<DependencyGraph*> graphs;
 
-  modelGraph->setAgentName(name_);
+  dependencyGraph_.setName(name_);
+
+  // ToDo make xmachine only hold info
+  // Make this function hold all XGraph agent graphs
+  // Create state graph
+  // Create dependency graph
 
   // Consolidate agent graphs into a model graph
   for (agent = agents_.begin();
       agent != agents_.end(); ++agent) {
     // Generate agent graph
     (*agent).generateDependencyGraph();
-    // Add to model graph
-    // (*agent)->addToModelGraph(&modelGraph);
-    graphs.insert((*agent).getFunctionDependencyGraph());
+    graphs.insert((*agent).getDependencyGraph());
   }
 
-  modelGraph->importGraphs(graphs);
-
-#ifdef OUTPUT_GRAPHS
-  modelGraph->writeGraphviz(name_ + ".dot");
-#endif
+  dependencyGraph_.importGraphs(graphs);
 }
 
 void XModel::setPath(std::string path) {
@@ -327,59 +326,90 @@ AgentMemory XModel::getAgentMemoryInfo() const {
 }
 
 TaskIdSet XModel::getAgentTasks() const {
-  return modelGraph_.getAgentTasks();
+  return dependencyGraph_.getAgentTasks();
 }
 
 TaskIdSet XModel::getAgentIOTasks() const {
-  return modelGraph_.getAgentIOTasks();
+  return dependencyGraph_.getAgentIOTasks();
 }
 
 TaskId XModel::getInitIOTask() const {
-  return modelGraph_.getInitIOTask();
+  return dependencyGraph_.getInitIOTask();
 }
 
 TaskId XModel::getFinIOTask() const {
-  return modelGraph_.getFinIOTask();
+  return dependencyGraph_.getFinIOTask();
 }
 
 TaskIdSet XModel::getMessageBoardSyncTasks() const {
-  return modelGraph_.getMessageBoardSyncTasks();
+  return dependencyGraph_.getMessageBoardSyncTasks();
 }
 
 TaskIdSet XModel::getMessageBoardClearTasks() const {
-  return modelGraph_.getMessageBoardClearTasks();
+  return dependencyGraph_.getMessageBoardClearTasks();
 }
 
 TaskIdMap XModel::getTaskDependencies() const {
-  return modelGraph_.getTaskDependencies();
+  return dependencyGraph_.getTaskDependencies();
 }
 
 std::string XModel::getTaskName(TaskId id) const {
-  return modelGraph_.getTaskName(id);
+  return dependencyGraph_.getTaskName(id);
 }
 
 std::string XModel::getTaskAgentName(TaskId id) const {
-  return modelGraph_.getTaskAgentName(id);
+  return dependencyGraph_.getTaskAgentName(id);
 }
 
 std::string XModel::getTaskFunctionName(TaskId id) const {
-  return modelGraph_.getTaskFunctionName(id);
+  return dependencyGraph_.getTaskFunctionName(id);
 }
 
 StringSet XModel::getTaskReadOnlyVariables(TaskId id) const {
-  return modelGraph_.getTaskReadOnlyVariables(id);
+  return dependencyGraph_.getTaskReadOnlyVariables(id);
 }
 
 StringSet XModel::getTaskWriteVariables(TaskId id) const {
-  return modelGraph_.getTaskWriteVariables(id);
+  return dependencyGraph_.getTaskWriteVariables(id);
 }
 
 StringSet XModel::getTaskOutputMessages(TaskId id) const {
-  return modelGraph_.getTaskOutputMessages(id);
+  return dependencyGraph_.getTaskOutputMessages(id);
 }
 
 StringSet XModel::getTaskInputMessages(TaskId id) const {
-  return modelGraph_.getTaskInputMessages(id);
+  return dependencyGraph_.getTaskInputMessages(id);
+}
+
+void XModel::outputStateGraph(const std::string& file_name) const {
+  stateGraph_.writeGraphviz(file_name);
+}
+
+void XModel::outputDependencyGraph(const std::string& file_name) const {
+  dependencyGraph_.writeGraphviz(file_name);
+}
+
+int XModel::generateStateGraph() {
+  // for each agent import state graph
+  boost::ptr_vector<XMachine>::iterator agent;
+  std::set<StateGraph*> graphs;
+
+  stateGraph_.setName(name_);
+
+  // Consolidate agent state graphs into a model state graph
+  for (agent = agents_.begin();
+      agent != agents_.end(); ++agent) {
+    graphs.insert((*agent).getStateGraph());
+  }
+
+  stateGraph_.importStateGraphs(graphs);
+
+  return 0;
+}
+
+int XModel::checkCyclicDependencies() {
+  // ToDo
+  return 0;
 }
 
 }}  // namespace flame::model

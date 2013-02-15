@@ -10,13 +10,15 @@
 #ifndef MODEL__XMACHINE_HPP_
 #define MODEL__XMACHINE_HPP_
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <string>
 #include <vector>
 #include <set>
 #include <utility>
 #include "xvariable.hpp"
 #include "xfunction.hpp"
-#include "xgraph.hpp"
+#include "stategraph.hpp"
+#include "dependencygraph.hpp"
 
 namespace flame { namespace model {
 
@@ -45,11 +47,11 @@ class XMachine {
     std::string getStartState();
     std::set<std::string> getEndStates();
     int generateStateGraph();
-    XGraph * getFunctionDependencyGraph();
+    int generateDependencyGraph();
+    StateGraph * getStateGraph();
+    DependencyGraph * getDependencyGraph();
     std::pair<int, std::string> checkCyclicDependencies();
     std::pair<int, std::string> checkFunctionConditions();
-    int generateDependencyGraph();
-    void addToModelGraph(XGraph * modelGraph);
     void setID(int id);
     int getID();
 
@@ -60,7 +62,9 @@ class XMachine {
     boost::ptr_vector<XFunction> functions_;
     std::string startState_;
     std::set<std::string> endStates_;
-    XGraph functionDependencyGraph_;
+    //! Graph used to hold state then dependency graph
+    StateGraph stateGraph_;
+    DependencyGraph dependencyGraph_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMACHINE_HPP_

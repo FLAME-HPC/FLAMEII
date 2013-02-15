@@ -57,7 +57,8 @@ void GenAgentFunc::Generate(Printer* printer) const {
   variables["FUNC"] = func_name_;
   variables["CURRENT"] = current_state_;
   variables["NEXT"] = next_state_;
-  printer->Print("flame::model::AgentFunction $AGENT$_$FUNC$_$CURRENT$_$NEXT$("
+  printer->Print("flame::model::AgentFunction\n"
+      "  $AGENT$_$FUNC$_$CURRENT$_$NEXT$("
       "\"$FUNC$\", \"$CURRENT$\", \"$NEXT$\");\n", variables);
   // print outputs and inputs
   print_outputs_(printer);

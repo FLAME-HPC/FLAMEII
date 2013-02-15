@@ -1,3 +1,6 @@
+// namespace shorthand
+namespace po = boost::program_options;
+
 // returns time in seconds
 static double get_time(void) {
   struct timeval now;
@@ -6,31 +9,29 @@ static double get_time(void) {
 }
 
 void die(const std::string& message, int rc = 2) {
-  std::cerr << "ERROR: " << message << std::endl;
+  std::cerr << "Error: " << message << std::endl;
   exit(rc);
 }
 
+// Function defined further down
+void handle_program_options(int argc, const char* argv[],
+    std::string * pop_path, int * num_iters, int * num_cores);
+
 int main(int argc, const char* argv[]) {
-  if (argc < 3 || argc > 4) {
-    std::cerr << "Usage: " << argv[0];
-    std::cerr << " POP_DATA NUM_ITERATIONS [NUM_CORES]" << std::endl;
-    exit(1);
-  }
+  std::string pop_path;
+  int num_iters;
+  int num_cores;
 
-  std::string pop_path = argv[1];
-  
-  int num_iters = atoi(argv[2]);
-  if (num_iters < 1) {
+  handle_program_options(argc, argv, &pop_path, &num_iters, &num_cores);
+
+  if (num_iters < 1)
     die("Invalid value for NUM_ITERATIONS");
-  }
 
-  int num_cores = 1;  // default to single core run
-  if (argc > 3) {
-    num_cores = atoi(argv[3]);
-    if (num_cores < 1) {
-      die("Invalid value for NUM_CORES", 3);
-    }
-  }
+  if (num_cores < 1)
+    die("Invalid value for number of cores", 3);
+
+  if (num_cores > 1)
+    printf("Using %d cores.\n", num_cores);
 
   #ifdef DBGBUILD
     srand(1);  // for debug, fix random seed

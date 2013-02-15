@@ -55,7 +55,7 @@ run_tests_SOURCES += \
 # Add tests for "model"
 run_tests_SOURCES += \
   model/test_model_validation.cpp \
-  model/test_xgraph.cpp
+  model/test_dependencygraph.cpp
 
 # Add tests for "sim"
 run_tests_SOURCES += \

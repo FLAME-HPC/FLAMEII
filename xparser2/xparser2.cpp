@@ -26,8 +26,10 @@
 #include <string>
 #include <cassert>
 #include <boost/filesystem/operations.hpp>
+#include <boost/program_options.hpp>
 #include "flame2/exceptions/io.hpp"
 #include "flame2/io/io_manager.hpp"
+#include "flame2/model/xmodel.hpp"
 #include "codegen/gen_snippets.hpp"
 #include "codegen/gen_datastruct.hpp"
 #include "codegen/gen_makefile.hpp"
@@ -43,8 +45,17 @@
 
 namespace gen = xparser::codegen;  // namespace shorthand
 namespace m = flame::model;
+namespace po = boost::program_options;
 
 // Functions defined further down
+void handle_options(int argc, const char* argv[], std::string* model_file,
+    bool* output_state_graph, bool* output_dependency_graph);
+void build_options(po::options_description* cmdline_options,
+    po::options_description* visible,
+    po::positional_options_description* p,
+    std::string* model_file);
+void die_program_options(const std::string& prog,
+    const po::options_description& visible);
 void build_output(m::XModel* model);
 void generate_agents(m::XModel *model, gen::GenMainCpp *maincpp);
 void generate_agent_functions(m::XMachine *agent, gen::GenMainCpp *maincpp);
@@ -53,22 +64,27 @@ void generate_agent_func_def(m::XModel *model,
 void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
 void setup_simulation(m::XModel *model, gen::GenMainCpp *maincpp);
+void output_graphs(const m::XModel& model,
+    bool output_state_graph, bool output_dependency_graph);
 
 // Print error message then quit with given return code
 void die(const std::string& message, int rc = 2) {
-  std::cerr << "ERROR: " << message << std::endl;
+  std::cerr << "Error: " << message << std::endl;
   exit(rc);
 }
 
 int main(int argc, const char* argv[]) {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " MODEL_FILE" << std::endl;
-    exit(1);
-  }
+  // program options from the command line
+  std::string model_file;
+  bool output_state_graph = false;
+  bool output_dependency_graph = false;
 
-  if (!boost::filesystem::is_regular_file(argv[1])) {
-    die(std::string(argv[1]) + " is not a valid file.");
-  }
+  // handle program options
+  handle_options(argc, argv, &model_file,
+      &output_state_graph, &output_dependency_graph);
+
+  if (!boost::filesystem::is_regular_file(model_file))
+    die(model_file + " is not a valid file.");
 
   // print header
   xparser::utils::print_template("xparser_header.tmpl");
@@ -76,11 +92,13 @@ int main(int argc, const char* argv[]) {
   // Load and validate model
   m::XModel model;
   try {
-    flame::io::IOManager::GetInstance().loadModel(argv[1], &model);
+    flame::io::IOManager::GetInstance().loadModel(model_file, &model);
   } catch(const flame::exceptions::flame_io_exception& e) {
     die(std::string("Invalid Model file\n") + e.what());
   }
   assert(model.validate() == 0);  // just in case exception not properly thrown
+
+  output_graphs(model, output_state_graph, output_dependency_graph);
 
   // Generate output files based on model
   try {
@@ -93,6 +111,101 @@ int main(int argc, const char* argv[]) {
   xparser::utils::print_template("xparser_footer.tmpl");
 
   return 0;
+}
+
+void die_program_options(const std::string& prog,
+    const po::options_description& visible) {
+  std::cout << "Usage: " << prog << " MODEL_FILE [options]\n\n";
+  std::cout << visible << "\n";
+  exit(1);
+}
+
+void build_options(po::options_description* cmdline_options,
+    po::options_description* visible,
+    po::positional_options_description* p,
+    std::string* model_file) {
+  // create options description for version and help
+  po::options_description generic("Generic options");
+      generic.add_options()
+        ("version,v", "print version string")
+        ("help", "produce help message");
+
+  // create options description for configuration options
+  po::options_description config("Configuration");
+  config.add_options()
+      ("state_graph,s", "produce state graph file")
+      ("dependency_graph,d", "produce dependency graph file");
+
+  // create options description for required parameters
+  po::options_description hidden("Hidden options");
+  hidden.add_options()
+    ("model_file", po::value<std::string>(model_file)->required(),
+        "the model file");
+
+  // create cmd line options from generic, config and hidden
+  cmdline_options->add(generic).add(config).add(hidden);
+  // create user visible options from generic and config
+  visible->add(generic).add(config);
+  // create positional info for required parameter
+  p->add("model_file", -1);  // -1 means any position
+}
+
+void handle_options(int argc, const char* argv[], std::string* model_file,
+    bool* output_state_graph, bool* output_dependency_graph) {
+  po::options_description cmdline_options;
+  po::options_description visible("Allowed options");
+  po::positional_options_description p;
+  po::variables_map vm;
+
+  // build the program options
+  build_options(&cmdline_options, &visible, &p, model_file);
+
+  try {
+    // parse command line depending on options and positional info
+    po::store(po::command_line_parser(argc, argv).
+        options(cmdline_options).positional(p).run(), vm);  // throws on error
+
+    // -v option
+    if (vm.count("version")) {
+      // print xparser_header template
+      xparser::utils::print_template("xparser_header.tmpl");
+      exit(1);
+    }
+
+    // --help option
+    if (vm.count("help")) die_program_options(argv[0], visible);
+
+    // -- graph options
+    if (vm.count("state_graph")) *output_state_graph = true;
+    if (vm.count("dependency_graph")) *output_dependency_graph = true;
+
+    po::notify(vm);  // throws on error
+  }
+  catch(const boost::program_options::required_option& e) {
+    // no model file given
+    die_program_options(argv[0], visible);
+  }
+  catch(const boost::program_options::error& e) {
+    // options error
+    std::cerr << "Error: " << e.what() << std::endl << std::endl;
+    die_program_options(argv[0], visible);
+  }
+}
+
+void output_graphs(const m::XModel& model,
+    bool output_state_graph, bool output_dependency_graph) {
+  if (output_state_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: stategraph.dot\n");
+#endif
+    model.outputStateGraph("stategraph.dot");
+  }
+  if (output_dependency_graph) {
+#ifndef TESTBUILD
+  printf("Writing file: dependencygraph.dot\n");
+#endif
+    model.outputDependencyGraph("dependencygraph.dot");
+  }
 }
 
 void build_output(m::XModel* model) {
