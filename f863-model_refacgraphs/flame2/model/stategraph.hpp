@@ -22,36 +22,9 @@
 #include "task.hpp"
 #include "xfunction.hpp"
 #include "xvariable.hpp"
+#include "xgraph.hpp"
 
 namespace flame { namespace model {
-
-/* \brief Define graph type
- *
- * Vectors are used for vertex and edge containers.
- * Bidirectional graph used for access to boost::in_edges
- * as well as boost::out_edges.
- */
-typedef boost::adjacency_list
-        <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-//! \brief Define vertex descriptor type
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-//! \brief Define edge descriptor type
-typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-//! \brief Define vertex iterator
-typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-//! \brief Define edge iterator
-typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-//! \brief Define edge mapping
-typedef std::map<Edge, Dependency *> EdgeMap;
-
-//! Use a shared pointer to automatically handle Task pointers
-typedef boost::shared_ptr<Task> TaskPtr;
-
-typedef std::set< std::pair<std::string, std::string> > StringPairSet;
-typedef std::set<std::string> StringSet;
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
 
 class StateGraph {
   public:
@@ -78,7 +51,7 @@ class StateGraph {
     //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
     //! \return underlying graph
-    Graph * getGraph() { return graph_; }
+    Graph * getGraph() { return graph_->graph_; }
     //! write out graph dot file
     void writeGraphviz(const std::string& fileName) const;
     //! import set of state graphs and combine
@@ -86,11 +59,7 @@ class StateGraph {
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
-    Graph * graph_;
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
-    std::vector<TaskPtr> * vertex2task_;
-    EdgeMap * edge2dependency_;
-    std::string name_;
+    XGraph * graph_;
 
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);

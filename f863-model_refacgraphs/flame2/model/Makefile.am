@@ -10,6 +10,7 @@
 
 module_headers = \
   agentfunction.hpp \
+  data_dependency_analyser.hpp \
   dependency.hpp \
   dependencygraph.hpp \
   model.hpp \
@@ -18,6 +19,7 @@ module_headers = \
   xadt.hpp \
   xcondition.hpp \
   xfunction.hpp \
+  xgraph.hpp \
   xioput.hpp \
   xmachine.hpp \
   xmessage.hpp \
@@ -28,6 +30,7 @@ module_headers = \
 
 module_sources = \
   agentfunction.cpp \
+  data_dependency_analyser.cpp \
   dependency.cpp \
   dependencygraph.cpp \
   model.cpp \
@@ -36,6 +39,7 @@ module_sources = \
   xadt.cpp \
   xcondition.cpp \
   xfunction.cpp \
+  xgraph.cpp \
   xioput.cpp \
   xmachine.cpp \
   xmessage.cpp \
