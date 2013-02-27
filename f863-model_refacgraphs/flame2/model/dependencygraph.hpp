@@ -30,7 +30,6 @@ namespace flame { namespace model {
 class DependencyGraph {
   public:
     DependencyGraph();
-    ~DependencyGraph();
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     //! Checks for cyclic dependencies within a graph
     //! \return first integer for number of errors,
@@ -44,7 +43,7 @@ class DependencyGraph {
     void setName(std::string name);
     void import(DependencyGraph * graph);
     std::vector<TaskPtr> * getVertexTaskMap();
-    Graph * getGraph() { return graph_->graph_; }
+    Graph * getGraph() { return graph_.graph_; }
     void writeGraphviz(const std::string& fileName) const;
     void importGraphs(std::set<DependencyGraph*> graphs);
     void importStateGraph(StateGraph * stateGraph);
@@ -73,7 +72,7 @@ class DependencyGraph {
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
-    XGraph * graph_;
+    XGraph graph_;
 
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();

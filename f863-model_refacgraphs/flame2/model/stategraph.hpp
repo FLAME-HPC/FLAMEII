@@ -30,8 +30,6 @@ class StateGraph {
   public:
     //! Constructor
     StateGraph();
-    //! Deconstructor
-    ~StateGraph();
     //! Generate state graph from agent functions
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
@@ -51,7 +49,7 @@ class StateGraph {
     //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
     //! \return underlying graph
-    Graph * getGraph() { return graph_->graph_; }
+    Graph * getGraph() { return graph_.graph_; }
     //! write out graph dot file
     void writeGraphviz(const std::string& fileName) const;
     //! import set of state graphs and combine
@@ -59,7 +57,7 @@ class StateGraph {
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
-    XGraph * graph_;
+    XGraph graph_;
 
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);
