@@ -394,11 +394,11 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
     if (v2t->at(ii)->endTask()) graph_.endTasks_.insert(v2t->at(ii).get());
   }
   // For each edge
-  for (boost::tie(eit, end) = boost::edges(*(stateGraph->getGraph()));
+  for (boost::tie(eit, end) = stateGraph->getEdges(); //boost::edges(*(stateGraph->getGraph()));
       eit != end; ++eit) {
     // Add edge using vertex to vertex map
-    Vertex s = boost::source(*eit, *(stateGraph->getGraph()));
-    Vertex t = boost::target(*eit, *(stateGraph->getGraph()));
+    Vertex s = stateGraph->getEdgeSource(*eit); //boost::source(*eit, *(stateGraph->getGraph()));
+    Vertex t = stateGraph->getEdgeTarget(*eit); //boost::target(*eit, *(stateGraph->getGraph()));
     Vertex ns = (*(import2new.find(s))).second;
     Vertex nt = (*(import2new.find(t))).second;
     EdgeMap::iterator it = edgeDependencyMap->find(*eit);

@@ -157,4 +157,16 @@ Dependency * XGraph::getDependency(Edge e) {
   return d;
 }
 
+Vertex XGraph::getEdgeSource(Edge e) {
+  return boost::source(e, *graph_);
+}
+
+Vertex XGraph::getEdgeTarget(Edge e) {
+  return boost::target(e, *graph_);
+}
+
+std::pair<EdgeIterator, EdgeIterator> XGraph::getEdges() {
+  return boost::edges(*graph_);
+}
+
 }}   // namespace flame::model

@@ -48,12 +48,13 @@ class StateGraph {
     std::vector<TaskPtr> * getVertexTaskMap();
     //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
-    //! \return underlying graph
-    Graph * getGraph() { return graph_.graph_; }
     //! write out graph dot file
     void writeGraphviz(const std::string& fileName) const;
     //! import set of state graphs and combine
     void importStateGraphs(std::set<StateGraph*> graphs);
+    Vertex getEdgeSource(Edge e);
+    Vertex getEdgeTarget(Edge e);
+    std::pair<EdgeIterator, EdgeIterator> getEdges();
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */

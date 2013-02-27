@@ -64,6 +64,9 @@ class XGraph {
     Dependency * getDependency(Edge e);
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
+    Vertex getEdgeSource(Edge e);
+    Vertex getEdgeTarget(Edge e);
+    std::pair<EdgeIterator, EdgeIterator> getEdges();
 
   //  private:
     std::string name_;

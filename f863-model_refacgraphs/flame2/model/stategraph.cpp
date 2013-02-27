@@ -283,11 +283,11 @@ void StateGraph::importStateGraphs(std::set<StateGraph*> graphs) {
     // import tasks
     importStateGraphTasks((*it), &message2task, &import2new);
     // import edges
-    for (boost::tie(eit, end) = boost::edges(*((*it)->getGraph()));
+    for (boost::tie(eit, end) = (*it)->getEdges(); //boost::edges(*((*it)->getGraph()));
         eit != end; ++eit) {
       // add edge using vertex to vertex map
-      Vertex s = boost::source(*eit, *((*it)->getGraph()));
-      Vertex t = boost::target(*eit, *((*it)->getGraph()));
+      Vertex s = (*it)->getEdgeSource(*eit); //boost::source(*eit, *((*it)->getGraph()));
+      Vertex t = (*it)->getEdgeTarget(*eit); //boost::target(*eit, *((*it)->getGraph()));
       Vertex ns = (*(import2new.find(s))).second;
       Vertex nt = (*(import2new.find(t))).second;
       add_edge(ns, nt, *graph_.graph_);
@@ -477,6 +477,18 @@ void StateGraph::writeGraphviz(const std::string& fileName) const {
           graph_writer());
 
   graphfile.clear();
+}
+
+Vertex StateGraph::getEdgeSource(Edge e) {
+  return graph_.getEdgeSource(e);
+}
+
+Vertex StateGraph::getEdgeTarget(Edge e) {
+  return graph_.getEdgeTarget(e);
+}
+
+std::pair<EdgeIterator, EdgeIterator> StateGraph::getEdges() {
+  return graph_.getEdges();
 }
 
 }}   // namespace flame::model
