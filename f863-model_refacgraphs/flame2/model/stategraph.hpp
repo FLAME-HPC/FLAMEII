@@ -59,11 +59,8 @@ class StateGraph {
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
     XGraph graph_;
+    std::string name_;
 
-    Vertex addVertex(Task * t);
-    Vertex addVertex(TaskPtr ptr);
-    Edge addEdge(Vertex to, Vertex from, std::string name,
-            Dependency::DependencyType type);
     Task * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
     void generateStateGraphStates(XFunction * function, Task * task,
@@ -71,9 +68,6 @@ class StateGraph {
     void generateStateGraphVariables(XFunction * function, Task * task);
     Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
     void generateStateGraphMessages(XFunction * function, Task * task);
-    Vertex getVertex(Task * t);
-    Task * getTask(Vertex v) const;
-    Dependency * getDependency(Edge e);
     void importStateGraphTasks(StateGraph * graph,
             std::map<std::string, Vertex> * message2task,
             std::map<Vertex, Vertex> * import2new);

@@ -19,11 +19,12 @@ namespace model {
 
 class DataDependencyAnalyser {
   public:
-    explicit DataDependencyAnalyser(XGraph * graph);
+    explicit DataDependencyAnalyser(XGraph * graph, std::string name);
     void addDataDependencies(boost::ptr_vector<XVariable> * variables);
 
   private:
     XGraph * graph_;
+    std::string name_;
     void addWriteDependencies(Vertex v, Task * t);
     void addReadDependencies(Vertex v, Task * t);
     void addWritingVerticesToList(Vertex v, Task * t);

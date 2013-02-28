@@ -34,11 +34,11 @@ namespace flame { namespace model {
 DependencyGraph::DependencyGraph() {}
 
 std::vector<TaskPtr> * DependencyGraph::getVertexTaskMap() {
-  return graph_.vertex2task_;
+  return graph_.getVertexTaskMap();
 }
 
 void DependencyGraph::setName(std::string name) {
-  graph_.name_ = name;
+  name_ = name;
 }
 
 int DependencyGraph::generateDependencyGraph(
@@ -55,7 +55,7 @@ int DependencyGraph::generateDependencyGraph(
   writeGraphviz(name_ + "_2.dot");
 #endif
   // Add data and condition dependencies
-  DataDependencyAnalyser dda = DataDependencyAnalyser(&graph_);
+  DataDependencyAnalyser dda = DataDependencyAnalyser(&graph_, name_);
   dda.addDataDependencies(variables);
   // Remove state dependencies
   removeStateDependencies();
@@ -73,7 +73,7 @@ int DependencyGraph::generateDependencyGraph(
   writeGraphviz(name_ + "_4.dot");
 #endif
   // Remove redundant dependencies
-  removeRedundantDependencies();
+  graph_.removeRedundantDependencies();
 #ifdef OUTPUT_GRAPHS
   writeGraphviz(name_ + "_5.dot");
 #endif
@@ -142,12 +142,12 @@ void DependencyGraph::AddVariableOutput() {
   // to the data output of that variable
   VarMapToVertices::iterator vwit;
   std::set<size_t>::iterator sit;
-  VarMapToVertices * lws = graph_.endTask_->getLastWrites();
+  VarMapToVertices * lws = graph_.getEndTask()->getLastWrites();
   size_t count = 0;
 
   while (!lws->empty()) {
     // Create new io write task
-    Task * task = new Task(graph_.name_,
+    Task * task = new Task(name_,
         boost::lexical_cast<std::string>(++count), Task::io_pop_write);
     Vertex vertex = graph_.addVertex(task);
     task->addWriteVariable((*lws->begin()).first);
@@ -173,7 +173,7 @@ void DependencyGraph::AddVariableOutput() {
   }
 
   // Remove end vertex
-  graph_.removeVertex(graph_.getVertex(graph_.endTask_));
+  graph_.removeVertex(graph_.getVertex(graph_.getEndTask()));
 }
 
 void DependencyGraph::removeStateDependencies() {
@@ -181,7 +181,7 @@ void DependencyGraph::removeStateDependencies() {
   std::set<Edge> edgesToRemove;
   std::set<Edge>::iterator etrit;
 
-  for (boost::tie(eit, eit_end) = boost::edges(*graph_.graph_);
+  for (boost::tie(eit, eit_end) = graph_.getEdges();
       eit != eit_end; ++eit) {
     // Only if edge dependency is state or condition
     Dependency * d = graph_.getDependency((Edge)*eit);
@@ -200,9 +200,9 @@ void DependencyGraph::transformConditionalStatesToConditions(
   size_t count = 0;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first) {
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     // If out edges is larger than 1 and a state task
-    if (boost::out_degree(*vp.first, *graph_.graph_) > 1 &&
+    if (graph_.getVertexOutDegree(*vp.first) > 1 &&
         graph_.getTask(*vp.first)->getTaskType() == Task::xstate) {
       Task * t = graph_.getTask(*vp.first);
       // Change task type to a condition
@@ -217,30 +217,25 @@ void DependencyGraph::transformConditionalStatesToConditions(
   }
 }
 
-void DependencyGraph::setStartTask(Task * task) {
-  graph_.startTask_ = task;
-}
-
 void DependencyGraph::contractVertices(
     Task::TaskType taskType, Dependency::DependencyType dependencyType) {
   VertexIterator vi, vi_end;
-  boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-  boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
+  OutEdgeIterator oei, oei_end;
+  InEdgeIterator iei, iei_end;
   std::vector<Vertex> vertexToDelete;
   std::vector<Vertex>::iterator vit;
   // For each variable vertex
-  for (boost::tie(vi, vi_end) = boost::vertices(*graph_.graph_);
+  for (boost::tie(vi, vi_end) = graph_.getVertices();
       vi != vi_end; ++vi) {
     // If vertex is a variable
     if (graph_.getTask(*vi)->getTaskType() == taskType) {
       // Add an edge from all vertex sources to all vertex targets
-      for (boost::tie(iei, iei_end) = boost::in_edges(*vi, *graph_.graph_);
+      for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(*vi);
           iei != iei_end; ++iei)
-        for (boost::tie(oei, oei_end) = boost::out_edges(*vi, *graph_.graph_);
+        for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(*vi);
             oei != oei_end; ++oei)
-          graph_.addEdge(boost::source((Edge)*iei, *graph_.graph_),
-              boost::target((Edge)*oei, *graph_.graph_),
-              "", dependencyType);
+          graph_.addEdge(graph_.getEdgeSource(*iei),
+              graph_.getEdgeTarget(*oei), "", dependencyType);
       // Add vertex to delete list (as cannot delete vertex within
       // an iterator)
       vertexToDelete.push_back(*vi);
@@ -258,14 +253,14 @@ void DependencyGraph::contractStateVertices() {
   // Todo add assert here for startTask_ != NULL
   // because if the model has not been validated then it is not set
 
-  if (graph_.startTask_ == 0) throw flame::exceptions::flame_model_exception(
+  if (graph_.getStartTask() == 0) throw flame::exceptions::flame_model_exception(
       "Model graph start task not initialised");
 
-  if (graph_.startTask_->getTaskType() == Task::xstate)
+  if (graph_.getStartTask()->getTaskType() == Task::xstate)
     for (boost::tie(oei, oei_end) =
-        boost::out_edges(graph_.getVertex(graph_.startTask_), *graph_.graph_);
+        graph_.getVertexOutEdges(graph_.getVertex(graph_.getStartTask()));
         oei != oei_end; ++oei)
-      graph_.startTask_ = graph_.getTask(boost::target((Edge)*oei, *graph_.graph_));
+      graph_.setStartTask(graph_.getTask(graph_.getEdgeTarget(*oei)));
 
 
   // Contract state tasks and replace with state dependency
@@ -277,54 +272,14 @@ void DependencyGraph::contractVariableVertices() {
   contractVertices(Task::xvariable, Dependency::variable);
 }
 
-void DependencyGraph::removeRedundantDependencies() {
-  size_t ii;
-  // The resultant transitive reduction graph
-  Graph * trgraph = new Graph;
-  std::vector<TaskPtr> * trvertex2task =
-      new std::vector<TaskPtr>(graph_.vertex2task_->size());
-
-  // Create a map to get a property of a graph, in this case the vertex index
-  typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
-      VertexIndexMap;
-  VertexIndexMap index_map = get(boost::vertex_index, *graph_.graph_);
-  // A vector of vertices to hold trgraph vertices
-  std::vector<Vertex> to_tc_vec(boost::num_vertices(*graph_.graph_));
-  // Property map iterator
-  // Iterator: Vertex *
-  // OffsetMap: VertexIndexMap
-  // Value type of iterator: Vertex
-  // Reference type of iterator: Vertex&
-  boost::iterator_property_map<Vertex *, VertexIndexMap, Vertex, Vertex&>
-  g_to_tc_map(&to_tc_vec[0], index_map);
-
-  boost::transitive_reduction(*graph_.graph_, *trgraph, g_to_tc_map, index_map);
-
-  // Create new vertex task mapping for trgraph
-  for (ii = 0; ii < boost::num_vertices(*graph_.graph_); ++ii)
-    trvertex2task->at(to_tc_vec[ii]) = graph_.vertex2task_->at(ii);
-
-  // Make graph_ point to trgraph
-  delete graph_.graph_;
-  graph_.graph_ = trgraph;
-  // Make vertex2task_ point to trvertex2task
-  delete graph_.vertex2task_;
-  graph_.vertex2task_ = trvertex2task;
-  // Clear edge2dependency_ as edges no longer valid
-  EdgeMap::iterator eit;
-  for (eit = graph_.edge2dependency_->begin(); eit != graph_.edge2dependency_->end(); ++eit)
-    delete ((*eit).second);
-  graph_.edge2dependency_->clear();
-}
-
 Vertex DependencyGraph::getMessageVertex(std::string name,
     Task::TaskType type) {
   size_t ii;
   // For each task
-  for (ii = 0; ii < graph_.vertex2task_->size(); ++ii)
+  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii)
     // If find message and type then return
-    if (graph_.vertex2task_->at(ii)->getName() == name &&
-        graph_.vertex2task_->at(ii)->getTaskType() == type)
+    if (graph_.getVertexTaskMap()->at(ii)->getName() == name &&
+        graph_.getVertexTaskMap()->at(ii)->getTaskType() == type)
       return ii;
   // Otherwise create new vertex and return
   Task * t = new Task(name, name, type);
@@ -340,22 +295,22 @@ void DependencyGraph::changeMessageTasksToSync() {
   std::set<Edge>::iterator etrit;
   size_t ii;
   // For each task
-  for (ii = 0; ii < graph_.vertex2task_->size(); ++ii) {
-    Task * t = graph_.vertex2task_->at(ii).get();
+  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii) {
+    Task * t = graph_.getVertexTaskMap()->at(ii).get();
     // If message task
     if (t->getTaskType() == Task::xmessage) {
       // Create start and finish syncs
       Vertex s = getMessageVertex(t->getName(), Task::xmessage_sync);
       // For each incoming edge to message add to start
-      for (boost::tie(iei, iei_end) = boost::in_edges(ii, *graph_.graph_);
+      for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(ii);
           iei != iei_end; ++iei) {
-        add_edge(boost::source(*iei, *graph_.graph_), s, *graph_.graph_);
+        graph_.addEdge(graph_.getEdgeSource(*iei), s);
         edgesToRemove.insert(*iei);
       }
       // For each out going edge to message add to finish
-      for (boost::tie(oei, oei_end) = boost::out_edges(ii, *graph_.graph_);
+      for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(ii);
           oei != oei_end; ++oei) {
-        add_edge(s, boost::target(*oei, *graph_.graph_), *graph_.graph_);
+        graph_.addEdge(s, graph_.getEdgeTarget(*oei));
         edgesToRemove.insert(*oei);
       }
       // delete message task
@@ -384,14 +339,14 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
     if (v2t->at(ii)->getTaskType() == Task::start_agent)
-      add_edge(graph_.getVertex(graph_.startTask_), v, *graph_.graph_);
+      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v);
     // If task is a data output task then add edge
     if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
-      add_edge(v, graph_.getVertex(graph_.endTask_), *graph_.graph_);
+      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()));
     // If start task make start task
-    if (v2t->at(ii)->startTask()) graph_.startTask_ = v2t->at(ii).get();
+    if (v2t->at(ii)->startTask()) graph_.setStartTask(v2t->at(ii).get());
     // If end task add to end tasks
-    if (v2t->at(ii)->endTask()) graph_.endTasks_.insert(v2t->at(ii).get());
+    if (v2t->at(ii)->endTask()) graph_.addEndTask(v2t->at(ii).get());
   }
   // For each edge
   for (boost::tie(eit, end) = stateGraph->getEdges(); //boost::edges(*(stateGraph->getGraph()));
@@ -421,20 +376,20 @@ void DependencyGraph::import(DependencyGraph * graph) {
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
     if (v2t->at(ii)->getTaskType() == Task::start_agent)
-      add_edge(graph_.getVertex(graph_.startTask_), v, *graph_.graph_);
+      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v);
     // If task is a data output task then add edge
     if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
-      add_edge(v, graph_.getVertex(graph_.endTask_), *graph_.graph_);
+      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()));
   }
   // For each edge
-  for (boost::tie(eit, end) = boost::edges(*(graph->getGraph()));
+  for (boost::tie(eit, end) = graph->getGraph()->getEdges();
       eit != end; ++eit) {
     // Add edge using vertex to vertex map
-    Vertex s = boost::source(*eit, *(graph->getGraph()));
-    Vertex t = boost::target(*eit, *(graph->getGraph()));
+    Vertex s = graph->getGraph()->getEdgeSource(*eit);
+    Vertex t = graph->getGraph()->getEdgeTarget(*eit);
     Vertex ns = (*(import2new.find(s))).second;
     Vertex nt = (*(import2new.find(t))).second;
-    add_edge(ns, nt, *graph_.graph_);
+    graph_.addEdge(ns, nt);
   }
 }
 
@@ -442,13 +397,13 @@ void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
   std::set<DependencyGraph*>::iterator it;
 
   // Add start task
-  Task * t = new Task(graph_.name_, "Start", Task::start_model);
+  Task * t = new Task(name_, "Start", Task::start_model);
   graph_.addVertex(t);
-  graph_.startTask_ = t;
+  graph_.setStartTask(t);
   // Add finish task
-  t = new Task(graph_.name_, "Finish", Task::finish_model);
+  t = new Task(name_, "Finish", Task::finish_model);
   graph_.addVertex(t);
-  graph_.endTask_ = t;
+  graph_.setEndTask(t);
 
   for (it = graphs.begin(); it != graphs.end(); ++it)
     import((*it));
@@ -466,7 +421,7 @@ void DependencyGraph::addMessageClearTasks() {
   boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
 
   // For each variable vertex
-  for (boost::tie(vi, vi_end) = boost::vertices(*graph_.graph_);
+  for (boost::tie(vi, vi_end) = graph_.getVertices();
       vi != vi_end; ++vi) {
     Task * t = graph_.getTask((*vi));
     // For each message sync task
@@ -477,70 +432,16 @@ void DependencyGraph::addMessageClearTasks() {
       Vertex clearV = graph_.addVertex(task);
       // Get target tasks
       for (boost::tie(oei, oei_end) =
-          boost::out_edges((*vi), *graph_.graph_); oei != oei_end; ++oei) {
+          graph_.getVertexOutEdges(*vi); oei != oei_end; ++oei) {
         // Add edge from target tasks to clear task
-        add_edge(boost::target((Edge)*oei, *graph_.graph_), clearV, *graph_.graph_);
+        graph_.addEdge(graph_.getEdgeTarget(*oei), clearV);
       }
     }
   }
 }
 
-/*!
- \brief Has cycle exception struct
-
- Has cycle exception used by cycle detector and passes
- back edge to already discovered vertex.
- */
-struct has_cycle : public std::exception {
-    explicit has_cycle(Edge d) : d_(d) {}
-    const Edge edge() const throw() {
-      return d_;
-    }
-
-  protected:
-    Edge d_;
-};
-
-/*!
- \brief Visitor function cycle detector struct
-
- Visitor function object passed to depth_first_search.
- Contains back_edge method that is called when the depth_first_search
- explores an edge to an already discovered vertex.
- */
-struct cycle_detector : public boost::default_dfs_visitor {
-    void back_edge(Edge edge_t, const Graph &) {
-      throw has_cycle(edge_t);
-    }
-};
-
 std::pair<int, std::string> DependencyGraph::checkCyclicDependencies() {
-  // error message
-  std::string error_msg;
-  // visitor cycle detector for use with depth_first_search
-  cycle_detector vis;
-
-  try {
-    // Depth first search applied to graph
-    boost::depth_first_search(*graph_.graph_, visitor(vis));
-    // If cyclic dependency is caught
-  } catch(const has_cycle& err) {
-    // Find associated dependency
-    Dependency * d = graph_.getDependency(err.edge());
-    // Find associated tasks
-    Task * t1 = graph_.getTask(boost::source(err.edge(), *graph_.graph_));
-    Task * t2 = graph_.getTask(boost::target(err.edge(), *graph_.graph_));
-    error_msg.append("Error: cycle detected ");
-    error_msg.append(t1->getName());
-    error_msg.append(" -> ");
-    error_msg.append(d->getName());
-    error_msg.append(" -> ");
-    error_msg.append(t2->getName());
-    error_msg.append("\n");
-    return std::make_pair(1, error_msg);
-  }
-
-  return std::make_pair(0, error_msg);
+  return graph_.checkCyclicDependencies();
 }
 
 std::pair<int, std::string> DependencyGraph::checkFunctionConditions() {
@@ -548,17 +449,17 @@ std::pair<int, std::string> DependencyGraph::checkFunctionConditions() {
   std::string error_msg;
   std::pair<VertexIterator, VertexIterator> vp;
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first) {
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     // If state
     if (graph_.getTask(*vp.first)->getTaskType() == Task::xstate) {
       // If out edges is larger than 1
-      if (boost::out_degree(*vp.first, *graph_.graph_) > 1) {
+      if (graph_.getVertexOutDegree(*vp.first) > 1) {
         boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
         // For each out edge
         for (boost::tie(oei, oei_end) =
-            boost::out_edges(*vp.first, *graph_.graph_);
+            graph_.getVertexOutEdges(*vp.first);
             oei != oei_end; ++oei) {
-          Task * t = graph_.getTask(boost::target((Edge)*oei, *graph_.graph_));
+          Task * t = graph_.getTask(graph_.getEdgeTarget(*oei));
           // If condition is null then return an error
           if (!t->hasCondition()) {
             error_msg.append("Error: Function '");
@@ -575,98 +476,8 @@ std::pair<int, std::string> DependencyGraph::checkFunctionConditions() {
   return std::make_pair(0, error_msg);
 }
 
-struct vertex_label_writer {
-    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
-    void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = vertex2task->at(v).get();
-      if (t->getTaskType() == Task::io_pop_write) {
-        out << " [label=\"";
-        std::set<std::string>::iterator it;
-        for (it = t->getWriteVariables()->begin();
-            it != t->getWriteVariables()->end(); ++it) {
-          out << "" << (*it) << "\\n";
-        }
-        out << "\" shape=folder, style=filled, fillcolor=orange]";
-      } else {
-        out << " [label=\"";
-        if (t->getTaskType() == Task::xmessage_sync)
-          out << "SYNC: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::xmessage_clear)
-          out << "CLEAR: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::start_model)
-          out << "Start\\n" << t->getParentName() << "\"";
-        else if (t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::finish_model)
-          out << "Finish\\n" << t->getParentName() << "\"";
-        else
-          out << t->getName() << "\"";
-        if (t->getTaskType() == Task::xfunction)
-          out << " shape=rect, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::xcondition)
-          out << " shape=invhouse, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::start_model ||
-            t->getTaskType() == Task::finish_model)
-          out << " shape=ellipse, style=filled, fillcolor=red";
-        if (t->getTaskType() == Task::xvariable ||
-            t->getTaskType() == Task::xstate)
-          out << " shape=ellipse, style=filled, fillcolor=white";
-        if (t->getTaskType() == Task::xmessage_clear ||
-            t->getTaskType() == Task::xmessage_sync ||
-            t->getTaskType() == Task::xmessage) {
-          out << " shape=parallelogram, style=filled, ";
-          out << "fillcolor=lightblue";
-        }
-        if (t->getTaskType() == Task::io_pop_write)
-          out << " shape=folder, style=filled, fillcolor=orange";
-        out << "]";
-      }
-    }
-
-  protected:
-    std::vector<TaskPtr> * vertex2task;
-};
-
-struct edge_label_writer {
-    enum ArrowType { arrowForward = 0, arrowBackward };
-    edge_label_writer(EdgeMap * em,
-        ArrowType at) :
-          edge2dependency(em),
-          arrowType(at) {}
-    void operator()(std::ostream& out, const Edge& e) const {
-      Dependency * d = 0;
-      EdgeMap::iterator it = edge2dependency->find(e);
-      if (it != edge2dependency->end()) d = (*it).second;
-      out << " [";
-      if (d) if (d->getDependencyType() != Dependency::blank)
-        out << "label=\"" << d->getGraphName() << "\" ";
-      if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
-      out << "]";
-    }
-  protected:
-    EdgeMap * edge2dependency;
-    ArrowType arrowType;
-};
-
-struct graph_writer {
-    void operator()(std::ostream& /*out*/) const {
-      // out << "node [shape = rect]" << std::endl;
-    }
-};
-
 void DependencyGraph::writeGraphviz(const std::string& fileName) const {
-  std::fstream graphfile;
-  graphfile.open(fileName.c_str(), std::fstream::out);
-
-  boost::write_graphviz(graphfile, *graph_.graph_,
-      vertex_label_writer(graph_.vertex2task_),
-      edge_label_writer(graph_.edge2dependency_,
-          edge_label_writer::arrowForward),
-          graph_writer());
-
-  graphfile.clear();
+  graph_.writeGraphviz(fileName);
 }
 
 TaskIdSet DependencyGraph::getAgentTasks() const {
@@ -674,7 +485,7 @@ TaskIdSet DependencyGraph::getAgentTasks() const {
   TaskIdSet tasks;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first) {
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     Task * t = graph_.getTask(*vp.first);
     Task::TaskType type = t->getTaskType();
 
@@ -691,7 +502,7 @@ TaskIdSet DependencyGraph::getAgentIOTasks() const {
   TaskIdSet tasks;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first)
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
     // If data task
     if (graph_.getTask(*vp.first)->getTaskType() == Task::io_pop_write)
       tasks.insert(*vp.first);
@@ -703,7 +514,7 @@ TaskId DependencyGraph::getInitIOTask() const {
   std::pair<VertexIterator, VertexIterator> vp;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first)
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
     // If start data task
     if (graph_.getTask(*vp.first)->getTaskType() == Task::start_model)
       return *vp.first;
@@ -716,7 +527,7 @@ TaskId DependencyGraph::getFinIOTask() const {
   std::pair<VertexIterator, VertexIterator> vp;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first)
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
     // If finish data task
     if (graph_.getTask(*vp.first)->getTaskType() == Task::finish_model)
       return *vp.first;
@@ -730,7 +541,7 @@ TaskIdSet DependencyGraph::getMessageBoardSyncTasks() const {
   TaskIdSet tasks;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first)
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
     // if message sync task
     if (graph_.getTask(*vp.first)->getTaskType() == Task::xmessage_sync)
       tasks.insert(*vp.first);
@@ -743,7 +554,7 @@ TaskIdSet DependencyGraph::getMessageBoardClearTasks() const {
   TaskIdSet tasks;
 
   // For each vertex
-  for (vp = boost::vertices(*graph_.graph_); vp.first != vp.second; ++vp.first) {
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     // if message clear task
     if (graph_.getTask(*vp.first)->getTaskType() == Task::xmessage_clear)
       tasks.insert(*vp.first);
@@ -757,12 +568,13 @@ TaskIdMap DependencyGraph::getTaskDependencies() const {
   TaskIdMap dependencies;
 
   // For each edge
-  for (boost::tie(iei, iei_end) = boost::edges(*graph_.graph_);
+  for (boost::tie(iei, iei_end) = graph_.getEdges();
       iei != iei_end; ++iei) {
     // Get the source
-    TaskId source = boost::source((Edge)*iei, *graph_.graph_);
+    Edge e = (Edge)*iei;
+    TaskId source = graph_.getEdgeSource(e);
     // Get the target
-    TaskId target = boost::target((Edge)*iei, *graph_.graph_);
+    TaskId target = graph_.getEdgeTarget(e);
     // Add dependency
     dependencies.insert(std::pair<TaskId, TaskId>(target, source));
   }
@@ -804,15 +616,14 @@ bool DependencyGraph::dependencyExists(std::string name1, std::string name2) {
   size_t ii;
 
   // For each task find vertex of task names
-  for (ii = 0; ii < graph_.vertex2task_->size(); ++ii) {
-    if (graph_.vertex2task_->at(ii)->getName() == name1) v1 = ii;
-    if (graph_.vertex2task_->at(ii)->getName() == name2) v2 = ii;
+  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii) {
+    if (graph_.getVertexTaskMap()->at(ii)->getName() == name1) v1 = ii;
+    if (graph_.getVertexTaskMap()->at(ii)->getName() == name2) v2 = ii;
   }
   // If either vertex not found then return false
   if (v1 == -1 || v2 == -1) return false;
   // Check for edge between vertices
-  std::pair<Edge, bool> p = boost::edge((Vertex)v1, (Vertex)v2, *graph_.graph_);
-  return p.second;
+  return graph_.edgeExists(v1, v2);
 }
 
 Vertex DependencyGraph::addTestVertex(Task * t) {
@@ -825,11 +636,11 @@ void DependencyGraph::addTestEdge(Vertex to, Vertex from, std::string name,
 }
 
 void DependencyGraph::setTestStartTask(Task * task) {
-  setStartTask(task);
+  graph_.setStartTask(task);
 }
 
 void DependencyGraph::addTestEndTask(Task * task) {
-  graph_.endTasks_.insert(task);
+  graph_.addEndTask(task);
 }
 #endif
 

@@ -43,7 +43,7 @@ class DependencyGraph {
     void setName(std::string name);
     void import(DependencyGraph * graph);
     std::vector<TaskPtr> * getVertexTaskMap();
-    Graph * getGraph() { return graph_.graph_; }
+    XGraph * getGraph() { return &graph_; }
     void writeGraphviz(const std::string& fileName) const;
     void importGraphs(std::set<DependencyGraph*> graphs);
     void importStateGraph(StateGraph * stateGraph);
@@ -73,6 +73,7 @@ class DependencyGraph {
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
     XGraph graph_;
+    std::string name_;
 
     Vertex getMessageVertex(std::string name, Task::TaskType type);
     void changeMessageTasksToSync();
@@ -82,12 +83,10 @@ class DependencyGraph {
     int registerAllowMessage(flame::exe::Task * task,
             std::set<std::string> messages, bool post);
     void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
-    void setStartTask(Task * task);
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
     void contractStateVertices();
     void contractVariableVertices();
-    void removeRedundantDependencies();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
     void AddVariableOutput();

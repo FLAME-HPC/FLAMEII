@@ -16,8 +16,8 @@
 
 namespace flame { namespace model {
 
-DataDependencyAnalyser::DataDependencyAnalyser(XGraph * graph)
-  : graph_(graph) {}
+DataDependencyAnalyser::DataDependencyAnalyser(XGraph * graph, std::string name)
+  : graph_(graph), name_(name) {}
 
 void clearVarWriteSet(std::string name,
     VarMapToVertices * lastWrites) {
@@ -55,11 +55,10 @@ void copyVarWriteSets(VarMapToVertices * from, VarMapToVertices * to) {
 void DataDependencyAnalyser::addStartTask(boost::ptr_vector<XVariable> * variables) {
   boost::ptr_vector<XVariable>::iterator i;
   // Add init function to provide first writes of all variables
-  Task * initTask = new Task(graph_->name_, std::string(graph_->name_),
-      Task::start_agent);
+  Task * initTask = new Task(name_, name_, Task::start_agent);
   Vertex initVertex = graph_->addVertex(initTask);
   // Add edge from init to start vertex
-  graph_->addEdge(graph_->getVertex(initTask), graph_->getVertex(graph_->startTask_),
+  graph_->addEdge(initVertex, graph_->getVertex(graph_->getStartTask()),
       "Start", Dependency::init);
   // Add all variables to init task write list
   for (i = variables->begin(); i != variables->end(); ++i) {
@@ -74,11 +73,10 @@ void DataDependencyAnalyser::addStartTask(boost::ptr_vector<XVariable> * variabl
 void DataDependencyAnalyser::addEndTask() {
   std::set<Task*>::iterator t_it;
   // Add end function to provide last writes to ioput
-  graph_->endTask_ = new Task(graph_->name_, std::string(graph_->name_),
-      Task::finish_agent);
-  Vertex v = graph_->addVertex(graph_->endTask_);
-  for (t_it = graph_->endTasks_.begin(); t_it != graph_->endTasks_.end(); ++t_it)
-    graph_->addEdge(graph_->getVertex((*t_it)), v, "End", Dependency::init);
+  graph_->setEndTask(new Task(name_, name_, Task::finish_agent));
+  Vertex v = graph_->addVertex(graph_->getEndTask());
+  for (t_it = graph_->getEndTasks()->begin(); t_it != graph_->getEndTasks()->end(); ++t_it)
+    graph_->addEdge(graph_->getVertex(*t_it), v, "End", Dependency::init);
 }
 
 void DataDependencyAnalyser::copyWritingAndReadingVerticesFromInEdges(Vertex v,
@@ -86,9 +84,9 @@ void DataDependencyAnalyser::copyWritingAndReadingVerticesFromInEdges(Vertex v,
   boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
 
   // For each in edge task
-  boost::tie(iei, iei_end) = boost::in_edges(v, *graph_->graph_);
+  boost::tie(iei, iei_end) = graph_->getVertexInEdges(v);
   for (; iei != iei_end; ++iei) {
-    Task * t = graph_->getTask(boost::source((Edge)*iei, *graph_->graph_));
+    Task * t = graph_->getTask(graph_->getEdgeSource((Edge)*iei));
     // Copy last writing from incoming functions
     copyVarWriteSets(t->getLastWrites(), task->getLastWrites());
     // Copy last reading from incoming functions
@@ -197,7 +195,7 @@ void DataDependencyAnalyser::addDataDependencies(
   addEndTask();
 
   // Create topological sorted list of vertices
-  boost::topological_sort(*graph_->graph_, std::back_inserter(sorted_vertices));
+  sorted_vertices = graph_->getTopologicalSortedVertices();
 
   // For each vertex in topological order
   // Iterate in reverse as output order is reversed

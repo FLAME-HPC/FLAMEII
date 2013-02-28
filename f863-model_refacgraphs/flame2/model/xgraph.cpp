@@ -115,16 +115,21 @@ void XGraph::removeDependency(Edge e) {
   boost::remove_edge(e, *graph_);
 }
 
+Edge XGraph::addEdge(Vertex to, Vertex from) {
+  std::pair<Edge, bool> e = add_edge(to, from, *graph_);
+  return e.first;
+}
+
 Edge XGraph::addEdge(Vertex to, Vertex from, std::string name,
     Dependency::DependencyType type) {
   // Create dependency from name and type
   Dependency * d = new Dependency(name, type);
   // Add edge to graph
-  std::pair<Edge, bool> e = add_edge(to, from, *graph_);
+  Edge e = addEdge(to, from);
   // Add mapping from edge to dependency
-  edge2dependency_->insert(std::make_pair(e.first, d));
+  edge2dependency_->insert(std::make_pair(e, d));
   // Return edge
-  return e.first;
+  return e;
 }
 
 Vertex XGraph::getVertex(Task * t) {
@@ -157,16 +162,346 @@ Dependency * XGraph::getDependency(Edge e) {
   return d;
 }
 
-Vertex XGraph::getEdgeSource(Edge e) {
+Vertex XGraph::getEdgeSource(Edge e) const {
   return boost::source(e, *graph_);
 }
 
-Vertex XGraph::getEdgeTarget(Edge e) {
+Vertex XGraph::getEdgeTarget(Edge e) const {
   return boost::target(e, *graph_);
 }
 
-std::pair<EdgeIterator, EdgeIterator> XGraph::getEdges() {
+std::pair<EdgeIterator, EdgeIterator> XGraph::getEdges() const {
   return boost::edges(*graph_);
+}
+
+std::pair<VertexIterator, VertexIterator> XGraph::getVertices() const {
+  return boost::vertices(*graph_);
+}
+
+int XGraph::getVertexOutDegree(Vertex v) const {
+  return boost::out_degree(v, *graph_);
+}
+
+std::pair<InEdgeIterator, InEdgeIterator> XGraph::getVertexInEdges(Vertex v) const {
+  return boost::in_edges(v, *graph_);
+}
+
+std::pair<OutEdgeIterator, OutEdgeIterator> XGraph::getVertexOutEdges(Vertex v) const {
+  return boost::out_edges(v, *graph_);
+}
+
+void XGraph::removeRedundantDependencies() {
+  size_t ii;
+  // The resultant transitive reduction graph
+  Graph * trgraph = new Graph;
+  std::vector<TaskPtr> * trvertex2task =
+      new std::vector<TaskPtr>(vertex2task_->size());
+
+  // Create a map to get a property of a graph, in this case the vertex index
+  typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
+      VertexIndexMap;
+  VertexIndexMap index_map = get(boost::vertex_index, *graph_);
+  // A vector of vertices to hold trgraph vertices
+  std::vector<Vertex> to_tc_vec(boost::num_vertices(*graph_));
+  // Property map iterator
+  // Iterator: Vertex *
+  // OffsetMap: VertexIndexMap
+  // Value type of iterator: Vertex
+  // Reference type of iterator: Vertex&
+  boost::iterator_property_map<Vertex *, VertexIndexMap, Vertex, Vertex&>
+  g_to_tc_map(&to_tc_vec[0], index_map);
+
+  boost::transitive_reduction(*graph_, *trgraph, g_to_tc_map, index_map);
+
+  // Create new vertex task mapping for trgraph
+  for (ii = 0; ii < boost::num_vertices(*graph_); ++ii)
+    trvertex2task->at(to_tc_vec[ii]) = vertex2task_->at(ii);
+
+  // Make graph_ point to trgraph
+  delete graph_;
+  graph_ = trgraph;
+  // Make vertex2task_ point to trvertex2task
+  delete vertex2task_;
+  vertex2task_ = trvertex2task;
+  // Clear edge2dependency_ as edges no longer valid
+  EdgeMap::iterator eit;
+  for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
+    delete ((*eit).second);
+  edge2dependency_->clear();
+}
+
+/*!
+ \brief Has cycle exception struct
+
+ Has cycle exception used by cycle detector and passes
+ back edge to already discovered vertex.
+ */
+struct has_cycle : public std::exception {
+    explicit has_cycle(Edge d) : d_(d) {}
+    const Edge edge() const throw() {
+      return d_;
+    }
+
+  protected:
+    Edge d_;
+};
+
+/*!
+ \brief Visitor function cycle detector struct
+
+ Visitor function object passed to depth_first_search.
+ Contains back_edge method that is called when the depth_first_search
+ explores an edge to an already discovered vertex.
+ */
+struct cycle_detector : public boost::default_dfs_visitor {
+    void back_edge(Edge edge_t, const Graph &) {
+      throw has_cycle(edge_t);
+    }
+};
+
+std::pair<int, std::string> XGraph::checkCyclicDependencies() {
+  // error message
+  std::string error_msg;
+  // visitor cycle detector for use with depth_first_search
+  cycle_detector vis;
+
+  try {
+    // Depth first search applied to graph
+    boost::depth_first_search(*graph_, visitor(vis));
+    // If cyclic dependency is caught
+  } catch(const has_cycle& err) {
+    // Find associated dependency
+    Dependency * d = getDependency(err.edge());
+    // Find associated tasks
+    Task * t1 = getTask(boost::source(err.edge(), *graph_));
+    Task * t2 = getTask(boost::target(err.edge(), *graph_));
+    error_msg.append("Error: cycle detected ");
+    error_msg.append(t1->getName());
+    error_msg.append(" -> ");
+    error_msg.append(d->getName());
+    error_msg.append(" -> ");
+    error_msg.append(t2->getName());
+    error_msg.append("\n");
+    return std::make_pair(1, error_msg);
+  }
+
+  return std::make_pair(0, error_msg);
+}
+
+
+struct vertex_label_writer {
+    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
+    void operator()(std::ostream& out, const Vertex& v) const {
+      Task * t = vertex2task->at(v).get();
+      if (t->getTaskType() == Task::io_pop_write) {
+        out << " [label=\"";
+        std::set<std::string>::iterator it;
+        for (it = t->getWriteVariables()->begin();
+            it != t->getWriteVariables()->end(); ++it) {
+          out << "" << (*it) << "\\n";
+        }
+        out << "\" shape=folder, style=filled, fillcolor=orange]";
+      } else {
+        out << " [label=\"";
+        if (t->getTaskType() == Task::xmessage_sync)
+          out << "SYNC: " << t->getName() << "\"";
+        else if (t->getTaskType() == Task::xmessage_clear)
+          out << "CLEAR: " << t->getName() << "\"";
+        else if (t->getTaskType() == Task::start_agent ||
+            t->getTaskType() == Task::start_model)
+          out << "Start\\n" << t->getParentName() << "\"";
+        else if (t->getTaskType() == Task::finish_agent ||
+            t->getTaskType() == Task::finish_model)
+          out << "Finish\\n" << t->getParentName() << "\"";
+        else
+          out << t->getName() << "\"";
+        if (t->getTaskType() == Task::xfunction)
+          out << " shape=rect, style=filled, fillcolor=yellow";
+        if (t->getTaskType() == Task::xcondition)
+          out << " shape=invhouse, style=filled, fillcolor=yellow";
+        if (t->getTaskType() == Task::start_agent ||
+            t->getTaskType() == Task::finish_agent ||
+            t->getTaskType() == Task::start_model ||
+            t->getTaskType() == Task::finish_model)
+          out << " shape=ellipse, style=filled, fillcolor=red";
+        if (t->getTaskType() == Task::xvariable ||
+            t->getTaskType() == Task::xstate)
+          out << " shape=ellipse, style=filled, fillcolor=white";
+        if (t->getTaskType() == Task::xmessage_clear ||
+            t->getTaskType() == Task::xmessage_sync ||
+            t->getTaskType() == Task::xmessage) {
+          out << " shape=parallelogram, style=filled, ";
+          out << "fillcolor=lightblue";
+        }
+        if (t->getTaskType() == Task::io_pop_write)
+          out << " shape=folder, style=filled, fillcolor=orange";
+        out << "]";
+      }
+    }
+
+  protected:
+    std::vector<TaskPtr> * vertex2task;
+};
+
+struct edge_label_writer {
+    enum ArrowType { arrowForward = 0, arrowBackward };
+    edge_label_writer(EdgeMap * em,
+        ArrowType at) :
+          edge2dependency(em),
+          arrowType(at) {}
+    void operator()(std::ostream& out, const Edge& e) const {
+      Dependency * d = 0;
+      EdgeMap::iterator it = edge2dependency->find(e);
+      if (it != edge2dependency->end()) d = (*it).second;
+      out << " [";
+      if (d) if (d->getDependencyType() != Dependency::blank)
+        out << "label=\"" << d->getGraphName() << "\" ";
+      if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
+      out << "]";
+    }
+  protected:
+    EdgeMap * edge2dependency;
+    ArrowType arrowType;
+};
+
+struct graph_writer {
+    void operator()(std::ostream& /*out*/) const {
+      // out << "node [shape = rect]" << std::endl;
+    }
+};
+
+/*  stategraph
+
+struct vertex_label_writer {
+    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
+    void operator()(std::ostream& out, const Vertex& v) const {
+      Task * t = vertex2task->at(v).get();
+      if (t->getTaskType() == Task::io_pop_write) {
+        out << " [label=\"";
+        std::set<std::string>::iterator it;
+        for (it = t->getWriteVariables()->begin();
+            it != t->getWriteVariables()->end(); ++it) {
+          out << "" << (*it) << "\\n";
+        }
+        out << "\" shape=folder, style=filled, fillcolor=orange]";
+      } else {
+        out << " [label=\"";
+        if (t->getTaskType() == Task::xmessage_sync)
+          out << "SYNC: " << t->getName() << "\"";
+        else if (t->getTaskType() == Task::xmessage_clear)
+          out << "CLEAR: " << t->getName() << "\"";
+        else if (t->getTaskType() == Task::start_agent ||
+            t->getTaskType() == Task::start_model)
+          out << "Start\\n" << t->getParentName() << "\"";
+        else if (t->getTaskType() == Task::finish_agent ||
+            t->getTaskType() == Task::finish_model)
+          out << "Finish\\n" << t->getParentName() << "\"";
+        else
+          out << t->getName() << "\"";
+        if (t->getTaskType() == Task::xfunction)
+          out << " shape=rect, style=filled, fillcolor=yellow";
+        if (t->getTaskType() == Task::xcondition)
+          out << " shape=invhouse, style=filled, fillcolor=yellow";
+        if (t->getTaskType() == Task::start_agent ||
+            t->getTaskType() == Task::finish_agent ||
+            t->getTaskType() == Task::start_model ||
+            t->getTaskType() == Task::finish_model)
+          out << " shape=ellipse, style=filled, fillcolor=red";
+        if (t->getTaskType() == Task::xvariable ||
+            t->getTaskType() == Task::xstate)
+          out << " shape=ellipse, style=filled, fillcolor=white";
+        if (t->getTaskType() == Task::xmessage_clear ||
+            t->getTaskType() == Task::xmessage_sync ||
+            t->getTaskType() == Task::xmessage) {
+          out << " shape=parallelogram, style=filled, ";
+          out << "fillcolor=lightblue";
+        }
+        if (t->getTaskType() == Task::io_pop_write)
+          out << " shape=folder, style=filled, fillcolor=orange";
+        out << "]";
+      }
+    }
+
+  protected:
+    std::vector<TaskPtr> * vertex2task;
+};
+
+struct edge_label_writer {
+    enum ArrowType { arrowForward = 0, arrowBackward };
+    edge_label_writer(EdgeMap * em,
+        ArrowType at) :
+          edge2dependency(em),
+          arrowType(at) {}
+    void operator()(std::ostream& out, const Edge& e) const {
+      Dependency * d = 0;
+      EdgeMap::iterator it = edge2dependency->find(e);
+      if (it != edge2dependency->end()) d = (*it).second;
+      out << " [";
+      if (d) if (d->getDependencyType() != Dependency::blank)
+        out << "label=\"" << d->getGraphName() << "\" ";
+      if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
+      out << "]";
+    }
+  protected:
+    EdgeMap * edge2dependency;
+    ArrowType arrowType;
+};
+*/
+
+void XGraph::writeGraphviz(const std::string& fileName) const {
+  std::fstream graphfile;
+  graphfile.open(fileName.c_str(), std::fstream::out);
+
+  boost::write_graphviz(graphfile, *graph_,
+      vertex_label_writer(vertex2task_),
+      edge_label_writer(edge2dependency_,
+          edge_label_writer::arrowForward),
+          graph_writer());
+
+  graphfile.clear();
+}
+
+bool XGraph::edgeExists(Vertex v1, Vertex v2) const {
+  std::pair<Edge, bool> p = boost::edge(v1, v2, *graph_);
+  return p.second;
+}
+
+std::vector<Vertex> XGraph::getTopologicalSortedVertices() {
+  std::vector<Vertex> sorted_vertices;
+  boost::topological_sort(*graph_, std::back_inserter(sorted_vertices));
+  return sorted_vertices;
+}
+
+void XGraph::setStartTask(Task * task) {
+  startTask_ = task;
+}
+
+Task * XGraph::getStartTask() {
+  return startTask_;
+}
+
+void XGraph::setEndTask(Task * task) {
+  endTask_ = task;
+}
+
+Task * XGraph::getEndTask() {
+  return endTask_;
+}
+
+void XGraph::addEndTask(Task * task) {
+  endTasks_.insert(task);
+}
+
+std::set<Task*> * XGraph::getEndTasks() {
+  return &endTasks_;
+}
+
+std::vector<TaskPtr> * XGraph::getVertexTaskMap() {
+  return vertex2task_;
+}
+
+EdgeMap * XGraph::getEdgeDependencyMap() {
+  return edge2dependency_;
 }
 
 }}   // namespace flame::model

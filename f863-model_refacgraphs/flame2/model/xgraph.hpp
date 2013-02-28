@@ -40,6 +40,13 @@ typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
 //! \brief Define edge mapping
 typedef std::map<Edge, Dependency *> EdgeMap;
+//! \brief Define out edge iterator
+typedef boost::graph_traits<Graph>::out_edge_iterator OutEdgeIterator;
+//! \brief Define in edge iterator
+typedef boost::graph_traits<Graph>::in_edge_iterator InEdgeIterator;
+
+typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
+      VertexIndexMap;
 
 //! Use a shared pointer to automatically handle Task pointers
 typedef boost::shared_ptr<Task> TaskPtr;
@@ -56,6 +63,7 @@ class XGraph {
     ~XGraph();
     Vertex addVertex(Task * t);
     Vertex addVertex(TaskPtr ptr);
+    Edge addEdge(Vertex to, Vertex from);
     Edge addEdge(Vertex to, Vertex from, std::string name,
     Dependency::DependencyType type);
     void removeDependency(Edge e);
@@ -64,12 +72,28 @@ class XGraph {
     Dependency * getDependency(Edge e);
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
-    Vertex getEdgeSource(Edge e);
-    Vertex getEdgeTarget(Edge e);
-    std::pair<EdgeIterator, EdgeIterator> getEdges();
+    Vertex getEdgeSource(Edge e) const;
+    Vertex getEdgeTarget(Edge e) const;
+    std::pair<EdgeIterator, EdgeIterator> getEdges() const;
+    std::pair<VertexIterator, VertexIterator> getVertices() const;
+    int getVertexOutDegree(Vertex v) const;
+    std::pair<InEdgeIterator, InEdgeIterator> getVertexInEdges(Vertex v) const;
+    std::pair<OutEdgeIterator, OutEdgeIterator> getVertexOutEdges(Vertex v) const;
+    void removeRedundantDependencies();
+    std::pair<int, std::string> checkCyclicDependencies();
+    void writeGraphviz(const std::string& fileName) const;
+    bool edgeExists(Vertex v1, Vertex v2) const;
+    std::vector<Vertex> getTopologicalSortedVertices();
+    void setStartTask(Task * task);
+    Task * getStartTask();
+    void setEndTask(Task * task);
+    Task * getEndTask();
+    void addEndTask(Task * task);
+    std::set<Task*> * getEndTasks();
+    std::vector<TaskPtr> * getVertexTaskMap();
+    EdgeMap * getEdgeDependencyMap();
 
-  //  private:
-    std::string name_;
+  private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
     Graph * graph_;
     /*! \brief Ptr to vertex task so that mappings can be swapped */
@@ -77,7 +101,7 @@ class XGraph {
     EdgeMap * edge2dependency_;
     Task * startTask_;
     Task * endTask_;
-    std::set<Task *> endTasks_;
+    std::set<Task*> endTasks_;
 };
 
 }}  // namespace flame::model
