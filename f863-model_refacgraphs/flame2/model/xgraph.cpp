@@ -31,7 +31,6 @@ namespace flame { namespace model {
 XGraph::XGraph() {
   // Initialise pointers
   graph_ = new Graph;
-  vertex2task_ = new std::vector<TaskPtr>;
   edge2dependency_ = new EdgeMap;
   endTask_ = 0;
   startTask_ = 0;
@@ -39,8 +38,6 @@ XGraph::XGraph() {
 
 XGraph::~XGraph() {
   EdgeMap::iterator eit;
-  // Free vertex task mapping
-  delete vertex2task_;
   // Free edge dependency mapping
   for (eit = edge2dependency_->begin();
       eit != edge2dependency_->end(); ++eit)
@@ -51,21 +48,17 @@ XGraph::~XGraph() {
 }
 
 Vertex XGraph::addVertex(Task * t) {
-  // Add vertex to graph
-  Vertex v = add_vertex(*graph_);
   // create new shared ptr for Task pointer
   TaskPtr ptr(t);
-  // Add task to vertex task mapping
-  vertex2task_->push_back(ptr);
   // Return vertex
-  return v;
+  return addVertex(ptr);
 }
 
 Vertex XGraph::addVertex(TaskPtr ptr) {
   // Add vertex to graph
   Vertex v = add_vertex(*graph_);
   // Add task to vertex task mapping
-  vertex2task_->push_back(ptr);
+  tasklist_.addTask(ptr);
   // Return vertex
   return v;
 }
@@ -88,7 +81,7 @@ void XGraph::removeVertex(Vertex v) {
   for (eit = edgesToRemove.begin(); eit != edgesToRemove.end(); ++eit)
     removeDependency(*eit);
   // Remove task from vertex to task mapping mapping
-  vertex2task_->erase(vertex2task_->begin() + v);
+  tasklist_.removeTask(v);
   // Remove edge from graph
   boost::remove_vertex(v, *graph_);
 }
@@ -128,23 +121,11 @@ Edge XGraph::addEdge(Vertex to, Vertex from, std::string name,
 }
 
 Vertex XGraph::getVertex(Task * t) {
-  size_t ii;
-  // Find index of task in vertex task mapping
-  // The index corresponds to the vertex number
-  for (ii = 0; ii < vertex2task_->size(); ++ii)
-    if (vertex2task_->at(ii).get() == t) return ii;
-  return 0;
+  return tasklist_.getIndex(t);
 }
 
 Task * XGraph::getTask(Vertex v) const {
-  int index = static_cast<int>(v);
-
-  if (index < 0 || index >= static_cast<int>(vertex2task_->size()))
-    throw flame::exceptions::flame_model_exception(
-      "Task id does not exist");
-
-  // Return task at index v
-  return vertex2task_->at(v).get();
+  return tasklist_.getTask(v);
 }
 
 Dependency * XGraph::getDependency(Edge e) {
@@ -190,7 +171,7 @@ void XGraph::removeRedundantDependencies() {
   // The resultant transitive reduction graph
   Graph * trgraph = new Graph;
   std::vector<TaskPtr> * trvertex2task =
-      new std::vector<TaskPtr>(vertex2task_->size());
+      new std::vector<TaskPtr>(tasklist_.vertex2task_->size());
 
   // Create a map to get a property of a graph, in this case the vertex index
   typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
@@ -210,14 +191,14 @@ void XGraph::removeRedundantDependencies() {
 
   // Create new vertex task mapping for trgraph
   for (ii = 0; ii < boost::num_vertices(*graph_); ++ii)
-    trvertex2task->at(to_tc_vec[ii]) = vertex2task_->at(ii);
+    trvertex2task->at(to_tc_vec[ii]) = tasklist_.vertex2task_->at(ii);
 
   // Make graph_ point to trgraph
   delete graph_;
   graph_ = trgraph;
   // Make vertex2task_ point to trvertex2task
-  delete vertex2task_;
-  vertex2task_ = trvertex2task;
+  delete tasklist_.vertex2task_;
+  tasklist_.vertex2task_ = trvertex2task;
   // Clear edge2dependency_ as edges no longer valid
   EdgeMap::iterator eit;
   for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
@@ -448,7 +429,7 @@ void XGraph::writeGraphviz(const std::string& fileName) const {
   graphfile.open(fileName.c_str(), std::fstream::out);
 
   boost::write_graphviz(graphfile, *graph_,
-      vertex_label_writer(vertex2task_),
+      vertex_label_writer(tasklist_.vertex2task_),
       edge_label_writer(edge2dependency_,
           edge_label_writer::arrowForward),
           graph_writer());
@@ -492,7 +473,7 @@ std::set<Task*> * XGraph::getEndTasks() {
 }
 
 std::vector<TaskPtr> * XGraph::getVertexTaskMap() {
-  return vertex2task_;
+  return tasklist_.vertex2task_;
 }
 
 EdgeMap * XGraph::getEdgeDependencyMap() {

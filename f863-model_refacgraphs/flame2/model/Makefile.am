@@ -15,6 +15,7 @@ module_headers = \
   dependencygraph.hpp \
   model.hpp \
   stategraph.hpp \
+  task_list.hpp \
   task.hpp \
   xadt.hpp \
   xcondition.hpp \
@@ -35,6 +36,7 @@ module_sources = \
   dependencygraph.cpp \
   model.cpp \
   stategraph.cpp \
+  task_list.cpp \
   task.cpp \
   xadt.cpp \
   xcondition.cpp \
