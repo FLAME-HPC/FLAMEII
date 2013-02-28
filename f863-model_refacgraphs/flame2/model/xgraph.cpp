@@ -115,21 +115,16 @@ void XGraph::removeDependency(Edge e) {
   boost::remove_edge(e, *graph_);
 }
 
-Edge XGraph::addEdge(Vertex to, Vertex from) {
-  std::pair<Edge, bool> e = add_edge(to, from, *graph_);
-  return e.first;
-}
-
 Edge XGraph::addEdge(Vertex to, Vertex from, std::string name,
     Dependency::DependencyType type) {
   // Create dependency from name and type
   Dependency * d = new Dependency(name, type);
   // Add edge to graph
-  Edge e = addEdge(to, from);
+  std::pair<Edge, bool> e = add_edge(to, from, *graph_);
   // Add mapping from edge to dependency
-  edge2dependency_->insert(std::make_pair(e, d));
+  edge2dependency_->insert(std::make_pair(e.first, d));
   // Return edge
-  return e;
+  return e.first;
 }
 
 Vertex XGraph::getVertex(Task * t) {

@@ -62,10 +62,10 @@ class XGraph {
     XGraph();
     ~XGraph();
     Vertex addVertex(Task * t);
+    //! Required when importing graphs to model graph
     Vertex addVertex(TaskPtr ptr);
-    Edge addEdge(Vertex to, Vertex from);
     Edge addEdge(Vertex to, Vertex from, std::string name,
-    Dependency::DependencyType type);
+      Dependency::DependencyType type);
     void removeDependency(Edge e);
     Vertex getVertex(Task * t);
     Task * getTask(Vertex v) const;

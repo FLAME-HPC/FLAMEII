@@ -304,13 +304,13 @@ void DependencyGraph::changeMessageTasksToSync() {
       // For each incoming edge to message add to start
       for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(ii);
           iei != iei_end; ++iei) {
-        graph_.addEdge(graph_.getEdgeSource(*iei), s);
+        graph_.addEdge(graph_.getEdgeSource(*iei), s, "", Dependency::blank);
         edgesToRemove.insert(*iei);
       }
       // For each out going edge to message add to finish
       for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(ii);
           oei != oei_end; ++oei) {
-        graph_.addEdge(s, graph_.getEdgeTarget(*oei));
+        graph_.addEdge(s, graph_.getEdgeTarget(*oei), "", Dependency::blank);
         edgesToRemove.insert(*oei);
       }
       // delete message task
@@ -339,10 +339,10 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
     if (v2t->at(ii)->getTaskType() == Task::start_agent)
-      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v);
+      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v, "", Dependency::blank);
     // If task is a data output task then add edge
     if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
-      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()));
+      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()), "", Dependency::blank);
     // If start task make start task
     if (v2t->at(ii)->startTask()) graph_.setStartTask(v2t->at(ii).get());
     // If end task add to end tasks
@@ -376,10 +376,10 @@ void DependencyGraph::import(DependencyGraph * graph) {
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
     if (v2t->at(ii)->getTaskType() == Task::start_agent)
-      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v);
+      graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v, "", Dependency::blank);
     // If task is a data output task then add edge
     if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
-      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()));
+      graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()), "", Dependency::blank);
   }
   // For each edge
   for (boost::tie(eit, end) = graph->getGraph()->getEdges();
@@ -389,7 +389,7 @@ void DependencyGraph::import(DependencyGraph * graph) {
     Vertex t = graph->getGraph()->getEdgeTarget(*eit);
     Vertex ns = (*(import2new.find(s))).second;
     Vertex nt = (*(import2new.find(t))).second;
-    graph_.addEdge(ns, nt);
+    graph_.addEdge(ns, nt, "", Dependency::blank);
   }
 }
 
@@ -434,7 +434,7 @@ void DependencyGraph::addMessageClearTasks() {
       for (boost::tie(oei, oei_end) =
           graph_.getVertexOutEdges(*vi); oei != oei_end; ++oei) {
         // Add edge from target tasks to clear task
-        graph_.addEdge(graph_.getEdgeTarget(*oei), clearV);
+        graph_.addEdge(graph_.getEdgeTarget(*oei), clearV, "", Dependency::blank);
       }
     }
   }

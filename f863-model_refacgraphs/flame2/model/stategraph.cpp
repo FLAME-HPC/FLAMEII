@@ -228,7 +228,7 @@ void StateGraph::importStateGraphs(std::set<StateGraph*> graphs) {
       Vertex t = (*it)->getEdgeTarget(*eit); //boost::target(*eit, *((*it)->getGraph()));
       Vertex ns = (*(import2new.find(s))).second;
       Vertex nt = (*(import2new.find(t))).second;
-      graph_.addEdge(ns, nt);
+      graph_.addEdge(ns, nt, "", Dependency::blank);
     }
   }
 }

@@ -57,8 +57,9 @@ class StateGraph {
     std::pair<EdgeIterator, EdgeIterator> getEdges();
 
   private:
-    /*! \brief Ptr to a graph so that graphs can be swapped */
+    //! Underlying graph
     XGraph graph_;
+    //! Name of graph (agent or model name)
     std::string name_;
 
     Task * generateStateGraphStatesAddStateToGraph(
