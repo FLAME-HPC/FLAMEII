@@ -480,4 +480,8 @@ EdgeMap * XGraph::getEdgeDependencyMap() {
   return edge2dependency_;
 }
 
+TaskList XGraph::getTasks() const {
+  return tasklist_;
+}
+
 }}   // namespace flame::model

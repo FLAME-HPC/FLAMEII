@@ -47,4 +47,111 @@ Task * TaskList::getTask(size_t index) const {
   return vertex2task_->at(index).get();
 }
 
+TaskIdSet TaskList::getAgentTasks() const {
+  size_t ii;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // If agent task
+    if (vertex2task_->at(ii)->getTaskType() == Task::xfunction ||
+        vertex2task_->at(ii)->getTaskType() == Task::xcondition)
+      tasks.insert(ii);
+
+  return tasks;
+}
+
+TaskIdSet TaskList::getAgentIOTasks() const {
+  size_t ii;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // If data task
+    if (vertex2task_->at(ii)->getTaskType() == Task::io_pop_write)
+      tasks.insert(ii);
+
+  return tasks;
+}
+
+TaskId TaskList::getInitIOTask() const {
+  size_t ii;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // If start data task
+    if (vertex2task_->at(ii)->getTaskType() == Task::start_model)
+      return ii;
+
+  throw flame::exceptions::flame_model_exception(
+        "Init IO Task does not exist");
+}
+
+TaskId TaskList::getFinIOTask() const {
+  size_t ii;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // If finish data task
+    if (vertex2task_->at(ii)->getTaskType() == Task::finish_model)
+      return ii;
+
+  throw flame::exceptions::flame_model_exception(
+        "Init IO Task does not exist");
+}
+
+TaskIdSet TaskList::getMessageBoardSyncTasks() const {
+  size_t ii;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // if message sync task
+    if (vertex2task_->at(ii)->getTaskType() == Task::xmessage_sync)
+      tasks.insert(ii);
+
+  return tasks;
+}
+
+TaskIdSet TaskList::getMessageBoardClearTasks() const {
+  size_t ii;
+  TaskIdSet tasks;
+
+  // For each vertex
+  for (ii = 0; ii <= vertex2task_->size(); ++ii)
+    // if message clear task
+    if (vertex2task_->at(ii)->getTaskType() == Task::xmessage_clear)
+      tasks.insert(ii);
+
+  return tasks;
+}
+
+std::string TaskList::getTaskName(TaskId id) const {
+  return getTask(id)->getTaskName();
+}
+
+std::string TaskList::getTaskAgentName(TaskId id) const {
+  return getTask(id)->getParentName();
+}
+
+std::string TaskList::getTaskFunctionName(TaskId id) const {
+  return getTask(id)->getName();
+}
+
+StringSet TaskList::getTaskReadOnlyVariables(TaskId id) const {
+  return getTask(id)->getReadOnlyVariablesConst();
+}
+
+StringSet TaskList::getTaskWriteVariables(TaskId id) const {
+  return getTask(id)->getWriteVariablesConst();
+}
+
+StringSet TaskList::getTaskOutputMessages(TaskId id) const {
+  return getTask(id)->getOutputMessagesConst();
+}
+
+StringSet TaskList::getTaskInputMessages(TaskId id) const {
+  return getTask(id)->getInputMessagesConst();
+}
+
 }}  // namespace flame::model

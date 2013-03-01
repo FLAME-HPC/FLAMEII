@@ -479,7 +479,7 @@ std::pair<int, std::string> DependencyGraph::checkFunctionConditions() {
 void DependencyGraph::writeGraphviz(const std::string& fileName) const {
   graph_.writeGraphviz(fileName);
 }
-
+/*
 TaskIdSet DependencyGraph::getAgentTasks() const {
   std::pair<VertexIterator, VertexIterator> vp;
   TaskIdSet tasks;
@@ -562,6 +562,11 @@ TaskIdSet DependencyGraph::getMessageBoardClearTasks() const {
 
   return tasks;
 }
+*/
+
+TaskList DependencyGraph::getTasks() const {
+  return graph_.getTasks();
+}
 
 TaskIdMap DependencyGraph::getTaskDependencies() const {
   boost::graph_traits<Graph>::edge_iterator iei, iei_end;
@@ -582,7 +587,7 @@ TaskIdMap DependencyGraph::getTaskDependencies() const {
   return dependencies;
 }
 
-std::string DependencyGraph::getTaskName(TaskId id) const {
+/*std::string DependencyGraph::getTaskName(TaskId id) const {
   return graph_.getTask(id)->getTaskName();
 }
 
@@ -609,7 +614,7 @@ StringSet DependencyGraph::getTaskOutputMessages(TaskId id) const {
 StringSet DependencyGraph::getTaskInputMessages(TaskId id) const {
   return graph_.getTask(id)->getInputMessagesConst();
 }
-
+*/
 #ifdef TESTBUILD
 bool DependencyGraph::dependencyExists(std::string name1, std::string name2) {
   int v1 = -1, v2 = -1;

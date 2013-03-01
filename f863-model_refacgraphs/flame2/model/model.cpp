@@ -126,7 +126,15 @@ AgentMemory Model::getAgentMemoryInfo() const {
   return model_.getAgentMemoryInfo();
 }
 
-TaskIdSet Model::getAgentTasks() const {
+TaskList Model::getTasks() const {
+  return model_.getTasks();
+}
+
+TaskIdMap Model::getTaskDependencies() const {
+  return model_.getTaskDependencies();
+}
+
+/*TaskIdSet Model::getAgentTasks() const {
   return model_.getAgentTasks();
 }
 
@@ -147,10 +155,6 @@ TaskIdSet Model::getMessageBoardSyncTasks() const {
 }
 TaskIdSet Model::getMessageBoardClearTasks() const {
   return model_.getMessageBoardClearTasks();
-}
-
-TaskIdMap Model::getTaskDependencies() const {
-  return model_.getTaskDependencies();
 }
 
 std::string Model::getTaskName(TaskId id) const {
@@ -179,6 +183,6 @@ StringSet Model::getTaskOutputMessages(TaskId id) const {
 
 StringSet Model::getTaskInputMessages(TaskId id) const {
   return model_.getTaskInputMessages(id);
-}
+}*/
 
 }}  // namespace flame::model

@@ -325,7 +325,15 @@ AgentMemory XModel::getAgentMemoryInfo() const {
   return agentMemory;
 }
 
-TaskIdSet XModel::getAgentTasks() const {
+TaskList XModel::getTasks() const {
+  return dependencyGraph_.getTasks();
+}
+
+TaskIdMap XModel::getTaskDependencies() const {
+  return dependencyGraph_.getTaskDependencies();
+}
+
+/*TaskIdSet XModel::getAgentTasks() const {
   return dependencyGraph_.getAgentTasks();
 }
 
@@ -347,10 +355,6 @@ TaskIdSet XModel::getMessageBoardSyncTasks() const {
 
 TaskIdSet XModel::getMessageBoardClearTasks() const {
   return dependencyGraph_.getMessageBoardClearTasks();
-}
-
-TaskIdMap XModel::getTaskDependencies() const {
-  return dependencyGraph_.getTaskDependencies();
 }
 
 std::string XModel::getTaskName(TaskId id) const {
@@ -379,7 +383,7 @@ StringSet XModel::getTaskOutputMessages(TaskId id) const {
 
 StringSet XModel::getTaskInputMessages(TaskId id) const {
   return dependencyGraph_.getTaskInputMessages(id);
-}
+}*/
 
 void XModel::outputStateGraph(const std::string& file_name) const {
   stateGraph_.writeGraphviz(file_name);
