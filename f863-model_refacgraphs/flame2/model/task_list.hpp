@@ -17,12 +17,6 @@ namespace flame { namespace model {
 //! Use a shared pointer to automatically handle Task pointers
 typedef boost::shared_ptr<Task> TaskPtr;
 
-typedef std::set< std::pair<std::string, std::string> > StringPairSet;
-typedef std::set<std::string> StringSet;
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
-
 class TaskList {
   public:
     TaskList();
@@ -31,20 +25,7 @@ class TaskList {
     void removeTask(size_t index);
     size_t getIndex(Task * t) const;
     Task * getTask(size_t index) const;
-
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
+    size_t getTaskCount() const;
 
   //private:
     /*! \brief Ptr to vertex task so that mappings can be swapped */

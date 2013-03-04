@@ -35,9 +35,9 @@ class Simulation {
   private:
     void registerModelWithMemoryManager(const AgentMemory& agentMemory);
     void registerModelWithTaskManager(const m::Model &model);
-    void registerAgentTasksWithTaskManager(const m::Model &model);
-    void registerIOTasksWithTaskManager(const m::Model &model);
-    void registerMBTasksWithTaskManager(const m::Model &model);
+    void registerAgentTaskWithTaskManager(m::Task * task, const m::Model &model);
+    void registerIOTaskWithTaskManager(m::Task * task);
+    void registerMBTaskWithTaskManager(m::Task * task, int taskType);
 };
 }}  // namespace flame::sim
 #endif  // SIM__SIMULATION_HPP_

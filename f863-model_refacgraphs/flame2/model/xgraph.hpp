@@ -47,6 +47,12 @@ typedef boost::graph_traits<Graph>::in_edge_iterator InEdgeIterator;
 typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
       VertexIndexMap;
 
+typedef std::set< std::pair<std::string, std::string> > StringPairSet;
+typedef std::set<std::string> StringSet;
+typedef size_t TaskId;
+typedef std::set<TaskId> TaskIdSet;
+typedef std::map<TaskId, TaskId> TaskIdMap;
+
 class XGraph {
   public:
     XGraph();
@@ -82,7 +88,8 @@ class XGraph {
     std::set<Task*> * getEndTasks();
     std::vector<TaskPtr> * getVertexTaskMap();
     EdgeMap * getEdgeDependencyMap();
-    TaskList getTasks() const;
+
+    const TaskList * getTaskList() const;
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */
