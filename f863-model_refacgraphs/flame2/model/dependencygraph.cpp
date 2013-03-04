@@ -66,7 +66,7 @@ int DependencyGraph::generateDependencyGraph(
   AddVariableOutput();
 #ifdef USE_VARIABLE_VERTICES
   // Contract variable vertices
-  contractVariableVertices();
+  contractVertices(Task::xvariable, Dependency::variable);
 #endif
 
 #ifdef OUTPUT_GRAPHS
@@ -267,11 +267,6 @@ void DependencyGraph::contractStateVertices() {
   contractVertices(Task::xstate, Dependency::state);
 }
 
-void DependencyGraph::contractVariableVertices() {
-  // Contract variable tasks and replace with variable dependency
-  contractVertices(Task::xvariable, Dependency::variable);
-}
-
 Vertex DependencyGraph::getMessageVertex(std::string name,
     Task::TaskType type) {
   size_t ii;
@@ -349,11 +344,11 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
     if (v2t->at(ii)->endTask()) graph_.addEndTask(v2t->at(ii).get());
   }
   // For each edge
-  for (boost::tie(eit, end) = stateGraph->getEdges(); //boost::edges(*(stateGraph->getGraph()));
+  for (boost::tie(eit, end) = stateGraph->getEdges();
       eit != end; ++eit) {
     // Add edge using vertex to vertex map
-    Vertex s = stateGraph->getEdgeSource(*eit); //boost::source(*eit, *(stateGraph->getGraph()));
-    Vertex t = stateGraph->getEdgeTarget(*eit); //boost::target(*eit, *(stateGraph->getGraph()));
+    Vertex s = stateGraph->getEdgeSource(*eit);
+    Vertex t = stateGraph->getEdgeTarget(*eit);
     Vertex ns = (*(import2new.find(s))).second;
     Vertex nt = (*(import2new.find(t))).second;
     EdgeMap::iterator it = edgeDependencyMap->find(*eit);
@@ -480,89 +475,6 @@ void DependencyGraph::writeGraphviz(const std::string& fileName) const {
   graph_.writeGraphviz(fileName);
 }
 
-TaskIdSet DependencyGraph::getAgentTasks() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-  TaskIdSet tasks;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
-    Task * t = graph_.getTask(*vp.first);
-    Task::TaskType type = t->getTaskType();
-
-    // If agent task
-    if (type == Task::xfunction || type == Task::xcondition)
-      tasks.insert(*vp.first);
-  }
-
-  return tasks;
-}
-
-TaskIdSet DependencyGraph::getAgentIOTasks() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-  TaskIdSet tasks;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
-    // If data task
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::io_pop_write)
-      tasks.insert(*vp.first);
-
-  return tasks;
-}
-
-TaskId DependencyGraph::getInitIOTask() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
-    // If start data task
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::start_model)
-      return *vp.first;
-
-  throw flame::exceptions::flame_model_exception(
-        "Init IO Task does not exist");
-}
-
-TaskId DependencyGraph::getFinIOTask() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
-    // If finish data task
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::finish_model)
-      return *vp.first;
-
-  throw flame::exceptions::flame_model_exception(
-        "Init IO Task does not exist");
-}
-
-TaskIdSet DependencyGraph::getMessageBoardSyncTasks() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-  TaskIdSet tasks;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first)
-    // if message sync task
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::xmessage_sync)
-      tasks.insert(*vp.first);
-
-  return tasks;
-}
-
-TaskIdSet DependencyGraph::getMessageBoardClearTasks() const {
-  std::pair<VertexIterator, VertexIterator> vp;
-  TaskIdSet tasks;
-
-  // For each vertex
-  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
-    // if message clear task
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::xmessage_clear)
-      tasks.insert(*vp.first);
-  }
-
-  return tasks;
-}
-
 TaskIdMap DependencyGraph::getTaskDependencies() const {
   boost::graph_traits<Graph>::edge_iterator iei, iei_end;
   TaskIdMap dependencies;
@@ -580,34 +492,6 @@ TaskIdMap DependencyGraph::getTaskDependencies() const {
   }
 
   return dependencies;
-}
-
-std::string DependencyGraph::getTaskName(TaskId id) const {
-  return graph_.getTask(id)->getTaskName();
-}
-
-std::string DependencyGraph::getTaskAgentName(TaskId id) const {
-  return graph_.getTask(id)->getParentName();
-}
-
-std::string DependencyGraph::getTaskFunctionName(TaskId id) const {
-  return graph_.getTask(id)->getName();
-}
-
-StringSet DependencyGraph::getTaskReadOnlyVariables(TaskId id) const {
-  return graph_.getTask(id)->getReadOnlyVariablesConst();
-}
-
-StringSet DependencyGraph::getTaskWriteVariables(TaskId id) const {
-  return graph_.getTask(id)->getWriteVariablesConst();
-}
-
-StringSet DependencyGraph::getTaskOutputMessages(TaskId id) const {
-  return graph_.getTask(id)->getOutputMessagesConst();
-}
-
-StringSet DependencyGraph::getTaskInputMessages(TaskId id) const {
-  return graph_.getTask(id)->getInputMessagesConst();
 }
 
 const TaskList * DependencyGraph::getTaskList() const {

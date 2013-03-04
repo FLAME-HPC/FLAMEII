@@ -88,7 +88,6 @@ class XGraph {
     std::set<Task*> * getEndTasks();
     std::vector<TaskPtr> * getVertexTaskMap();
     EdgeMap * getEdgeDependencyMap();
-
     const TaskList * getTaskList() const;
 
   private:

@@ -71,28 +71,14 @@ class XModel {
     StringPairSet getAgentVariables(std::string agent_name) const;
 
     AgentMemory getAgentMemoryInfo() const;
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
     TaskIdMap getTaskDependencies() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
+    const TaskList * getTaskList() const;
 
     void outputStateGraph(const std::string& file_name) const;
     void outputDependencyGraph(const std::string& file_name) const;
 
     int generateStateGraph();
     int checkCyclicDependencies();
-
-    const TaskList * getTaskList() const;
 #ifdef TESTBUILD
     DependencyGraph * getGraph() { return &dependencyGraph_; }
 #endif

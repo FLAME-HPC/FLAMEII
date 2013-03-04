@@ -168,9 +168,9 @@ void Simulation::registerMBTaskWithTaskManager(m::Task * task, int taskType) {
 
 void Simulation::registerModelWithTaskManager(const m::Model &model) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+  size_t ii;
 
   const m::TaskList * tasklist = model.getTaskList();
-  size_t ii;
   for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     m::Task * task = tasklist->getTask(ii);
     m::Task::TaskType type = task->getTaskType();
@@ -178,8 +178,7 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
     if (type == m::Task::xfunction || type == m::Task::xcondition)
       registerAgentTaskWithTaskManager(task, model);
     // if data tast
-    if (type == m::Task::io_pop_write)
-      registerIOTaskWithTaskManager(task);
+    if (type == m::Task::io_pop_write) registerIOTaskWithTaskManager(task);
     // if init io task
     if (type == m::Task::start_model)
       taskManager.CreateIOTask(task->getTaskName(), "", "",
@@ -189,8 +188,7 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
       taskManager.CreateIOTask(task->getTaskName(), "", "",
                 flame::exe::IOTask::OP_FIN);
     // if message sync task
-    if (type == m::Task::xmessage_sync)
-      registerMBTaskWithTaskManager(task, 0);
+    if (type == m::Task::xmessage_sync) registerMBTaskWithTaskManager(task, 0);
     // if message clear task
     if (type == m::Task::xmessage_clear)
       registerMBTaskWithTaskManager(task, 1);

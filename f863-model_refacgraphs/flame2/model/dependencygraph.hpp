@@ -47,21 +47,7 @@ class DependencyGraph {
     void writeGraphviz(const std::string& fileName) const;
     void importGraphs(std::set<DependencyGraph*> graphs);
     void importStateGraph(StateGraph * stateGraph);
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
     TaskIdMap getTaskDependencies() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
-
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
     bool dependencyExists(std::string name1, std::string name2);
@@ -88,7 +74,6 @@ class DependencyGraph {
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
     void contractStateVertices();
-    void contractVariableVertices();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
     void AddVariableOutput();

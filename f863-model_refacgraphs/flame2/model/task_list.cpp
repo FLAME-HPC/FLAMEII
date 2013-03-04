@@ -18,7 +18,7 @@ TaskList::TaskList() {
 }
 
 TaskList::~TaskList() {
-  // Free vertex task mapping
+  // free vertex task mapping
   delete vertex2task_;
 }
 
@@ -32,16 +32,21 @@ void TaskList::removeTask(size_t index) {
 
 size_t TaskList::getIndex(Task * t) const {
   size_t ii;
-  // Find index of task
+  // find index of task
   for (ii = 0; ii < vertex2task_->size(); ++ii)
     if (vertex2task_->at(ii).get() == t) return ii;
-  return 0;
+
+  // if not found then throw exception
+  throw flame::exceptions::flame_model_exception(
+        "Task does not exist");
 }
 
 Task * TaskList::getTask(size_t index) const {
+  // if index is larger or equal to vector size
+  // then throw exception
   if (index >= static_cast<size_t>(vertex2task_->size()))
     throw flame::exceptions::flame_model_exception(
-      "Task id does not exist");
+      "Index does not exist");
 
   // Return task at index v
   return vertex2task_->at(index).get();

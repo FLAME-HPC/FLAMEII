@@ -126,59 +126,8 @@ AgentMemory Model::getAgentMemoryInfo() const {
   return model_.getAgentMemoryInfo();
 }
 
-TaskIdSet Model::getAgentTasks() const {
-  return model_.getAgentTasks();
-}
-
-TaskIdSet Model::getAgentIOTasks() const {
-  return model_.getAgentIOTasks();
-}
-
-TaskId Model::getInitIOTask() const {
-  return model_.getInitIOTask();
-}
-
-TaskId Model::getFinIOTask() const {
-  return model_.getFinIOTask();
-}
-
-TaskIdSet Model::getMessageBoardSyncTasks() const {
-  return model_.getMessageBoardSyncTasks();
-}
-TaskIdSet Model::getMessageBoardClearTasks() const {
-  return model_.getMessageBoardClearTasks();
-}
-
 TaskIdMap Model::getTaskDependencies() const {
   return model_.getTaskDependencies();
-}
-
-std::string Model::getTaskName(TaskId id) const {
-  return model_.getTaskName(id);
-}
-
-std::string Model::getTaskAgentName(TaskId id) const {
-  return model_.getTaskAgentName(id);
-}
-
-std::string Model::getTaskFunctionName(TaskId id) const {
-  return model_.getTaskFunctionName(id);
-}
-
-StringSet Model::getTaskReadOnlyVariables(TaskId id) const {
-  return model_.getTaskReadOnlyVariables(id);
-}
-
-StringSet Model::getTaskWriteVariables(TaskId id) const {
-  return model_.getTaskWriteVariables(id);
-}
-
-StringSet Model::getTaskOutputMessages(TaskId id) const {
-  return model_.getTaskOutputMessages(id);
-}
-
-StringSet Model::getTaskInputMessages(TaskId id) const {
-  return model_.getTaskInputMessages(id);
 }
 
 const TaskList * Model::getTaskList() const {
