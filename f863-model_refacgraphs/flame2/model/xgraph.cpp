@@ -158,11 +158,13 @@ int XGraph::getVertexOutDegree(Vertex v) const {
   return boost::out_degree(v, *graph_);
 }
 
-std::pair<InEdgeIterator, InEdgeIterator> XGraph::getVertexInEdges(Vertex v) const {
+std::pair<InEdgeIterator, InEdgeIterator> XGraph::getVertexInEdges(
+    Vertex v) const {
   return boost::in_edges(v, *graph_);
 }
 
-std::pair<OutEdgeIterator, OutEdgeIterator> XGraph::getVertexOutEdges(Vertex v) const {
+std::pair<OutEdgeIterator, OutEdgeIterator> XGraph::getVertexOutEdges(
+    Vertex v) const {
   return boost::out_edges(v, *graph_);
 }
 
@@ -171,7 +173,7 @@ void XGraph::removeRedundantDependencies() {
   // The resultant transitive reduction graph
   Graph * trgraph = new Graph;
   std::vector<TaskPtr> * trvertex2task =
-      new std::vector<TaskPtr>(tasklist_.vertex2task_->size());
+      new std::vector<TaskPtr>(tasklist_.getTaskCount());
 
   // Create a map to get a property of a graph, in this case the vertex index
   typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
@@ -191,14 +193,13 @@ void XGraph::removeRedundantDependencies() {
 
   // Create new vertex task mapping for trgraph
   for (ii = 0; ii < boost::num_vertices(*graph_); ++ii)
-    trvertex2task->at(to_tc_vec[ii]) = tasklist_.vertex2task_->at(ii);
+    trvertex2task->at(to_tc_vec[ii]) = tasklist_.getTaskPtr(ii);
 
   // Make graph_ point to trgraph
   delete graph_;
   graph_ = trgraph;
   // Make vertex2task_ point to trvertex2task
-  delete tasklist_.vertex2task_;
-  tasklist_.vertex2task_ = trvertex2task;
+  tasklist_.replaceTaskVector(trvertex2task);
   // Clear edge2dependency_ as edges no longer valid
   EdgeMap::iterator eit;
   for (eit = edge2dependency_->begin(); eit != edge2dependency_->end(); ++eit)
@@ -266,9 +267,9 @@ std::pair<int, std::string> XGraph::checkCyclicDependencies() {
 
 
 struct vertex_label_writer {
-    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
+    explicit vertex_label_writer(const TaskList &tasklist) : tasklist_(tasklist) {}
     void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = vertex2task->at(v).get();
+      Task * t = tasklist_.getTask(v);
       if (t->getTaskType() == Task::io_pop_write) {
         out << " [label=\"";
         std::set<std::string>::iterator it;
@@ -316,7 +317,7 @@ struct vertex_label_writer {
     }
 
   protected:
-    std::vector<TaskPtr> * vertex2task;
+    const TaskList &tasklist_;
 };
 
 struct edge_label_writer {
@@ -429,7 +430,7 @@ void XGraph::writeGraphviz(const std::string& fileName) const {
   graphfile.open(fileName.c_str(), std::fstream::out);
 
   boost::write_graphviz(graphfile, *graph_,
-      vertex_label_writer(tasklist_.vertex2task_),
+      vertex_label_writer(tasklist_),
       edge_label_writer(edge2dependency_,
           edge_label_writer::arrowForward),
           graph_writer());
@@ -472,10 +473,6 @@ std::set<Task*> * XGraph::getEndTasks() {
   return &endTasks_;
 }
 
-std::vector<TaskPtr> * XGraph::getVertexTaskMap() {
-  return tasklist_.vertex2task_;
-}
-
 EdgeMap * XGraph::getEdgeDependencyMap() {
   return edge2dependency_;
 }
@@ -483,6 +480,10 @@ EdgeMap * XGraph::getEdgeDependencyMap() {
 const TaskList * XGraph::getTaskList() const {
   const TaskList * cp = &tasklist_;
   return cp;
+}
+
+size_t XGraph::getTaskCount() {
+  return tasklist_.getTaskCount();
 }
 
 }}   // namespace flame::model

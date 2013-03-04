@@ -74,7 +74,8 @@ class XGraph {
     std::pair<VertexIterator, VertexIterator> getVertices() const;
     int getVertexOutDegree(Vertex v) const;
     std::pair<InEdgeIterator, InEdgeIterator> getVertexInEdges(Vertex v) const;
-    std::pair<OutEdgeIterator, OutEdgeIterator> getVertexOutEdges(Vertex v) const;
+    std::pair<OutEdgeIterator, OutEdgeIterator> getVertexOutEdges(
+        Vertex v) const;
     void removeRedundantDependencies();
     std::pair<int, std::string> checkCyclicDependencies();
     void writeGraphviz(const std::string& fileName) const;
@@ -86,9 +87,9 @@ class XGraph {
     Task * getEndTask();
     void addEndTask(Task * task);
     std::set<Task*> * getEndTasks();
-    std::vector<TaskPtr> * getVertexTaskMap();
     EdgeMap * getEdgeDependencyMap();
     const TaskList * getTaskList() const;
+    size_t getTaskCount();
 
   private:
     /*! \brief Ptr to a graph so that graphs can be swapped */

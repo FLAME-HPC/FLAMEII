@@ -42,8 +42,6 @@ class DependencyGraph {
     std::pair<int, std::string> checkFunctionConditions();
     void setName(std::string name);
     void import(DependencyGraph * graph);
-    std::vector<TaskPtr> * getVertexTaskMap();
-    XGraph * getGraph() { return &graph_; }
     void writeGraphviz(const std::string& fileName) const;
     void importGraphs(std::set<DependencyGraph*> graphs);
     void importStateGraph(StateGraph * stateGraph);

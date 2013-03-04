@@ -52,8 +52,24 @@ Task * TaskList::getTask(size_t index) const {
   return vertex2task_->at(index).get();
 }
 
+TaskPtr TaskList::getTaskPtr(size_t index) const {
+  // if index is larger or equal to vector size
+  // then throw exception
+  if (index >= static_cast<size_t>(vertex2task_->size()))
+    throw flame::exceptions::flame_model_exception(
+      "Index does not exist");
+
+  // Return task at index v
+  return vertex2task_->at(index);
+}
+
 size_t TaskList::getTaskCount() const {
   return vertex2task_->size();
+}
+
+void TaskList::replaceTaskVector(std::vector<TaskPtr> * vertex2task) {
+  delete vertex2task_;
+  vertex2task_ = vertex2task;
 }
 
 }}  // namespace flame::model

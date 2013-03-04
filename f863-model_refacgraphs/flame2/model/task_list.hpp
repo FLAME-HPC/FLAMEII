@@ -25,9 +25,11 @@ class TaskList {
     void removeTask(size_t index);
     size_t getIndex(Task * t) const;
     Task * getTask(size_t index) const;
+    TaskPtr getTaskPtr(size_t index) const;
     size_t getTaskCount() const;
+    void replaceTaskVector(std::vector<TaskPtr> * vertex2task);
 
-  //private:
+  private:
     /*! \brief Ptr to vertex task so that mappings can be swapped */
     std::vector<TaskPtr> * vertex2task_;
 };

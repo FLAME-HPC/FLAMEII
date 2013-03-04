@@ -33,10 +33,6 @@ namespace flame { namespace model {
 
 StateGraph::StateGraph() {}
 
-std::vector<TaskPtr> * StateGraph::getVertexTaskMap() {
-  return graph_.getVertexTaskMap();
-}
-
 EdgeMap * StateGraph::getEdgeDependencyMap() {
   return graph_.getEdgeDependencyMap();
 }
@@ -47,11 +43,11 @@ void StateGraph::setName(std::string name) {
 
 Task * StateGraph::generateStateGraphStatesAddStateToGraph(std::string name,
     std::string startState) {
+  size_t ii;
   // Check if state has already been added
-  std::vector<TaskPtr>::iterator vit;
-  for (vit = graph_.getVertexTaskMap()->begin(); vit != graph_.getVertexTaskMap()->end(); ++vit)
-    if ((*vit).get()->getTaskType() == Task::xstate &&
-        (*vit).get()->getName() == name) return (*vit).get();
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii)
+    if (graph_.getTask(ii)->getTaskType() == Task::xstate &&
+        graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
   // Add state as a task to the task list
   Task * task = new Task(name_, name, Task::xstate);
@@ -108,11 +104,11 @@ void StateGraph::generateStateGraphVariables(
 
 Task * StateGraph::generateStateGraphMessagesAddMessageToGraph(
     std::string name) {
+  size_t ii;
   // Check if state has already been added
-  std::vector<TaskPtr>::iterator vit;
-  for (vit = graph_.getVertexTaskMap()->begin(); vit != graph_.getVertexTaskMap()->end(); ++vit)
-    if ((*vit).get()->getTaskType() == Task::xmessage &&
-        (*vit).get()->getName() == name) return (*vit).get();
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii)
+    if (graph_.getTask(ii)->getTaskType() == Task::xmessage &&
+        graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
   // Add state as a task to the task list
   Task * task = new Task(name, name, Task::xmessage);
@@ -174,14 +170,14 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
 void StateGraph::importStateGraphTasks(StateGraph * graph,
     std::map<std::string, Vertex> * message2task,
     std::map<Vertex, Vertex> * import2new) {
-  std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
   size_t ii;
   std::map<std::string, Vertex>::iterator it;
 
+  const TaskList * tasklist = graph->getTaskList();
   // For each task vertex map
-  for (ii = 0; ii < v2t->size(); ++ii) {
+  for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     // get task
-    Task * t = v2t->at(ii).get();
+    Task * t = tasklist->getTask(ii);
     // if message task
     if (t->getTaskType() == Task::xmessage) {
       // get task name
@@ -191,7 +187,7 @@ void StateGraph::importStateGraphTasks(StateGraph * graph,
       if (it == message2task->end()) {
         // if not found
         // add vertex to current graph
-        Vertex v = graph_.addVertex(v2t->at(ii));
+        Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
         // add vertex to vertex map
         import2new->insert(std::make_pair(ii, v));
         // add vertex to message map
@@ -202,7 +198,7 @@ void StateGraph::importStateGraphTasks(StateGraph * graph,
       }
     } else {
       // add vertex to current graph
-      Vertex v = graph_.addVertex(v2t->at(ii));
+      Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
       // add to vertex to vertex map
       import2new->insert(std::make_pair(ii, v));
     }
@@ -221,11 +217,11 @@ void StateGraph::importStateGraphs(std::set<StateGraph*> graphs) {
     // import tasks
     importStateGraphTasks((*it), &message2task, &import2new);
     // import edges
-    for (boost::tie(eit, end) = (*it)->getEdges(); //boost::edges(*((*it)->getGraph()));
+    for (boost::tie(eit, end) = (*it)->getEdges();
         eit != end; ++eit) {
       // add edge using vertex to vertex map
-      Vertex s = (*it)->getEdgeSource(*eit); //boost::source(*eit, *((*it)->getGraph()));
-      Vertex t = (*it)->getEdgeTarget(*eit); //boost::target(*eit, *((*it)->getGraph()));
+      Vertex s = (*it)->getEdgeSource(*eit);
+      Vertex t = (*it)->getEdgeTarget(*eit);
       Vertex ns = (*(import2new.find(s))).second;
       Vertex nt = (*(import2new.find(t))).second;
       graph_.addEdge(ns, nt, "", Dependency::blank);
@@ -312,6 +308,10 @@ Vertex StateGraph::getEdgeTarget(Edge e) {
 
 std::pair<EdgeIterator, EdgeIterator> StateGraph::getEdges() {
   return graph_.getEdges();
+}
+
+const TaskList * StateGraph::getTaskList() const {
+  return graph_.getTaskList();
 }
 
 }}   // namespace flame::model

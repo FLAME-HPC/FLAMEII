@@ -118,7 +118,8 @@ void registerAllowMessage(exe::Task * task,
   }
 }
 
-void Simulation::registerAgentTaskWithTaskManager(m::Task * task, const m::Model &model) {
+void Simulation::registerAgentTaskWithTaskManager(
+    m::Task * task, const m::Model &model) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
   flame::exe::Task& exetask = taskManager.CreateAgentTask(

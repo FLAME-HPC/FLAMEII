@@ -44,8 +44,6 @@ class StateGraph {
     std::pair<int, std::string> checkFunctionConditions();
     //! set graph name (agent name or model name)
     void setName(std::string name);
-    //! \return vertex task map
-    std::vector<TaskPtr> * getVertexTaskMap();
     //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
     //! write out graph dot file
@@ -55,6 +53,7 @@ class StateGraph {
     Vertex getEdgeSource(Edge e);
     Vertex getEdgeTarget(Edge e);
     std::pair<EdgeIterator, EdgeIterator> getEdges();
+    const TaskList * getTaskList() const;
 
   private:
     //! Underlying graph

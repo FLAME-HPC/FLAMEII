@@ -35,7 +35,8 @@ class Simulation {
   private:
     void registerModelWithMemoryManager(const AgentMemory& agentMemory);
     void registerModelWithTaskManager(const m::Model &model);
-    void registerAgentTaskWithTaskManager(m::Task * task, const m::Model &model);
+    void registerAgentTaskWithTaskManager(
+        m::Task * task, const m::Model &model);
     void registerIOTaskWithTaskManager(m::Task * task);
     void registerMBTaskWithTaskManager(m::Task * task, int taskType);
 };

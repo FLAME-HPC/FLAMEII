@@ -33,10 +33,6 @@ namespace flame { namespace model {
 
 DependencyGraph::DependencyGraph() {}
 
-std::vector<TaskPtr> * DependencyGraph::getVertexTaskMap() {
-  return graph_.getVertexTaskMap();
-}
-
 void DependencyGraph::setName(std::string name) {
   name_ = name;
 }
@@ -271,10 +267,10 @@ Vertex DependencyGraph::getMessageVertex(std::string name,
     Task::TaskType type) {
   size_t ii;
   // For each task
-  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii)
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii)
     // If find message and type then return
-    if (graph_.getVertexTaskMap()->at(ii)->getName() == name &&
-        graph_.getVertexTaskMap()->at(ii)->getTaskType() == type)
+    if (graph_.getTask(ii)->getName() == name &&
+        graph_.getTask(ii)->getTaskType() == type)
       return ii;
   // Otherwise create new vertex and return
   Task * t = new Task(name, name, type);
@@ -290,8 +286,8 @@ void DependencyGraph::changeMessageTasksToSync() {
   std::set<Edge>::iterator etrit;
   size_t ii;
   // For each task
-  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii) {
-    Task * t = graph_.getVertexTaskMap()->at(ii).get();
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii) {
+    Task * t = graph_.getTask(ii);
     // If message task
     if (t->getTaskType() == Task::xmessage) {
       // Create start and finish syncs
@@ -320,28 +316,30 @@ void DependencyGraph::changeMessageTasksToSync() {
 }
 
 void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
-  std::vector<TaskPtr> * v2t = stateGraph->getVertexTaskMap();
   size_t ii;
   std::map<Vertex, Vertex> import2new;
   EdgeIterator eit, end;
   EdgeMap * edgeDependencyMap = stateGraph->getEdgeDependencyMap();
+  const TaskList * tasklist = stateGraph->getTaskList();
 
   // For each task vertex map
-  for (ii = 0; ii < v2t->size(); ++ii) {
+  for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
+    // get task
+    Task * t = tasklist->getTask(ii);
     // Add vertex to current graph
-    Vertex v = graph_.addVertex(v2t->at(ii));
+    Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
     // Add to vertex to vertex map
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
-    if (v2t->at(ii)->getTaskType() == Task::start_agent)
+    if (t->getTaskType() == Task::start_agent)
       graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v, "", Dependency::blank);
     // If task is a data output task then add edge
-    if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
+    if (t->getTaskType() == Task::io_pop_write)
       graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()), "", Dependency::blank);
     // If start task make start task
-    if (v2t->at(ii)->startTask()) graph_.setStartTask(v2t->at(ii).get());
+    if (t->startTask()) graph_.setStartTask(t);
     // If end task add to end tasks
-    if (v2t->at(ii)->endTask()) graph_.addEndTask(v2t->at(ii).get());
+    if (t->endTask()) graph_.addEndTask(t);
   }
   // For each edge
   for (boost::tie(eit, end) = stateGraph->getEdges();
@@ -358,34 +356,29 @@ void DependencyGraph::importStateGraph(StateGraph * stateGraph) {
 }
 
 void DependencyGraph::import(DependencyGraph * graph) {
-  std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
   size_t ii;
   std::map<Vertex, Vertex> import2new;
-  EdgeIterator eit, end;
 
+  const TaskList * tasklist = graph->getTaskList();
   // For each task vertex map
-  for (ii = 0; ii < v2t->size(); ++ii) {
+  for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     // Add vertex to current graph
-    Vertex v = graph_.addVertex(v2t->at(ii));
+    Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
     // Add to vertex to vertex map
     import2new.insert(std::make_pair(ii, v));
     // If task is an init agent then add edge
-    if (v2t->at(ii)->getTaskType() == Task::start_agent)
+    if (tasklist->getTask(ii)->getTaskType() == Task::start_agent)
       graph_.addEdge(graph_.getVertex(graph_.getStartTask()), v, "", Dependency::blank);
     // If task is a data output task then add edge
-    if (v2t->at(ii)->getTaskType() == Task::io_pop_write)
+    if (tasklist->getTask(ii)->getTaskType() == Task::io_pop_write)
       graph_.addEdge(v, graph_.getVertex(graph_.getEndTask()), "", Dependency::blank);
   }
   // For each edge
-  for (boost::tie(eit, end) = graph->getGraph()->getEdges();
-      eit != end; ++eit) {
+  TaskIdMap dependencies = graph->getTaskDependencies();
+  TaskIdMap::iterator mit;
+  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
     // Add edge using vertex to vertex map
-    Vertex s = graph->getGraph()->getEdgeSource(*eit);
-    Vertex t = graph->getGraph()->getEdgeTarget(*eit);
-    Vertex ns = (*(import2new.find(s))).second;
-    Vertex nt = (*(import2new.find(t))).second;
-    graph_.addEdge(ns, nt, "", Dependency::blank);
-  }
+    graph_.addEdge((*mit).first, (*mit).second, "", Dependency::blank);
 }
 
 void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
@@ -504,9 +497,9 @@ bool DependencyGraph::dependencyExists(std::string name1, std::string name2) {
   size_t ii;
 
   // For each task find vertex of task names
-  for (ii = 0; ii < graph_.getVertexTaskMap()->size(); ++ii) {
-    if (graph_.getVertexTaskMap()->at(ii)->getName() == name1) v1 = ii;
-    if (graph_.getVertexTaskMap()->at(ii)->getName() == name2) v2 = ii;
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii) {
+    if (graph_.getTask(ii)->getName() == name1) v1 = ii;
+    if (graph_.getTask(ii)->getName() == name2) v2 = ii;
   }
   // If either vertex not found then return false
   if (v1 == -1 || v2 == -1) return false;
