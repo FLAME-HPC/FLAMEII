@@ -9,9 +9,10 @@
  */
 #ifndef MODEL__DATA_DEPENDENCY_ANALYSER_HPP
 #define MODEL__DATA_DEPENDENCY_ANALYSER_HPP
+#include <string>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "xvariable.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 #include "xgraph.hpp"
 
 namespace flame {
@@ -25,10 +26,10 @@ class DataDependencyAnalyser {
   private:
     XGraph * graph_;
     std::string name_;
-    void addWriteDependencies(Vertex v, Task * t);
-    void addReadDependencies(Vertex v, Task * t);
-    void addWritingVerticesToList(Vertex v, Task * t);
-    void copyWritingAndReadingVerticesFromInEdges(Vertex v, Task * t);
+    void addWriteDependencies(Vertex v, ModelTask * t);
+    void addReadDependencies(Vertex v, ModelTask * t);
+    void addWritingVerticesToList(Vertex v, ModelTask * t);
+    void copyWritingAndReadingVerticesFromInEdges(Vertex v, ModelTask * t);
     void addStartTask(boost::ptr_vector<XVariable> * variables);
     void addEndTask();
 };

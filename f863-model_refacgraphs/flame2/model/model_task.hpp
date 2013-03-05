@@ -1,14 +1,14 @@
 /*!
- * \file flame2/model/task.hpp
+ * \file flame2/model/model_task.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Task: holds task information
+ * \brief ModelModelTask: holds task information
  */
-#ifndef MODEL__TASK_HPP_
-#define MODEL__TASK_HPP_
+#ifndef MODEL__MODEL_TASK_HPP_
+#define MODEL__MODEL_TASK_HPP_
 #include <string>
 #include <set>
 #include <map>
@@ -20,12 +20,12 @@ namespace flame { namespace model {
 // Define type used to hold variable writing tasks
 typedef std::map<std::string, std::set<size_t> > VarMapToVertices;
 
-class Task {
+class ModelTask {
   public:
     enum TaskType { xfunction = 0, xstate, xmessage_sync, xmessage_clear,
       io_pop_write, start_agent, finish_agent, xcondition,
       xvariable, start_model, finish_model, xmessage};
-    Task(std::string parentName, std::string name, TaskType type);
+    ModelTask(std::string parentName, std::string name, TaskType type);
     std::string getTaskName();
     void setParentName(std::string parentName);
     std::string getParentName() const;
@@ -67,7 +67,7 @@ class Task {
     std::string parentName_;
     /* Function name/Message name/Memory variable name */
     std::string name_;
-    /* Task type: a label to determine which queue the task belongs to */
+    /* ModelTask type: a label to determine which queue the task belongs to */
     TaskType taskType_;
     /* Priority level: determines the priority of this task should there
      * be more than one task in the queue */
@@ -95,4 +95,4 @@ class Task {
     bool endTask_;
 };
 }}  // namespace flame::model
-#endif  // MODEL__TASK_HPP_
+#endif  // MODEL__MODEL_TASK_HPP_

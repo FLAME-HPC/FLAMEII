@@ -19,7 +19,7 @@
 #include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 #include "xfunction.hpp"
 #include "xvariable.hpp"
 #include "stategraph.hpp"
@@ -49,11 +49,11 @@ class DependencyGraph {
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
     bool dependencyExists(std::string name1, std::string name2);
-    Vertex addTestVertex(Task * t);
+    Vertex addTestVertex(ModelTask * t);
     void addTestEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
-    void setTestStartTask(Task * task);
-    void addTestEndTask(Task * task);
+    void setTestStartTask(ModelTask * task);
+    void addTestEndTask(ModelTask * task);
 #endif
 
   private:
@@ -61,21 +61,22 @@ class DependencyGraph {
     XGraph graph_;
     std::string name_;
 
-    Vertex getMessageVertex(std::string name, Task::TaskType type);
+    Vertex getMessageVertex(std::string name, ModelTask::TaskType type);
     void changeMessageTasksToSync();
     void addMessageClearTasks();
     int registerAllowAccess(flame::exe::Task * task,
             std::set<std::string> vars, bool writeable);
     int registerAllowMessage(flame::exe::Task * task,
             std::set<std::string> messages, bool post);
-    void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
+    void addConditionDependenciesAndUpdateLastConditions(
+            Vertex v, ModelTask * t);
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
     void contractStateVertices();
     void removeStateDependencies();
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
     void AddVariableOutput();
-    void contractVertices(Task::TaskType taskType,
+    void contractVertices(ModelTask::TaskType taskType,
             Dependency::DependencyType dependencyType);
 };
 

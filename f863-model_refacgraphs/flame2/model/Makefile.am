@@ -13,10 +13,10 @@ module_headers = \
   data_dependency_analyser.hpp \
   dependency.hpp \
   dependencygraph.hpp \
+  model_task.hpp \
   model.hpp \
   stategraph.hpp \
   task_list.hpp \
-  task.hpp \
   xadt.hpp \
   xcondition.hpp \
   xfunction.hpp \
@@ -34,10 +34,10 @@ module_sources = \
   data_dependency_analyser.cpp \
   dependency.cpp \
   dependencygraph.cpp \
+  model_task.cpp \
   model.cpp \
   stategraph.cpp \
   task_list.cpp \
-  task.cpp \
   xadt.cpp \
   xcondition.cpp \
   xfunction.cpp \

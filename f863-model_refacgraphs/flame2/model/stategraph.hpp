@@ -19,7 +19,7 @@
 #include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 #include "xfunction.hpp"
 #include "xvariable.hpp"
 #include "xgraph.hpp"
@@ -61,13 +61,13 @@ class StateGraph {
     //! Name of graph (agent or model name)
     std::string name_;
 
-    Task * generateStateGraphStatesAddStateToGraph(
+    ModelTask * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
-    void generateStateGraphStates(XFunction * function, Task * task,
+    void generateStateGraphStates(XFunction * function, ModelTask * task,
             std::string startState);
-    void generateStateGraphVariables(XFunction * function, Task * task);
-    Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
-    void generateStateGraphMessages(XFunction * function, Task * task);
+    void generateStateGraphVariables(XFunction * function, ModelTask * task);
+    ModelTask * generateStateGraphMessagesAddMessageToGraph(std::string name);
+    void generateStateGraphMessages(XFunction * function, ModelTask * task);
     void importStateGraphTasks(StateGraph * graph,
             std::map<std::string, Vertex> * message2task,
             std::map<Vertex, Vertex> * import2new);

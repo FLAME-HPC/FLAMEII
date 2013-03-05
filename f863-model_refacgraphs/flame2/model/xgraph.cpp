@@ -47,14 +47,14 @@ XGraph::~XGraph() {
   delete graph_;
 }
 
-Vertex XGraph::addVertex(Task * t) {
+Vertex XGraph::addVertex(ModelTask * t) {
   // create new shared ptr for Task pointer
-  TaskPtr ptr(t);
+  ModelTaskPtr ptr(t);
   // Return vertex
   return addVertex(ptr);
 }
 
-Vertex XGraph::addVertex(TaskPtr ptr) {
+Vertex XGraph::addVertex(ModelTaskPtr ptr) {
   // Add vertex to graph
   Vertex v = add_vertex(*graph_);
   // Add task to vertex task mapping
@@ -120,11 +120,11 @@ Edge XGraph::addEdge(Vertex to, Vertex from, std::string name,
   return e.first;
 }
 
-Vertex XGraph::getVertex(Task * t) {
+Vertex XGraph::getVertex(ModelTask * t) {
   return tasklist_.getIndex(t);
 }
 
-Task * XGraph::getTask(Vertex v) const {
+ModelTask * XGraph::getTask(Vertex v) const {
   return tasklist_.getTask(v);
 }
 
@@ -172,8 +172,8 @@ void XGraph::removeRedundantDependencies() {
   size_t ii;
   // The resultant transitive reduction graph
   Graph * trgraph = new Graph;
-  std::vector<TaskPtr> * trvertex2task =
-      new std::vector<TaskPtr>(tasklist_.getTaskCount());
+  std::vector<ModelTaskPtr> * trvertex2task =
+      new std::vector<ModelTaskPtr>(tasklist_.getTaskCount());
 
   // Create a map to get a property of a graph, in this case the vertex index
   typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
@@ -250,8 +250,8 @@ std::pair<int, std::string> XGraph::checkCyclicDependencies() {
     // Find associated dependency
     Dependency * d = getDependency(err.edge());
     // Find associated tasks
-    Task * t1 = getTask(boost::source(err.edge(), *graph_));
-    Task * t2 = getTask(boost::target(err.edge(), *graph_));
+    ModelTask * t1 = getTask(boost::source(err.edge(), *graph_));
+    ModelTask * t2 = getTask(boost::target(err.edge(), *graph_));
     error_msg.append("Error: cycle detected ");
     error_msg.append(t1->getName());
     error_msg.append(" -> ");
@@ -267,10 +267,11 @@ std::pair<int, std::string> XGraph::checkCyclicDependencies() {
 
 
 struct vertex_label_writer {
-    explicit vertex_label_writer(const TaskList &tasklist) : tasklist_(tasklist) {}
+    explicit vertex_label_writer(
+        const TaskList &tasklist) : tasklist_(tasklist) {}
     void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = tasklist_.getTask(v);
-      if (t->getTaskType() == Task::io_pop_write) {
+      ModelTask * t = tasklist_.getTask(v);
+      if (t->getTaskType() == ModelTask::io_pop_write) {
         out << " [label=\"";
         std::set<std::string>::iterator it;
         for (it = t->getWriteVariables()->begin();
@@ -280,37 +281,37 @@ struct vertex_label_writer {
         out << "\" shape=folder, style=filled, fillcolor=orange]";
       } else {
         out << " [label=\"";
-        if (t->getTaskType() == Task::xmessage_sync)
+        if (t->getTaskType() == ModelTask::xmessage_sync)
           out << "SYNC: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::xmessage_clear)
+        else if (t->getTaskType() == ModelTask::xmessage_clear)
           out << "CLEAR: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::start_model)
+        else if (t->getTaskType() == ModelTask::start_agent ||
+            t->getTaskType() == ModelTask::start_model)
           out << "Start\\n" << t->getParentName() << "\"";
-        else if (t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::finish_model)
+        else if (t->getTaskType() == ModelTask::finish_agent ||
+            t->getTaskType() == ModelTask::finish_model)
           out << "Finish\\n" << t->getParentName() << "\"";
         else
           out << t->getName() << "\"";
-        if (t->getTaskType() == Task::xfunction)
+        if (t->getTaskType() == ModelTask::xfunction)
           out << " shape=rect, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::xcondition)
+        if (t->getTaskType() == ModelTask::xcondition)
           out << " shape=invhouse, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::start_model ||
-            t->getTaskType() == Task::finish_model)
+        if (t->getTaskType() == ModelTask::start_agent ||
+            t->getTaskType() == ModelTask::finish_agent ||
+            t->getTaskType() == ModelTask::start_model ||
+            t->getTaskType() == ModelTask::finish_model)
           out << " shape=ellipse, style=filled, fillcolor=red";
-        if (t->getTaskType() == Task::xvariable ||
-            t->getTaskType() == Task::xstate)
+        if (t->getTaskType() == ModelTask::xvariable ||
+            t->getTaskType() == ModelTask::xstate)
           out << " shape=ellipse, style=filled, fillcolor=white";
-        if (t->getTaskType() == Task::xmessage_clear ||
-            t->getTaskType() == Task::xmessage_sync ||
-            t->getTaskType() == Task::xmessage) {
+        if (t->getTaskType() == ModelTask::xmessage_clear ||
+            t->getTaskType() == ModelTask::xmessage_sync ||
+            t->getTaskType() == ModelTask::xmessage) {
           out << " shape=parallelogram, style=filled, ";
           out << "fillcolor=lightblue";
         }
-        if (t->getTaskType() == Task::io_pop_write)
+        if (t->getTaskType() == ModelTask::io_pop_write)
           out << " shape=folder, style=filled, fillcolor=orange";
         out << "]";
       }
@@ -449,27 +450,27 @@ std::vector<Vertex> XGraph::getTopologicalSortedVertices() {
   return sorted_vertices;
 }
 
-void XGraph::setStartTask(Task * task) {
+void XGraph::setStartTask(ModelTask * task) {
   startTask_ = task;
 }
 
-Task * XGraph::getStartTask() {
+ModelTask * XGraph::getStartTask() {
   return startTask_;
 }
 
-void XGraph::setEndTask(Task * task) {
+void XGraph::setEndTask(ModelTask * task) {
   endTask_ = task;
 }
 
-Task * XGraph::getEndTask() {
+ModelTask * XGraph::getEndTask() {
   return endTask_;
 }
 
-void XGraph::addEndTask(Task * task) {
+void XGraph::addEndTask(ModelTask * task) {
   endTasks_.insert(task);
 }
 
-std::set<Task*> * XGraph::getEndTasks() {
+std::set<ModelTask*> * XGraph::getEndTasks() {
   return &endTasks_;
 }
 

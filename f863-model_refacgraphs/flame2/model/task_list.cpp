@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief TaskList: used to hold tasks
  */
+#include <vector>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "task_list.hpp"
@@ -14,7 +15,7 @@
 namespace flame { namespace model {
 
 TaskList::TaskList() {
-  vertex2task_ = new std::vector<TaskPtr>;
+  vertex2task_ = new std::vector<ModelTaskPtr>;
 }
 
 TaskList::~TaskList() {
@@ -22,7 +23,7 @@ TaskList::~TaskList() {
   delete vertex2task_;
 }
 
-void TaskList::addTask(TaskPtr ptr) {
+void TaskList::addTask(ModelTaskPtr ptr) {
   vertex2task_->push_back(ptr);
 }
 
@@ -30,7 +31,7 @@ void TaskList::removeTask(size_t index) {
   vertex2task_->erase(vertex2task_->begin() + index);
 }
 
-size_t TaskList::getIndex(Task * t) const {
+size_t TaskList::getIndex(ModelTask * t) const {
   size_t ii;
   // find index of task
   for (ii = 0; ii < vertex2task_->size(); ++ii)
@@ -41,7 +42,7 @@ size_t TaskList::getIndex(Task * t) const {
         "Task does not exist");
 }
 
-Task * TaskList::getTask(size_t index) const {
+ModelTask * TaskList::getTask(size_t index) const {
   // if index is larger or equal to vector size
   // then throw exception
   if (index >= static_cast<size_t>(vertex2task_->size()))
@@ -52,7 +53,7 @@ Task * TaskList::getTask(size_t index) const {
   return vertex2task_->at(index).get();
 }
 
-TaskPtr TaskList::getTaskPtr(size_t index) const {
+ModelTaskPtr TaskList::getTaskPtr(size_t index) const {
   // if index is larger or equal to vector size
   // then throw exception
   if (index >= static_cast<size_t>(vertex2task_->size()))
@@ -67,7 +68,7 @@ size_t TaskList::getTaskCount() const {
   return vertex2task_->size();
 }
 
-void TaskList::replaceTaskVector(std::vector<TaskPtr> * vertex2task) {
+void TaskList::replaceTaskVector(std::vector<ModelTaskPtr> * vertex2task) {
   delete vertex2task_;
   vertex2task_ = vertex2task;
 }

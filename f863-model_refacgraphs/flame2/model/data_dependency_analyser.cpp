@@ -52,10 +52,11 @@ void copyVarWriteSets(VarMapToVertices * from, VarMapToVertices * to) {
   }
 }
 
-void DataDependencyAnalyser::addStartTask(boost::ptr_vector<XVariable> * variables) {
+void DataDependencyAnalyser::addStartTask(
+    boost::ptr_vector<XVariable> * variables) {
   boost::ptr_vector<XVariable>::iterator i;
   // Add init function to provide first writes of all variables
-  Task * initTask = new Task(name_, name_, Task::start_agent);
+  ModelTask * initTask = new ModelTask(name_, name_, ModelTask::start_agent);
   Vertex initVertex = graph_->addVertex(initTask);
   // Add edge from init to start vertex
   graph_->addEdge(initVertex, graph_->getVertex(graph_->getStartTask()),
@@ -71,22 +72,23 @@ void DataDependencyAnalyser::addStartTask(boost::ptr_vector<XVariable> * variabl
 }
 
 void DataDependencyAnalyser::addEndTask() {
-  std::set<Task*>::iterator t_it;
+  std::set<ModelTask*>::iterator t_it;
   // Add end function to provide last writes to ioput
-  graph_->setEndTask(new Task(name_, name_, Task::finish_agent));
+  graph_->setEndTask(new ModelTask(name_, name_, ModelTask::finish_agent));
   Vertex v = graph_->addVertex(graph_->getEndTask());
-  for (t_it = graph_->getEndTasks()->begin(); t_it != graph_->getEndTasks()->end(); ++t_it)
+  for (t_it = graph_->getEndTasks()->begin();
+      t_it != graph_->getEndTasks()->end(); ++t_it)
     graph_->addEdge(graph_->getVertex(*t_it), v, "End", Dependency::init);
 }
 
 void DataDependencyAnalyser::copyWritingAndReadingVerticesFromInEdges(Vertex v,
-    Task * task) {
+    ModelTask * task) {
   boost::graph_traits<Graph>::in_edge_iterator iei, iei_end;
 
   // For each in edge task
   boost::tie(iei, iei_end) = graph_->getVertexInEdges(v);
   for (; iei != iei_end; ++iei) {
-    Task * t = graph_->getTask(graph_->getEdgeSource((Edge)*iei));
+    ModelTask * t = graph_->getTask(graph_->getEdgeSource((Edge)*iei));
     // Copy last writing from incoming functions
     copyVarWriteSets(t->getLastWrites(), task->getLastWrites());
     // Copy last reading from incoming functions
@@ -94,7 +96,7 @@ void DataDependencyAnalyser::copyWritingAndReadingVerticesFromInEdges(Vertex v,
   }
 }
 
-void DataDependencyAnalyser::addWriteDependencies(Vertex v, Task * t) {
+void DataDependencyAnalyser::addWriteDependencies(Vertex v, ModelTask * t) {
   std::set<std::string>::iterator varit;
   VarMapToVertices::iterator wit;
   std::set<size_t>::iterator it;
@@ -120,7 +122,7 @@ void DataDependencyAnalyser::addWriteDependencies(Vertex v, Task * t) {
   }
 }
 
-void DataDependencyAnalyser::addReadDependencies(Vertex v, Task * t) {
+void DataDependencyAnalyser::addReadDependencies(Vertex v, ModelTask * t) {
   std::set<std::string>::iterator varit;
   VarMapToVertices::iterator wit;
   std::set<size_t>::iterator it;
@@ -155,7 +157,7 @@ void DataDependencyAnalyser::addReadDependencies(Vertex v, Task * t) {
   }
 }
 
-void DataDependencyAnalyser::addWritingVerticesToList(Vertex v, Task * t) {
+void DataDependencyAnalyser::addWritingVerticesToList(Vertex v, ModelTask * t) {
   std::set<std::string>::iterator varit;
   // For writing variables create new vertex and add edge
   std::set<std::string> * rwv = t->getWriteVariables();
@@ -201,11 +203,11 @@ void DataDependencyAnalyser::addDataDependencies(
   // Iterate in reverse as output order is reversed
   for (vit = sorted_vertices.rbegin(); vit != sorted_vertices.rend(); ++vit) {
     // If vertex is a function, condition, or init task
-    Task * task = graph_->getTask((*vit));
-    if (task->getTaskType() == Task::xfunction ||
-        task->getTaskType() == Task::xcondition ||
-        task->getTaskType() == Task::start_agent ||
-        task->getTaskType() == Task::finish_agent) {
+    ModelTask * task = graph_->getTask((*vit));
+    if (task->getTaskType() == ModelTask::xfunction ||
+        task->getTaskType() == ModelTask::xcondition ||
+        task->getTaskType() == ModelTask::start_agent ||
+        task->getTaskType() == ModelTask::finish_agent) {
       // Copy variable writing and reading vertices
       // from in coming vertices
       copyWritingAndReadingVerticesFromInEdges(*vit, task);

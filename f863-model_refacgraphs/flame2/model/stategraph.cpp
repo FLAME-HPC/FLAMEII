@@ -27,7 +27,7 @@
 #include "stategraph.hpp"
 #include "xcondition.hpp"
 #include "xfunction.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 
 namespace flame { namespace model {
 
@@ -41,30 +41,30 @@ void StateGraph::setName(std::string name) {
   name_ = name;
 }
 
-Task * StateGraph::generateStateGraphStatesAddStateToGraph(std::string name,
-    std::string startState) {
+ModelTask * StateGraph::generateStateGraphStatesAddStateToGraph(
+    std::string name, std::string startState) {
   size_t ii;
   // Check if state has already been added
   for (ii = 0; ii < graph_.getTaskCount(); ++ii)
-    if (graph_.getTask(ii)->getTaskType() == Task::xstate &&
+    if (graph_.getTask(ii)->getTaskType() == ModelTask::xstate &&
         graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
   // Add state as a task to the task list
-  Task * task = new Task(name_, name, Task::xstate);
+  ModelTask * task = new ModelTask(name_, name, ModelTask::xstate);
   graph_.addVertex(task);
   if (name == startState) task->setStartTask(true);
 
   return task;
 }
 
-void StateGraph::generateStateGraphStates(XFunction * function, Task * task,
-    std::string startState) {
+void StateGraph::generateStateGraphStates(
+    XFunction * function, ModelTask * task, std::string startState) {
   std::set<std::string>::iterator sit;
   // Add and get state tasks
-  Task * currentState =
+  ModelTask * currentState =
       generateStateGraphStatesAddStateToGraph(
           function->getCurrentState(), startState);
-  Task * nextState =
+  ModelTask * nextState =
       generateStateGraphStatesAddStateToGraph(
           function->getNextState(), startState);
   // Add edge from current state to function
@@ -88,7 +88,7 @@ void StateGraph::generateStateGraphStates(XFunction * function, Task * task,
 }
 
 void StateGraph::generateStateGraphVariables(
-    XFunction * function, Task * task) {
+    XFunction * function, ModelTask * task) {
   std::vector<std::string>::iterator sitv;
   // For each read only variable
   for (sitv = function->getReadOnlyVariables()->begin();
@@ -102,21 +102,22 @@ void StateGraph::generateStateGraphVariables(
     task->addReadWriteVariable(*sitv);
 }
 
-Task * StateGraph::generateStateGraphMessagesAddMessageToGraph(
+ModelTask * StateGraph::generateStateGraphMessagesAddMessageToGraph(
     std::string name) {
   size_t ii;
   // Check if state has already been added
   for (ii = 0; ii < graph_.getTaskCount(); ++ii)
-    if (graph_.getTask(ii)->getTaskType() == Task::xmessage &&
+    if (graph_.getTask(ii)->getTaskType() == ModelTask::xmessage &&
         graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
   // Add state as a task to the task list
-  Task * task = new Task(name, name, Task::xmessage);
+  ModelTask * task = new ModelTask(name, name, ModelTask::xmessage);
   graph_.addVertex(task);
   return task;
 }
 
-void StateGraph::generateStateGraphMessages(XFunction * function, Task * task) {
+void StateGraph::generateStateGraphMessages(
+    XFunction * function, ModelTask * task) {
   boost::ptr_vector<XIOput>::iterator ioput;
   // Find outputting functions
   for (ioput = function->getOutputs()->begin();
@@ -149,8 +150,8 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
   // For each transition function
   for (fit = functions->begin(); fit != functions->end(); ++fit) {
     // Add function as a task to the task list
-    Task * functionTask = new Task(name_,
-        (*fit).getName(), Task::xfunction);
+    ModelTask * functionTask = new ModelTask(name_,
+        (*fit).getName(), ModelTask::xfunction);
     // Add vertex for task
     graph_.addVertex(functionTask);
     // Add states
@@ -177,9 +178,9 @@ void StateGraph::importStateGraphTasks(StateGraph * graph,
   // For each task vertex map
   for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     // get task
-    Task * t = tasklist->getTask(ii);
+    ModelTask * t = tasklist->getTask(ii);
     // if message task
-    if (t->getTaskType() == Task::xmessage) {
+    if (t->getTaskType() == ModelTask::xmessage) {
       // get task name
       std::string name = t->getName();
       // try and find existing message task
@@ -269,7 +270,7 @@ std::pair<int, std::string> StateGraph::checkFunctionConditions() {
   // For each vertex
   for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     // If state
-    if (graph_.getTask(*vp.first)->getTaskType() == Task::xstate) {
+    if (graph_.getTask(*vp.first)->getTaskType() == ModelTask::xstate) {
       // If out edges is larger than 1
       if (graph_.getVertexOutDegree(*vp.first) > 1) {
         boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
@@ -277,7 +278,7 @@ std::pair<int, std::string> StateGraph::checkFunctionConditions() {
         for (boost::tie(oei, oei_end) =
             graph_.getVertexOutEdges(*vp.first);
             oei != oei_end; ++oei) {
-          Task * t = graph_.getTask(graph_.getEdgeTarget(*oei));
+          ModelTask * t = graph_.getTask(graph_.getEdgeTarget(*oei));
           // If condition is null then return an error
           if (!t->hasCondition()) {
             error_msg.append("Error: Function '");

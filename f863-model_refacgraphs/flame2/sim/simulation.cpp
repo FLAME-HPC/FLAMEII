@@ -29,7 +29,6 @@ typedef std::set<std::string> StringSet;
 
 typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
-typedef std::map<std::string, VarVec> AgentMemory;
 
 Simulation::Simulation(const m::Model &model, std::string pop_file) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
@@ -115,7 +114,7 @@ void registerAllowMessage(exe::Task * task,
 }
 
 void Simulation::registerAgentTaskWithTaskManager(
-    m::Task * task, const m::Model &model) {
+    m::ModelTask * task, const m::Model &model) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
   flame::exe::Task& exetask = taskManager.CreateAgentTask(
@@ -128,7 +127,7 @@ void Simulation::registerAgentTaskWithTaskManager(
   registerAllowMessage(&exetask, task->getInputMessagesConst(), false);
 }
 
-void Simulation::registerIOTaskWithTaskManager(m::Task * task) {
+void Simulation::registerIOTaskWithTaskManager(m::ModelTask * task) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
   // get task agent name
@@ -148,7 +147,8 @@ void Simulation::registerIOTaskWithTaskManager(m::Task * task) {
   }
 }
 
-void Simulation::registerMBTaskWithTaskManager(m::Task * task, int taskType) {
+void Simulation::registerMBTaskWithTaskManager(
+    m::ModelTask * task, int taskType) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
   std::string message_name = task->getName();
@@ -169,25 +169,26 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
 
   const m::TaskList * tasklist = model.getTaskList();
   for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
-    m::Task * task = tasklist->getTask(ii);
-    m::Task::TaskType type = task->getTaskType();
+    m::ModelTask * task = tasklist->getTask(ii);
+    m::ModelTask::TaskType type = task->getTaskType();
     // If agent task
-    if (type == m::Task::xfunction || type == m::Task::xcondition)
+    if (type == m::ModelTask::xfunction || type == m::ModelTask::xcondition)
       registerAgentTaskWithTaskManager(task, model);
     // if data tast
-    if (type == m::Task::io_pop_write) registerIOTaskWithTaskManager(task);
+    if (type == m::ModelTask::io_pop_write) registerIOTaskWithTaskManager(task);
     // if init io task
-    if (type == m::Task::start_model)
+    if (type == m::ModelTask::start_model)
       taskManager.CreateIOTask(task->getTaskName(), "", "",
                 flame::exe::IOTask::OP_INIT);
     // if final io task
-    if (type == m::Task::finish_model)
+    if (type == m::ModelTask::finish_model)
       taskManager.CreateIOTask(task->getTaskName(), "", "",
                 flame::exe::IOTask::OP_FIN);
     // if message sync task
-    if (type == m::Task::xmessage_sync) registerMBTaskWithTaskManager(task, 0);
+    if (type == m::ModelTask::xmessage_sync)
+      registerMBTaskWithTaskManager(task, 0);
     // if message clear task
-    if (type == m::Task::xmessage_clear)
+    if (type == m::ModelTask::xmessage_clear)
       registerMBTaskWithTaskManager(task, 1);
   }
 

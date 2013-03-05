@@ -18,34 +18,34 @@
 #include "flame2/model/model.hpp"
 #include "flame2/io/io_manager.hpp"
 
-namespace model = flame::model;
+namespace m = flame::model;
 namespace io = flame::io;
 
 BOOST_AUTO_TEST_SUITE(DependencyGraph)
 
 BOOST_AUTO_TEST_CASE(test_raw_conflict) {
-  model::DependencyGraph dgraph;
+  m::DependencyGraph dgraph;
 
   // Add function tasks to graph
-  model::Task * f0 = new model::Task("agent", "f0", model::Task::xfunction);
+  m::ModelTask * f0 = new m::ModelTask("agent", "f0", m::ModelTask::xfunction);
   f0->addReadOnlyVariable("a");
-  model::Task * f1 = new model::Task("agent", "f1", model::Task::xfunction);
+  m::ModelTask * f1 = new m::ModelTask("agent", "f1", m::ModelTask::xfunction);
   f1->addReadOnlyVariable("a");
-  model::Task * f2 = new model::Task("agent", "f2", model::Task::xfunction);
+  m::ModelTask * f2 = new m::ModelTask("agent", "f2", m::ModelTask::xfunction);
   f2->addReadWriteVariable("a");
-  model::Task * f3 = new model::Task("agent", "f3", model::Task::xfunction);
+  m::ModelTask * f3 = new m::ModelTask("agent", "f3", m::ModelTask::xfunction);
   f3->addReadOnlyVariable("a");
-  model::Vertex v0 = dgraph.addTestVertex(f0);
-  model::Vertex v1 = dgraph.addTestVertex(f1);
-  model::Vertex v2 = dgraph.addTestVertex(f2);
-  model::Vertex v3 = dgraph.addTestVertex(f3);
+  m::Vertex v0 = dgraph.addTestVertex(f0);
+  m::Vertex v1 = dgraph.addTestVertex(f1);
+  m::Vertex v2 = dgraph.addTestVertex(f2);
+  m::Vertex v3 = dgraph.addTestVertex(f3);
   // Add dependencies between tasks
-  dgraph.addTestEdge(v0, v1, "", model::Dependency::state);
-  dgraph.addTestEdge(v1, v2, "", model::Dependency::state);
-  dgraph.addTestEdge(v2, v3, "", model::Dependency::state);
+  dgraph.addTestEdge(v0, v1, "", m::Dependency::state);
+  dgraph.addTestEdge(v1, v2, "", m::Dependency::state);
+  dgraph.addTestEdge(v2, v3, "", m::Dependency::state);
   // Set up graph for processing
-  boost::ptr_vector<model::XVariable> variables;
-  variables.push_back(new model::XVariable("a"));
+  boost::ptr_vector<m::XVariable> variables;
+  variables.push_back(new m::XVariable("a"));
   dgraph.setTestStartTask(f0);
   dgraph.addTestEndTask(f3);
   dgraph.setName("test_xgraph");
@@ -57,9 +57,9 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
 }
 
 BOOST_AUTO_TEST_CASE(test_dependencygraph) {
-  flame::io::IOManager& m = flame::io::IOManager::GetInstance();
-  flame::model::XModel model;
-  flame::model::DependencyGraph * graph;
+  io::IOManager& m = io::IOManager::GetInstance();
+  m::XModel model;
+  m::DependencyGraph * graph;
 
   BOOST_CHECK_NO_THROW(m.loadModel(
       "model/models/infection.xml", &model));

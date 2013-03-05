@@ -57,14 +57,14 @@ class XGraph {
   public:
     XGraph();
     ~XGraph();
-    Vertex addVertex(Task * t);
+    Vertex addVertex(ModelTask * t);
     //! Required when importing graphs to model graph
-    Vertex addVertex(TaskPtr ptr);
+    Vertex addVertex(ModelTaskPtr ptr);
     Edge addEdge(Vertex to, Vertex from, std::string name,
       Dependency::DependencyType type);
     void removeDependency(Edge e);
-    Vertex getVertex(Task * t);
-    Task * getTask(Vertex v) const;
+    Vertex getVertex(ModelTask * t);
+    ModelTask * getTask(Vertex v) const;
     Dependency * getDependency(Edge e);
     void removeVertex(Vertex v);
     void removeVertices(std::vector<Vertex> * tasks);
@@ -81,12 +81,12 @@ class XGraph {
     void writeGraphviz(const std::string& fileName) const;
     bool edgeExists(Vertex v1, Vertex v2) const;
     std::vector<Vertex> getTopologicalSortedVertices();
-    void setStartTask(Task * task);
-    Task * getStartTask();
-    void setEndTask(Task * task);
-    Task * getEndTask();
-    void addEndTask(Task * task);
-    std::set<Task*> * getEndTasks();
+    void setStartTask(ModelTask * task);
+    ModelTask * getStartTask();
+    void setEndTask(ModelTask * task);
+    ModelTask * getEndTask();
+    void addEndTask(ModelTask * task);
+    std::set<ModelTask*> * getEndTasks();
     EdgeMap * getEdgeDependencyMap();
     const TaskList * getTaskList() const;
     size_t getTaskCount();
@@ -96,9 +96,9 @@ class XGraph {
     Graph * graph_;
     TaskList tasklist_;
     EdgeMap * edge2dependency_;
-    Task * startTask_;
-    Task * endTask_;
-    std::set<Task*> endTasks_;
+    ModelTask * startTask_;
+    ModelTask * endTask_;
+    std::set<ModelTask*> endTasks_;
 };
 
 }}  // namespace flame::model
