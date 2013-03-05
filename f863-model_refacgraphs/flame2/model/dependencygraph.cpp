@@ -376,9 +376,12 @@ void DependencyGraph::import(DependencyGraph * graph) {
   // For each edge
   TaskIdMap dependencies = graph->getTaskDependencies();
   TaskIdMap::iterator mit;
-  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
+  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit) {
     // Add edge using vertex to vertex map
-    graph_.addEdge((*mit).first, (*mit).second, "", Dependency::blank);
+    Vertex ns = (*(import2new.find((*mit).second))).second;
+    Vertex nt = (*(import2new.find((*mit).first))).second;
+    graph_.addEdge(ns, nt, "", Dependency::blank);
+  }
 }
 
 void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
