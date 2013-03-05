@@ -140,7 +140,7 @@ void DataDependencyAnalyser::addReadDependencies(Vertex v, Task * t) {
           if (*it != v) {
             // Add edge
 #ifdef USE_VARIABLE_VERTICES
-            addEdge(*it, v, *varit, Dependency::variable);
+            graph_->addEdge(*it, v, *varit, Dependency::variable);
 #else
             if (alreadyUsed.find(*it) == alreadyUsed.end()) {
               graph_->addEdge(*it, v, "Data", Dependency::variable);
@@ -166,10 +166,10 @@ void DataDependencyAnalyser::addWritingVerticesToList(Vertex v, Task * t) {
     clearVarWriteSet((*varit), t->getLastReads());
 #ifdef USE_VARIABLE_VERTICES
     // New vertex
-    Task * task = new Task(agentName_, (*varit), Task::xvariable);
-    Vertex varVertex = addVertex(task);
+    Task * task = new Task(name_, (*varit), Task::xvariable);
+    Vertex varVertex = graph_->addVertex(task);
     // Edge to vertex
-    addEdge(v, varVertex, (*varit), Dependency::variable);
+    graph_->addEdge(v, varVertex, (*varit), Dependency::variable);
     // Add new write
     addVectorToVarWriteSet((*varit), varVertex, t->getLastWrites());
 #else

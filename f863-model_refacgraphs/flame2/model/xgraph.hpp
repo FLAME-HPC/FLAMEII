@@ -51,7 +51,7 @@ typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 typedef size_t TaskId;
 typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
+typedef std::multimap<TaskId, TaskId> TaskIdMap;
 
 class XGraph {
   public:

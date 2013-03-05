@@ -30,9 +30,6 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::map<std::string, std::vector<Var> > AgentMemory;
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
 
 class XModel {
   public:

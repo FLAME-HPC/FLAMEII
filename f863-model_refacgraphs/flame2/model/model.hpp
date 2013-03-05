@@ -18,10 +18,6 @@
 
 namespace flame { namespace model {
 
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
-
 //! \brief Used to create a model and register with framework
 class Model {
   public:

@@ -27,10 +27,6 @@ namespace exe = flame::exe;
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
-
 typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
@@ -196,12 +192,12 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
   }
 
   // register task dependencies
-  TaskIdMap dependencies = model.getTaskDependencies();
-  TaskIdMap::iterator mit;
+  m::TaskIdMap dependencies = model.getTaskDependencies();
+  m::TaskIdMap::iterator mit;
   for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
     taskManager.AddDependency(
-        tasklist->getTask((*mit).first)->getTaskName(),
-        tasklist->getTask((*mit).second)->getTaskName());
+        tasklist->getTask((*mit).second)->getTaskName(),
+        tasklist->getTask((*mit).first)->getTaskName());
 
   // once finalised, tasks and dependencies can no longer be added
   taskManager.Finalise();
