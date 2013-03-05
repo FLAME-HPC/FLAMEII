@@ -48,7 +48,8 @@ class DependencyGraph {
     TaskIdMap getTaskDependencies() const;
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
-    bool dependencyExists(std::string name1, std::string name2);
+    bool dependencyExists(ModelTask::TaskType type1, std::string name1,
+        ModelTask::TaskType type2, std::string name2);
     Vertex addTestVertex(ModelTask * t);
     void addTestEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);

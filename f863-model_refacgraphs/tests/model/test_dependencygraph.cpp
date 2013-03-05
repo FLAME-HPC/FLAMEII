@@ -52,8 +52,10 @@ BOOST_AUTO_TEST_CASE(test_raw_conflict) {
   // Process graph
   dgraph.generateDependencyGraph(&variables);
   // Test outcome
-  BOOST_CHECK(dgraph.dependencyExists("f1", "f2") == true);
-  BOOST_CHECK(dgraph.dependencyExists("f0", "f2") == true);
+  BOOST_CHECK(dgraph.dependencyExists(m::ModelTask::xfunction, "f1",
+      m::ModelTask::xfunction, "f2") == true);
+  BOOST_CHECK(dgraph.dependencyExists(m::ModelTask::xfunction, "f0",
+      m::ModelTask::xfunction, "f2") == true);
 }
 
 BOOST_AUTO_TEST_CASE(test_dependencygraph) {
@@ -66,23 +68,87 @@ BOOST_AUTO_TEST_CASE(test_dependencygraph) {
   BOOST_CHECK(model.validate() == 0);
   graph = model.getGraph();
 
-  BOOST_CHECK(graph->dependencyExists("output_location", "0") == true);
-  BOOST_CHECK(graph->dependencyExists("0", "transit_disease") == true);
-  BOOST_CHECK(graph->dependencyExists("0", "update_resistance") == true);
+  // check agent function and condition dependencies
   BOOST_CHECK(graph->dependencyExists(
-      "0", "calculate_connection_forces") == true);
-  BOOST_CHECK(graph->dependencyExists("0", "calculate_crowd_forces") == true);
+      m::ModelTask::xfunction, "output_location",
+      m::ModelTask::xcondition, "0") == true);
   BOOST_CHECK(graph->dependencyExists(
-      "transit_disease", "update_connections") == true);
+      m::ModelTask::xcondition, "0",
+      m::ModelTask::xfunction, "transit_disease") == true);
   BOOST_CHECK(graph->dependencyExists(
-      "calculate_connection_forces", "update_connections") == true);
-  BOOST_CHECK(graph->dependencyExists("update_connections", "move") == true);
+      m::ModelTask::xcondition, "0",
+      m::ModelTask::xfunction, "update_resistance") == true);
   BOOST_CHECK(graph->dependencyExists(
-      "calculate_crowd_forces", "move") == true);
+      m::ModelTask::xcondition, "0",
+      m::ModelTask::xfunction, "calculate_connection_forces") == true);
   BOOST_CHECK(graph->dependencyExists(
-      "transit_disease", "diagnosis_and_recovery") == true);
+      m::ModelTask::xcondition, "0",
+      m::ModelTask::xfunction, "calculate_crowd_forces") == true);
   BOOST_CHECK(graph->dependencyExists(
-      "update_infection_status", "diagnosis") == true);
+      m::ModelTask::xfunction, "transit_disease",
+      m::ModelTask::xfunction, "update_connections") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_connection_forces",
+      m::ModelTask::xfunction, "update_connections") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "update_connections",
+      m::ModelTask::xfunction, "move") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_crowd_forces",
+      m::ModelTask::xfunction, "move") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "transit_disease",
+      m::ModelTask::xfunction, "diagnosis_and_recovery") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "update_infection_status",
+      m::ModelTask::xfunction, "diagnosis") == true);
+  // check message dependencies
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "output_location",
+      m::ModelTask::xmessage_sync, "location") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xmessage_sync, "location",
+      m::ModelTask::xfunction, "calculate_connection_forces") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xmessage_sync, "location",
+      m::ModelTask::xfunction, "calculate_crowd_forces") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_connection_forces",
+      m::ModelTask::xmessage_clear, "location") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_crowd_forces",
+      m::ModelTask::xmessage_clear, "location") == true);
+  // check io dependencies
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xcondition, "0",
+      m::ModelTask::io_pop_write, "4") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_connection_forces",
+      m::ModelTask::io_pop_write, "2") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_crowd_forces",
+      m::ModelTask::io_pop_write, "3") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "move",
+      m::ModelTask::io_pop_write, "7") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "diagnosis_and_recovery",
+      m::ModelTask::io_pop_write, "1") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "diagnosis_and_recovery",
+      m::ModelTask::io_pop_write, "5") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "diagnosis_and_recovery",
+      m::ModelTask::io_pop_write, "6") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "update_connections",
+      m::ModelTask::io_pop_write, "0") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "diagnosis",
+      m::ModelTask::io_pop_write, "1") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "update_infection_status",
+      m::ModelTask::io_pop_write, "5") == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

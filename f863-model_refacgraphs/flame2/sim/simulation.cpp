@@ -130,8 +130,6 @@ void Simulation::registerAgentTaskWithTaskManager(
 void Simulation::registerIOTaskWithTaskManager(m::ModelTask * task) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
-  // get task agent name
-  std::string agent_name = task->getParentName();
   StringSet::iterator sit;
   // get task writing variables
   StringSet vars = task->getWriteVariablesConst();
@@ -139,10 +137,10 @@ void Simulation::registerIOTaskWithTaskManager(m::ModelTask * task) {
   for (sit = vars.begin(); sit != vars.end(); ++sit) {
     std::string var = *sit;
     std::string taskName = "AD_";
-    taskName.append(agent_name);
+    taskName.append(task->getParentName());
     taskName.append("_");
     taskName.append(var);
-    taskManager.CreateIOTask(taskName, agent_name, var,
+    taskManager.CreateIOTask(taskName, task->getParentName(), var,
         flame::exe::IOTask::OP_OUTPUT);
   }
 }
@@ -195,10 +193,37 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
   // register task dependencies
   m::TaskIdMap dependencies = model.getTaskDependencies();
   m::TaskIdMap::iterator mit;
-  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
-    taskManager.AddDependency(
-        tasklist->getTask((*mit).second)->getTaskName(),
-        tasklist->getTask((*mit).first)->getTaskName());
+  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit) {
+    m::ModelTask * ts = tasklist->getTask((*mit).first);
+    m::ModelTask * tt = tasklist->getTask((*mit).second);
+    if (ts->getTaskType() == m::ModelTask::io_pop_write) {
+      StringSet::iterator sit;
+      // get task writing variables
+      StringSet vars = ts->getWriteVariablesConst();
+      std::string taskName;
+      for (sit = vars.begin(); sit != vars.end(); ++sit) {
+        taskName = "AD_";
+        taskName.append(ts->getParentName());
+        taskName.append("_");
+        taskName.append(*sit);
+      }
+      taskManager.AddDependency(tt->getTaskName(), taskName);
+    } else if (tt->getTaskType() == m::ModelTask::io_pop_write) {
+      StringSet::iterator sit;
+      // get task writing variables
+      StringSet vars = tt->getWriteVariablesConst();
+      std::string taskName;
+      for (sit = vars.begin(); sit != vars.end(); ++sit) {
+        taskName = "AD_";
+        taskName.append(tt->getParentName());
+        taskName.append("_");
+        taskName.append(*sit);
+      }
+      taskManager.AddDependency(taskName, ts->getTaskName());
+    } else {
+      taskManager.AddDependency(tt->getTaskName(), ts->getTaskName());
+    }
+  }
 
   // once finalised, tasks and dependencies can no longer be added
   taskManager.Finalise();

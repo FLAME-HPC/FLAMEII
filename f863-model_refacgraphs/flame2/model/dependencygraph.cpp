@@ -144,7 +144,7 @@ void DependencyGraph::AddVariableOutput() {
   while (!lws->empty()) {
     // Create new io write task
     ModelTask * task = new ModelTask(name_,
-        boost::lexical_cast<std::string>(++count), ModelTask::io_pop_write);
+        boost::lexical_cast<std::string>(count++), ModelTask::io_pop_write);
     Vertex vertex = graph_.addVertex(task);
     task->addWriteVariable((*lws->begin()).first);
     // Check first var against other var task sets, if same then add to
@@ -157,9 +157,6 @@ void DependencyGraph::AddVariableOutput() {
         ++vwit;
       }
     }
-    // Set name as names of variables
-    // task->setName(concatStringSet(task->getWriteVariables()));
-    task->setName((*lws->begin()).first);
     // Add edges from each writing vector to task
     for (sit = (*lws->begin()).second.begin();
         sit != (*lws->begin()).second.end(); ++sit)
@@ -500,14 +497,17 @@ const TaskList * DependencyGraph::getTaskList() const {
 }
 
 #ifdef TESTBUILD
-bool DependencyGraph::dependencyExists(std::string name1, std::string name2) {
+bool DependencyGraph::dependencyExists(
+    ModelTask::TaskType type1, std::string name1,
+    ModelTask::TaskType type2, std::string name2) {
   int v1 = -1, v2 = -1;
   size_t ii;
 
   // For each task find vertex of task names
   for (ii = 0; ii < graph_.getTaskCount(); ++ii) {
-    if (graph_.getTask(ii)->getName() == name1) v1 = ii;
-    if (graph_.getTask(ii)->getName() == name2) v2 = ii;
+    ModelTask * t = graph_.getTask(ii);
+    if (t->getTaskType() == type1 && t->getName() == name1) v1 = ii;
+    if (t->getTaskType() == type2 && t->getName() == name2) v2 = ii;
   }
   // If either vertex not found then return false
   if (v1 == -1 || v2 == -1) return false;
