@@ -19,45 +19,24 @@
 #include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 #include "xfunction.hpp"
 #include "xvariable.hpp"
 #include "stategraph.hpp"
+#include "xgraph.hpp"
 
 namespace flame { namespace model {
 
-/* \brief Define graph type
- *
- * Vectors are used for vertex and edge containers.
- * Bidirectional graph used for access to boost::in_edges
- * as well as boost::out_edges.
- */
-typedef boost::adjacency_list
-        <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-//! \brief Define vertex descriptor type
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-//! \brief Define edge descriptor type
-typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-//! \brief Define vertex iterator
-typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-//! \brief Define edge iterator
-typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-//! \brief Define edge mapping
-typedef std::map<Edge, Dependency *> EdgeMap;
-
-//! Use a shared pointer to automatically handle Task pointers
-typedef boost::shared_ptr<Task> TaskPtr;
-
-typedef std::set< std::pair<std::string, std::string> > StringPairSet;
-typedef std::set<std::string> StringSet;
+//! Define task id as unsigned integer
 typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
+//! Define multimap of task ids to hold dependencies
+typedef std::multimap<TaskId, TaskId> TaskIdMap;
 
 class DependencyGraph {
   public:
+    //! Constructor
     DependencyGraph();
-    ~DependencyGraph();
+    //! Generate dependency graph (from imported state graph)
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     //! Checks for cyclic dependencies within a graph
     //! \return first integer for number of errors,
@@ -68,84 +47,66 @@ class DependencyGraph {
     //! \return first integer for number of errors,
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
-    void generateTaskList(std::vector<Task*> * tasks);
+    //! Set the name of the graph (agent or model name)
     void setName(std::string name);
+    //! Import a dependency graph
     void import(DependencyGraph * graph);
-    std::vector<TaskPtr> * getVertexTaskMap();
-    Graph * getGraph() { return graph_; }
+    //! Write graph out to a dot file
     void writeGraphviz(const std::string& fileName) const;
+    //! Import a set of dependency graphs.
+    //! Used by models to import agent graphs
     void importGraphs(std::set<DependencyGraph*> graphs);
+    //! Import a state graph as a starting point
     void importStateGraph(StateGraph * stateGraph);
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
+    //! Return all the graph dependencies
     TaskIdMap getTaskDependencies() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
+    //! Return the task list
+    const TaskList * getTaskList() const;
 #ifdef TESTBUILD
-    bool dependencyExists(std::string name1, std::string name2);
-    Vertex addTestVertex(Task * t);
+    //! Check to see if a dependencies between tasks exists
+    bool dependencyExists(ModelTask::TaskType type1, std::string name1,
+        ModelTask::TaskType type2, std::string name2);
+    //! Add a task
+    Vertex addTestVertex(ModelTask * t);
+    //! Add a dependency
     void addTestEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
-    void setTestStartTask(Task * task);
-    void addTestEndTask(Task * task);
+    //! Set a start task
+    void setTestStartTask(ModelTask * task);
+    //! Set an end task
+    void addTestEndTask(ModelTask * task);
 #endif
 
   private:
-    /*! \brief Ptr to a graph so that graphs can be swapped */
-    Graph * graph_;
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
-    std::vector<TaskPtr> * vertex2task_;
-    EdgeMap * edge2dependency_;
-    Task * startTask_;
-    std::set<Task *> endTasks_;
-    Task * endTask_;
+    //! The underlying graph
+    XGraph graph_;
+    //! The graph name (either model or agent name)
     std::string name_;
 
-    Vertex getMessageVertex(std::string name, Task::TaskType type);
+    //! Return new message vertex or existing one if found
+    Vertex getMessageVertex(std::string name, ModelTask::TaskType type);
+    //! Change message tasks to sync tasks
     void changeMessageTasksToSync();
+    //! Add message clear tasks
     void addMessageClearTasks();
-    int registerAllowAccess(flame::exe::Task * task,
-            std::set<std::string> vars, bool writeable);
-    int registerAllowMessage(flame::exe::Task * task,
-            std::set<std::string> messages, bool post);
-    Vertex addVertex(Task * t);
-    Vertex addVertex(TaskPtr ptr);
-    Edge addEdge(Vertex to, Vertex from, std::string name,
-            Dependency::DependencyType type);
-    void addStartTask(boost::ptr_vector<XVariable> * variables);
-    void addEndTask();
-    void copyWritingAndReadingVerticesFromInEdges(Vertex v, Task * t);
-    void addConditionDependenciesAndUpdateLastConditions(Vertex v, Task * t);
-    void addWriteDependencies(Vertex v, Task * t);
-    void addReadDependencies(Vertex v, Task * t);
-    void addWritingVerticesToList(Vertex v, Task * t);
-    void addDataDependencies(boost::ptr_vector<XVariable> * variables);
-    void setStartTask(Task * task);
+    //! Change state tasks with more than 1 outgoing transition into
+    //! a condition task
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
+    //! Set start task to not be a state and remove all state tasks
     void contractStateVertices();
-    void contractVariableVertices();
-    void removeRedundantDependencies();
+    //! Remove state type dependencies
     void removeStateDependencies();
-    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
+    //! Add data dependencies between writing and reading functions for
+    //! each variable
     void AddVariableOutput();
-    void contractVertices(Task::TaskType taskType,
+    //! Remove vertex type and replace with edge with given dependency type
+    void contractVertices(ModelTask::TaskType taskType,
             Dependency::DependencyType dependencyType);
-    Vertex getVertex(Task * t);
-    Task * getTask(Vertex v) const;
-    Dependency * getDependency(Edge e);
-    void removeVertex(Vertex v);
-    void removeVertices(std::vector<Vertex> * tasks);
-    void removeDependency(Edge e);
+#ifdef GROUP_WRITE_VARS
+    //! Return true if both sets are the same
+    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
+#endif
 };
 
 }}  // namespace flame::model

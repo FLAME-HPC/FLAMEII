@@ -18,10 +18,6 @@
 
 namespace flame { namespace model {
 
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
-
 //! \brief Used to create a model and register with framework
 class Model {
   public:
@@ -50,20 +46,8 @@ class Model {
     //! Check the model has been validated
     bool isValidated() const;
     AgentMemory getAgentMemoryInfo() const;
-    TaskIdSet getAgentTasks() const;
-    TaskIdSet getAgentIOTasks() const;
-    TaskId getInitIOTask() const;
-    TaskId getFinIOTask() const;
-    TaskIdSet getMessageBoardSyncTasks() const;
-    TaskIdSet getMessageBoardClearTasks() const;
     TaskIdMap getTaskDependencies() const;
-    std::string getTaskName(TaskId id) const;
-    std::string getTaskAgentName(TaskId id) const;
-    std::string getTaskFunctionName(TaskId id) const;
-    StringSet getTaskReadOnlyVariables(TaskId id) const;
-    StringSet getTaskWriteVariables(TaskId id) const;
-    StringSet getTaskOutputMessages(TaskId id) const;
-    StringSet getTaskInputMessages(TaskId id) const;
+    const TaskList * getTaskList() const;
 #ifdef TESTBUILD
     flame::model::XModel * getXModel() { return &model_; }
 #endif

@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include "xvariable.hpp"
-#include "task.hpp"
 
 namespace flame { namespace model {
 
@@ -27,10 +26,6 @@ class XMessage {
     XVariable * addVariable(std::string type, std::string name);
     boost::ptr_vector<XVariable> * getVariables();
     bool validateVariableName(std::string name);
-    void setSyncStartTask(Task * task);
-    Task * getSyncStartTask();
-    void setSyncFinishTask(Task * task);
-    Task * getSyncFinishTask();
     void setID(int id);
     int getID();
 
@@ -38,8 +33,6 @@ class XMessage {
     int id_;
     std::string name_;
     boost::ptr_vector<XVariable> variables_;
-    Task * syncStartTask_;
-    Task * syncFinishTask_;
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMESSAGE_HPP_

@@ -21,7 +21,7 @@ namespace flame { namespace model {
  * Initialises id to be zero and start and finish tasks to be null.
  */
 XMessage::XMessage()
-  : id_(0), syncStartTask_(0), syncFinishTask_(0) {}
+  : id_(0) {}
 
 /*!
  * \brief Prints XMessage
@@ -68,22 +68,6 @@ bool XMessage::validateVariableName(std::string name) {
   for (it = variables_.begin(); it != variables_.end(); it++)
     if (name == (*it).getName()) return true;
   return false;
-}
-
-void XMessage::setSyncStartTask(Task * task) {
-  syncStartTask_ = task;
-}
-
-Task * XMessage::getSyncStartTask() {
-  return syncStartTask_;
-}
-
-void XMessage::setSyncFinishTask(Task * task) {
-  syncFinishTask_ = task;
-}
-
-Task * XMessage::getSyncFinishTask() {
-  return syncFinishTask_;
 }
 
 void XMessage::setID(int id) {

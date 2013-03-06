@@ -27,13 +27,8 @@ namespace exe = flame::exe;
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
-
 typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
-typedef std::map<std::string, VarVec> AgentMemory;
 
 Simulation::Simulation(const m::Model &model, std::string pop_file) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
@@ -51,12 +46,16 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
 }
 
 void Simulation::start(size_t iterations, size_t num_cores) {
+  // create a scheduler
   exe::Scheduler s;
+  // add a FIFO queue to the scheduler with given num cores
   exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(num_cores);
+  // add all task types to be handled by the queue
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
   s.AssignType(q, exe::Task::MB_FUNCTION);
   s.AssignType(q, exe::Task::IO_FUNCTION);
 
+  // run scheduler iteration for num iterations
   unsigned int ii;
   for (ii = 1; ii <= iterations; ++ii) {
 #ifndef TESTBUILD
@@ -76,7 +75,6 @@ void Simulation::registerModelWithMemoryManager(
               flame::mem::MemoryManager::GetInstance();
 
   for (agent = agentMemory.begin(); agent != agentMemory.end(); ++agent) {
-    // printf("memoryManager.RegisterAgent %s\n", (*agent).first.c_str());
     // register agent with memory manager
     memoryManager.RegisterAgent((*agent).first);
     // register agent memory variables
@@ -97,7 +95,7 @@ void registerAllowAccess(exe::Task * task,
     StringSet vars, bool writeable) {
   StringSet::iterator sit;
 
-  // For each variable name
+  // for each variable name
   for (sit = vars.begin(); sit != vars.end(); ++sit)
     task->AllowAccess((*sit), writeable);
 }
@@ -106,117 +104,90 @@ void registerAllowMessage(exe::Task * task,
     StringSet messages, bool post) {
   StringSet::iterator sit;
 
-  // For each message
+  // for each message
   for (sit = messages.begin();
       sit != messages.end(); ++sit) {
-    // Update task with appropriate access
-    // If output message then allow post
+    // update task with appropriate access
+    // if output message then allow post
     if (post) task->AllowMessagePost((*sit));
-    // If input message then allow read
+    // if input message then allow read
     else
       task->AllowMessageRead((*sit));
   }
 }
 
-void Simulation::registerAgentTasksWithTaskManager(const m::Model &model) {
+void Simulation::registerAgentTaskWithTaskManager(
+    m::ModelTask * task, const m::Model &model) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  TaskIdSet::iterator it;
 
-  TaskIdSet agentTasks = model.getAgentTasks();
-  for (it = agentTasks.begin(); it != agentTasks.end(); ++it) {
-    TaskId id = (*it);
-    flame::exe::Task& task = taskManager.CreateAgentTask(
-      model.getTaskName(id),
-      model.getTaskAgentName(id),
-      model.getAgentFunctionPointer(model.getTaskFunctionName(id)));
-    registerAllowAccess(&task, model.getTaskReadOnlyVariables(id), false);
-    registerAllowAccess(&task, model.getTaskWriteVariables(id), true);
-    registerAllowMessage(&task, model.getTaskOutputMessages(id), true);
-    registerAllowMessage(&task, model.getTaskInputMessages(id), false);
-  }
+  // create agent task
+  flame::exe::Task& exetask = taskManager.CreateAgentTask(
+    task->getTaskName(),
+    task->getParentName(),
+    model.getAgentFunctionPointer(task->getName()));
+  // register read only and write variables
+  registerAllowAccess(&exetask, task->getReadOnlyVariablesConst(), false);
+  registerAllowAccess(&exetask, task->getWriteVariablesConst(), true);
+  // register message output and input
+  registerAllowMessage(&exetask, task->getOutputMessagesConst(), true);
+  registerAllowMessage(&exetask, task->getInputMessagesConst(), false);
 }
 
-void Simulation::registerIOTasksWithTaskManager(const m::Model &model) {
+void Simulation::registerMBTaskWithTaskManager(
+    m::ModelTask * task, int taskType) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  TaskIdSet::iterator it;
 
-  // get model io tasks
-  TaskIdSet ioTasks = model.getAgentIOTasks();
-  for (it = ioTasks.begin(); it != ioTasks.end(); ++it) {
-    TaskId id = (*it);
-    // get task agent name
-    std::string agent_name = model.getTaskAgentName(id);
-    StringSet::iterator sit;
-    // get task writing variables
-    StringSet vars = model.getTaskWriteVariables(id);
-    // for each variable create a new IO task
-    for (sit = vars.begin(); sit != vars.end(); ++sit) {
-      std::string var = *sit;
-      std::string taskName = "AD_";
-      taskName.append(agent_name);
-      taskName.append("_");
-      taskName.append(var);
-      taskManager.CreateIOTask(taskName, agent_name, var,
-          flame::exe::IOTask::OP_OUTPUT);
-    }
-  }
-
-  TaskId initIOTask = model.getInitIOTask();
-  taskManager.CreateIOTask(model.getTaskName(initIOTask), "", "",
-          flame::exe::IOTask::OP_INIT);
-  TaskId finIOTask = model.getFinIOTask();
-  taskManager.CreateIOTask(model.getTaskName(finIOTask), "", "",
-          flame::exe::IOTask::OP_FIN);
-}
-
-void Simulation::registerMBTasksWithTaskManager(const m::Model &model) {
-  exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-  TaskIdSet::iterator it;
-
-  // get model MB sync tasks
-  TaskIdSet messageboardSyncTasks = model.getMessageBoardSyncTasks();
-  for (it = messageboardSyncTasks.begin();
-      it != messageboardSyncTasks.end(); ++it) {
-    TaskId id = (*it);
-    std::string message_name = model.getTaskFunctionName(id);
-    std::string task_name = model.getTaskName(id);
-    // register sync task
+  std::string message_name = task->getName();
+  std::string task_name = task->getTaskName();
+  // register sync task
+  if (taskType == 0)
     taskManager.CreateMessageBoardTask(task_name, message_name,
-            exe::MessageBoardTask::OP_SYNC);
-  }
-
-  // get model MB clear tasks
-  TaskIdSet messageboardClearTasks = model.getMessageBoardClearTasks();
-  for (it = messageboardClearTasks.begin();
-      it != messageboardClearTasks.end(); ++it) {
-    TaskId id = (*it);
-    std::string message_name = model.getTaskFunctionName(id);
-    std::string task_name = model.getTaskName(id);
-    // register clear task
-    taskManager.CreateMessageBoardTask(task_name, message_name,
-            exe::MessageBoardTask::OP_CLEAR);
-  }
+          exe::MessageBoardTask::OP_SYNC);
+  // register clear task
+  if (taskType == 1)
+  taskManager.CreateMessageBoardTask(task_name, message_name,
+          exe::MessageBoardTask::OP_CLEAR);
 }
 
 void Simulation::registerModelWithTaskManager(const m::Model &model) {
-  exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+  exe::TaskManager& taskMgr = exe::TaskManager::GetInstance();
+  size_t ii;
+  m::TaskIdMap::iterator mit;
+  const m::TaskList * tasklist = model.getTaskList();
 
-  // register agent tasks
-  registerAgentTasksWithTaskManager(model);
-  // register IO tasks
-  registerIOTasksWithTaskManager(model);
-  // register MB tasks
-  registerMBTasksWithTaskManager(model);
+  // for each task
+  for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
+    m::ModelTask * task = tasklist->getTask(ii);
+    m::ModelTask::TaskType type = task->getTaskType();
+    // if agent task
+    if (type == m::ModelTask::xfunction || type == m::ModelTask::xcondition)
+      registerAgentTaskWithTaskManager(task, model);
+    // if data tast
+    if (type == m::ModelTask::io_pop_write)
+      taskMgr.CreateIOTask(task->getTaskName(), task->getParentName(),
+          task->getName(), exe::IOTask::OP_OUTPUT);
+    // if init io task
+    if (type == m::ModelTask::start_model)
+      taskMgr.CreateIOTask(task->getTaskName(), "", "", exe::IOTask::OP_INIT);
+    // if final io task
+    if (type == m::ModelTask::finish_model)
+      taskMgr.CreateIOTask(task->getTaskName(), "", "", exe::IOTask::OP_FIN);
+    // if message sync task
+    if (type == m::ModelTask::xmessage_sync)
+      registerMBTaskWithTaskManager(task, 0);
+    // if message clear task
+    if (type == m::ModelTask::xmessage_clear)
+      registerMBTaskWithTaskManager(task, 1);
+  }
 
   // register task dependencies
-  TaskIdMap dependencies = model.getTaskDependencies();
-  TaskIdMap::iterator mit;
+  m::TaskIdMap dependencies = model.getTaskDependencies();
   for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
-    taskManager.AddDependency(model.getTaskName((*mit).first),
-        model.getTaskName((*mit).second));
+    taskMgr.AddDependency(tasklist->getTask((*mit).second)->getTaskName(),
+        tasklist->getTask((*mit).first)->getTaskName());
 
   // once finalised, tasks and dependencies can no longer be added
-  taskManager.Finalise();
+  taskMgr.Finalise();
 }
 
 #ifdef TESTBUILD

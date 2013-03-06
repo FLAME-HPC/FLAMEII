@@ -19,46 +19,17 @@
 #include <utility>  // for std::pair
 #include "flame2/exe/task_manager.hpp"
 #include "dependency.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 #include "xfunction.hpp"
 #include "xvariable.hpp"
+#include "xgraph.hpp"
 
 namespace flame { namespace model {
-
-/* \brief Define graph type
- *
- * Vectors are used for vertex and edge containers.
- * Bidirectional graph used for access to boost::in_edges
- * as well as boost::out_edges.
- */
-typedef boost::adjacency_list
-        <boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-//! \brief Define vertex descriptor type
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-//! \brief Define edge descriptor type
-typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-//! \brief Define vertex iterator
-typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-//! \brief Define edge iterator
-typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-//! \brief Define edge mapping
-typedef std::map<Edge, Dependency *> EdgeMap;
-
-//! Use a shared pointer to automatically handle Task pointers
-typedef boost::shared_ptr<Task> TaskPtr;
-
-typedef std::set< std::pair<std::string, std::string> > StringPairSet;
-typedef std::set<std::string> StringSet;
-typedef size_t TaskId;
-typedef std::set<TaskId> TaskIdSet;
-typedef std::map<TaskId, TaskId> TaskIdMap;
 
 class StateGraph {
   public:
     //! Constructor
     StateGraph();
-    //! Deconstructor
-    ~StateGraph();
     //! Generate state graph from agent functions
     int generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
@@ -73,39 +44,40 @@ class StateGraph {
     std::pair<int, std::string> checkFunctionConditions();
     //! set graph name (agent name or model name)
     void setName(std::string name);
-    //! \return vertex task map
-    std::vector<TaskPtr> * getVertexTaskMap();
     //! \return edge dependency map
     EdgeMap * getEdgeDependencyMap();
-    //! \return underlying graph
-    Graph * getGraph() { return graph_; }
     //! write out graph dot file
     void writeGraphviz(const std::string& fileName) const;
     //! import set of state graphs and combine
     void importStateGraphs(std::set<StateGraph*> graphs);
+    //! \return Vertex source of edge
+    Vertex getEdgeSource(Edge e);
+    //! \return Vertex target of edge
+    Vertex getEdgeTarget(Edge e);
+    //! \return Edge iterators to iterate all edges
+    std::pair<EdgeIterator, EdgeIterator> getEdges();
+    //! \return List of all tasks
+    const TaskList * getTaskList() const;
 
   private:
-    /*! \brief Ptr to a graph so that graphs can be swapped */
-    Graph * graph_;
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
-    std::vector<TaskPtr> * vertex2task_;
-    EdgeMap * edge2dependency_;
+    //! Underlying graph
+    XGraph graph_;
+    //! Name of graph (agent or model name)
     std::string name_;
 
-    Vertex addVertex(Task * t);
-    Vertex addVertex(TaskPtr ptr);
-    Edge addEdge(Vertex to, Vertex from, std::string name,
-            Dependency::DependencyType type);
-    Task * generateStateGraphStatesAddStateToGraph(
+    //! Add state to graph or return task if already added
+    ModelTask * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
-    void generateStateGraphStates(XFunction * function, Task * task,
+    //! Add current and next state task for a function task
+    void generateStateGraphStates(XFunction * function, ModelTask * task,
             std::string startState);
-    void generateStateGraphVariables(XFunction * function, Task * task);
-    Task * generateStateGraphMessagesAddMessageToGraph(std::string name);
-    void generateStateGraphMessages(XFunction * function, Task * task);
-    Vertex getVertex(Task * t);
-    Task * getTask(Vertex v) const;
-    Dependency * getDependency(Edge e);
+    //! Add read write variables to the function task
+    void generateStateGraphVariables(XFunction * function, ModelTask * task);
+    //! Add message to graph or return task if already added
+    ModelTask * generateStateGraphMessagesAddMessageToGraph(std::string name);
+    //! Add input and output edges to graph
+    void generateStateGraphMessages(XFunction * function, ModelTask * task);
+    //! Add tasks from another state graph
     void importStateGraphTasks(StateGraph * graph,
             std::map<std::string, Vertex> * message2task,
             std::map<Vertex, Vertex> * import2new);

@@ -27,136 +27,51 @@
 #include "stategraph.hpp"
 #include "xcondition.hpp"
 #include "xfunction.hpp"
-#include "task.hpp"
+#include "model_task.hpp"
 
 namespace flame { namespace model {
 
-StateGraph::StateGraph() {
-  // Initialise pointers
-  graph_ = new Graph;
-  vertex2task_ = new std::vector<TaskPtr>;
-  edge2dependency_ = new EdgeMap;
-}
-
-StateGraph::~StateGraph() {
-  std::vector<Task *>::iterator vit;
-  EdgeMap::iterator eit;
-  // Free vertex task mapping
-  delete vertex2task_;
-  // Free edge dependency mapping
-  for (eit = edge2dependency_->begin();
-      eit != edge2dependency_->end(); ++eit)
-    delete (*eit).second;
-  delete edge2dependency_;
-  // Free graph
-  delete graph_;
-}
-
-std::vector<TaskPtr> * StateGraph::getVertexTaskMap() {
-  return vertex2task_;
-}
+StateGraph::StateGraph() {}
 
 EdgeMap * StateGraph::getEdgeDependencyMap() {
-  return edge2dependency_;
+  return graph_.getEdgeDependencyMap();
 }
 
 void StateGraph::setName(std::string name) {
   name_ = name;
 }
 
-Vertex StateGraph::addVertex(Task * t) {
-  // Add vertex to graph
-  Vertex v = add_vertex(*graph_);
-  // create new shared ptr for Task pointer
-  TaskPtr ptr(t);
-  // Add task to vertex task mapping
-  vertex2task_->push_back(ptr);
-  // Return vertex
-  return v;
-}
-
-Vertex StateGraph::addVertex(TaskPtr ptr) {
-  // Add vertex to graph
-  Vertex v = add_vertex(*graph_);
-  // Add task to vertex task mapping
-  vertex2task_->push_back(ptr);
-  // Return vertex
-  return v;
-}
-
-Edge StateGraph::addEdge(Vertex to, Vertex from, std::string name,
-    Dependency::DependencyType type) {
-  // Create dependency from name and type
-  Dependency * d = new Dependency(name, type);
-  // Add edge to graph
-  std::pair<Edge, bool> e = add_edge(to, from, *graph_);
-  // Add mapping from edge to dependency
-  edge2dependency_->insert(std::make_pair(e.first, d));
-  // Return edge
-  return e.first;
-}
-
-Vertex StateGraph::getVertex(Task * t) {
+ModelTask * StateGraph::generateStateGraphStatesAddStateToGraph(
+    std::string name, std::string startState) {
   size_t ii;
-  // Find index of task in vertex task mapping
-  // The index corresponds to the vertex number
-  for (ii = 0; ii < vertex2task_->size(); ++ii)
-    if (vertex2task_->at(ii).get() == t) return ii;
-  return 0;
-}
-
-Task * StateGraph::getTask(Vertex v) const {
-  int index = static_cast<int>(v);
-
-  if (index < 0 || index >= static_cast<int>(vertex2task_->size()))
-    throw flame::exceptions::flame_model_exception(
-      "Task id does not exist");
-
-  // Return task at index v
-  return vertex2task_->at(v).get();
-}
-
-Dependency * StateGraph::getDependency(Edge e) {
-  Dependency * d = edge2dependency_->find(e)->second;
-
-  if (d == 0) throw flame::exceptions::flame_model_exception(
-      "Model graph dependency not initialised");
-
-  // Return dependency associated with the edge
-  return d;
-}
-
-Task * StateGraph::generateStateGraphStatesAddStateToGraph(std::string name,
-    std::string startState) {
   // Check if state has already been added
-  std::vector<TaskPtr>::iterator vit;
-  for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
-    if ((*vit).get()->getTaskType() == Task::xstate &&
-        (*vit).get()->getName() == name) return (*vit).get();
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii)
+    if (graph_.getTask(ii)->getTaskType() == ModelTask::xstate &&
+        graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
   // Add state as a task to the task list
-  Task * task = new Task(name_, name, Task::xstate);
-  addVertex(task);
+  ModelTask * task = new ModelTask(name_, name, ModelTask::xstate);
+  graph_.addVertex(task);
   if (name == startState) task->setStartTask(true);
 
   return task;
 }
 
-void StateGraph::generateStateGraphStates(XFunction * function, Task * task,
-    std::string startState) {
+void StateGraph::generateStateGraphStates(
+    XFunction * function, ModelTask * task, std::string startState) {
   std::set<std::string>::iterator sit;
   // Add and get state tasks
-  Task * currentState =
+  ModelTask * currentState =
       generateStateGraphStatesAddStateToGraph(
           function->getCurrentState(), startState);
-  Task * nextState =
+  ModelTask * nextState =
       generateStateGraphStatesAddStateToGraph(
           function->getNextState(), startState);
   // Add edge from current state to function
-  addEdge(getVertex(currentState), getVertex(task),
+  graph_.addEdge(graph_.getVertex(currentState), graph_.getVertex(task),
       function->getCurrentState(), Dependency::state);
   // Add edge from function to next state
-  addEdge(getVertex(task), getVertex(nextState),
+  graph_.addEdge(graph_.getVertex(task), graph_.getVertex(nextState),
       function->getNextState(), Dependency::state);
   // If transition has a condition
   if (function->getCondition()) {
@@ -173,7 +88,7 @@ void StateGraph::generateStateGraphStates(XFunction * function, Task * task,
 }
 
 void StateGraph::generateStateGraphVariables(
-    XFunction * function, Task * task) {
+    XFunction * function, ModelTask * task) {
   std::vector<std::string>::iterator sitv;
   // For each read only variable
   for (sitv = function->getReadOnlyVariables()->begin();
@@ -187,21 +102,22 @@ void StateGraph::generateStateGraphVariables(
     task->addReadWriteVariable(*sitv);
 }
 
-Task * StateGraph::generateStateGraphMessagesAddMessageToGraph(
+ModelTask * StateGraph::generateStateGraphMessagesAddMessageToGraph(
     std::string name) {
-  // Check if state has already been added
-  std::vector<TaskPtr>::iterator vit;
-  for (vit = vertex2task_->begin(); vit != vertex2task_->end(); ++vit)
-    if ((*vit).get()->getTaskType() == Task::xmessage &&
-        (*vit).get()->getName() == name) return (*vit).get();
+  size_t ii;
+  // Check if message has already been added
+  for (ii = 0; ii < graph_.getTaskCount(); ++ii)
+    if (graph_.getTask(ii)->getTaskType() == ModelTask::xmessage &&
+        graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
-  // Add state as a task to the task list
-  Task * task = new Task(name, name, Task::xmessage);
-  addVertex(task);
+  // Add message as a task to the task list
+  ModelTask * task = new ModelTask(name, name, ModelTask::xmessage);
+  graph_.addVertex(task);
   return task;
 }
 
-void StateGraph::generateStateGraphMessages(XFunction * function, Task * task) {
+void StateGraph::generateStateGraphMessages(
+    XFunction * function, ModelTask * task) {
   boost::ptr_vector<XIOput>::iterator ioput;
   // Find outputting functions
   for (ioput = function->getOutputs()->begin();
@@ -209,8 +125,8 @@ void StateGraph::generateStateGraphMessages(XFunction * function, Task * task) {
     // Add output message to function task
     task->addOutputMessage((*ioput).getMessageName());
     // Add edge from function vertex to message vertex
-    addEdge(getVertex(task),
-        getVertex(generateStateGraphMessagesAddMessageToGraph(
+    graph_.addEdge(graph_.getVertex(task),
+        graph_.getVertex(generateStateGraphMessagesAddMessageToGraph(
             (*ioput).getMessageName())),
             (*ioput).getMessageName(), Dependency::communication);
   }
@@ -220,9 +136,9 @@ void StateGraph::generateStateGraphMessages(XFunction * function, Task * task) {
     // Add input message to function task
     task->addInputMessage((*ioput).getMessageName());
     // Add egde from message vertex to function vertex
-    addEdge(getVertex(generateStateGraphMessagesAddMessageToGraph(
+    graph_.addEdge(graph_.getVertex(generateStateGraphMessagesAddMessageToGraph(
         (*ioput).getMessageName())),
-        getVertex(task),
+        graph_.getVertex(task),
         (*ioput).getMessageName(), Dependency::communication);
   }
 }
@@ -234,10 +150,10 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
   // For each transition function
   for (fit = functions->begin(); fit != functions->end(); ++fit) {
     // Add function as a task to the task list
-    Task * functionTask = new Task(name_,
-        (*fit).getName(), Task::xfunction);
+    ModelTask * functionTask = new ModelTask(name_,
+        (*fit).getName(), ModelTask::xfunction);
     // Add vertex for task
-    addVertex(functionTask);
+    graph_.addVertex(functionTask);
     // Add states
     generateStateGraphStates(&(*fit), functionTask, startState);
     // Add variable read writes
@@ -255,16 +171,16 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
 void StateGraph::importStateGraphTasks(StateGraph * graph,
     std::map<std::string, Vertex> * message2task,
     std::map<Vertex, Vertex> * import2new) {
-  std::vector<TaskPtr> * v2t = graph->getVertexTaskMap();
   size_t ii;
   std::map<std::string, Vertex>::iterator it;
 
+  const TaskList * tasklist = graph->getTaskList();
   // For each task vertex map
-  for (ii = 0; ii < v2t->size(); ++ii) {
+  for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     // get task
-    Task * t = v2t->at(ii).get();
+    ModelTask * t = tasklist->getTask(ii);
     // if message task
-    if (t->getTaskType() == Task::xmessage) {
+    if (t->getTaskType() == ModelTask::xmessage) {
       // get task name
       std::string name = t->getName();
       // try and find existing message task
@@ -272,7 +188,7 @@ void StateGraph::importStateGraphTasks(StateGraph * graph,
       if (it == message2task->end()) {
         // if not found
         // add vertex to current graph
-        Vertex v = addVertex(v2t->at(ii));
+        Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
         // add vertex to vertex map
         import2new->insert(std::make_pair(ii, v));
         // add vertex to message map
@@ -283,7 +199,7 @@ void StateGraph::importStateGraphTasks(StateGraph * graph,
       }
     } else {
       // add vertex to current graph
-      Vertex v = addVertex(v2t->at(ii));
+      Vertex v = graph_.addVertex(tasklist->getTaskPtr(ii));
       // add to vertex to vertex map
       import2new->insert(std::make_pair(ii, v));
     }
@@ -302,14 +218,14 @@ void StateGraph::importStateGraphs(std::set<StateGraph*> graphs) {
     // import tasks
     importStateGraphTasks((*it), &message2task, &import2new);
     // import edges
-    for (boost::tie(eit, end) = boost::edges(*((*it)->getGraph()));
+    for (boost::tie(eit, end) = (*it)->getEdges();
         eit != end; ++eit) {
       // add edge using vertex to vertex map
-      Vertex s = boost::source(*eit, *((*it)->getGraph()));
-      Vertex t = boost::target(*eit, *((*it)->getGraph()));
+      Vertex s = (*it)->getEdgeSource(*eit);
+      Vertex t = (*it)->getEdgeTarget(*eit);
       Vertex ns = (*(import2new.find(s))).second;
       Vertex nt = (*(import2new.find(t))).second;
-      add_edge(ns, nt, *graph_);
+      graph_.addEdge(ns, nt, "", Dependency::blank);
     }
   }
 }
@@ -344,32 +260,7 @@ struct cycle_detector : public boost::default_dfs_visitor {
 };
 
 std::pair<int, std::string> StateGraph::checkCyclicDependencies() {
-  // error message
-  std::string error_msg;
-  // visitor cycle detector for use with depth_first_search
-  cycle_detector vis;
-
-  try {
-    // Depth first search applied to graph
-    boost::depth_first_search(*graph_, visitor(vis));
-    // If cyclic dependency is caught
-  } catch(const has_cycle& err) {
-    // Find associated dependency
-    Dependency * d = getDependency(err.edge());
-    // Find associated tasks
-    Task * t1 = getTask(boost::source(err.edge(), *graph_));
-    Task * t2 = getTask(boost::target(err.edge(), *graph_));
-    error_msg.append("Error: cycle detected ");
-    error_msg.append(t1->getName());
-    error_msg.append(" -> ");
-    error_msg.append(d->getName());
-    error_msg.append(" -> ");
-    error_msg.append(t2->getName());
-    error_msg.append("\n");
-    return std::make_pair(1, error_msg);
-  }
-
-  return std::make_pair(0, error_msg);
+  return graph_.checkCyclicDependencies();
 }
 
 std::pair<int, std::string> StateGraph::checkFunctionConditions() {
@@ -377,17 +268,17 @@ std::pair<int, std::string> StateGraph::checkFunctionConditions() {
   std::string error_msg;
   std::pair<VertexIterator, VertexIterator> vp;
   // For each vertex
-  for (vp = boost::vertices(*graph_); vp.first != vp.second; ++vp.first) {
+  for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
     // If state
-    if (getTask(*vp.first)->getTaskType() == Task::xstate) {
+    if (graph_.getTask(*vp.first)->getTaskType() == ModelTask::xstate) {
       // If out edges is larger than 1
-      if (boost::out_degree(*vp.first, *graph_) > 1) {
+      if (graph_.getVertexOutDegree(*vp.first) > 1) {
         boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
         // For each out edge
         for (boost::tie(oei, oei_end) =
-            boost::out_edges(*vp.first, *graph_);
+            graph_.getVertexOutEdges(*vp.first);
             oei != oei_end; ++oei) {
-          Task * t = getTask(boost::target((Edge)*oei, *graph_));
+          ModelTask * t = graph_.getTask(graph_.getEdgeTarget(*oei));
           // If condition is null then return an error
           if (!t->hasCondition()) {
             error_msg.append("Error: Function '");
@@ -404,98 +295,24 @@ std::pair<int, std::string> StateGraph::checkFunctionConditions() {
   return std::make_pair(0, error_msg);
 }
 
-struct vertex_label_writer {
-    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
-    void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = vertex2task->at(v).get();
-      if (t->getTaskType() == Task::io_pop_write) {
-        out << " [label=\"";
-        std::set<std::string>::iterator it;
-        for (it = t->getWriteVariables()->begin();
-            it != t->getWriteVariables()->end(); ++it) {
-          out << "" << (*it) << "\\n";
-        }
-        out << "\" shape=folder, style=filled, fillcolor=orange]";
-      } else {
-        out << " [label=\"";
-        if (t->getTaskType() == Task::xmessage_sync)
-          out << "SYNC: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::xmessage_clear)
-          out << "CLEAR: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::start_model)
-          out << "Start\\n" << t->getParentName() << "\"";
-        else if (t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::finish_model)
-          out << "Finish\\n" << t->getParentName() << "\"";
-        else
-          out << t->getName() << "\"";
-        if (t->getTaskType() == Task::xfunction)
-          out << " shape=rect, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::xcondition)
-          out << " shape=invhouse, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::start_model ||
-            t->getTaskType() == Task::finish_model)
-          out << " shape=ellipse, style=filled, fillcolor=red";
-        if (t->getTaskType() == Task::xvariable ||
-            t->getTaskType() == Task::xstate)
-          out << " shape=ellipse, style=filled, fillcolor=white";
-        if (t->getTaskType() == Task::xmessage_clear ||
-            t->getTaskType() == Task::xmessage_sync ||
-            t->getTaskType() == Task::xmessage) {
-          out << " shape=parallelogram, style=filled, ";
-          out << "fillcolor=lightblue";
-        }
-        if (t->getTaskType() == Task::io_pop_write)
-          out << " shape=folder, style=filled, fillcolor=orange";
-        out << "]";
-      }
-    }
-
-  protected:
-    std::vector<TaskPtr> * vertex2task;
-};
-
-struct edge_label_writer {
-    enum ArrowType { arrowForward = 0, arrowBackward };
-    edge_label_writer(EdgeMap * em,
-        ArrowType at) :
-          edge2dependency(em),
-          arrowType(at) {}
-    void operator()(std::ostream& out, const Edge& e) const {
-      Dependency * d = 0;
-      EdgeMap::iterator it = edge2dependency->find(e);
-      if (it != edge2dependency->end()) d = (*it).second;
-      out << " [";
-      if (d) if (d->getDependencyType() != Dependency::blank)
-        out << "label=\"" << d->getGraphName() << "\" ";
-      if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
-      out << "]";
-    }
-  protected:
-    EdgeMap * edge2dependency;
-    ArrowType arrowType;
-};
-
-struct graph_writer {
-    void operator()(std::ostream& /*out*/) const {
-      // out << "node [shape = rect]" << std::endl;
-    }
-};
-
 void StateGraph::writeGraphviz(const std::string& fileName) const {
-  std::fstream graphfile;
-  graphfile.open(fileName.c_str(), std::fstream::out);
+  graph_.writeGraphviz(fileName);
+}
 
-  boost::write_graphviz(graphfile, *graph_,
-      vertex_label_writer(vertex2task_),
-      edge_label_writer(edge2dependency_,
-          edge_label_writer::arrowForward),
-          graph_writer());
+Vertex StateGraph::getEdgeSource(Edge e) {
+  return graph_.getEdgeSource(e);
+}
 
-  graphfile.clear();
+Vertex StateGraph::getEdgeTarget(Edge e) {
+  return graph_.getEdgeTarget(e);
+}
+
+std::pair<EdgeIterator, EdgeIterator> StateGraph::getEdges() {
+  return graph_.getEdges();
+}
+
+const TaskList * StateGraph::getTaskList() const {
+  return graph_.getTaskList();
 }
 
 }}   // namespace flame::model

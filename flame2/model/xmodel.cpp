@@ -325,60 +325,8 @@ AgentMemory XModel::getAgentMemoryInfo() const {
   return agentMemory;
 }
 
-TaskIdSet XModel::getAgentTasks() const {
-  return dependencyGraph_.getAgentTasks();
-}
-
-TaskIdSet XModel::getAgentIOTasks() const {
-  return dependencyGraph_.getAgentIOTasks();
-}
-
-TaskId XModel::getInitIOTask() const {
-  return dependencyGraph_.getInitIOTask();
-}
-
-TaskId XModel::getFinIOTask() const {
-  return dependencyGraph_.getFinIOTask();
-}
-
-TaskIdSet XModel::getMessageBoardSyncTasks() const {
-  return dependencyGraph_.getMessageBoardSyncTasks();
-}
-
-TaskIdSet XModel::getMessageBoardClearTasks() const {
-  return dependencyGraph_.getMessageBoardClearTasks();
-}
-
 TaskIdMap XModel::getTaskDependencies() const {
   return dependencyGraph_.getTaskDependencies();
-}
-
-std::string XModel::getTaskName(TaskId id) const {
-  return dependencyGraph_.getTaskName(id);
-}
-
-std::string XModel::getTaskAgentName(TaskId id) const {
-  return dependencyGraph_.getTaskAgentName(id);
-}
-
-std::string XModel::getTaskFunctionName(TaskId id) const {
-  return dependencyGraph_.getTaskFunctionName(id);
-}
-
-StringSet XModel::getTaskReadOnlyVariables(TaskId id) const {
-  return dependencyGraph_.getTaskReadOnlyVariables(id);
-}
-
-StringSet XModel::getTaskWriteVariables(TaskId id) const {
-  return dependencyGraph_.getTaskWriteVariables(id);
-}
-
-StringSet XModel::getTaskOutputMessages(TaskId id) const {
-  return dependencyGraph_.getTaskOutputMessages(id);
-}
-
-StringSet XModel::getTaskInputMessages(TaskId id) const {
-  return dependencyGraph_.getTaskInputMessages(id);
 }
 
 void XModel::outputStateGraph(const std::string& file_name) const {
@@ -410,6 +358,10 @@ int XModel::generateStateGraph() {
 int XModel::checkCyclicDependencies() {
   // ToDo
   return 0;
+}
+
+const TaskList * XModel::getTaskList() const {
+  return dependencyGraph_.getTaskList();
 }
 
 }}  // namespace flame::model
