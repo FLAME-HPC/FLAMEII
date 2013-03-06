@@ -46,12 +46,16 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
 }
 
 void Simulation::start(size_t iterations, size_t num_cores) {
+  // create a scheduler
   exe::Scheduler s;
+  // add a FIFO queue to the scheduler with given num cores
   exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(num_cores);
+  // add all task types to be handled by the queue
   s.AssignType(q, exe::Task::AGENT_FUNCTION);
   s.AssignType(q, exe::Task::MB_FUNCTION);
   s.AssignType(q, exe::Task::IO_FUNCTION);
 
+  // run scheduler iteration for num iterations
   unsigned int ii;
   for (ii = 1; ii <= iterations; ++ii) {
 #ifndef TESTBUILD
@@ -71,7 +75,6 @@ void Simulation::registerModelWithMemoryManager(
               flame::mem::MemoryManager::GetInstance();
 
   for (agent = agentMemory.begin(); agent != agentMemory.end(); ++agent) {
-    // printf("memoryManager.RegisterAgent %s\n", (*agent).first.c_str());
     // register agent with memory manager
     memoryManager.RegisterAgent((*agent).first);
     // register agent memory variables
@@ -92,7 +95,7 @@ void registerAllowAccess(exe::Task * task,
     StringSet vars, bool writeable) {
   StringSet::iterator sit;
 
-  // For each variable name
+  // for each variable name
   for (sit = vars.begin(); sit != vars.end(); ++sit)
     task->AllowAccess((*sit), writeable);
 }
@@ -101,13 +104,13 @@ void registerAllowMessage(exe::Task * task,
     StringSet messages, bool post) {
   StringSet::iterator sit;
 
-  // For each message
+  // for each message
   for (sit = messages.begin();
       sit != messages.end(); ++sit) {
-    // Update task with appropriate access
-    // If output message then allow post
+    // update task with appropriate access
+    // if output message then allow post
     if (post) task->AllowMessagePost((*sit));
-    // If input message then allow read
+    // if input message then allow read
     else
       task->AllowMessageRead((*sit));
   }
@@ -117,12 +120,15 @@ void Simulation::registerAgentTaskWithTaskManager(
     m::ModelTask * task, const m::Model &model) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
 
+  // create agent task
   flame::exe::Task& exetask = taskManager.CreateAgentTask(
     task->getTaskName(),
     task->getParentName(),
     model.getAgentFunctionPointer(task->getName()));
+  // register read only and write variables
   registerAllowAccess(&exetask, task->getReadOnlyVariablesConst(), false);
   registerAllowAccess(&exetask, task->getWriteVariablesConst(), true);
+  // register message output and input
   registerAllowMessage(&exetask, task->getOutputMessagesConst(), true);
   registerAllowMessage(&exetask, task->getInputMessagesConst(), false);
 }
@@ -146,12 +152,14 @@ void Simulation::registerMBTaskWithTaskManager(
 void Simulation::registerModelWithTaskManager(const m::Model &model) {
   exe::TaskManager& taskMgr = exe::TaskManager::GetInstance();
   size_t ii;
-
+  m::TaskIdMap::iterator mit;
   const m::TaskList * tasklist = model.getTaskList();
+
+  // for each task
   for (ii = 0; ii < tasklist->getTaskCount(); ++ii) {
     m::ModelTask * task = tasklist->getTask(ii);
     m::ModelTask::TaskType type = task->getTaskType();
-    // If agent task
+    // if agent task
     if (type == m::ModelTask::xfunction || type == m::ModelTask::xcondition)
       registerAgentTaskWithTaskManager(task, model);
     // if data tast
@@ -174,7 +182,6 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
 
   // register task dependencies
   m::TaskIdMap dependencies = model.getTaskDependencies();
-  m::TaskIdMap::iterator mit;
   for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
     taskMgr.AddDependency(tasklist->getTask((*mit).second)->getTaskName(),
         tasklist->getTask((*mit).first)->getTaskName());

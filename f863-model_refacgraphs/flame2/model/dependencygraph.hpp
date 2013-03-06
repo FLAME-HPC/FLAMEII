@@ -27,9 +27,16 @@
 
 namespace flame { namespace model {
 
+//! Define task id as unsigned integer
+typedef size_t TaskId;
+//! Define multimap of task ids to hold dependencies
+typedef std::multimap<TaskId, TaskId> TaskIdMap;
+
 class DependencyGraph {
   public:
+    //! Constructor
     DependencyGraph();
+    //! Generate dependency graph (from imported state graph)
     int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
     //! Checks for cyclic dependencies within a graph
     //! \return first integer for number of errors,
@@ -40,45 +47,66 @@ class DependencyGraph {
     //! \return first integer for number of errors,
     //!         second string for error message
     std::pair<int, std::string> checkFunctionConditions();
+    //! Set the name of the graph (agent or model name)
     void setName(std::string name);
+    //! Import a dependency graph
     void import(DependencyGraph * graph);
+    //! Write graph out to a dot file
     void writeGraphviz(const std::string& fileName) const;
+    //! Import a set of dependency graphs.
+    //! Used by models to import agent graphs
     void importGraphs(std::set<DependencyGraph*> graphs);
+    //! Import a state graph as a starting point
     void importStateGraph(StateGraph * stateGraph);
+    //! Return all the graph dependencies
     TaskIdMap getTaskDependencies() const;
+    //! Return the task list
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
+    //! Check to see if a dependencies between tasks exists
     bool dependencyExists(ModelTask::TaskType type1, std::string name1,
         ModelTask::TaskType type2, std::string name2);
+    //! Add a task
     Vertex addTestVertex(ModelTask * t);
+    //! Add a dependency
     void addTestEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
+    //! Set a start task
     void setTestStartTask(ModelTask * task);
+    //! Set an end task
     void addTestEndTask(ModelTask * task);
 #endif
 
   private:
-    /*! \brief Ptr to a graph so that graphs can be swapped */
+    //! The underlying graph
     XGraph graph_;
+    //! The graph name (either model or agent name)
     std::string name_;
 
+    //! Return new message vertex or existing one if found
     Vertex getMessageVertex(std::string name, ModelTask::TaskType type);
+    //! Change message tasks to sync tasks
     void changeMessageTasksToSync();
+    //! Add message clear tasks
     void addMessageClearTasks();
-    int registerAllowAccess(flame::exe::Task * task,
-            std::set<std::string> vars, bool writeable);
-    int registerAllowMessage(flame::exe::Task * task,
-            std::set<std::string> messages, bool post);
-    void addConditionDependenciesAndUpdateLastConditions(
-            Vertex v, ModelTask * t);
+    //! Change state tasks with more than 1 outgoing transition into
+    //! a condition task
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
+    //! Set start task to not be a state and remove all state tasks
     void contractStateVertices();
+    //! Remove state type dependencies
     void removeStateDependencies();
-    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
+    //! Add data dependencies between writing and reading functions for
+    //! each variable
     void AddVariableOutput();
+    //! Remove vertex type and replace with edge with given dependency type
     void contractVertices(ModelTask::TaskType taskType,
             Dependency::DependencyType dependencyType);
+#ifdef GROUP_WRITE_VARS
+    //! Return true if both sets are the same
+    bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
+#endif
 };
 
 }}  // namespace flame::model

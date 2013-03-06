@@ -50,9 +50,13 @@ class StateGraph {
     void writeGraphviz(const std::string& fileName) const;
     //! import set of state graphs and combine
     void importStateGraphs(std::set<StateGraph*> graphs);
+    //! \return Vertex source of edge
     Vertex getEdgeSource(Edge e);
+    //! \return Vertex target of edge
     Vertex getEdgeTarget(Edge e);
+    //! \return Edge iterators to iterate all edges
     std::pair<EdgeIterator, EdgeIterator> getEdges();
+    //! \return List of all tasks
     const TaskList * getTaskList() const;
 
   private:
@@ -61,13 +65,19 @@ class StateGraph {
     //! Name of graph (agent or model name)
     std::string name_;
 
+    //! Add state to graph or return task if already added
     ModelTask * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
+    //! Add current and next state task for a function task
     void generateStateGraphStates(XFunction * function, ModelTask * task,
             std::string startState);
+    //! Add read write variables to the function task
     void generateStateGraphVariables(XFunction * function, ModelTask * task);
+    //! Add message to graph or return task if already added
     ModelTask * generateStateGraphMessagesAddMessageToGraph(std::string name);
+    //! Add input and output edges to graph
     void generateStateGraphMessages(XFunction * function, ModelTask * task);
+    //! Add tasks from another state graph
     void importStateGraphTasks(StateGraph * graph,
             std::map<std::string, Vertex> * message2task,
             std::map<Vertex, Vertex> * import2new);

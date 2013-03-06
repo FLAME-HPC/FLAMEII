@@ -105,12 +105,12 @@ void StateGraph::generateStateGraphVariables(
 ModelTask * StateGraph::generateStateGraphMessagesAddMessageToGraph(
     std::string name) {
   size_t ii;
-  // Check if state has already been added
+  // Check if message has already been added
   for (ii = 0; ii < graph_.getTaskCount(); ++ii)
     if (graph_.getTask(ii)->getTaskType() == ModelTask::xmessage &&
         graph_.getTask(ii)->getName() == name) return graph_.getTask(ii);
 
-  // Add state as a task to the task list
+  // Add message as a task to the task list
   ModelTask * task = new ModelTask(name, name, ModelTask::xmessage);
   graph_.addVertex(task);
   return task;

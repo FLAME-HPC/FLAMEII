@@ -76,23 +76,6 @@ int DependencyGraph::generateDependencyGraph(
   return 0;
 }
 
-void DependencyGraph::addConditionDependenciesAndUpdateLastConditions(
-    Vertex v, ModelTask * t) {
-  std::set<size_t>::iterator it;
-
-  // Add edge for each condition vertex found
-  for (it = t->getLastConditions()->begin();
-      it != t->getLastConditions()->end(); ++it)
-    graph_.addEdge(*it, v, "Condition", Dependency::condition);
-  // If condition
-  if (t->getTaskType() == ModelTask::xcondition) {
-    // Clear last conditions
-    t->getLastConditions()->clear();
-    // Add current condition
-    t->getLastConditions()->insert(v);
-  }
-}
-
 bool setContains(std::set<std::string>* a, std::set<std::string>* find_in_a) {
   std::set<std::string>::iterator fit, fit2;
 
@@ -107,6 +90,7 @@ bool setContains(std::set<std::string>* a, std::set<std::string>* find_in_a) {
   return false;
 }
 
+#ifdef GROUP_WRITE_VARS
 bool DependencyGraph::compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
   std::set<size_t>::iterator a_it, b_it;
   // Compare size first
@@ -120,18 +104,7 @@ bool DependencyGraph::compareTaskSets(std::set<size_t> a, std::set<size_t> b) {
 
   return true;
 }
-
-std::string concatStringSet(std::set<std::string>* sset) {
-  std::string str;
-  std::set<std::string>::iterator it;
-
-  for (it = sset->begin(); it != sset->end();) {
-    str.append((*it));
-    if (it++ != sset->end()) str.append(" ");
-  }
-
-  return str;
-}
+#endif
 
 void DependencyGraph::AddVariableOutput() {
   // For each function that last writes a variable add dependency
@@ -218,33 +191,33 @@ void DependencyGraph::contractVertices(
   InEdgeIterator iei, iei_end;
   std::vector<Vertex> vertexToDelete;
   std::vector<Vertex>::iterator vit;
-  // For each variable vertex
+  // for each vertex
   for (boost::tie(vi, vi_end) = graph_.getVertices();
       vi != vi_end; ++vi) {
-    // If vertex is a variable
+    // if vertex has required type
     if (graph_.getTask(*vi)->getTaskType() == taskType) {
-      // Add an edge from all vertex sources to all vertex targets
+      // add an edge from all vertex sources to all vertex targets
       for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(*vi);
           iei != iei_end; ++iei)
         for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(*vi);
             oei != oei_end; ++oei)
           graph_.addEdge(graph_.getEdgeSource(*iei),
               graph_.getEdgeTarget(*oei), "", dependencyType);
-      // Add vertex to delete list (as cannot delete vertex within
+      // add vertex to delete list (as cannot delete vertex within
       // an iterator)
       vertexToDelete.push_back(*vi);
     }
   }
-  // Delete vertices in delete list
+  // delete vertices in delete list
   graph_.removeVertices(&vertexToDelete);
 }
 
 void DependencyGraph::contractStateVertices() {
-  // Change startVertex to the only and direct function under the current
+  // change startVertex to the only and direct function under the current
   // state start vertex
   boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
-  // If startTask a state (not a state converted to a condition
-  // Todo add assert here for startTask_ != NULL
+
+  // if startTask a state (not a state converted to a condition
   // because if the model has not been validated then it is not set
 
   if (graph_.getStartTask() == 0)
@@ -256,7 +229,6 @@ void DependencyGraph::contractStateVertices() {
         graph_.getVertexOutEdges(graph_.getVertex(graph_.getStartTask()));
         oei != oei_end; ++oei)
       graph_.setStartTask(graph_.getTask(graph_.getEdgeTarget(*oei)));
-
 
   // Contract state tasks and replace with state dependency
   contractVertices(ModelTask::xstate, Dependency::state);
@@ -407,8 +379,6 @@ void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
   changeMessageTasksToSync();
   // Add message clear tasks
   addMessageClearTasks();
-
-  writeGraphviz(name_ + ".dot");
 }
 
 void DependencyGraph::addMessageClearTasks() {

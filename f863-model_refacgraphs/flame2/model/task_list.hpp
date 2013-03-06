@@ -20,18 +20,28 @@ typedef boost::shared_ptr<ModelTask> ModelTaskPtr;
 
 class TaskList {
   public:
+    //! Constructor
     TaskList();
+    //! Destructor
     ~TaskList();
+    //! Add a task
     void addTask(ModelTaskPtr ptr);
+    //! Remove a task
+    //! \param index the task index
     void removeTask(size_t index);
+    //! \return The index of the task
     size_t getIndex(ModelTask * t) const;
+    //! \return The task given the index
     ModelTask * getTask(size_t index) const;
+    //! \return The task pointer object given the index
     ModelTaskPtr getTaskPtr(size_t index) const;
+    //! \return The task list size
     size_t getTaskCount() const;
+    //! Replace the entire task vector with the one given
     void replaceTaskVector(std::vector<ModelTaskPtr> * vertex2task);
 
   private:
-    /*! \brief Ptr to vertex task so that mappings can be swapped */
+    //! Pointer to the task vector so that mappings can be swapped
     std::vector<ModelTaskPtr> * vertex2task_;
 };
 

@@ -22,8 +22,7 @@ namespace flame { namespace model {
  */
 ModelTask::ModelTask(std::string parentName, std::string name, TaskType type)
   : parentName_(parentName), name_(name), taskType_(type), priorityLevel_(10),
-    level_(0), hasCondition_(false),
-    startTask_(false), endTask_(false) {
+    hasCondition_(false), startTask_(false), endTask_(false) {
   // set priority level depending on task type
   if (type == ModelTask::xmessage_sync) priorityLevel_ = 10;
   if (type == ModelTask::xmessage_clear) priorityLevel_ = 1;
@@ -105,14 +104,6 @@ ModelTask::TaskType ModelTask::getTaskType() {
   return taskType_;
 }
 
-void ModelTask::setLevel(size_t level) {
-  level_ = level;
-}
-
-size_t ModelTask::getLevel() {
-  return level_;
-}
-
 void ModelTask::setPriorityLevel(size_t l) {
   priorityLevel_ = l;
 }
@@ -167,10 +158,6 @@ VarMapToVertices * ModelTask::getLastWrites() {
 
 VarMapToVertices * ModelTask::getLastReads() {
   return &lastReads_;
-}
-
-std::set<size_t> * ModelTask::getLastConditions() {
-  return &lastConditions_;
 }
 
 void ModelTask::addOutputMessage(std::string name) {
