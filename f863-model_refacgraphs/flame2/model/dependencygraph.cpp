@@ -139,14 +139,14 @@ void DependencyGraph::AddVariableOutput() {
   VarMapToVertices::iterator vwit;
   std::set<size_t>::iterator sit;
   VarMapToVertices * lws = graph_.getEndTask()->getLastWrites();
-  size_t count = 0;
 
   while (!lws->empty()) {
     // Create new io write task
-    ModelTask * task = new ModelTask(name_,
-        boost::lexical_cast<std::string>(count++), ModelTask::io_pop_write);
+    std::string var = (*lws->begin()).first;
+    ModelTask * task = new ModelTask(name_, var, ModelTask::io_pop_write);
+    task->addWriteVariable(var);
     Vertex vertex = graph_.addVertex(task);
-    task->addWriteVariable((*lws->begin()).first);
+#ifdef GROUP_WRITE_VARS
     // Check first var against other var task sets, if same then add to
     // current task and remove
     for (vwit = ++lws->begin(); vwit != lws->end();) {
@@ -157,6 +157,7 @@ void DependencyGraph::AddVariableOutput() {
         ++vwit;
       }
     }
+#endif
     // Add edges from each writing vector to task
     for (sit = (*lws->begin()).second.begin();
         sit != (*lws->begin()).second.end(); ++sit)
@@ -406,6 +407,8 @@ void DependencyGraph::importGraphs(std::set<DependencyGraph*> graphs) {
   changeMessageTasksToSync();
   // Add message clear tasks
   addMessageClearTasks();
+
+  writeGraphviz(name_ + ".dot");
 }
 
 void DependencyGraph::addMessageClearTasks() {

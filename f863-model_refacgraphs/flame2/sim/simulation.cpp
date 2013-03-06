@@ -127,24 +127,6 @@ void Simulation::registerAgentTaskWithTaskManager(
   registerAllowMessage(&exetask, task->getInputMessagesConst(), false);
 }
 
-void Simulation::registerIOTaskWithTaskManager(m::ModelTask * task) {
-  exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
-
-  StringSet::iterator sit;
-  // get task writing variables
-  StringSet vars = task->getWriteVariablesConst();
-  // for each variable create a new IO task
-  for (sit = vars.begin(); sit != vars.end(); ++sit) {
-    std::string var = *sit;
-    std::string taskName = "AD_";
-    taskName.append(task->getParentName());
-    taskName.append("_");
-    taskName.append(var);
-    taskManager.CreateIOTask(taskName, task->getParentName(), var,
-        flame::exe::IOTask::OP_OUTPUT);
-  }
-}
-
 void Simulation::registerMBTaskWithTaskManager(
     m::ModelTask * task, int taskType) {
   exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
@@ -162,7 +144,7 @@ void Simulation::registerMBTaskWithTaskManager(
 }
 
 void Simulation::registerModelWithTaskManager(const m::Model &model) {
-  exe::TaskManager& taskManager = exe::TaskManager::GetInstance();
+  exe::TaskManager& taskMgr = exe::TaskManager::GetInstance();
   size_t ii;
 
   const m::TaskList * tasklist = model.getTaskList();
@@ -173,15 +155,15 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
     if (type == m::ModelTask::xfunction || type == m::ModelTask::xcondition)
       registerAgentTaskWithTaskManager(task, model);
     // if data tast
-    if (type == m::ModelTask::io_pop_write) registerIOTaskWithTaskManager(task);
+    if (type == m::ModelTask::io_pop_write)
+      taskMgr.CreateIOTask(task->getTaskName(), task->getParentName(),
+          task->getName(), exe::IOTask::OP_OUTPUT);
     // if init io task
     if (type == m::ModelTask::start_model)
-      taskManager.CreateIOTask(task->getTaskName(), "", "",
-                flame::exe::IOTask::OP_INIT);
+      taskMgr.CreateIOTask(task->getTaskName(), "", "", exe::IOTask::OP_INIT);
     // if final io task
     if (type == m::ModelTask::finish_model)
-      taskManager.CreateIOTask(task->getTaskName(), "", "",
-                flame::exe::IOTask::OP_FIN);
+      taskMgr.CreateIOTask(task->getTaskName(), "", "", exe::IOTask::OP_FIN);
     // if message sync task
     if (type == m::ModelTask::xmessage_sync)
       registerMBTaskWithTaskManager(task, 0);
@@ -193,40 +175,12 @@ void Simulation::registerModelWithTaskManager(const m::Model &model) {
   // register task dependencies
   m::TaskIdMap dependencies = model.getTaskDependencies();
   m::TaskIdMap::iterator mit;
-  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit) {
-    m::ModelTask * ts = tasklist->getTask((*mit).first);
-    m::ModelTask * tt = tasklist->getTask((*mit).second);
-    if (ts->getTaskType() == m::ModelTask::io_pop_write) {
-      StringSet::iterator sit;
-      // get task writing variables
-      StringSet vars = ts->getWriteVariablesConst();
-      std::string taskName;
-      for (sit = vars.begin(); sit != vars.end(); ++sit) {
-        taskName = "AD_";
-        taskName.append(ts->getParentName());
-        taskName.append("_");
-        taskName.append(*sit);
-      }
-      taskManager.AddDependency(tt->getTaskName(), taskName);
-    } else if (tt->getTaskType() == m::ModelTask::io_pop_write) {
-      StringSet::iterator sit;
-      // get task writing variables
-      StringSet vars = tt->getWriteVariablesConst();
-      std::string taskName;
-      for (sit = vars.begin(); sit != vars.end(); ++sit) {
-        taskName = "AD_";
-        taskName.append(tt->getParentName());
-        taskName.append("_");
-        taskName.append(*sit);
-      }
-      taskManager.AddDependency(taskName, ts->getTaskName());
-    } else {
-      taskManager.AddDependency(tt->getTaskName(), ts->getTaskName());
-    }
-  }
+  for (mit = dependencies.begin(); mit != dependencies.end(); ++mit)
+    taskMgr.AddDependency(tasklist->getTask((*mit).second)->getTaskName(),
+        tasklist->getTask((*mit).first)->getTaskName());
 
   // once finalised, tasks and dependencies can no longer be added
-  taskManager.Finalise();
+  taskMgr.Finalise();
 }
 
 #ifdef TESTBUILD

@@ -121,34 +121,43 @@ BOOST_AUTO_TEST_CASE(test_dependencygraph) {
   // check io dependencies
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xcondition, "0",
-      m::ModelTask::io_pop_write, "4") == true);
+      m::ModelTask::io_pop_write, "id") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "calculate_connection_forces",
-      m::ModelTask::io_pop_write, "2") == true);
+      m::ModelTask::io_pop_write, "fx_connections") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_connection_forces",
+      m::ModelTask::io_pop_write, "fy_connections") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "calculate_crowd_forces",
-      m::ModelTask::io_pop_write, "3") == true);
+      m::ModelTask::io_pop_write, "fx_crowd") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "calculate_crowd_forces",
+      m::ModelTask::io_pop_write, "fy_crowd") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "move",
-      m::ModelTask::io_pop_write, "7") == true);
+      m::ModelTask::io_pop_write, "x") == true);
+  BOOST_CHECK(graph->dependencyExists(
+      m::ModelTask::xfunction, "move",
+      m::ModelTask::io_pop_write, "y") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "diagnosis_and_recovery",
-      m::ModelTask::io_pop_write, "1") == true);
+      m::ModelTask::io_pop_write, "diagnosed") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "diagnosis_and_recovery",
-      m::ModelTask::io_pop_write, "5") == true);
+      m::ModelTask::io_pop_write, "infected") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "diagnosis_and_recovery",
-      m::ModelTask::io_pop_write, "6") == true);
+      m::ModelTask::io_pop_write, "resistant") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "update_connections",
-      m::ModelTask::io_pop_write, "0") == true);
+      m::ModelTask::io_pop_write, "connections") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "diagnosis",
-      m::ModelTask::io_pop_write, "1") == true);
+      m::ModelTask::io_pop_write, "diagnosed") == true);
   BOOST_CHECK(graph->dependencyExists(
       m::ModelTask::xfunction, "update_infection_status",
-      m::ModelTask::io_pop_write, "5") == true);
+      m::ModelTask::io_pop_write, "infected") == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -37,7 +37,6 @@ class Simulation {
     void registerModelWithTaskManager(const m::Model &model);
     void registerAgentTaskWithTaskManager(
         m::ModelTask * task, const m::Model &model);
-    void registerIOTaskWithTaskManager(m::ModelTask * task);
     void registerMBTaskWithTaskManager(m::ModelTask * task, int taskType);
 };
 }}  // namespace flame::sim
