@@ -13,7 +13,7 @@
 #include <libxml/xmlwriter.h>
 #include <string>
 
-namespace flame { namespace io { namespace xml {
+namespace flame { namespace io {
 
 class XMLWriter {
   public:
@@ -29,5 +29,5 @@ class XMLWriter {
   private:
     xmlTextWriterPtr writer_;
 };
-}}}  // namespace flame::io::xml
+}}  // namespace flame::io
 #endif  // IO__XML_WRITER_HPP_

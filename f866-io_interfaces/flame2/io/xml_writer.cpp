@@ -26,7 +26,7 @@
 
 namespace exc = flame::exceptions;
 
-namespace flame { namespace io { namespace xml {
+namespace flame { namespace io {
 
 // initialise text writer pointer to be zero
 XMLWriter::XMLWriter()
@@ -85,4 +85,4 @@ void XMLWriter::endXMLDoc() {
     throw exc::flame_io_exception("Could not close XML doc");
 }
 
-}}}  // namespace flame::io::xml
+}}  // namespace flame::io::xml

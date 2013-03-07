@@ -1,5 +1,5 @@
 /*!
- * \file flame2/io/io_manager.hpp
+void validateDatavoid validateData * \file flame2/io/io_manager.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -33,24 +33,29 @@ class IOManager {
     }
 
     void loadModel(std::string const& file, flame::model::XModel * model);
-    void readPop(std::string const& file_name, AgentMemory AgentMemory,
-        FileType fileType);
+    void readPop(std::string const& file_name, FileType fileType);
     void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
     void setIteration(size_t i);
+    void setAgentMemoryInfo(AgentMemory agentMemory);
 
   private:
+    //! Information about agents, their names and variables (types and names)
+    AgentMemory agentMemory_;
+    //! Model XML reader
+    xml::IOXMLModel ioxmlmodel_;
+    //! Pop XML IO
+    IOXMLPop   ioxmlpop_;
+    //! The current iteration number
+    size_t iteration_;
+
     //! This is a singleton class. Disable manual instantiation
     IOManager() : iteration_(0) {}
     //! This is a singleton class. Disable copy constructor
     IOManager(const IOManager&);
     //! This is a singleton class. Disable assignment operation
     void operator=(const IOManager&);
-
-    xml::IOXMLModel ioxmlmodel;
-    xml::IOXMLPop   ioxmlpop;
-    size_t iteration_;
 };
 }}  // namespace flame::io
 #endif  // IO__IO_MANAGER_HPP_

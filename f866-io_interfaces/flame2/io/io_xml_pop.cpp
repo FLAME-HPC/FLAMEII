@@ -26,9 +26,7 @@ namespace model = flame::model;
 namespace mem = flame::mem;
 namespace exc = flame::exceptions;
 
-namespace flame {
-namespace io {
-namespace xml {
+namespace flame { namespace io {
 
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
@@ -582,4 +580,4 @@ void IOXMLPop::processNode(xmlTextReaderPtr reader,
 void IOXMLPop::setIteration(size_t i) {
   iteration_ = i;
 }
-}}}  // namespace flame::io::xml
+}}  // namespace flame::io

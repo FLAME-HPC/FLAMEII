@@ -73,44 +73,38 @@ BOOST_AUTO_TEST_CASE(test_readPop) {
   flame::sim::Simulation sim;
   sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
 
+  iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
+
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_missing.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_malformed.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_tag.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_agent.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_unknown_variable.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_var_not_int.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   BOOST_CHECK_THROW(iomanager.readPop(
       "io/models/all_data_its/0_var_not_double.xml",
-      model.getAgentMemoryInfo(),
       io::IOManager::xml), e::flame_io_exception);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
   BOOST_CHECK_NO_THROW(iomanager.readPop(zeroxml,
-      model.getAgentMemoryInfo(),
       io::IOManager::xml));
 
   // test pop data read in
@@ -145,8 +139,11 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
 
   flame::sim::Simulation sim;
   sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
+
+  iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
+
   // read pop
-  iomanager.readPop(zeroxml, model.getAgentMemoryInfo(), io::IOManager::xml);
+  iomanager.readPop(zeroxml, io::IOManager::xml);
 
   // test pop data written out
   std::string onexml = "io/models/all_data_its/1.xml";

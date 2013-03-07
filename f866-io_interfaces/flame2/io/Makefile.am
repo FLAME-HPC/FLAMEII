@@ -9,6 +9,7 @@
 # $Id$
 
 module_headers = \
+  io_interface.hpp \
   io_manager.hpp \
   io_xml_model.hpp \
   io_xml_pop.hpp \

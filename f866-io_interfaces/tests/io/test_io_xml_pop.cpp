@@ -22,7 +22,7 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/sim/simulation.hpp"
 
-namespace xml = flame::io::xml;
+namespace io = flame::io;
 namespace model = flame::model;
 namespace e = flame::exceptions;
 
@@ -32,14 +32,14 @@ typedef std::map<std::string, std::vector<Var> > AgentMemory;
 BOOST_AUTO_TEST_SUITE(IOPop)
 
 BOOST_AUTO_TEST_CASE(test_read_same_dir) {
-  xml::IOXMLModel ioxmlmodel;
+  io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
   /* Read model xml */
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
-  // get agent memory info
-  AgentMemory agentMemory = model.getAgentMemoryInfo();
+
+  iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
 
   // Create 0.xml in program dir
   FILE *file;
@@ -51,10 +51,10 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     fclose(file);
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("0.xml", agentMemory, flame::io::IOManager::xml));
+        iomanager.readPop("0.xml", flame::io::IOManager::xml));
 
     BOOST_CHECK_NO_THROW(
-        iomanager.readPop("./0.xml", agentMemory, flame::io::IOManager::xml));
+        iomanager.readPop("./0.xml", flame::io::IOManager::xml));
 
     if (remove("0.xml") != 0)
       fprintf(stderr,
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
 
 /* Test creation of data schema */
 BOOST_AUTO_TEST_CASE(test_data_schema) {
-  xml::IOXMLPop ioxmlpop;
-  xml::IOXMLModel ioxmlmodel;
+  io::IOXMLPop ioxmlpop;
+  io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
 
   /* Read model xml */
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(test_data_schema) {
 // Test the reading of XML population files
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   unsigned int ii;
-  xml::IOXMLPop ioxmlpop;
-  xml::IOXMLModel ioxmlmodel;
+  io::IOXMLPop ioxmlpop;
+  io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
   flame::mem::MemoryManager& memoryManager =
       flame::mem::MemoryManager::GetInstance();

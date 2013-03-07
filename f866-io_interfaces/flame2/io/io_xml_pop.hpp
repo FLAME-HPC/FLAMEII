@@ -19,10 +19,11 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/model/xmodel.hpp"
 #include "xml_writer.hpp"
+#include "io_interface.hpp"
 
 namespace model = flame::model;
 
-namespace flame { namespace io { namespace xml {
+namespace flame { namespace io {
 
 typedef std::vector<int>* intVecPtr;
 typedef std::vector<double>* doubleVecPtr;
@@ -32,7 +33,7 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
-class IOXMLPop {
+class IOXMLPop : public IO {
   public:
     IOXMLPop();
     void readPop(std::string file_name, const AgentMemory& agentMemory);
@@ -82,5 +83,5 @@ class IOXMLPop {
     void processNode(xmlTextReaderPtr reader, const AgentMemory& agentMemory,
         std::vector<std::string> * tags, std::string * agent);
 };
-}}}  // namespace flame::io::xml
+}}  // namespace flame::io
 #endif  // IO__XML_POP_HPP_
