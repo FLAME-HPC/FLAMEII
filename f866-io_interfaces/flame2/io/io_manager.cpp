@@ -15,38 +15,54 @@ namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
 
+void IOManager::registerIOPlugins() {
+  addInputType("xml");
+  addOutputType("xml");
+}
+
 void IOManager::loadModel(std::string const& file,
     flame::model::XModel * model) {
   // read model
   ioxmlmodel_.readXMLModel(file, model);
 }
 
-void IOManager::readPop(std::string const& file_name, FileType fileType) {
-  // if file type is xml
-  if (fileType == xml) {
-    // set path to xml pop location
-    ioxmlpop_.setXmlPopPath(file_name);
-    // validate data using a schema
-    ioxmlpop_.validateData(file_name, agentMemory_);
-    // read validated pop xml
+void IOManager::readPop(std::string const& file_name) {
+  // check input type
+  if (inputType_ == "xml") {
     ioxmlpop_.readPop(file_name, agentMemory_);
   } else {
-    throw exc::flame_io_exception("unknown file type");
+    throw exc::flame_io_exception("unknown input type");
   }
 }
 
 void IOManager::writePop(
     std::string const& agent_name, std::string const& var_name) {
-  // write vector of agent variables
-  ioxmlpop_.writePop(agent_name, var_name);
+  // ToDo get var array here and pass to output plugin?
+
+  // check output type
+  if (inputType_ == "xml") {
+    ioxmlpop_.writePop(agent_name, var_name);
+  } else {
+    throw exc::flame_io_exception("unknown output type");
+  }
 }
 
 void IOManager::initialiseData() {
-  ioxmlpop_.initialiseData();
+  // check output type
+  if (inputType_ == "xml") {
+    ioxmlpop_.initialiseData();
+  } else {
+    throw exc::flame_io_exception("unknown output type");
+  }
 }
 
 void IOManager::finaliseData() {
-  ioxmlpop_.finaliseData();
+  // check output type
+  if (inputType_ == "xml") {
+    ioxmlpop_.finaliseData();
+  } else {
+    throw exc::flame_io_exception("unknown output type");
+  }
 }
 
 void IOManager::setIteration(size_t i) {
@@ -57,5 +73,36 @@ void IOManager::setIteration(size_t i) {
 void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
   agentMemory_ = agentMemory;
 }
+
+void IOManager::addInputType(std::string const& inputType) {
+  // check if already added
+  if (inputTypes_.find(inputType) != inputTypes_.end())
+    throw exc::flame_io_exception("input type already added");
+
+  inputTypes_.insert(inputType);
+}
+
+void IOManager::setInputType(std::string const& inputType) {
+  inputType_ = inputType;
+}
+
+void IOManager::addOutputType(std::string const& outputType) {
+  // check if already added
+  if (outputTypes_.find(outputType) != outputTypes_.end())
+    throw exc::flame_io_exception("input type already added");
+
+  outputTypes_.insert(outputType);
+}
+
+void IOManager::setOutputType(std::string const& outputType) {
+  outputType_ = outputType;
+}
+
+#ifdef TESTBUILD
+void IOManager::Reset() {
+  inputTypes_.clear();
+  outputTypes_.clear();
+}
+#endif
 
 }}  // namespace flame::io

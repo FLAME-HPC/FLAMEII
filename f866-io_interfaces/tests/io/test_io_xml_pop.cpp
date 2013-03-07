@@ -40,6 +40,9 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
 
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
+  iomanager.registerIOPlugins();
+  iomanager.setInputType("xml");
+  iomanager.setOutputType("xml");
 
   // Create 0.xml in program dir
   FILE *file;
@@ -50,16 +53,16 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
     fprintf(file, "<states><itno>0</itno></states>");
     fclose(file);
 
-    BOOST_CHECK_NO_THROW(
-        iomanager.readPop("0.xml", flame::io::IOManager::xml));
+    BOOST_CHECK_NO_THROW(iomanager.readPop("0.xml"));
 
-    BOOST_CHECK_NO_THROW(
-        iomanager.readPop("./0.xml", flame::io::IOManager::xml));
+    BOOST_CHECK_NO_THROW(iomanager.readPop("./0.xml"));
 
     if (remove("0.xml") != 0)
       fprintf(stderr,
           "Warning: Could not delete the generated file: 0.xml\n");
   }
+
+  iomanager.Reset();
 }
 
 /* Test creation of data schema */
@@ -100,27 +103,27 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_malformed.xml", agentMemory),
-      e::unparseable_file);
+      e::flame_io_exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_unknown_tag.xml", agentMemory),
-      e::unparseable_file);
+      e::flame_io_exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_unknown_agent.xml", agentMemory),
-      e::invalid_pop_file);
+      e::flame_io_exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_unknown_variable.xml", agentMemory),
-      e::invalid_pop_file);
+      e::flame_io_exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_var_not_int.xml", agentMemory),
-      e::invalid_pop_file);
+      e::flame_io_exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
       "io/models/all_data_its/0_var_not_double.xml", agentMemory),
-      e::invalid_pop_file);
+      e::flame_io_exception);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
   BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, agentMemory));

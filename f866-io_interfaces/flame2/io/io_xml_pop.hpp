@@ -37,7 +37,7 @@ class IOXMLPop : public IO {
   public:
     IOXMLPop();
     void readPop(std::string file_name, const AgentMemory& agentMemory);
-    void writePop(std::string agent_name, std::string var_name);
+    void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
     void validateData(std::string const& data_file,

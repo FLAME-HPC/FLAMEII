@@ -21,11 +21,11 @@ class IO {
   public:
     virtual ~IO() {}
 
-    //! Reading method
+    //! Reading method, called by io manager
     virtual void readPop(std::string path, const AgentMemory& agentMemory) = 0;
-    //! Writing methods
+    //! Writing methods, called by exe::io tasks via io manager
     virtual void initialiseData() = 0;
-    virtual void writePop(std::string agent_name, std::string var_name) = 0;
+    virtual void writePop(std::string const& agent_name, std::string const& var_name) = 0;
     virtual void finaliseData() = 0;
     // Need write agent for newly added agents? or just use writePop again?
     // virtual void writeAgent();

@@ -25,20 +25,37 @@ typedef std::map<std::string, VarVec> AgentMemory;
 
 class IOManager {
   public:
-    enum FileType { xml = 0 };
-
     static IOManager& GetInstance() {
       static IOManager instance;
       return instance;
     }
 
+    //! Register input and output plugins
+    void registerIOPlugins();
+
+    //! Add input type
+    void addInputType(std::string const& inputType);
+    //! Set input type
+    void setInputType(std::string const& inputType);
+    //! Add output type
+    void addOutputType(std::string const& outputType);
+    //! Set output type
+    void setOutputType(std::string const& outputType);
+
     void loadModel(std::string const& file, flame::model::XModel * model);
-    void readPop(std::string const& file_name, FileType fileType);
+    void readPop(std::string const& file_name);
+    void setIteration(size_t i);
+    void setAgentMemoryInfo(AgentMemory agentMemory);
+
+    // Called by io tasks
     void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
-    void setIteration(size_t i);
-    void setAgentMemoryInfo(AgentMemory agentMemory);
+
+#ifdef TESTBUILD
+    //! Delete all input and output types
+    void Reset();
+#endif
 
   private:
     //! Information about agents, their names and variables (types and names)
@@ -46,9 +63,17 @@ class IOManager {
     //! Model XML reader
     xml::IOXMLModel ioxmlmodel_;
     //! Pop XML IO
-    IOXMLPop   ioxmlpop_;
+    IOXMLPop ioxmlpop_;
     //! The current iteration number
     size_t iteration_;
+    //! Set of input types
+    std::set<std::string> inputTypes_;
+    //! Set of output types
+    std::set<std::string> outputTypes_;
+    //! Input type
+    std::string inputType_;
+    //! Output type
+    std::string outputType_;
 
     //! This is a singleton class. Disable manual instantiation
     IOManager() : iteration_(0) {}

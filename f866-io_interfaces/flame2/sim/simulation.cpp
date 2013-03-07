@@ -41,10 +41,13 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
   registerModelWithMemoryManager(model.getAgentMemoryInfo());
   registerModelWithTaskManager(model);
 
+  iomanager.registerIOPlugins();
+  iomanager.setInputType("xml");
+  iomanager.setOutputType("xml");
   // tell io manager the agent memory info
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
   // read pop data
-  iomanager.readPop(pop_file, io::IOManager::xml);
+  iomanager.readPop(pop_file);
 }
 
 void Simulation::start(size_t iterations, size_t num_cores) {

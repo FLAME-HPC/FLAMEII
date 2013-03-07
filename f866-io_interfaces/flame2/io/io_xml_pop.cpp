@@ -37,7 +37,7 @@ IOXMLPop::IOXMLPop()
 
 // This method is empty because you can't (without a lot of difficulty)
 // write xml row-wise
-void IOXMLPop::writePop(std::string /*agent_name*/, std::string /*var_name*/) {
+void IOXMLPop::writePop(std::string const& /*agent_name*/, std::string const& /*var_name*/) {
 }
 
 void IOXMLPop::initialiseData() {
@@ -155,6 +155,7 @@ void IOXMLPop::saveAgentVariableData(const AgentMemory& agentMemory) {
 void IOXMLPop::readPop(std::string file_name, const AgentMemory& agentMemory) {
   xmlTextReaderPtr reader;
   int ret;
+
   /* Using vector instead of stack as need to access earlier tags */
   std::vector<std::string> tags;
   /* name of current agent type, "" if invalid */
@@ -165,6 +166,11 @@ void IOXMLPop::readPop(std::string file_name, const AgentMemory& agentMemory) {
   /* Check if file opened successfully */
   if (reader == NULL)
     throw exc::inaccessable_file("Unable to open xml pop file");
+
+  // set path to xml pop location
+  setXmlPopPath(file_name);
+  // validate data using a schema
+  validateData(file_name, agentMemory);
 
 #ifndef TESTBUILD
   printf("Reading file: %s\n", file_name.c_str());
