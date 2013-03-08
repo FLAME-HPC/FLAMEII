@@ -12,6 +12,7 @@ void validateDatavoid validateData * \file flame2/io/io_manager.hpp
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <utility>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
@@ -29,9 +30,6 @@ class IOManager {
       static IOManager instance;
       return instance;
     }
-
-    //! Register input and output plugins
-    void registerIOPlugins();
 
     //! Add input type
     void addInputType(std::string const& inputType);
@@ -76,7 +74,14 @@ class IOManager {
     std::string outputType_;
 
     //! This is a singleton class. Disable manual instantiation
-    IOManager() : iteration_(0) {}
+    IOManager() : iteration_(0) {
+      addInputType("xml");
+      addOutputType("xml");
+
+      // as default select xml for input and output
+      setInputType("xml");
+      setOutputType("xml");
+    }
     //! This is a singleton class. Disable copy constructor
     IOManager(const IOManager&);
     //! This is a singleton class. Disable assignment operation

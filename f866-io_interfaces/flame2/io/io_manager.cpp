@@ -9,16 +9,12 @@
  */
 #include <string>
 #include "flame2/config.hpp"
+#include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
 
 namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
-
-void IOManager::registerIOPlugins() {
-  addInputType("xml");
-  addOutputType("xml");
-}
 
 void IOManager::loadModel(std::string const& file,
     flame::model::XModel * model) {
@@ -26,10 +22,28 @@ void IOManager::loadModel(std::string const& file,
   ioxmlmodel_.readXMLModel(file, model);
 }
 
+void addInt(std::string const& agent_name,
+    std::string const& var_name, int value) {
+  // Add value to memory manager
+  flame::mem::MemoryManager::GetInstance().
+      GetVector<int>(agent_name, var_name)->push_back(value);
+}
+
+void addDouble(std::string const& agent_name,
+    std::string const& var_name, double value) {
+  // Add value to memory manager
+  flame::mem::MemoryManager::GetInstance().
+      GetVector<double>(agent_name, var_name)->push_back(value);
+}
+
 void IOManager::readPop(std::string const& file_name) {
+  void (*paddInt)(std::string const&, std::string const&, int) = addInt;
+  void (*paddDouble)(std::string const&, std::string const&, double) =
+      addDouble;
+
   // check input type
   if (inputType_ == "xml") {
-    ioxmlpop_.readPop(file_name, agentMemory_);
+    ioxmlpop_.readPop(file_name, paddInt, paddDouble);
   } else {
     throw exc::flame_io_exception("unknown input type");
   }
@@ -37,11 +51,13 @@ void IOManager::readPop(std::string const& file_name) {
 
 void IOManager::writePop(
     std::string const& agent_name, std::string const& var_name) {
-  // ToDo get var array here and pass to output plugin?
+  // get vector for the agent variable
+  mem::VectorWrapperBase* vw = mem::MemoryManager::GetInstance().
+            GetVectorWrapper(agent_name, var_name);
 
   // check output type
   if (inputType_ == "xml") {
-    ioxmlpop_.writePop(agent_name, var_name);
+    ioxmlpop_.writePop(agent_name, var_name, vw->size(), vw->GetRawPtr());
   } else {
     throw exc::flame_io_exception("unknown output type");
   }
@@ -72,6 +88,9 @@ void IOManager::setIteration(size_t i) {
 
 void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
   agentMemory_ = agentMemory;
+
+  // set plugins too
+  ioxmlpop_.setAgentMemoryInfo(agentMemory);
 }
 
 void IOManager::addInputType(std::string const& inputType) {

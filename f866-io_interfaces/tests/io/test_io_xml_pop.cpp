@@ -24,6 +24,7 @@
 
 namespace io = flame::io;
 namespace model = flame::model;
+namespace mem = flame::mem;
 namespace e = flame::exceptions;
 
 typedef std::pair<std::string, std::string> Var;
@@ -36,13 +37,10 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
   model::XModel model;
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
-  /* Read model xml */
+  // Read model xml
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
 
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
-  iomanager.registerIOPlugins();
-  iomanager.setInputType("xml");
-  iomanager.setOutputType("xml");
 
   // Create 0.xml in program dir
   FILE *file;
@@ -65,20 +63,42 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
   iomanager.Reset();
 }
 
-/* Test creation of data schema */
+// Test creation of data schema
 BOOST_AUTO_TEST_CASE(test_data_schema) {
   io::IOXMLPop ioxmlpop;
   io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
 
-  /* Read model xml */
+  // Read model xml
   BOOST_CHECK_NO_THROW(
       ioxmlmodel.readXMLModel("io/models/all_data.xml", &model));
 
-  /* Validate data using schema */
+  ioxmlpop.setAgentMemoryInfo(model.getAgentMemoryInfo());
+
+  // Validate data using schema
   BOOST_CHECK_NO_THROW(
-      ioxmlpop.validateData("io/models/all_data_its/0.xml",
-          model.getAgentMemoryInfo()));
+      ioxmlpop.validateData("io/models/all_data_its/0.xml"));
+}
+
+void callWritePop(std::string agent_name, std::string var_name,
+    io::IOXMLPop * ioxmlpop) {
+  mem::VectorWrapperBase* vw = mem::MemoryManager::GetInstance().
+                GetVectorWrapper(agent_name, var_name);
+  ioxmlpop->writePop(agent_name, var_name, vw->size(), vw->GetRawPtr());
+}
+
+void addInt(std::string const& agent_name,
+    std::string const& var_name, int value) {
+  // Add value to memory manager
+  flame::mem::MemoryManager::GetInstance().
+      GetVector<int>(agent_name, var_name)->push_back(value);
+}
+
+void addDouble(std::string const& agent_name,
+    std::string const& var_name, double value) {
+  // Add value to memory manager
+  flame::mem::MemoryManager::GetInstance().
+      GetVector<double>(agent_name, var_name)->push_back(value);
 }
 
 // Test the reading of XML population files
@@ -87,8 +107,8 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   io::IOXMLPop ioxmlpop;
   io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
-  flame::mem::MemoryManager& memoryManager =
-      flame::mem::MemoryManager::GetInstance();
+  mem::MemoryManager& memoryManager =
+      mem::MemoryManager::GetInstance();
 
   // read model xml
   ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
@@ -96,37 +116,42 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   AgentMemory agentMemory = model.getAgentMemoryInfo();
   flame::sim::Simulation sim;
   sim.registerModelWithMemoryManagerTest(agentMemory);
+  ioxmlpop.setAgentMemoryInfo(agentMemory);
+
+  void (*paddInt)(std::string const&, std::string const&, int) = addInt;
+  void (*paddDouble)(std::string const&, std::string const&, double) =
+      addDouble;
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_missing.xml", agentMemory),
-      e::inaccessable_file);
+      "io/models/all_data_its/0_missing.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_malformed.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_malformed.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_tag.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_tag.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_agent.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_agent.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_unknown_variable.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_variable.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_var_not_int.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_var_not_int.xml", paddInt, paddDouble),
+      std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop.readPop(
-      "io/models/all_data_its/0_var_not_double.xml", agentMemory),
-      e::flame_io_exception);
+      "io/models/all_data_its/0_var_not_double.xml", paddInt, paddDouble),
+      std::exception);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
-  BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, agentMemory));
+  BOOST_CHECK_NO_THROW(ioxmlpop.readPop(zeroxml, paddInt, paddDouble));
 
   // Test pop data read in
   // Test ints data
@@ -147,6 +172,10 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   std::string onexml = "io/models/all_data_its/1.xml";
   ioxmlpop.setIteration(1);
   ioxmlpop.setXmlPopPath(zeroxml);
+  callWritePop("agent_a", "int_single", &ioxmlpop);
+  callWritePop("agent_a", "double_single", &ioxmlpop);
+  callWritePop("agent_b", "int_single", &ioxmlpop);
+  callWritePop("agent_b", "double_single", &ioxmlpop);
   ioxmlpop.finaliseData();
   // Check 0.xml and 1.xml are identical
   size_t differences = 1;

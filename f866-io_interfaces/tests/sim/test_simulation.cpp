@@ -21,7 +21,7 @@
 #include "flame2/mb/client.hpp"
 #include "flame2/mb/message_iterator.hpp"
 #include "flame2/mb/message_board_manager.hpp"
-
+#include "flame2/mem/memory_manager.hpp"
 #include "flame2/api/flame2.hpp"
 
 namespace sim = flame::sim;

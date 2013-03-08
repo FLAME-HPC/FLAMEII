@@ -18,6 +18,7 @@
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exceptions/sim.hpp"
+#include "flame2/mem/memory_manager.hpp"
 #include "simulation.hpp"
 
 namespace flame { namespace sim {
@@ -41,9 +42,6 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
   registerModelWithMemoryManager(model.getAgentMemoryInfo());
   registerModelWithTaskManager(model);
 
-  iomanager.registerIOPlugins();
-  iomanager.setInputType("xml");
-  iomanager.setOutputType("xml");
   // tell io manager the agent memory info
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
   // read pop data

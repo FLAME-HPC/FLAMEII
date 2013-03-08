@@ -74,30 +74,27 @@ BOOST_AUTO_TEST_CASE(test_readPop) {
   sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
 
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
-  iomanager.registerIOPlugins();
-  iomanager.setInputType("xml");
-  iomanager.setOutputType("xml");
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_missing.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_missing.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_malformed.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_malformed.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_unknown_tag.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_tag.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_unknown_agent.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_agent.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_unknown_variable.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_unknown_variable.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_var_not_int.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_var_not_int.xml"), std::runtime_error);
 
   BOOST_CHECK_THROW(iomanager.readPop(
-      "io/models/all_data_its/0_var_not_double.xml"), e::flame_io_exception);
+      "io/models/all_data_its/0_var_not_double.xml"), std::runtime_error);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
   BOOST_CHECK_NO_THROW(iomanager.readPop(zeroxml));
@@ -137,9 +134,6 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
   sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
 
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
-  iomanager.registerIOPlugins();
-  iomanager.setInputType("xml");
-  iomanager.setOutputType("xml");
 
   // read pop
   iomanager.readPop(zeroxml);
@@ -147,6 +141,10 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
   // test pop data written out
   std::string onexml = "io/models/all_data_its/1.xml";
   iomanager.setIteration(1);
+  iomanager.writePop("agent_a", "int_single");
+  iomanager.writePop("agent_a", "double_single");
+  iomanager.writePop("agent_b", "int_single");
+  iomanager.writePop("agent_b", "double_single");
   BOOST_CHECK_NO_THROW(iomanager.finaliseData());
   // check 0.xml and 1.xml are identical
   size_t differences = 1;

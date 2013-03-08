@@ -16,32 +16,31 @@
 #include <vector>
 #include <map>
 #include <utility>
-#include "flame2/mem/memory_manager.hpp"
-#include "flame2/model/xmodel.hpp"
 #include "xml_writer.hpp"
 #include "io_interface.hpp"
 
-namespace model = flame::model;
-
 namespace flame { namespace io {
 
-typedef std::vector<int>* intVecPtr;
-typedef std::vector<double>* doubleVecPtr;
-typedef std::map<std::string, std::vector<std::string> > agentVarMap;
-
 typedef std::pair<std::string, std::string> Var;
+
+typedef std::pair<void*, size_t> PtrArray;
+typedef std::map<std::string, PtrArray> VarPtrArrayMap;
+typedef std::map<std::string, VarPtrArrayMap> AgentMemoryArrays;
+
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
 class IOXMLPop : public IO {
   public:
     IOXMLPop();
-    void readPop(std::string file_name, const AgentMemory& agentMemory);
-    void writePop(std::string const& agent_name, std::string const& var_name);
+    void readPop(std::string file_name,
+        void (*addInt)(std::string const&, std::string const&, int),
+        void (*addDouble)(std::string const&, std::string const&, double));
+    void writePop(std::string const& agent_name, std::string const& var_name,
+        size_t size, void * ptr);
     void initialiseData();
     void finaliseData();
-    void validateData(std::string const& data_file,
-                      const AgentMemory& agentMemory);
+    void validateData(std::string const& data_file);
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
     void setXmlPopPath(std::string path);
@@ -51,36 +50,31 @@ class IOXMLPop : public IO {
     std::string xml_pop_path;
     size_t iteration_;
     bool xml_pop_path_is_set;
-    agentVarMap agentVarMap_;
+    AgentMemoryArrays agentMemoryArrays_;
     XMLWriter writer_;
 
+    void (*addInt)(std::string const&, std::string const&, int);
+    void (*addDouble)(std::string const&, std::string const&, double);
+
     void openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
-    void saveAgentVariableData(const AgentMemory& agentMemory);
     void writeAgents();
     void createDataSchemaHead();
-    void createDataSchemaAgentNameType(const AgentMemory& agentMemory);
-    void createDataSchemaAgentVarChoice(const AgentMemory& agentMemory);
-    void createDataSchemaAgentVars(const AgentMemory& agentMemory);
+    void createDataSchemaAgentNameType();
+    void createDataSchemaAgentVarChoice();
+    void createDataSchemaAgentVars();
     void createDataSchemaAgentVar(std::string type, std::string name);
     void createDataSchemaDefineAgents();
     void createDataSchemaDefineTags();
-    void createDataSchema(xmlBufferPtr * buf,
-        const AgentMemory& agentMemory);
+    void createDataSchema(xmlBufferPtr * buf);
     void processStartNode(std::vector<std::string> * tags, std::string name,
         xmlTextReaderPtr reader);
-    template <class T>
-    void processTextVariableCast(std::string value,
-        std::vector<std::string> * tags,
-        std::string * agent, xmlTextReaderPtr reader);
     void processTextVariable(std::string value, std::vector<std::string> * tags,
-        std::string * agent, xmlTextReaderPtr reader,
-        const AgentMemory& agentMemory);
+        std::string * agent);
     void processTextAgent(std::vector<std::string> * tags,
-        xmlTextReaderPtr reader,
-        std::string * agent, const AgentMemory& agentMemory);
+        xmlTextReaderPtr reader, std::string * agent);
     void processEndNode(std::vector<std::string> * tags, std::string name,
         std::string * agent);
-    void processNode(xmlTextReaderPtr reader, const AgentMemory& agentMemory,
+    void processNode(xmlTextReaderPtr reader,
         std::vector<std::string> * tags, std::string * agent);
 };
 }}  // namespace flame::io
