@@ -12,9 +12,79 @@
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
 
+#include <dlfcn.h>
+#include <boost/function.hpp>
+
 namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
+
+typedef boost::function<IO* ()> pluginConstructor;
+
+IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
+  std::vector<std::string>::iterator it;
+  // try and load io plugins
+  std::vector<std::string> plugins;
+  plugins.push_back("../flame2/io/plugins/io_xml_pop.plugin");
+  plugins.push_back("../flame2/io/plugins/io_cli_pop.plugin");
+
+  // iterate through all the plugins and call construct and use an instance
+  for(it = plugins.begin(); it != plugins.end(); ++it) {
+    // load the plugin's shared object file
+    void *handle = NULL;
+    if(!(handle = dlopen(it->c_str(), RTLD_LAZY))) {
+      printf("Failed loading plugin %s: %s\n", it->c_str(), dlerror());
+    } else {
+      // Get the pluginConstructor function ToDo fix compiler warning
+      pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "construct");
+      // if returns NULL then address of function could not be found
+      if(dlerror()) {
+        printf("Failed constructing plugin %s: Could not find 'construct' function\n", it->c_str());
+        dlclose(handle);
+      } else {
+        // construct a plugin
+        IO *plugin = construct();
+        // add plugin to set of plugins
+        std::string pluginName = plugin->getName();
+        std::map<std::string, Plugin>::iterator pit;
+        pit = plugins_.find(pluginName);
+        if (pit == plugins_.end()) {
+          plugins_.insert(std::pair<std::string, Plugin>
+            (pluginName, std::pair<IO*, void*>(plugin, handle)));
+        } else {
+          printf("Failed registering plugin %s: Plugin %s already exists\n", it->c_str(), pluginName.c_str());
+          delete plugin;
+          dlclose(handle);
+        }
+      }
+    }
+  }
+
+#ifndef TESTBUILD
+  std::map<std::string, Plugin>::iterator pit;
+  printf("IO Backends available: ");
+  for (pit = plugins_.begin(); pit != plugins_.end();) {
+    printf("%s", pit->second.first->getName().c_str());
+    ++pit;
+    if (pit != plugins_.end()) printf(" ");
+  }
+  printf("\n");
+#endif
+
+  // Set default input and output options
+  setInputType("xml");
+  setOutputType("xml");
+}
+
+IOManager::~IOManager() {
+  std::map<std::string, Plugin>::iterator it;
+  for (it = plugins_.begin(); it != plugins_.end(); ++it) {
+    // delete plugin object
+    delete it->second.first;
+    // close the handle and unload the dynamic library
+    dlclose(it->second.second);
+  }
+}
 
 void IOManager::loadModel(std::string const& file,
     flame::model::XModel * model) {
@@ -37,16 +107,15 @@ void addDouble(std::string const& agent_name,
 }
 
 void IOManager::readPop(std::string const& file_name) {
+  // ToDo needed?
   void (*paddInt)(std::string const&, std::string const&, int) = addInt;
   void (*paddDouble)(std::string const&, std::string const&, double) =
       addDouble;
-
-  // check input type
-  if (inputType_ == "xml") {
-    ioxmlpop_.readPop(file_name, paddInt, paddDouble);
-  } else {
-    throw exc::flame_io_exception("unknown input type");
-  }
+  // check input plugin has been set
+  if (inputPlugin_ != NULL)
+    inputPlugin_->readPop(file_name, paddInt, paddDouble);
+  else
+    throw exc::flame_io_exception("IO input type has not been set");
 }
 
 void IOManager::writePop(
@@ -55,73 +124,75 @@ void IOManager::writePop(
   mem::VectorWrapperBase* vw = mem::MemoryManager::GetInstance().
             GetVectorWrapper(agent_name, var_name);
 
-  // check output type
-  if (inputType_ == "xml") {
-    ioxmlpop_.writePop(agent_name, var_name, vw->size(), vw->GetRawPtr());
-  } else {
-    throw exc::flame_io_exception("unknown output type");
-  }
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+      outputPlugin_->writePop(agent_name, var_name, vw->size(), vw->GetRawPtr());
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::initialiseData() {
-  // check output type
-  if (inputType_ == "xml") {
-    ioxmlpop_.initialiseData();
-  } else {
-    throw exc::flame_io_exception("unknown output type");
-  }
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+      outputPlugin_->initialiseData();
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::finaliseData() {
-  // check output type
-  if (inputType_ == "xml") {
-    ioxmlpop_.finaliseData();
-  } else {
-    throw exc::flame_io_exception("unknown output type");
-  }
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+      outputPlugin_->finaliseData();
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::setIteration(size_t i) {
   iteration_ = i;
-  ioxmlpop_.setIteration(i);
+
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+      outputPlugin_->setIteration(i);
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
   agentMemory_ = agentMemory;
 
-  // set plugins too
-  ioxmlpop_.setAgentMemoryInfo(agentMemory);
-}
-
-void IOManager::addInputType(std::string const& inputType) {
-  // check if already added
-  if (inputTypes_.find(inputType) != inputTypes_.end())
-    throw exc::flame_io_exception("input type already added");
-
-  inputTypes_.insert(inputType);
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+      outputPlugin_->setAgentMemoryInfo(agentMemory);
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::setInputType(std::string const& inputType) {
-  inputType_ = inputType;
-}
+  std::map<std::string, Plugin>::iterator pit;
 
-void IOManager::addOutputType(std::string const& outputType) {
-  // check if already added
-  if (outputTypes_.find(outputType) != outputTypes_.end())
-    throw exc::flame_io_exception("input type already added");
-
-  outputTypes_.insert(outputType);
+  // find input type plugin
+  pit = plugins_.find(inputType);
+  if (pit != plugins_.end())
+    inputPlugin_ = pit->second.first;
+  else
+    throw exc::flame_io_exception(
+        "IO plugin not available for input type: " + inputType);
 }
 
 void IOManager::setOutputType(std::string const& outputType) {
-  outputType_ = outputType;
+  std::map<std::string, Plugin>::iterator pit;
+
+  // find output type plugin
+  pit = plugins_.find(outputType);
+  if (pit != plugins_.end())
+    outputPlugin_ = pit->second.first;
+  else
+    throw exc::flame_io_exception(
+        "IO plugin not available for output type: " + outputType);
 }
 
 #ifdef TESTBUILD
-void IOManager::Reset() {
-  inputTypes_.clear();
-  outputTypes_.clear();
-}
+void IOManager::Reset() {}
 #endif
 
 }}  // namespace flame::io

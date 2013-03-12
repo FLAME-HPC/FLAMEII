@@ -12,7 +12,7 @@
 #   define BOOST_TEST_MODULE IO Pop
 #endif
 #include <boost/test/unit_test.hpp>
-#include <vector>
+/*#include <vector>
 #include <string>
 #include <utility>
 #include <map>
@@ -215,3 +215,4 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+*/

@@ -19,8 +19,9 @@
 #include <utility>
 #include <iostream>
 #include <sstream>
-#include "flame2/config.hpp"
 #include "xml_writer.hpp"
+
+#include "flame2/config.hpp" // Needed?
 
 namespace flame { namespace io {
 

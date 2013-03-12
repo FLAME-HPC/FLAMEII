@@ -1,11 +1,11 @@
 /*!
- * \file flame2/io/io_xml_pop.cpp
+ * \file flame2/io/plugins/io_xml_pop.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief IOXMLPop: reading of population XML file
+ * \brief IOXMLPop: reading and writing of population XML file
  */
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
@@ -17,8 +17,12 @@
 #include <set>
 #include <cstdio>
 #include <utility>
-#include "flame2/config.hpp"
 #include "io_xml_pop.hpp"
+
+//#include "flame2/config.hpp" // Needed?
+
+// enable test build
+#define TESTBUILD 1
 
 namespace flame { namespace io {
 
@@ -26,7 +30,7 @@ typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
 IOXMLPop::IOXMLPop()
-    : iteration_(0), xml_pop_path_is_set(false), addInt(0), addDouble(0) {
+    : xml_pop_path_is_set(false), addInt(0), addDouble(0) {
 }
 
 // This method is empty because you can't (without a lot of difficulty)
@@ -556,7 +560,16 @@ void IOXMLPop::processNode(xmlTextReaderPtr reader,
   }
 }
 
-void IOXMLPop::setIteration(size_t i) {
-  iteration_ = i;
+std::string IOXMLPop::getName() {
+  return "xml";
 }
+
+// set 'C' linkage for function names
+extern "C" {
+  // function to return an instance of a new IO plugin object
+  IO* construct() {
+    return new IOXMLPop();
+  }
+}
+
 }}  // namespace flame::io

@@ -24,24 +24,35 @@ class IO {
   public:
     virtual ~IO() {}
 
+    //! Get the name of the plugin
+    virtual std::string getName() = 0;
     //! Reading method, called by io manager
     virtual void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double)) = 0;
-    //! Writing methods, called by exe::io tasks via io manager
+    //! Initialise writing out of data for an iteration
     virtual void initialiseData() = 0;
+    //! Write out an agent variable for all agents
     virtual void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr) = 0;
+    //! Finalise writing out of data for an iteration
     virtual void finaliseData() = 0;
+    //! Return an instance of the plugin object
+    //virtual IO* construct() = 0;
+    //! Set agent memory info
+    void setAgentMemoryInfo(AgentMemory agentMemory) {
+        agentMemory_ = agentMemory;
+    }
+    //! Set the iteration number
+    void setIteration(size_t i) {
+      iteration_ = i;
+    }
     // Need write agent for newly added agents? or just use writePop again?
     // virtual void writeAgent();
 
-    void setAgentMemoryInfo(AgentMemory agentMemory) {
-      agentMemory_ = agentMemory;
-    }
-
   protected:
     AgentMemory agentMemory_;
+    size_t iteration_;
 };
 
 }}  // namespace flame::io

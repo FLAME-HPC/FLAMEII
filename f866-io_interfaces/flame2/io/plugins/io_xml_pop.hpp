@@ -1,11 +1,11 @@
 /*!
- * \file flame2/io/io_xml_pop.hpp
+ * \file flame2/io/plugins/io_xml_pop.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief IOXMLPop: reading of population XML file
+ * \brief IOXMLPop: reading and writing of population XML file
  */
 #ifndef IO__XML_POP_HPP_
 #define IO__XML_POP_HPP_
@@ -17,7 +17,7 @@
 #include <map>
 #include <utility>
 #include "xml_writer.hpp"
-#include "io_interface.hpp"
+#include "../io_interface.hpp"
 
 namespace flame { namespace io {
 
@@ -33,6 +33,7 @@ typedef std::map<std::string, VarVec> AgentMemory;
 class IOXMLPop : public IO {
   public:
     IOXMLPop();
+    std::string getName();
     void readPop(std::string file_name,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double));
@@ -44,11 +45,8 @@ class IOXMLPop : public IO {
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
     void setXmlPopPath(std::string path);
-    void setIteration(size_t i);
-
   private:
     std::string xml_pop_path;
-    size_t iteration_;
     bool xml_pop_path_is_set;
     AgentMemoryArrays agentMemoryArrays_;
     XMLWriter writer_;

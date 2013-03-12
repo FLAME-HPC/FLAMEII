@@ -16,13 +16,15 @@ void validateDatavoid validateData * \file flame2/io/io_manager.hpp
 #include <utility>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
-#include "io_xml_pop.hpp"
+#include "io_interface.hpp"
 
 namespace flame { namespace io {
 
 typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
+
+typedef std::pair<IO*, void*> Plugin;
 
 class IOManager {
   public:
@@ -31,17 +33,17 @@ class IOManager {
       return instance;
     }
 
-    //! Add input type
-    void addInputType(std::string const& inputType);
+    ~IOManager();
+
     //! Set input type
     void setInputType(std::string const& inputType);
-    //! Add output type
-    void addOutputType(std::string const& outputType);
     //! Set output type
     void setOutputType(std::string const& outputType);
 
     void loadModel(std::string const& file, flame::model::XModel * model);
+    // Called by sim
     void readPop(std::string const& file_name);
+
     void setIteration(size_t i);
     void setAgentMemoryInfo(AgentMemory agentMemory);
 
@@ -49,6 +51,9 @@ class IOManager {
     void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
+
+    //! Load an IO plugin from a shared object file
+    void loadIOPlugin(std::string const& path);
 
 #ifdef TESTBUILD
     //! Delete all input and output types
@@ -60,28 +65,17 @@ class IOManager {
     AgentMemory agentMemory_;
     //! Model XML reader
     xml::IOXMLModel ioxmlmodel_;
-    //! Pop XML IO
-    IOXMLPop ioxmlpop_;
+    //! Map from plugin name to plugin
+    std::map<std::string, Plugin> plugins_;
     //! The current iteration number
     size_t iteration_;
-    //! Set of input types
-    std::set<std::string> inputTypes_;
-    //! Set of output types
-    std::set<std::string> outputTypes_;
-    //! Input type
-    std::string inputType_;
-    //! Output type
-    std::string outputType_;
+    //! Input plugin
+    IO * inputPlugin_;
+    //! Output plugin
+    IO * outputPlugin_;
 
     //! This is a singleton class. Disable manual instantiation
-    IOManager() : iteration_(0) {
-      addInputType("xml");
-      addOutputType("xml");
-
-      // as default select xml for input and output
-      setInputType("xml");
-      setOutputType("xml");
-    }
+    IOManager();
     //! This is a singleton class. Disable copy constructor
     IOManager(const IOManager&);
     //! This is a singleton class. Disable assignment operation
