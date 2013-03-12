@@ -9,7 +9,7 @@
  */
 #include "../io_interface.hpp"
 
-#include "flame2/config.hpp" // Needed?
+//#include "flame2/config.hpp"  // Needed?
 
 namespace flame { namespace io {
 
