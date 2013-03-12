@@ -9,14 +9,13 @@
  */
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/variant.hpp>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <set>
 #include <cstdio>
 #include <utility>
+#include <boost/lexical_cast.hpp>
 #include "io_xml_pop.hpp"
 
 // #include "flame2/config.hpp"  // Needed?
@@ -30,14 +29,12 @@ typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
 IOXMLPop::IOXMLPop()
-    : xml_pop_path_is_set(false), addInt(0), addDouble(0) {
-}
+  : addInt(0), addDouble(0) {}
 
 // This method is empty because you can't (without a lot of difficulty)
 // write xml row-wise
 void IOXMLPop::writePop(std::string const& agent_name,
     std::string const& var_name, size_t size, void * ptr) {
-
   // get agent
   AgentMemoryArrays::iterator ait;
   ait = agentMemoryArrays_.find(agent_name);
@@ -98,13 +95,10 @@ void IOXMLPop::writeAgents() {
 }
 
 void IOXMLPop::finaliseData() {
-  /* The xml text writer */
+  // the xml text writer
   xmlTextWriterPtr writer;
 
-  /* Check a path has been set */
-  if (!xmlPopPathIsSet()) throw std::runtime_error("Path not set");
-
-  std::string file_name = xml_pop_path;
+  std::string file_name = path_;
   file_name.append(boost::lexical_cast<std::string>(iteration_));
   file_name.append(".xml");
 
@@ -112,32 +106,33 @@ void IOXMLPop::finaliseData() {
   printf("Writing file: %s\n", file_name.c_str());
 #endif
 
-  /* Open file to write to, with no compression */
+  // open file to write to, with no compression
   writer = xmlNewTextWriterFilename(file_name.c_str(), 0);
   if (writer == NULL)
     throw std::runtime_error(
         "Could not open xml population file for writing");
-  /* Write tags on new lines */
+  // write tags on new lines
   xmlTextWriterSetIndent(writer, 1);
 
   // set up xml writer
   writer_.setWriterPtr(writer);
 
-  /* Open root tag */
+  // open root tag
   writer_.writeXMLTag("states");
 
-  /* Write itno tag with iteration number */
+  // write itno tag with iteration number
   writer_.writeXMLTag("itno", static_cast<int>(iteration_));
 
-  // Write agent memory out
+  // write agent memory out
   writeAgents();
 
-  /* End xml file, automatically ends states tag */
+  // end xml file, automatically ends states tag
   writer_.endXMLDoc();
 
-  /* Free the xml writer */
+  // free the xml writer
   xmlFreeTextWriter(writer);
 
+  // clear var array data ready for next iteration
   agentMemoryArrays_.clear();
 }
 
@@ -161,8 +156,6 @@ void IOXMLPop::readPop(std::string file_name,
   if (reader == NULL)
     throw std::runtime_error("Unable to open xml pop file");
 
-  // set path to xml pop location
-  setXmlPopPath(file_name);
   // validate data using a schema
   validateData(file_name);
 
@@ -184,25 +177,6 @@ void IOXMLPop::readPop(std::string file_name,
   /* If error reading node return */
   if (ret != 0)
     throw std::runtime_error("Failed to parse xml pop file");
-}
-
-bool IOXMLPop::xmlPopPathIsSet() {
-  return xml_pop_path_is_set;
-}
-
-std::string IOXMLPop::xmlPopPath() {
-  return xml_pop_path;
-}
-
-void IOXMLPop::setXmlPopPath(std::string path) {
-  /* Set the xml pop path to the directory of the opened file.
-   * This path is then used as the root directory to write xml pop to. */
-  boost::filesystem::path p(path);
-  boost::filesystem::path dir = p.parent_path();
-  xml_pop_path = dir.string();
-  if (xml_pop_path != "")
-    xml_pop_path.append("/");
-  xml_pop_path_is_set = true;
 }
 
 void IOXMLPop::createDataSchemaHead() {
@@ -567,7 +541,7 @@ std::string IOXMLPop::getName() {
 // set 'C' linkage for function names
 extern "C" {
   // function to return an instance of a new IO plugin object
-  IO* construct() {
+  IO* getIOPlugin() {
     return new IOXMLPop();
   }
 }

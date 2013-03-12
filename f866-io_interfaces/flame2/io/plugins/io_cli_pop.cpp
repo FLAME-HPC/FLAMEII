@@ -1,9 +1,9 @@
 /*!
  * \file flame2/io/plugins/io_cli_pop.cpp
  * \author Simon Coakley
- * \date 2012
- * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
- * \copyright Copyright (c) 2012 University of Sheffield
+ * \date 2013
+ * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2013 University of Sheffield
  * \copyright GNU Lesser General Public License
  * \brief IOCLIPop: writing of population to CLI
  */
@@ -54,7 +54,7 @@ class IOCLIPop : public IO {
 // set 'C' linkage for function names
 extern "C" {
   // function to return an instance of a new IO plugin object
-  IO* construct() {
+  IO* getIOPlugin() {
     return new IOCLIPop();
   }
 }

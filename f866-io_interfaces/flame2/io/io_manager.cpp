@@ -12,6 +12,9 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/variant.hpp>
 #include <boost/function.hpp>
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
@@ -31,8 +34,10 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
       "/flame2/io/plugins/io_xml_pop.plugin");
   plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
       "/flame2/io/plugins/io_cli_pop.plugin");
+  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
+        "/flame2/io/plugins/io_csv_pop.plugin");
 
-  // iterate through all the plugins and call construct and use an instance
+  // iterate through all the plugins and call getIOPlugin and use an instance
   for (it = plugins.begin(); it != plugins.end(); ++it)
     loadIOPlugin(*it);
 
@@ -59,11 +64,11 @@ void IOManager::loadIOPlugin(std::string const& path) {
     printf("Failed loading plugin %s: %s\n", path.c_str(), dlerror());
   } else {
     // Get the pluginConstructor function ToDo fix compiler warning
-    pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "construct");
+    pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "getIOPlugin");
     // if returns NULL then address of function could not be found
     if (dlerror()) {
       printf("Failed constructing plugin %s: "
-          "Could not find 'construct' function\n", path.c_str());
+          "Could not find 'getIOPlugin' function\n", path.c_str());
       dlclose(handle);
     } else {
       // construct a plugin
@@ -120,11 +125,26 @@ void IOManager::readPop(std::string const& file_name) {
   void (*paddInt)(std::string const&, std::string const&, int) = addInt;
   void (*paddDouble)(std::string const&, std::string const&, double) =
       addDouble;
+
   // check input plugin has been set
   if (inputPlugin_ != NULL)
     inputPlugin_->readPop(file_name, paddInt, paddDouble);
   else
     throw exc::flame_io_exception("IO input type has not been set");
+
+  // set the pop path to the directory of the opened file
+  // this path is then used as the root directory to write pop files to
+  boost::filesystem::path p(file_name);
+  boost::filesystem::path dir = p.parent_path();
+  path_ = dir.string();
+  if (path_ != "")
+    path_.append("/");
+
+  // check output plugin has been set
+  if (outputPlugin_ != NULL)
+    outputPlugin_->setPath(path_);
+  else
+    throw exc::flame_io_exception("IO output type has not been set");
 }
 
 void IOManager::writePop(

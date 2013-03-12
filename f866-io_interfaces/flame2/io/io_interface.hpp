@@ -45,12 +45,17 @@ class IO {
     void setIteration(size_t i) {
       iteration_ = i;
     }
+    //! Set path to write to
+    void setPath(std::string path) {
+      path_ = path;
+    }
     // Need write agent for newly added agents? or just use writePop again?
     // virtual void writeAgent();
 
   protected:
     AgentMemory agentMemory_;
     size_t iteration_;
+    std::string path_;
 };
 
 }}  // namespace flame::io

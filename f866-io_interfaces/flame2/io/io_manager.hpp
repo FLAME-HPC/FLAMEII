@@ -65,6 +65,8 @@ class IOManager {
     AgentMemory agentMemory_;
     //! Model XML reader
     xml::IOXMLModel ioxmlmodel_;
+    //! Path to directory holding population files
+    std::string path_;
     //! Map from plugin name to plugin
     std::map<std::string, Plugin> plugins_;
     //! The current iteration number

@@ -42,17 +42,13 @@ class IOXMLPop : public IO {
     void initialiseData();
     void finaliseData();
     void validateData(std::string const& data_file);
-    bool xmlPopPathIsSet();
-    std::string xmlPopPath();
-    void setXmlPopPath(std::string path);
 
   private:
-    std::string xml_pop_path;
-    bool xml_pop_path_is_set;
     AgentMemoryArrays agentMemoryArrays_;
     XMLWriter writer_;
-
+    //! Pointer to method to add integers to flame2
     void (*addInt)(std::string const&, std::string const&, int);
+    //! Pointer to method to add doubles to flame2
     void (*addDouble)(std::string const&, std::string const&, double);
 
     void openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
