@@ -25,8 +25,8 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   std::vector<std::string>::iterator it;
   // try and load io plugins
   std::vector<std::string> plugins;
-  plugins.push_back("../flame2/io/plugins/io_xml_pop.plugin");
-  plugins.push_back("../flame2/io/plugins/io_cli_pop.plugin");
+  plugins.push_back("/Users/stc/workspace/f866-io_interfaces/flame2/io/plugins/io_xml_pop.plugin");
+  plugins.push_back("/Users/stc/workspace/f866-io_interfaces/flame2/io/plugins/io_cli_pop.plugin");
 
   // iterate through all the plugins and call construct and use an instance
   for(it = plugins.begin(); it != plugins.end(); ++it) {
@@ -159,6 +159,12 @@ void IOManager::setIteration(size_t i) {
 
 void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
   agentMemory_ = agentMemory;
+
+  // check input plugin has been set
+  if (inputPlugin_ != NULL)
+      inputPlugin_->setAgentMemoryInfo(agentMemory);
+  else
+    throw exc::flame_io_exception("IO input type has not been set");
 
   // check output plugin has been set
   if (outputPlugin_ != NULL)
