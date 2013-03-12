@@ -19,7 +19,7 @@
 #include <utility>
 #include "io_xml_pop.hpp"
 
-//#include "flame2/config.hpp"  // Needed?
+// #include "flame2/config.hpp"  // Needed?
 
 // enable test build
 #define TESTBUILD 1

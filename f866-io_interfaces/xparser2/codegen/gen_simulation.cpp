@@ -24,6 +24,9 @@ void GenSimulation::AddMessage(const std::string& message_name) {
 
 void GenSimulation::Generate(Printer* printer) const {
   printer->Print("flame::sim::SimManager sim_mgr;\n");
+  printer->Print("// set population input and output types\n");
+  printer->Print("sim_mgr.setPopInputType(input_type);\n");
+  printer->Print("sim_mgr.setPopOutputType(output_type);\n");
   printer->Print("// register message types\n");
   MessagenameSet::iterator msg;
   for (msg = messages_.begin(); msg != messages_.end(); ++msg)

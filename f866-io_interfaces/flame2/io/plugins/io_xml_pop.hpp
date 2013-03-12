@@ -45,6 +45,7 @@ class IOXMLPop : public IO {
     bool xmlPopPathIsSet();
     std::string xmlPopPath();
     void setXmlPopPath(std::string path);
+
   private:
     std::string xml_pop_path;
     bool xml_pop_path_is_set;

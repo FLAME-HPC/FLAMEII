@@ -23,6 +23,10 @@ class SimManager {
     void registerMessageType(std::string name) {
       flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
     }
+    //! Set IO input type
+    void setPopInputType(std::string const& type);
+    //! Set IO output type
+    void setPopOutputType(std::string const& type);
 
   private:
 };

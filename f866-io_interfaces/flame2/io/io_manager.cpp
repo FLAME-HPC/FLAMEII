@@ -7,73 +7,82 @@
  * \copyright GNU Lesser General Public License
  * \brief IOManager: management for I/O Backend
  */
+#include <dlfcn.h>  // for dynamic linking loader
 #include <string>
+#include <vector>
+#include <map>
+#include <utility>
+#include <boost/function.hpp>
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
-
-#include <dlfcn.h>
-#include <boost/function.hpp>
 
 namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
 
-typedef boost::function<IO* ()> pluginConstructor;
+typedef boost::function<IO*()> pluginConstructor;
 
 IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   std::vector<std::string>::iterator it;
   // try and load io plugins
   std::vector<std::string> plugins;
-  plugins.push_back("/Users/stc/workspace/f866-io_interfaces/flame2/io/plugins/io_xml_pop.plugin");
-  plugins.push_back("/Users/stc/workspace/f866-io_interfaces/flame2/io/plugins/io_cli_pop.plugin");
+  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
+      "/flame2/io/plugins/io_xml_pop.plugin");
+  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
+      "/flame2/io/plugins/io_cli_pop.plugin");
 
   // iterate through all the plugins and call construct and use an instance
-  for(it = plugins.begin(); it != plugins.end(); ++it) {
-    // load the plugin's shared object file
-    void *handle = NULL;
-    if(!(handle = dlopen(it->c_str(), RTLD_LAZY))) {
-      printf("Failed loading plugin %s: %s\n", it->c_str(), dlerror());
-    } else {
-      // Get the pluginConstructor function ToDo fix compiler warning
-      pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "construct");
-      // if returns NULL then address of function could not be found
-      if(dlerror()) {
-        printf("Failed constructing plugin %s: Could not find 'construct' function\n", it->c_str());
-        dlclose(handle);
-      } else {
-        // construct a plugin
-        IO *plugin = construct();
-        // add plugin to set of plugins
-        std::string pluginName = plugin->getName();
-        std::map<std::string, Plugin>::iterator pit;
-        pit = plugins_.find(pluginName);
-        if (pit == plugins_.end()) {
-          plugins_.insert(std::pair<std::string, Plugin>
-            (pluginName, std::pair<IO*, void*>(plugin, handle)));
-        } else {
-          printf("Failed registering plugin %s: Plugin %s already exists\n", it->c_str(), pluginName.c_str());
-          delete plugin;
-          dlclose(handle);
-        }
-      }
-    }
-  }
+  for (it = plugins.begin(); it != plugins.end(); ++it)
+    loadIOPlugin(*it);
 
 #ifndef TESTBUILD
-  std::map<std::string, Plugin>::iterator pit;
+/*  std::map<std::string, Plugin>::iterator pit;
   printf("IO Backends available: ");
   for (pit = plugins_.begin(); pit != plugins_.end();) {
     printf("%s", pit->second.first->getName().c_str());
     ++pit;
     if (pit != plugins_.end()) printf(" ");
   }
-  printf("\n");
+  printf("\n");*/
 #endif
 
   // Set default input and output options
   setInputType("xml");
   setOutputType("xml");
+}
+
+void IOManager::loadIOPlugin(std::string const& path) {
+  // load the plugin's shared object file
+  void *handle = NULL;
+  if (!(handle = dlopen(path.c_str(), RTLD_LAZY))) {
+    printf("Failed loading plugin %s: %s\n", path.c_str(), dlerror());
+  } else {
+    // Get the pluginConstructor function ToDo fix compiler warning
+    pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "construct");
+    // if returns NULL then address of function could not be found
+    if (dlerror()) {
+      printf("Failed constructing plugin %s: "
+          "Could not find 'construct' function\n", path.c_str());
+      dlclose(handle);
+    } else {
+      // construct a plugin
+      IO *plugin = construct();
+      // add plugin to set of plugins
+      std::string pluginName = plugin->getName();
+      std::map<std::string, Plugin>::iterator pit;
+      pit = plugins_.find(pluginName);
+      if (pit == plugins_.end()) {
+        plugins_.insert(std::pair<std::string, Plugin>
+          (pluginName, std::pair<IO*, void*>(plugin, handle)));
+      } else {
+        printf("Failed registering plugin %s: Plugin %s already exists\n",
+            path.c_str(), pluginName.c_str());
+        delete plugin;
+        dlclose(handle);
+      }
+    }
+  }
 }
 
 IOManager::~IOManager() {
@@ -126,7 +135,8 @@ void IOManager::writePop(
 
   // check output plugin has been set
   if (outputPlugin_ != NULL)
-      outputPlugin_->writePop(agent_name, var_name, vw->size(), vw->GetRawPtr());
+      outputPlugin_->writePop(
+          agent_name, var_name, vw->size(), vw->GetRawPtr());
   else
     throw exc::flame_io_exception("IO output type has not been set");
 }

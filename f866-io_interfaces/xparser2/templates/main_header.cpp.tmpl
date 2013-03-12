@@ -15,14 +15,16 @@ void die(const std::string& message, int rc = 2) {
 
 // Function defined further down
 void handle_program_options(int argc, const char* argv[],
-    std::string * pop_path, int * num_iters, int * num_cores);
+    std::string * pop_path, std::string * input_type,
+    std::string * output_type, int * num_iters, int * num_cores);
 
 int main(int argc, const char* argv[]) {
-  std::string pop_path;
+  std::string pop_path, input_type, output_type;
   int num_iters;
   int num_cores;
 
-  handle_program_options(argc, argv, &pop_path, &num_iters, &num_cores);
+  handle_program_options(argc, argv, &pop_path,
+      &input_type, &output_type, &num_iters, &num_cores);
 
   if (num_iters < 1)
     die("Invalid value for NUM_ITERATIONS");

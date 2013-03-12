@@ -7,14 +7,14 @@
  * \copyright GNU Lesser General Public License
  * \brief IOCLIPop: writing of population to CLI
  */
+#include <string>
 #include "../io_interface.hpp"
 
-//#include "flame2/config.hpp"  // Needed?
+// #include "flame2/config.hpp"  // Needed?
 
 namespace flame { namespace io {
 
 class IOCLIPop : public IO {
-
     std::string getName() {
       return "cli";
     }
@@ -58,5 +58,4 @@ extern "C" {
     return new IOCLIPop();
   }
 }
-
-}}
+}}  // namespace flame::io

@@ -37,8 +37,6 @@ class IO {
         std::string const& var_name, size_t size, void * ptr) = 0;
     //! Finalise writing out of data for an iteration
     virtual void finaliseData() = 0;
-    //! Return an instance of the plugin object
-    //virtual IO* construct() = 0;
     //! Set agent memory info
     void setAgentMemoryInfo(AgentMemory agentMemory) {
         agentMemory_ = agentMemory;
