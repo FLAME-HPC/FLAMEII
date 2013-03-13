@@ -41,8 +41,9 @@ class IOManager {
     void setOutputType(std::string const& outputType);
 
     void loadModel(std::string const& file, flame::model::XModel * model);
-    // Called by sim
-    void readPop(std::string const& file_name);
+    //! Called by sim
+    //! \return iteration of pop file given by file name
+    size_t readPop(std::string const& file_name);
 
     void setIteration(size_t i);
     void setAgentMemoryInfo(AgentMemory agentMemory);

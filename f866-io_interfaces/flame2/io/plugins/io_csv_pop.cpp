@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -89,34 +91,18 @@ class IOCSVPop : public IO {
       (*vit).second.first = ptr;
       (*vit).second.second = size;
     }
-    //! Finalise writing out of data for an iteration
-    void finaliseData() {
-      char str[32];
-      snprintf(str, 32, "%lu", iteration_);
-      std::string file_name = path_;
-      file_name.append(str);
-      file_name.append(".csv");
-      // open file to write to
-      FILE *fp;
-      fp = fopen(file_name.c_str(), "w");
-      if (fp == NULL) throw std::runtime_error("Cannot open file to write to");
-
+    //! Write out agents to file
+    void writeAgents(FILE * fp) {
       AgentMemory::iterator ait;
       VarVec::iterator vit;
       // for each agent type
       for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
         std::string agent_name = ait->first;
         VarPtrArrayMap * vpam = &(*agentMemoryArrays_.find(agent_name)).second;
-        size_t size = 0;
+        size_t ii, size = 0;
         // get a size from first variable if exists
         if (vpam->size() > 0) size = vpam->begin()->second.second;
-//        fprintf(fp, "#agent_name");
-        // for each variable
-//        for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
-//          fprintf(fp, ",%s", vit->second.c_str());
-//        fprintf(fp, "\n");
         // for each agent instance
-        size_t ii;
         for (ii = 0; ii < size; ++ii) {
           // write agent name
           fprintf(fp, "%s", agent_name.c_str());
@@ -141,10 +127,22 @@ class IOCSVPop : public IO {
           fprintf(fp, "\n");
         }
       }
-
+    }
+    //! Finalise writing out of data for an iteration
+    void finaliseData() {
+      char str[32];
+      snprintf(str, sizeof(str), "%lu", iteration_);
+      std::string file_name = path_;
+      file_name.append(str);
+      file_name.append(".csv");
+      // open file to write to
+      FILE *fp;
+      fp = fopen(file_name.c_str(), "w");
+      if (fp == NULL) throw std::runtime_error("Cannot open file to write to");
+      // write agents
+      writeAgents(fp);
       // close file
       fclose(fp);
-
       // clear var array data ready for next iteration
       agentMemoryArrays_.clear();
     }

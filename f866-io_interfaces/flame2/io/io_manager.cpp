@@ -120,15 +120,10 @@ void addDouble(std::string const& agent_name,
       GetVector<double>(agent_name, var_name)->push_back(value);
 }
 
-void IOManager::readPop(std::string const& file_name) {
-  // ToDo needed?
-  void (*paddInt)(std::string const&, std::string const&, int) = addInt;
-  void (*paddDouble)(std::string const&, std::string const&, double) =
-      addDouble;
-
+size_t IOManager::readPop(std::string const& file_name) {
   // check input plugin has been set
   if (inputPlugin_ != NULL)
-    inputPlugin_->readPop(file_name, paddInt, paddDouble);
+    inputPlugin_->readPop(file_name, addInt, addDouble);
   else
     throw exc::flame_io_exception("IO input type has not been set");
 
@@ -140,11 +135,28 @@ void IOManager::readPop(std::string const& file_name) {
   if (path_ != "")
     path_.append("/");
 
+  // try and get the iteration number from the file name
+  boost::filesystem::path file = p.stem();
+  size_t i = 0;
+  try {
+    i = boost::lexical_cast<size_t>(file.string());
+  } catch(const boost::bad_lexical_cast&) {
+    printf("Warning: could not determine iteration number from input file name"
+        ", using zero\n");
+    i = 0;
+  }
+  // set the iteration number
+  setIteration(i);
+
   // check output plugin has been set
-  if (outputPlugin_ != NULL)
+  if (outputPlugin_ != NULL) {
     outputPlugin_->setPath(path_);
-  else
+  } else {
     throw exc::flame_io_exception("IO output type has not been set");
+  }
+
+  // return iteration number to Simulation which sets the Scheduler
+  return i;
 }
 
 void IOManager::writePop(

@@ -8,6 +8,7 @@
  * \brief IOCLIPop: writing of population to CLI
  */
 #include <string>
+#include <stdexcept>
 #include "../io_interface.hpp"
 
 // #include "flame2/config.hpp"  // Needed?
@@ -21,7 +22,12 @@ class IOCLIPop : public IO {
     //! Reading method, called by io manager
     void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
-        void (*addDouble)(std::string const&, std::string const&, double)) {}
+        void (*addDouble)(std::string const&, std::string const&, double)) {
+      // throw error
+      throw std::runtime_error(
+          "IO plugin cli cannot be used to read a pop file");
+      // could read in data from command line via cin?
+    }
     //! Initialise writing out of data for an iteration
     void initialiseData() {}
     //! Write out an agent variable for all agents
