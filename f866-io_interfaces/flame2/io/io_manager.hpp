@@ -57,6 +57,7 @@ class IOManager {
     void loadIOPlugin(std::string const& path);
 
 #ifdef TESTBUILD
+    IO * getIOPlugin(std::string const& name);
     //! Delete all input and output types
     void Reset();
 #endif

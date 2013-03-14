@@ -247,6 +247,16 @@ void IOManager::setOutputType(std::string const& outputType) {
 }
 
 #ifdef TESTBUILD
+IO * IOManager::getIOPlugin(std::string const& name) {
+  std::map<std::string, Plugin>::iterator pit;
+  // find plugin
+  pit = plugins_.find(name);
+  if (pit != plugins_.end()) return pit->second.first;
+  else
+    throw exc::flame_io_exception(
+        "IO plugin not available for type: " + name);
+}
+
 void IOManager::Reset() {}
 #endif
 

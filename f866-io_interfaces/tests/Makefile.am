@@ -50,7 +50,7 @@ run_tests_SOURCES += \
 run_tests_SOURCES += \
   io/test_io_manager.cpp \
   io/test_io_xml_model.cpp \
-  io/test_io_xml_pop.cpp
+  io/test_io_plugins.cpp
 
 # Add tests for "model"
 run_tests_SOURCES += \
