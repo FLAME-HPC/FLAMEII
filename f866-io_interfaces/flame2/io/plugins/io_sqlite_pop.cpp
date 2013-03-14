@@ -201,28 +201,29 @@ class IOSQLitePop : public IO {
           for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
             if (vit->second == var_name) var_type = vit->first;
 
+      // use prepared statement
+      statement = "UPDATE ";
+      statement.append(agent_name);
+      statement.append(" SET ");
+      statement.append(var_name);
+      statement.append("=? WHERE ");
+      statement.append(index_name);
+      statement.append("=?");
+      int buffer_size = statement.size()+1;
+      const char * sSQL = statement.c_str();
+      sqlite3_stmt * stmt;
+      const char * tail = 0;
+      sqlite3_prepare_v2(db, sSQL, buffer_size, &stmt, &tail);
+
       // for each agent instance
       for (ii = 0; ii < size; ++ii) {
         // write data to database
-        std::string statement = "UPDATE ";
-        statement.append(agent_name);
-        statement.append(" SET ");
-        statement.append(var_name);
-        statement.append("=");
-        std::ostringstream convert;
-        if (var_type == "int") convert << *(static_cast<int*>(ptr)+ii);
-        if (var_type == "double") convert << *(static_cast<double*>(ptr)+ii);
-        statement.append(convert.str());
-        statement.append(" WHERE ");
-        statement.append(index_name);
-        statement.append("=");
-        convert.str(std::string());  // clear stream to be used again
-        convert << ii;
-        statement.append(convert.str());
-        statement.append(";");
-        // execute insert
-        //printf("%s\n", statement.c_str());
-        executeSQLite(statement);
+        if (var_type == "int") sqlite3_bind_int(stmt, 1, *(static_cast<int*>(ptr)+ii));
+        if (var_type == "double") sqlite3_bind_double(stmt, 1, *(static_cast<double*>(ptr)+ii));
+        sqlite3_bind_int(stmt, 2, ii);
+        sqlite3_step(stmt);  // commit
+        sqlite3_clear_bindings(stmt);
+        sqlite3_reset(stmt);
       }
 
       // close transaction and execute
