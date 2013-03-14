@@ -23,19 +23,26 @@
 namespace flame { namespace io {
 
 namespace exc = flame::exceptions;
+namespace fs = boost::filesystem;
 
 typedef boost::function<IO*()> pluginConstructor;
 
 IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   std::vector<std::string>::iterator it;
-  // try and load io plugins
+  fs::directory_iterator end_iter;
   std::vector<std::string> plugins;
-  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
-      "/flame2/io/plugins/io_xml_pop.plugin");
-  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
-      "/flame2/io/plugins/io_cli_pop.plugin");
-  plugins.push_back("/Users/stc/workspace/f866-io_interfaces"
-        "/flame2/io/plugins/io_csv_pop.plugin");
+
+  // Find all .plugin files in the specified plugins directory
+  fs::path pluginsDir("/Users/stc/workspace/f866-io_interfaces"
+      "/flame2/io/plugins");
+  if (fs::exists(pluginsDir) && fs::is_directory(pluginsDir)) {
+    for (fs::directory_iterator dir_iter(pluginsDir); dir_iter != end_iter ; ++dir_iter) {
+      if (fs::is_regular_file(dir_iter->status())) {
+        //result_set.insert(result_set_t::value_type(fs::last_write_time(dir_iter->status()), *dir_iter);
+        if (dir_iter->path().extension() == ".plugin") plugins.push_back(dir_iter->path().string());
+      }
+    }
+  }
 
   // iterate through all the plugins and call getIOPlugin and use an instance
   for (it = plugins.begin(); it != plugins.end(); ++it)
