@@ -150,6 +150,9 @@ class IOSQLitePop : public IO {
         throw std::runtime_error("Can't open SQLite database");
       }
 
+      // turn off blocking of write statements
+      //sqlite3_exec(db, "PRAGMA synchronous = OFF", NULL, NULL, &sErrMsg);
+
       // wrap updates in a transaction
       sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &sErrMsg);
 
