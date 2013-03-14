@@ -118,7 +118,7 @@ class IOSQLitePop : public IO {
         statement.append(ait->first);  // agent name
         statement.append("(");
         statement.append(index_name);
-        statement.append(" INTEGER PRIMARY KEY, ");
+        statement.append(" INTEGER, ");
         // for each variable
         VarVec::iterator vit;
         for (vit = ait->second.begin(); vit != ait->second.end();) {
@@ -138,6 +138,7 @@ class IOSQLitePop : public IO {
         std::string const& var_name, size_t size, void * ptr) {
       int rc;
       size_t ii;
+      char *sErrMsg = 0;
       // get index for agent table
       std::string index_name = index_name_map.find(agent_name)->second;
 
@@ -148,6 +149,9 @@ class IOSQLitePop : public IO {
         sqlite3_close(db);
         throw std::runtime_error("Can't open SQLite database");
       }
+
+      // wrap updates in a transaction
+      sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &sErrMsg);
 
       // query table size and if zero then add rows for each agent
       std::string statement = "SELECT Count(*) FROM ";
@@ -220,6 +224,10 @@ class IOSQLitePop : public IO {
         //printf("%s\n", statement.c_str());
         executeSQLite(statement);
       }
+
+      // close transaction and execute
+      sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
+
       sqlite3_close(db);
     }
     //! Write out agents to file
