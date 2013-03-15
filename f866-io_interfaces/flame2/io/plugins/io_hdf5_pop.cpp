@@ -77,13 +77,14 @@ do {                                                                            
 
       hsize_t   h5Circle_dims[] = {Circle_count};               /* Circle Dimensions */
       h5Circle_t  h5Circle[Circle_count];                        /* Circle Compound Data*/
+      int Circle_id[Circle_count];
       printf("Preparing to Write %i Circle.\n",Circle_count);
 
       printf("Creating a Dataspace...\n");
       h5dataspace = H5Screate_simple(1, h5Circle_dims, NULL);
 
       printf("Creating the Circle Dataset Headers...\n");
-      h5dataset = H5Dcreate(h5file, "/agents/Circle", h5_Circle_datatype, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      h5dataset = H5Dcreate(h5file, "/agents/Circle/Circle_id", H5T_NATIVE_INT, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
       printf("Populating internal HDF5 buffers...\n");
       unsigned int i = 0;
@@ -94,14 +95,15 @@ do {                                                                            
         h5Circle[i].fx = 0.3;
         h5Circle[i].fy = 0.4;
         h5Circle[i].radius = 0.5;
+        Circle_id[i] = i;
       }
 
       printf("Internal buffers populated.\n");
 
       printf("Writing Circle Dataset...\n");
-      H5_ERR_CHECK(H5Dwrite(h5dataset, h5_Circle_datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, h5Circle));
-      printf("Creating an 'count' Attribute...\n");
-      H5_ERR_CHECK(H5LTset_attribute_uint(h5file, "/agents/Circle", "count", &Circle_count, 1));
+      H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, Circle_id));
+      //printf("Creating an 'count' Attribute...\n");
+      //H5_ERR_CHECK(H5LTset_attribute_uint(h5file, "/agents/Circle", "count", &Circle_count, 1));
       printf("Releasing Resources...\n");
       H5_ERR_CHECK(H5Sclose(h5dataspace));
       H5_ERR_CHECK(H5Dclose(h5dataset));
@@ -125,11 +127,19 @@ do {                                                                            
         printf("Creating /states/xagents Group...\n");
         h5lcprop = H5Pcreate(H5P_LINK_CREATE);
         printf("Creating missing groups...\n");
-        H5_ERR_CHECK(H5Pset_create_intermediate_group(h5lcprop, 1));
-        h5group = H5Gcreate(h5file, "/agents", h5lcprop, H5P_DEFAULT, H5P_DEFAULT);
-        H5_ERR_CHECK(H5Gclose(h5group));
 
-        h5_Circle_datatype = h5make_Circle_datatype();
+        //for each agent
+        AgentMemory::iterator ait;
+        for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+          std::string name("/agents/");
+          name.append(ait->first);
+          H5_ERR_CHECK(H5Pset_create_intermediate_group(h5lcprop, 1));
+          h5group = H5Gcreate(h5file, name.c_str(), h5lcprop, H5P_DEFAULT, H5P_DEFAULT);
+          H5_ERR_CHECK(H5Gclose(h5group));
+        }
+
+        //h5_Circle_datatype = h5make_Circle_datatype();
+
 
 
         /*if(FLAME_integer_in_array(0, output_types, output_type_size))
@@ -141,7 +151,7 @@ do {                                                                            
         }*/
 
         printf("Write Agent Data to File: %s\n", file_name.c_str());
-        h5write_Circle(h5file);
+        //h5write_Circle(h5file);
 
         H5_ERR_CHECK(H5Fclose(h5file));
         printf("File Closed: %s\n", file_name.c_str());
@@ -149,7 +159,51 @@ do {                                                                            
     //! Write out an agent variable for all agents
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr) {
+      hid_t file;
+      char str[32];
+      snprintf(str, sizeof(str), "%lu", iteration_);
+      std::string file_name = path_;
+      file_name.append(str);
+      file_name.append(".hdf5");
 
+      printf("Opening to File: %s\n", file_name.c_str());
+      file = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+      // open an existing dataset
+      hsize_t   h5Circle_dims[] = {size};
+      hid_t h5dataspace = H5Screate_simple(1, h5Circle_dims, NULL);
+
+      std::string name("/agents/");
+      name.append(agent_name);
+      name.append("/");
+      name.append(var_name);
+
+      // find var type
+      // for each variable
+      // for each agent type
+      std::string var_type;
+      AgentMemory::iterator ait;
+      VarVec::iterator vit;
+      for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait)
+        if (ait->first == agent_name)
+          for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
+            if (vit->second == var_name) var_type = vit->first;
+
+      hid_t h5dataset;
+      printf("Creating dataset: %s\n", name.c_str());
+      if (var_type == "int") {
+        h5dataset = H5Dcreate(file, name.c_str(), H5T_NATIVE_INT, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
+      }
+      if (var_type == "double") {
+        h5dataset = H5Dcreate(file, name.c_str(), H5T_NATIVE_DOUBLE, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
+      }
+
+      H5Dclose(h5dataset);
+
+
+      H5_ERR_CHECK(H5Fclose(file));
+      printf("File Closed: %s\n", file_name.c_str());
     }
     //! Finalise writing out of data for an iteration
     void finaliseData() {}
