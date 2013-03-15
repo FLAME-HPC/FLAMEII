@@ -211,13 +211,13 @@ void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
 
   // check input plugin has been set
   if (inputPlugin_ != NULL)
-      inputPlugin_->setAgentMemoryInfo(agentMemory);
+      inputPlugin_->setAgentMemoryInfo(agentMemory_);
   else
     throw exc::flame_io_exception("IO input type has not been set");
 
   // check output plugin has been set
   if (outputPlugin_ != NULL)
-      outputPlugin_->setAgentMemoryInfo(agentMemory);
+      outputPlugin_->setAgentMemoryInfo(agentMemory_);
   else
     throw exc::flame_io_exception("IO output type has not been set");
 }
@@ -239,8 +239,11 @@ void IOManager::setOutputType(std::string const& outputType) {
 
   // find output type plugin
   pit = plugins_.find(outputType);
-  if (pit != plugins_.end())
+  if (pit != plugins_.end()) {
     outputPlugin_ = pit->second.first;
+    outputPlugin_->setPath(path_);
+    outputPlugin_->setAgentMemoryInfo(agentMemory_);
+  }
   else
     throw exc::flame_io_exception(
         "IO plugin not available for output type: " + outputType);
@@ -257,7 +260,11 @@ IO * IOManager::getIOPlugin(std::string const& name) {
         "IO plugin not available for type: " + name);
 }
 
-void IOManager::Reset() {}
+void IOManager::Reset() {
+  // Set default input and output options
+  setInputType("xml");
+  setOutputType("xml");
+}
 #endif
 
 }}  // namespace flame::io

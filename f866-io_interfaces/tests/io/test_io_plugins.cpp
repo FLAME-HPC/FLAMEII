@@ -20,26 +20,23 @@
 #include "flame2/io/io_xml_model.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "flame2/sim/simulation.hpp"
+#include "flame2/exe/fifo_task_queue.hpp"
+#include "flame2/exe/scheduler.hpp"
+#include "flame2/api/flame2.hpp"
 
 namespace io = flame::io;
 namespace model = flame::model;
 namespace mem = flame::mem;
+namespace exe = flame::exe;
 namespace e = flame::exceptions;
 
 typedef std::pair<std::string, std::string> Var;
 typedef std::map<std::string, std::vector<Var> > AgentMemory;
 
-BOOST_AUTO_TEST_SUITE(IOPop)
+BOOST_AUTO_TEST_SUITE(IOPlugins)
 
 BOOST_AUTO_TEST_CASE(test_read_same_dir) {
-  io::xml::IOXMLModel ioxmlmodel;
-  model::XModel model;
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-
-  // Read model xml
-  ioxmlmodel.readXMLModel("io/models/all_data.xml", &model);
-
-  iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
 
   // Create 0.xml in program dir
   FILE *file;
@@ -62,23 +59,15 @@ BOOST_AUTO_TEST_CASE(test_read_same_dir) {
   iomanager.Reset();
 }
 
-void addInt(std::string const& agent_name,
-    std::string const& var_name, int value) {
-  // Add value to memory manager
-  flame::mem::MemoryManager::GetInstance().
-      GetVector<int>(agent_name, var_name)->push_back(value);
-}
+//! Dummy addInt to test with
+void addInt(std::string const&, std::string const&, int) {}
 
-void addDouble(std::string const& agent_name,
-    std::string const& var_name, double value) {
-  // Add value to memory manager
-  flame::mem::MemoryManager::GetInstance().
-      GetVector<double>(agent_name, var_name)->push_back(value);
-}
+//! Dummy addDouble to test with
+void addDouble(std::string const&, std::string const&, double) {}
 
 // Test the reading of XML population files
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
-  unsigned int ii;
+  size_t ii;
   io::IO * ioxmlpop;
   io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
@@ -96,36 +85,32 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   ioxmlpop = iomanager.getIOPlugin("xml");
   iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
 
-  void (*paddInt)(std::string const&, std::string const&, int) = addInt;
-  void (*paddDouble)(std::string const&, std::string const&, double) =
-      addDouble;
-
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_missing.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_missing.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_malformed.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_malformed.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_unknown_tag.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_unknown_tag.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_unknown_agent.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_unknown_agent.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_unknown_variable.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_unknown_variable.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_var_not_int.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_var_not_int.xml", addInt, addDouble),
       std::exception);
 
   BOOST_CHECK_THROW(ioxmlpop->readPop(
-      "io/models/all_data_its/0_var_not_double.xml", paddInt, paddDouble),
+      "io/models/all_data_its/0_var_not_double.xml", addInt, addDouble),
       std::exception);
 
   std::string zeroxml = "io/models/all_data_its/0.xml";
@@ -142,9 +127,8 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   std::vector<double>* rod =
       memoryManager.GetVector<double>("agent_a", "double_single");
   double expectedd[] = {0.1, 0.2, 0.3};
-  for (ii = 0; ii < rod->size(); ii++) {
+  for (ii = 0; ii < rod->size(); ii++)
     BOOST_CHECK_CLOSE(*(rod->begin()+ii), *(expectedd+ii), 0.0001);
-  }
 
   // Test pop data written out
   std::string onexml = "io/models/all_data_its/1.xml";
@@ -191,6 +175,77 @@ BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
 
   // Reset memory manager as to not affect next test suite
   memoryManager.Reset();
+}
+
+FLAME_AGENT_FUNCTION(idle) {
+  FLAME.GetMem<int>("i");  // stop compiler warning
+  return FLAME_AGENT_ALIVE;
+}
+
+void test_plugin(std::string const& plugin_name) {
+  size_t ii;
+  mem::MemoryManager& memoryManager = mem::MemoryManager::GetInstance();
+  flame::io::IOManager& ioManager = flame::io::IOManager::GetInstance();
+  // load model and pop
+  model::Model model("io/models/pluginmodel.xml");
+  // validate model
+  model.registerAgentFunction("idle", &idle);
+  flame::sim::Simulation sim(model, "io/models/plugin_its/0.xml");
+  // save pop locally so can be check later
+  std::vector<int> a_i_save(*memoryManager.GetVector<int>("a", "i"));
+  std::vector<double> a_d_save(*memoryManager.GetVector<double>("a", "d"));
+  std::vector<int> b_i_save(*memoryManager.GetVector<int>("b", "i"));
+  std::vector<double> b_d_save(*memoryManager.GetVector<double>("b", "d"));
+  // update io manager to use test plugin
+  ioManager.setOutputType(plugin_name);
+  sim.start(1, 1);
+
+  memoryManager.Reset();
+  flame::exe::TaskManager::GetInstance().Reset();
+
+  ioManager.setInputType(plugin_name);
+  std::string pop("io/models/plugin_its/1.");
+  pop.append(plugin_name);
+  flame::sim::Simulation sim2(model, pop);
+
+  std::vector<int>* a_i = memoryManager.GetVector<int>("a", "i");
+  BOOST_CHECK_EQUAL_COLLECTIONS(a_i_save.begin(), a_i_save.end(),
+      a_i->begin(), a_i->end());
+  std::vector<double>* a_d = memoryManager.GetVector<double>("a", "d");
+  // check array size is the same
+  BOOST_CHECK(a_d->size() == a_d_save.size());
+  for (ii = 0; ii < a_d->size(); ii++)
+    BOOST_CHECK_CLOSE(*(a_d->begin()+ii), *(a_d_save.begin()+ii), 0.0001);
+
+  std::vector<int>* b_i = memoryManager.GetVector<int>("b", "i");
+  BOOST_CHECK_EQUAL_COLLECTIONS(b_i_save.begin(), b_i_save.end(),
+      b_i->begin(), b_i->end());
+  std::vector<double>* b_d = memoryManager.GetVector<double>("b", "d");
+  // check array size is the same
+  BOOST_CHECK(b_d->size() == b_d_save.size());
+  for (ii = 0; ii < b_d->size(); ii++)
+    BOOST_CHECK_CLOSE(*(b_d->begin()+ii), *(b_d_save.begin()+ii), 0.0001);
+
+  // Remove created pop file
+  if (remove(pop.c_str()) != 0)
+    fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
+        pop.c_str());
+
+  ioManager.Reset();
+  memoryManager.Reset();
+  flame::exe::TaskManager::GetInstance().Reset();
+}
+
+BOOST_AUTO_TEST_CASE(test_xml_plugin) {
+  test_plugin("xml");
+}
+
+BOOST_AUTO_TEST_CASE(test_csv_plugin) {
+  test_plugin("csv");
+}
+
+BOOST_AUTO_TEST_CASE(test_sqlite_plugin) {
+  test_plugin("sqlite");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
