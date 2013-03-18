@@ -69,81 +69,88 @@ do {                                                                       \
       VarVec::iterator vit;
       hid_t h5file = NULL;
 
-        printf("Determining whether %s in the HDF5 format...\n", path.c_str());
-        if(H5Fis_hdf5(path.c_str()))
-        {
-          printf("Reading Agent Data from file: %s\n", path.c_str());
-          h5file = H5Fopen(path.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+      if(H5Fis_hdf5(path.c_str()))
+      {
+        h5file = H5Fopen(path.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
-          // validate hdf5 file
-          printf("Validating datasets exist...\n");
-          bool valid = true;
-          if(H5Lexists(h5file, "/agents", H5P_DEFAULT) == 1) {
-            //for each agent
-            for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
-              std::string dataset = "/agents/";
-              dataset.append(ait->first);
-              if(H5Lexists(h5file, dataset.c_str(), H5P_DEFAULT) == 1) {
-                for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
-                  std::string data = dataset.append("/");
-                  data.append(vit->second);
-                  if(H5Lexists(h5file, data.c_str(), H5P_DEFAULT) != 1) {
-                    printf("ERROR: %s data not found.\n", data.c_str());
-                    valid = false;
-                  }
-                }
-              } else {
-                printf("ERROR: %s dataset not found.\n", dataset.c_str());
-                valid = false;
-              }
-            }
-          } else {
-            printf("ERROR: /agents dataset not found.\n");
-            valid = false;
-          }
-
-          // if valid file
-          if (valid) {
-            for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+        // validate hdf5 file
+        bool valid = true;
+        if(H5Lexists(h5file, "/agents", H5P_DEFAULT) == 1) {
+          //for each agent
+          for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+            std::string dataset = "/agents/";
+            dataset.append(ait->first);
+            if(H5Lexists(h5file, dataset.c_str(), H5P_DEFAULT) == 1) {
               for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
-                std::string data = "agents/";
-                data.append(ait->first);
-                data.append("/");
+                std::string data = dataset.append("/");
                 data.append(vit->second);
-
-                printf("Opening dataset %s\n", data.c_str());
-
-                hid_t h5dataset = H5Dopen(h5file, data.c_str(), H5P_DEFAULT);
-
-                int data_out[3];
-                int value;
-
-                printf("Reading dataset %s\n", data.c_str());
-
-                //H5Soffset_simple(h5dataset, 1);
-                //H5Sselect_elements(h5dataset, H5S_SELECT_SET, 1, &value);
-
-                if (vit->first == "int") {
-                  H5_ERR_CHECK(H5Dread(h5dataset, H5T_NATIVE_INT,
-                      H5S_ALL, H5S_ALL, H5P_DEFAULT, &value));
-                  printf("data: %d %d %d\n", data_out[0], data_out[1], data_out[2]);
-                  //printf("value: %d\n", value);
+                if(H5Lexists(h5file, data.c_str(), H5P_DEFAULT) != 1) {
+                  printf("ERROR: %s data not found.\n", data.c_str());
+                  valid = false;
                 }
-
-                //if (vit->first == "double") mem_type_id = H5T_NATIVE_DOUBLE;
-
-                H5_ERR_CHECK(H5Dclose(h5dataset));
               }
+            } else {
+              printf("ERROR: %s dataset not found.\n", dataset.c_str());
+              valid = false;
             }
-          } else {
-            throw std::runtime_error("HDF5 file is not valid");
           }
-
+        } else {
+          printf("ERROR: /agents dataset not found.\n");
+          valid = false;
         }
-        else throw std::runtime_error("File not in HDF5 format");
 
-        H5_ERR_CHECK(H5Fclose(h5file));
-        printf("%s : File Closed.\n", path.c_str());
+        // if valid file
+        if (valid) {
+          for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+            for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
+              std::string data = "agents/";
+              data.append(ait->first);
+              data.append("/");
+              data.append(vit->second);
+
+              hid_t h5dataset = H5Dopen(h5file, data.c_str(), H5P_DEFAULT);
+
+              hsize_t dims_out[2];           /* dataset dimensions */
+              hid_t dataspace = H5Dget_space(h5dataset);    /* dataspace handle */
+              int status_n  = H5Sget_simple_extent_dims(dataspace, dims_out, NULL);
+              size_t size = (size_t)(dims_out[0]);
+
+              if (vit->first == "int") {
+                // allocate space
+                int * buf = (int *) malloc(size*sizeof(int));
+                H5_ERR_CHECK(H5Dread(h5dataset, H5T_NATIVE_INT,
+                    H5S_ALL,  // mem_space_id
+                    H5S_ALL,  // file_space_id
+                    H5P_DEFAULT, buf));
+                for (size_t ii = 0; ii < size; ++ii)
+                  addInt(ait->first, vit->second, *(buf+ii));
+                // free space
+                delete buf;
+              }
+              if (vit->first == "double") {
+                // allocate space
+                double * buf = (double *) malloc(size*sizeof(double));
+                H5_ERR_CHECK(H5Dread(h5dataset, H5T_NATIVE_DOUBLE,
+                    H5S_ALL,  // mem_space_id
+                    H5S_ALL,  // file_space_id
+                    H5P_DEFAULT, buf));
+                for (size_t ii = 0; ii < size; ++ii)
+                  addDouble(ait->first, vit->second, *(buf+ii));
+                // free space
+                delete buf;
+              }
+
+              H5_ERR_CHECK(H5Dclose(h5dataset));
+            }
+          }
+        } else {
+          throw std::runtime_error("HDF5 file is not valid");
+        }
+
+      }
+      else throw std::runtime_error("File not in HDF5 format");
+
+      H5_ERR_CHECK(H5Fclose(h5file));
     }
 
     //! Initialise writing out of data for an iteration
@@ -153,12 +160,9 @@ do {                                                                       \
         hid_t h5lcprop;     /* H5 Link Creation Property */
         std::string file_name = getFileName();
 
-        printf("Writing to File: %s\n", file_name.c_str());
         h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-        printf("Creating /states/xagents Group...\n");
         h5lcprop = H5Pcreate(H5P_LINK_CREATE);
-        printf("Creating missing groups...\n");
 
         //for each agent
         AgentMemory::iterator ait;
@@ -171,7 +175,6 @@ do {                                                                       \
         }
 
         H5_ERR_CHECK(H5Fclose(h5file));
-        printf("File Closed: %s\n", file_name.c_str());
     }
     //! Write out an agent variable for all agents
     void writePop(std::string const& agent_name,
@@ -179,7 +182,6 @@ do {                                                                       \
       hid_t file;
       std::string file_name = getFileName();
 
-      printf("Opening to File: %s\n", file_name.c_str());
       file = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
       // open an existing dataset
       hsize_t   h5Circle_dims[] = {size};
@@ -194,7 +196,6 @@ do {                                                                       \
       std::string var_type = getVariableType(agent_name, var_name);
 
       hid_t h5dataset;
-      printf("Creating dataset: %s\n", name.c_str());
       hid_t mem_type_id;
       if (var_type == "int") mem_type_id = H5T_NATIVE_INT;
       if (var_type == "double") mem_type_id = H5T_NATIVE_DOUBLE;
@@ -204,7 +205,6 @@ do {                                                                       \
       H5Dclose(h5dataset);
 
       H5_ERR_CHECK(H5Fclose(file));
-      printf("File Closed: %s\n", file_name.c_str());
     }
     //! Finalise writing out of data for an iteration
     void finaliseData() {}
