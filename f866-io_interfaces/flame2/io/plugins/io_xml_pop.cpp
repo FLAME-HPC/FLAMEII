@@ -79,10 +79,7 @@ void IOXMLPop::writeAgents() {
         VarPtrArrayMap::iterator vpamit = vpam->find(var_name);
         // find var type
         VarVec::iterator vvit;
-        std::string var_type;
-        for (vvit = (*agentMemory_.find(agent_name)).second.begin();
-            vvit != (*agentMemory_.find(agent_name)).second.end(); ++vvit)
-          if ((*vvit).second == var_name) var_type = (*vvit).first;
+        std::string var_type = getVariableType(agent_name, var_name);
         if (var_type == "int") writer_.writeXMLTag(var_name,
             *(static_cast<int*>(vpamit->second.first)+ii));
         if (var_type == "double") writer_.writeXMLTag(var_name,

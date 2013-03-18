@@ -194,15 +194,7 @@ class IOSQLitePop : public IO {
       }
 
       // find var type
-      // for each variable
-      // for each agent type
-      std::string var_type;
-      AgentMemory::iterator ait;
-      VarVec::iterator vit;
-      for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait)
-        if (ait->first == agent_name)
-          for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
-            if (vit->second == var_name) var_type = vit->first;
+      std::string var_type = getVariableType(agent_name, var_name);
 
       // use prepared statement
       statement = "UPDATE ";

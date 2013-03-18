@@ -33,24 +33,15 @@ class IOCLIPop : public IO {
     //! Write out an agent variable for all agents
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr) {
-      AgentMemory::iterator ait;
       size_t ii;
+      std::string var_type = getVariableType(agent_name, var_name);
 
-      ait = agentMemory_.find(agent_name);
-      if (ait != agentMemory_.end()) {
-        VarVec::iterator vvit;
-        // for each agent type
-        for (vvit = ait->second.begin(); vvit != ait->second.end(); ++vvit) {
-          if ((*vvit).second == var_name) {
-            for (ii = 0; ii < size; ++ii) {
-              printf("%s\t%s\t", agent_name.c_str(), var_name.c_str());
-              if ((*vvit).first == "int")
-                printf("%d\n", *(static_cast<int*>(ptr)+ii));
-              if ((*vvit).first == "double")
-                printf("%f\n", *(static_cast<double*>(ptr)+ii));
-            }
-          }
-        }
+      for (ii = 0; ii < size; ++ii) {
+        printf("%s\t%s\t", agent_name.c_str(), var_name.c_str());
+        if (var_type == "int")
+          printf("%d\n", *(static_cast<int*>(ptr)+ii));
+        if (var_type == "double")
+          printf("%f\n", *(static_cast<double*>(ptr)+ii));
       }
     }
     //! Finalise writing out of data for an iteration

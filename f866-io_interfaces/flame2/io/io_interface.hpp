@@ -56,6 +56,17 @@ class IO {
     AgentMemory agentMemory_;
     size_t iteration_;
     std::string path_;
+
+    std::string getVariableType(
+        std::string const& agent_name, std::string const& var_name) {
+      AgentMemory::iterator ait;
+      VarVec::iterator vit;
+      for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait)
+        if (ait->first == agent_name)
+          for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
+            if (vit->second == var_name) return vit->first;
+      throw std::runtime_error("Agent variable does not exist");
+}
 };
 
 }}  // namespace flame::io

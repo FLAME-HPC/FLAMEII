@@ -112,17 +112,11 @@ class IOCSVPop : public IO {
             VarPtrArrayMap::iterator vpamit = vpam->find(var_name);
             // find var type
             VarVec::iterator vvit;
-            std::string var_type;
-            for (vvit = (*agentMemory_.find(agent_name)).second.begin();
-                vvit != (*agentMemory_.find(agent_name)).second.end(); ++vvit) {
-              if ((*vvit).second == var_name) {
-                var_type = (*vvit).first;
-                if (var_type == "int") fprintf(fp, ",%d",
-                    *(static_cast<int*>(vpamit->second.first)+ii));
-                if (var_type == "double") fprintf(fp, ",%f",
-                    *(static_cast<double*>(vpamit->second.first)+ii));
-              }
-            }
+            std::string var_type = getVariableType(agent_name, var_name);
+            if (var_type == "int") fprintf(fp, ",%d",
+                *(static_cast<int*>(vpamit->second.first)+ii));
+            if (var_type == "double") fprintf(fp, ",%f",
+                *(static_cast<double*>(vpamit->second.first)+ii));
           }
           fprintf(fp, "\n");
         }
