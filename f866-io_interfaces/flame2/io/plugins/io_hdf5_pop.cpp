@@ -18,95 +18,132 @@
 namespace flame { namespace io {
 
 class IOHDF5Pop : public IO {
+
+#define H5_ERR_CHECK(func)                                                 \
+do {                                                                       \
+  herr_t h5status = func;                                                  \
+  if(h5status < 0) {                                                       \
+    fprintf(stderr, "H5IO: ERROR:%s:%i: %s\n", __FILE__, __LINE__, #func); \
+    exit(EXIT_FAILURE);                                                    \
+  }                                                                        \
+}while(0)
+
+    std::string getFileName() {
+      char str[32];
+      snprintf(str, sizeof(str), "%lu", iteration_);
+      std::string file_name = path_;
+      file_name.append(str);
+      file_name.append(".hdf5");
+      return file_name;
+    }
+
     std::string getName() {
       return "hdf5";
     }
+
+    /*static herr_t
+    test_select_hyper_iter1(void *_elem, hid_t UNUSED type_id, unsigned UNUSED ndim, const hsize_t UNUSED *point, void *_operator_data)
+    {
+        uint8_t *tbuf=(uint8_t *)_elem,     // temporary buffer pointer
+                **tbuf2=(uint8_t **)_operator_data; // temporary buffer handle
+
+        if(*tbuf!=**tbuf2)
+            return(-1);
+        else {
+            (*tbuf2)++;
+            return(0);
+        }
+    }*/
+
+    static herr_t test_select_hyper_iter1(void *elem, hid_t type_id, unsigned ndim,
+                             const hsize_t *point, void *operator_data) {
+      printf("here\n");
+      return(0);
+    }
+
     //! Reading method, called by io manager
     void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double)) {
+      AgentMemory::iterator ait;
+      VarVec::iterator vit;
+      hid_t h5file = NULL;
 
-    }
+        printf("Determining whether %s in the HDF5 format...\n", path.c_str());
+        if(H5Fis_hdf5(path.c_str()))
+        {
+          printf("Reading Agent Data from file: %s\n", path.c_str());
+          h5file = H5Fopen(path.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
-#define H5_ERR_CHECK(func)                                                             \
-do {                                                                                   \
-  herr_t h5status = func;                                                               \
-  if(h5status < 0) {                                                             \
-    fprintf(stderr, "H5IO: ERROR:%s:%i: %s\n", __FILE__, __LINE__, #func); \
-    exit(EXIT_FAILURE);                                                    \
-  }                                                                              \
-}while(0)
+          // validate hdf5 file
+          printf("Validating datasets exist...\n");
+          bool valid = true;
+          if(H5Lexists(h5file, "/agents", H5P_DEFAULT) == 1) {
+            //for each agent
+            for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+              std::string dataset = "/agents/";
+              dataset.append(ait->first);
+              if(H5Lexists(h5file, dataset.c_str(), H5P_DEFAULT) == 1) {
+                for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
+                  std::string data = dataset.append("/");
+                  data.append(vit->second);
+                  if(H5Lexists(h5file, data.c_str(), H5P_DEFAULT) != 1) {
+                    printf("ERROR: %s data not found.\n", data.c_str());
+                    valid = false;
+                  }
+                }
+              } else {
+                printf("ERROR: %s dataset not found.\n", dataset.c_str());
+                valid = false;
+              }
+            }
+          } else {
+            printf("ERROR: /agents dataset not found.\n");
+            valid = false;
+          }
 
-    typedef struct _h5_Circle_dataset
-    {
-      int id;
-      double x;
-      double y;
-      double fx;
-      double fy;
-      double radius;
-    } h5Circle_t;
+          // if valid file
+          if (valid) {
+            for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+              for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
+                std::string data = "agents/";
+                data.append(ait->first);
+                data.append("/");
+                data.append(vit->second);
 
-    hid_t h5make_Circle_datatype()
-    {
-      printf("Making Circle Datatype...\n");
-      h5_Circle_datatype = H5Tcreate (H5T_COMPOUND, sizeof(h5Circle_t));
-      printf("Inserting (int)id...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "id", HOFFSET(h5Circle_t, id), H5T_NATIVE_INT));
-      printf("Inserting (double)x...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "x", HOFFSET(h5Circle_t, x), H5T_NATIVE_DOUBLE));
-      printf("Inserting (double)y...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "y", HOFFSET(h5Circle_t, y), H5T_NATIVE_DOUBLE));
-      printf("Inserting (double)fx...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "fx", HOFFSET(h5Circle_t, fx), H5T_NATIVE_DOUBLE));
-      printf("Inserting (double)fy...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "fy", HOFFSET(h5Circle_t, fy), H5T_NATIVE_DOUBLE));
-      printf("Inserting (double)radius...\n");
-      H5_ERR_CHECK(H5Tinsert(h5_Circle_datatype, "radius", HOFFSET(h5Circle_t, radius), H5T_NATIVE_DOUBLE));
+                printf("Opening dataset %s\n", data.c_str());
 
-      printf("Circle Datatype Ready.\n");
-      return h5_Circle_datatype;
-    }
+                hid_t h5dataset = H5Dopen(h5file, data.c_str(), H5P_DEFAULT);
 
-    void h5write_Circle(hid_t h5file)
-    {
-      hid_t h5dataset;            /* Dataset Identifier */
-      hid_t h5dataspace;            /* Dataspace Identifier */
+                int data_out[3];
+                int value;
 
-      unsigned int Circle_count = 5; //Circle_end_state->count + 0;
+                printf("Reading dataset %s\n", data.c_str());
 
-      hsize_t   h5Circle_dims[] = {Circle_count};               /* Circle Dimensions */
-      h5Circle_t  h5Circle[Circle_count];                        /* Circle Compound Data*/
-      int Circle_id[Circle_count];
-      printf("Preparing to Write %i Circle.\n",Circle_count);
+                //H5Soffset_simple(h5dataset, 1);
+                //H5Sselect_elements(h5dataset, H5S_SELECT_SET, 1, &value);
 
-      printf("Creating a Dataspace...\n");
-      h5dataspace = H5Screate_simple(1, h5Circle_dims, NULL);
+                if (vit->first == "int") {
+                  H5_ERR_CHECK(H5Dread(h5dataset, H5T_NATIVE_INT,
+                      H5S_ALL, H5S_ALL, H5P_DEFAULT, &value));
+                  printf("data: %d %d %d\n", data_out[0], data_out[1], data_out[2]);
+                  //printf("value: %d\n", value);
+                }
 
-      printf("Creating the Circle Dataset Headers...\n");
-      h5dataset = H5Dcreate(h5file, "/agents/Circle/Circle_id", H5T_NATIVE_INT, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+                //if (vit->first == "double") mem_type_id = H5T_NATIVE_DOUBLE;
 
-      printf("Populating internal HDF5 buffers...\n");
-      unsigned int i = 0;
-      for (i = 0; i < Circle_count; ++i) {
-        h5Circle[i].id = i;
-        h5Circle[i].x = 0.1;
-        h5Circle[i].y = 0.2;
-        h5Circle[i].fx = 0.3;
-        h5Circle[i].fy = 0.4;
-        h5Circle[i].radius = 0.5;
-        Circle_id[i] = i;
-      }
+                H5_ERR_CHECK(H5Dclose(h5dataset));
+              }
+            }
+          } else {
+            throw std::runtime_error("HDF5 file is not valid");
+          }
 
-      printf("Internal buffers populated.\n");
+        }
+        else throw std::runtime_error("File not in HDF5 format");
 
-      printf("Writing Circle Dataset...\n");
-      H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, Circle_id));
-      //printf("Creating an 'count' Attribute...\n");
-      //H5_ERR_CHECK(H5LTset_attribute_uint(h5file, "/agents/Circle", "count", &Circle_count, 1));
-      printf("Releasing Resources...\n");
-      H5_ERR_CHECK(H5Sclose(h5dataspace));
-      H5_ERR_CHECK(H5Dclose(h5dataset));
+        H5_ERR_CHECK(H5Fclose(h5file));
+        printf("%s : File Closed.\n", path.c_str());
     }
 
     //! Initialise writing out of data for an iteration
@@ -114,12 +151,7 @@ do {                                                                            
       hid_t h5file;       /* H5 File Identifier */
         hid_t h5group;      /* H5 Group Identifier */
         hid_t h5lcprop;     /* H5 Link Creation Property */
-
-        char str[32];
-        snprintf(str, sizeof(str), "%lu", iteration_);
-        std::string file_name = path_;
-        file_name.append(str);
-        file_name.append(".hdf5");
+        std::string file_name = getFileName();
 
         printf("Writing to File: %s\n", file_name.c_str());
         h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
@@ -138,21 +170,6 @@ do {                                                                            
           H5_ERR_CHECK(H5Gclose(h5group));
         }
 
-        //h5_Circle_datatype = h5make_Circle_datatype();
-
-
-
-        /*if(FLAME_integer_in_array(0, output_types, output_type_size))
-        {
-          printf("Creating Attribute: /states/itno: %i", iteration_number);
-          H5_ERR_CHECK(H5LTset_attribute_int(h5file, "/states", "itno", &iteration_number, 1));
-          printf("Write Environment Data to File: %s",file_name.c_str());
-          h5write_environment(h5file);
-        }*/
-
-        printf("Write Agent Data to File: %s\n", file_name.c_str());
-        //h5write_Circle(h5file);
-
         H5_ERR_CHECK(H5Fclose(h5file));
         printf("File Closed: %s\n", file_name.c_str());
     }
@@ -160,11 +177,7 @@ do {                                                                            
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr) {
       hid_t file;
-      char str[32];
-      snprintf(str, sizeof(str), "%lu", iteration_);
-      std::string file_name = path_;
-      file_name.append(str);
-      file_name.append(".hdf5");
+      std::string file_name = getFileName();
 
       printf("Opening to File: %s\n", file_name.c_str());
       file = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -178,29 +191,17 @@ do {                                                                            
       name.append(var_name);
 
       // find var type
-      // for each variable
-      // for each agent type
-      std::string var_type;
-      AgentMemory::iterator ait;
-      VarVec::iterator vit;
-      for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait)
-        if (ait->first == agent_name)
-          for (vit = ait->second.begin(); vit != ait->second.end(); ++vit)
-            if (vit->second == var_name) var_type = vit->first;
+      std::string var_type = getVariableType(agent_name, var_name);
 
       hid_t h5dataset;
       printf("Creating dataset: %s\n", name.c_str());
-      if (var_type == "int") {
-        h5dataset = H5Dcreate(file, name.c_str(), H5T_NATIVE_INT, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
-      }
-      if (var_type == "double") {
-        h5dataset = H5Dcreate(file, name.c_str(), H5T_NATIVE_DOUBLE, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        H5_ERR_CHECK(H5Dwrite(h5dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
-      }
+      hid_t mem_type_id;
+      if (var_type == "int") mem_type_id = H5T_NATIVE_INT;
+      if (var_type == "double") mem_type_id = H5T_NATIVE_DOUBLE;
+      h5dataset = H5Dcreate(file, name.c_str(), mem_type_id, h5dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      H5_ERR_CHECK(H5Dwrite(h5dataset, mem_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
 
       H5Dclose(h5dataset);
-
 
       H5_ERR_CHECK(H5Fclose(file));
       printf("File Closed: %s\n", file_name.c_str());
