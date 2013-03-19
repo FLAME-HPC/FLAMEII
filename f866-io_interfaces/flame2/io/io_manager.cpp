@@ -19,6 +19,7 @@
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
+#include "flame2/build_config.hpp"  // required for install path
 
 namespace flame { namespace io {
 
@@ -29,21 +30,14 @@ typedef boost::function<IO*()> pluginConstructor;
 
 IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   std::vector<std::string>::iterator it;
-  fs::directory_iterator end_iter;
   std::vector<std::string> plugins;
 
-  // Find all .plugin files in the specified plugins directory
-  fs::path pluginsDir("/Users/stc/workspace/f866-io_interfaces"
-      "/flame2/io/plugins");
-  if (fs::exists(pluginsDir) && fs::is_directory(pluginsDir)) {
-    for (fs::directory_iterator dir_iter(pluginsDir);
-        dir_iter != end_iter ; ++dir_iter) {
-      if (fs::is_regular_file(dir_iter->status())) {
-        if (dir_iter->path().extension() == ".plugin")
-          plugins.push_back(dir_iter->path().string());
-      }
-    }
-  }
+  // search for plugins (when using test)
+  locatePlugins("../flame2/io/plugins", &plugins);
+  // search for plugins (when installed)
+  locatePlugins(flame::build_config::packagePluginDir, &plugins);
+  // search for local plugins
+  //locatePlugins("./flame_plugins", &plugins);
 
   // iterate through all the plugins and call getIOPlugin and use an instance
   for (it = plugins.begin(); it != plugins.end(); ++it)
@@ -63,6 +57,23 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // Set default input and output options
   setInputType("xml");
   setOutputType("xml");
+}
+
+void IOManager::locatePlugins(
+        std::string const& dir, std::vector<std::string> * plugins) {
+  fs::directory_iterator end_iter;
+
+  // find all .plugin files in the specified directory
+  fs::path pluginsDir(dir);
+  if (fs::exists(pluginsDir) && fs::is_directory(pluginsDir)) {
+    for (fs::directory_iterator dir_iter(pluginsDir);
+        dir_iter != end_iter ; ++dir_iter) {
+      if (fs::is_regular_file(dir_iter->status())) {
+        if (dir_iter->path().extension() == ".plugin")
+          plugins->push_back(dir_iter->path().string());
+      }
+    }
+  }
 }
 
 void IOManager::loadIOPlugin(std::string const& path) {

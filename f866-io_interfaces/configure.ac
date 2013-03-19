@@ -314,6 +314,7 @@ AC_SUBST_DIR([FLAME2_INSTALL_BINDIR], [bindir])
 AC_SUBST_DIR([FLAME2_INSTALL_LIBDIR], [libdir])
 AC_SUBST_DIR([FLAME2_INSTALL_INCLUDEDIR], [includedir])
 AC_SUBST_DIR([FLAME2_INSTALL_DATADIR], datadir/$PACKAGE)
+AC_SUBST_DIR([FLAME2_INSTALL_PLUGINDIR], datadir/plugins/)
 
 #AC_DEFINE_DIR([FLAME2_INSTALL_BINDIR], [bindir], [Install dir for binaries])
 #AC_DEFINE_DIR([FLAME2_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
@@ -346,6 +347,7 @@ utils/flame2-config
 utils/Makefile
 tests/Makefile
 flame2/io/Makefile
+flame2/io/plugins/Makefile
 flame2/mb/Makefile
 flame2/exe/Makefile
 flame2/mem/Makefile
