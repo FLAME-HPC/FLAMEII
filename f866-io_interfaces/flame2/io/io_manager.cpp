@@ -36,10 +36,11 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   fs::path pluginsDir("/Users/stc/workspace/f866-io_interfaces"
       "/flame2/io/plugins");
   if (fs::exists(pluginsDir) && fs::is_directory(pluginsDir)) {
-    for (fs::directory_iterator dir_iter(pluginsDir); dir_iter != end_iter ; ++dir_iter) {
+    for (fs::directory_iterator dir_iter(pluginsDir);
+        dir_iter != end_iter ; ++dir_iter) {
       if (fs::is_regular_file(dir_iter->status())) {
-        //result_set.insert(result_set_t::value_type(fs::last_write_time(dir_iter->status()), *dir_iter);
-        if (dir_iter->path().extension() == ".plugin") plugins.push_back(dir_iter->path().string());
+        if (dir_iter->path().extension() == ".plugin")
+          plugins.push_back(dir_iter->path().string());
       }
     }
   }
@@ -243,10 +244,10 @@ void IOManager::setOutputType(std::string const& outputType) {
     outputPlugin_ = pit->second.first;
     outputPlugin_->setPath(path_);
     outputPlugin_->setAgentMemoryInfo(agentMemory_);
-  }
-  else
+  } else {
     throw exc::flame_io_exception(
         "IO plugin not available for output type: " + outputType);
+  }
 }
 
 #ifdef TESTBUILD
