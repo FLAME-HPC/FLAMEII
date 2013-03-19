@@ -23,4 +23,4 @@ io_hdf5_pop.plugin: io_hdf5_pop.cpp
 	h5c++ -g -shared io_hdf5_pop.cpp -o io_hdf5_pop.plugin
 
 clean:
-	rm -f io_xml_pop.plugin io_cli_pop.plugin io_csv_pop.plugin
+	rm -f *.plugin *.o
