@@ -248,4 +248,8 @@ BOOST_AUTO_TEST_CASE(test_sqlite_plugin) {
   test_plugin("sqlite");
 }
 
+BOOST_AUTO_TEST_CASE(test_hdf5_plugin) {
+  test_plugin("hdf5");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
