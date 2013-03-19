@@ -87,7 +87,7 @@ class IOSQLitePop : public IO {
     }
     //! SQLite call back function
     static int callback(
-        void *NotUsed, int argc, char **argv, char **azColName) {
+        void */*NotUsed*/, int argc, char **argv, char **azColName) {
       int i;
       for (i = 0; i < argc; ++i) {
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -179,11 +179,11 @@ class IOSQLitePop : public IO {
           throw std::runtime_error("SQLite statement failed");
       }
       // if table rows less than array size then add rows
-      if (num_rows < size) {
+      if ((size_t)(num_rows) < size) {
         // for ech new row
         for (size_t ii = num_rows; ii < size; ++ii) {
           // create insert row statement
-          std::string statement = "INSERT INTO ";
+          statement = "INSERT INTO ";
           // add agent name
           statement.append(agent_name).append("(");
           // add index var with index
@@ -256,9 +256,6 @@ class IOSQLitePop : public IO {
       sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
 
       sqlite3_close(db);
-    }
-    //! Write out agents to file
-    void writeAgents(FILE * fp) {
     }
     //! Finalise writing out of data for an iteration
     void finaliseData() {

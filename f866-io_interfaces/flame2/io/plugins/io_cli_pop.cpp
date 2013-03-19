@@ -20,9 +20,9 @@ class IOCLIPop : public IO {
       return "cli";
     }
     //! Reading method, called by io manager
-    void readPop(std::string path,
-        void (*addInt)(std::string const&, std::string const&, int),
-        void (*addDouble)(std::string const&, std::string const&, double)) {
+    void readPop(std::string /*path*/,
+        void (*)(std::string const&, std::string const&, int),
+        void (*)(std::string const&, std::string const&, double)) {
       // throw error
       throw std::runtime_error(
           "IO plugin cli cannot be used to read a pop file");
