@@ -100,8 +100,10 @@ void IOManager::loadIOPlugin(std::string const& path) {
         plugins_.insert(std::pair<std::string, Plugin>
           (pluginName, std::pair<IO*, void*>(plugin, handle)));
       } else {
+#ifndef TESTBUILD
         printf("Failed registering plugin %s: Plugin %s already exists\n",
             path.c_str(), pluginName.c_str());
+#endif
         delete plugin;
         dlclose(handle);
       }
