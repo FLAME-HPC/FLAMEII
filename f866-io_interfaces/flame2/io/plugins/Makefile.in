@@ -25,8 +25,11 @@ io_cli_pop.plugin: io_cli_pop.cpp
 io_csv_pop.plugin: io_csv_pop.cpp
 	$(CXX) $(PLUGIN_FLAGS) io_csv_pop.cpp -o io_csv_pop.plugin
 
-io_sqlite_pop.plugin: io_sqlite_pop.cpp
-	$(CXX) $(PLUGIN_FLAGS) io_sqlite_pop.cpp -o io_sqlite_pop.plugin -lsqlite3
+io_sqlite_pop.plugin: io_sqlite_pop.cpp sqlite3.h sqlite3.o
+	$(CXX) $(PLUGIN_FLAGS) -Wno-long-long io_sqlite_pop.cpp sqlite3.o -o io_sqlite_pop.plugin
+
+sqlite3.o: sqlite3.c
+	@CC@ -w -c sqlite3.c
 
 # using hdf5 compile script for compiling
 # (use -show to see the libraries being linked)

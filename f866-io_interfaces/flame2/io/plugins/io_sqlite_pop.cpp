@@ -8,12 +8,12 @@
  * \brief IOSQLitePop: writing of population to SQLite file
  */
 #include <stdio.h>
-#include <sqlite3.h>
 #include <sstream>
 #include <string>
 #include <map>
 #include <stdexcept>
 #include "../io_interface.hpp"
+#include "sqlite3.h"
 
 // #include "flame2/config.hpp"  // Needed?
 
