@@ -13,7 +13,7 @@
 #include <map>
 #include <stdexcept>
 #include "../io_interface.hpp"
-#include "sqlite3.h"
+#include "./sqlite3.h"
 
 // #include "flame2/config.hpp"  // Needed?
 

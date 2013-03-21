@@ -7,10 +7,10 @@
  * \copyright GNU Lesser General Public License
  * \brief IOCSVPop: writing of population to CSV file
  */
-#include <cstdlib>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdexcept>
+#include <cstdlib>
 #include <string>
 #include <utility>
 #include <map>
@@ -126,7 +126,7 @@ class IOCSVPop : public IO {
     //! Finalise writing out of data for an iteration
     void finaliseData() {
       char str[32];
-      snprintf(str, sizeof(str), "%lu", iteration_);
+      snprintf(str, sizeof(str), "%d", static_cast<int>(iteration_));
       std::string file_name = path_;
       file_name.append(str);
       file_name.append(".csv");

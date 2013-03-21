@@ -37,7 +37,7 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // search for plugins (when installed)
   locatePlugins(flame::build_config::packagePluginDir, &plugins);
   // search for local plugins
-  //locatePlugins("./flame_plugins", &plugins);
+  // locatePlugins("./flame_plugins", &plugins);
 
   // iterate through all the plugins and call getIOPlugin and use an instance
   for (it = plugins.begin(); it != plugins.end(); ++it)
