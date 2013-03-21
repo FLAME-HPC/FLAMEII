@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOCSVPop: writing of population to CSV file
  */
+#include <cstdlib>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdexcept>
