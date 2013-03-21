@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOCLIPop: writing of population to CLI
  */
+#include <cstdio>
 #include <string>
 #include <stdexcept>
 #include "../io_interface.hpp"
