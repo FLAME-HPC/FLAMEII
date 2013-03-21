@@ -87,6 +87,9 @@ class IOSQLitePop : public IO {
         // delete the statement
         sqlite3_finalize(selectStmt);
       }
+
+      // close db
+      sqlite3_close(db);
     }
     //! SQLite call back function
     static int callback(
