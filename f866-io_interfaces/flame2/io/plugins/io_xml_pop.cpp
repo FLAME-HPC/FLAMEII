@@ -142,6 +142,9 @@ void IOXMLPop::readPop(std::string file_name,
   xmlTextReaderPtr reader;
   int ret;
 
+  // validate data using a schema
+  validateData(file_name);
+
   /* Using vector instead of stack as need to access earlier tags */
   std::vector<std::string> tags;
   /* name of current agent type, "" if invalid */
@@ -152,9 +155,6 @@ void IOXMLPop::readPop(std::string file_name,
   /* Check if file opened successfully */
   if (reader == NULL)
     throw std::runtime_error("Unable to open xml pop file");
-
-  // validate data using a schema
-  validateData(file_name);
 
 #ifndef TESTBUILD
   printf("Reading file: %s\n", file_name.c_str());
