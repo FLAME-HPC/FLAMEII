@@ -28,11 +28,12 @@ namespace flame { namespace io {
 
 class IOHDF5Pop : public IO {
     std::string getFileName() {
-      char str[32];
-      snprintf(str, sizeof(str), "%lu", iteration_);
       std::string file_name = path_;
-      file_name.append(str);
+      std::ostringstream convert;
+      convert << iteration_;
+      file_name.append(convert.str());
       file_name.append(".hdf5");
+
       return file_name;
     }
 
