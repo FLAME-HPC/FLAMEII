@@ -8,6 +8,7 @@
  * \brief IOSQLitePop: writing of population to SQLite file
  */
 #include <stdio.h>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <map>
