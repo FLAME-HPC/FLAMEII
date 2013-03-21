@@ -84,6 +84,8 @@ class IOSQLitePop : public IO {
         sqlite3_prepare(
             db, statement.c_str(), statement.length()+1, &selectStmt, NULL);
         readColumn(ait, selectStmt, addInt, addDouble);
+        // delete the statement
+        sqlite3_finalize(selectStmt);
       }
     }
     //! SQLite call back function
@@ -196,6 +198,8 @@ class IOSQLitePop : public IO {
           executeSQLite(statement);
         }
       }
+      // delete the statement
+      sqlite3_finalize(selectStmt);
     }
     //! Create insert statement for writePop
     std::string createUpdateStatement(std::string const& agent_name,
@@ -252,6 +256,8 @@ class IOSQLitePop : public IO {
         sqlite3_clear_bindings(stmt);
         sqlite3_reset(stmt);
       }
+      // delete the statement
+      sqlite3_finalize(stmt);
 
       // close transaction and execute
       sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
