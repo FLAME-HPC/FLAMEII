@@ -205,6 +205,10 @@ FLAME_CHECK_LIBXML2
 #   * This does not allow a uniform way of specifying custom libxml2 location,
 #     i.e. --with-libxml2=LIBXML2_PATH
 
+# Check for hdf5
+AX_LIB_HDF5()
+AM_CONDITIONAL(HAVE_HDF5, test "$with_hdf5" = "yes")
+
 #### UPDATE FLAGS BASED ON DEPENDENCIES
 
 COMMON_CPPFLAGS+="${BOOST_CPPFLAGS} ${LIBXML2_CPPFLAGS} "
