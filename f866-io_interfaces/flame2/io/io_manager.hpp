@@ -35,10 +35,6 @@ class IOManager {
 
     ~IOManager();
 
-    //! location .plugin files in directory and add to vector
-    void locatePlugins(
-        std::string const& dir, std::vector<std::string> * plugins);
-
     //! Set input type
     void setInputType(std::string const& inputType);
     //! Set output type
@@ -56,9 +52,6 @@ class IOManager {
     void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
-
-    //! Load an IO plugin from a shared object file
-    void loadIOPlugin(std::string const& path);
 
 #ifdef TESTBUILD
     IO * getIOPlugin(std::string const& name);
@@ -81,6 +74,12 @@ class IOManager {
     IO * inputPlugin_;
     //! Output plugin
     IO * outputPlugin_;
+
+    //! location .plugin files in directory and add to vector
+    void locatePlugins(
+        std::string const& dir, std::vector<std::string> * plugins);
+    //! Load an IO plugin from a shared object file
+    void loadIOPlugin(std::string const& path);
 
     //! This is a singleton class. Disable manual instantiation
     IOManager();
