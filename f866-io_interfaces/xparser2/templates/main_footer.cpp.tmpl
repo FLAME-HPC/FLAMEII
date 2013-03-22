@@ -26,7 +26,8 @@
 
 void handle_program_options(int argc, const char* argv[],
     std::string * pop_path, std::string * input_type,
-    std::string * output_type, int * num_iters, int * num_cores) {
+    std::string * output_type, std::string * plugin_dir,
+    int * num_iters, int * num_cores) {
   try {
     po::options_description generic("Generic options");
     generic.add_options()
@@ -40,11 +41,13 @@ void handle_program_options(int argc, const char* argv[],
       ("input_type,i", po::value<std::string>(input_type)->default_value("xml"),
               "population input type")
       ("output_type,o", po::value<std::string>(output_type)->default_value("xml"),
-              "population output type");
+              "population output type")
+      ("plugin_dir,p", po::value<std::string>(plugin_dir)->default_value("plugins"),
+              "local plugin directory");
 
     po::options_description hidden("Hidden options");
     hidden.add_options()
-      ("pop_file,p", po::value<std::string>(pop_path)->required(),
+      ("pop_file,f", po::value<std::string>(pop_path)->required(),
           "the pop file")
       ("no_iters,t", po::value<int>(num_iters)->required(),
         "number of iterations");

@@ -36,23 +36,15 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   locatePlugins("../flame2/io/plugins", &plugins);
   // search for plugins (when installed)
   locatePlugins(flame::build_config::packagePluginDir, &plugins);
-  // search for local plugins
-  // locatePlugins("./flame_plugins", &plugins);
 
   // iterate through all the plugins and call getIOPlugin and use an instance
   for (it = plugins.begin(); it != plugins.end(); ++it)
     loadIOPlugin(*it);
 
-#ifndef TESTBUILD
-/*  std::map<std::string, Plugin>::iterator pit;
-  printf("IO Backends available: ");
-  for (pit = plugins_.begin(); pit != plugins_.end();) {
-    printf("%s", pit->second.first->getName().c_str());
-    ++pit;
-    if (pit != plugins_.end()) printf(" ");
-  }
-  printf("\n");*/
-#endif
+  // check default xml plugin loaded
+  std::map<std::string, Plugin>::iterator pit = plugins_.find("xml");
+  if (pit == plugins_.end())
+    throw exc::flame_io_exception("Default IO plugin 'xml' not found");
 
   // Set default input and output options
   setInputType("xml");
@@ -261,6 +253,18 @@ void IOManager::setOutputType(std::string const& outputType) {
     throw exc::flame_io_exception(
         "IO plugin not available for output type: " + outputType);
   }
+}
+
+void IOManager::includeIOPluginDirectory(std::string const& dir) {
+  std::vector<std::string>::iterator it;
+  std::vector<std::string> plugins;
+
+  // search for plugins in directory
+  locatePlugins(dir, &plugins);
+
+  // iterate through all the plugins and call getIOPlugin and use an instance
+  for (it = plugins.begin(); it != plugins.end(); ++it)
+    loadIOPlugin(*it);
 }
 
 #ifdef TESTBUILD
