@@ -53,10 +53,14 @@ class IO {
     // virtual void writeAgent();
 
   protected:
+    //! Data structure holding agent names and their variables names and types
     AgentMemory agentMemory_;
+    //! The current iteration number
     size_t iteration_;
+    //! The current path to write population data to
     std::string path_;
 
+    //! Gets the type of the agent variable specified
     std::string getVariableType(
         std::string const& agent_name, std::string const& var_name) {
       AgentMemory::iterator ait;
