@@ -10,6 +10,7 @@
 #include <hdf5.h>     // HDF5 header
 #include <hdf5_hl.h>  // HDF5 High Level include file
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include "../io_interface.hpp"
 
@@ -175,7 +176,7 @@ class IOHDF5Pop : public IO {
           data.append(vit->second);
 
           // open data set
-          hid_t h5dataset = H5Dopen(h5file, data.c_str(), H5P_DEFAULT);
+          hid_t h5dataset = H5Dopen1(h5file, data.c_str());
 
           // find size of array
           hsize_t dims_out[2];
@@ -208,6 +209,11 @@ class IOHDF5Pop : public IO {
       // set property to create missing groups
       H5_ERR_CHECK(H5Pset_create_intermediate_group(h5lcprop, 1));
 
+      // create agents group
+      hid_t h5groupa = H5Gcreate1(h5file, "/agents", 0);
+      // close agents group
+      H5_ERR_CHECK(H5Gclose(h5groupa));
+
       // for each agent
       AgentMemory::iterator ait;
       for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
@@ -215,8 +221,7 @@ class IOHDF5Pop : public IO {
         std::string name("/agents/");
         name.append(ait->first);
         // create the agent data group
-        hid_t h5group = H5Gcreate(
-            h5file, name.c_str(), h5lcprop, H5P_DEFAULT, H5P_DEFAULT);
+        hid_t h5group = H5Gcreate1(h5file, name.c_str(), 0);
         // close the data group
         H5_ERR_CHECK(H5Gclose(h5group));
       }
@@ -246,8 +251,8 @@ class IOHDF5Pop : public IO {
       if (var_type == "int") mem_type_id = H5T_NATIVE_INT;
       if (var_type == "double") mem_type_id = H5T_NATIVE_DOUBLE;
       // create the data set
-      hid_t h5dataset = H5Dcreate(file, name.c_str(), mem_type_id, h5dataspace,
-          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      hid_t h5dataset = H5Dcreate1(file, name.c_str(), mem_type_id, h5dataspace,
+          H5P_DEFAULT);
       // write the data
       H5_ERR_CHECK(H5Dwrite(
           h5dataset, mem_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptr));
