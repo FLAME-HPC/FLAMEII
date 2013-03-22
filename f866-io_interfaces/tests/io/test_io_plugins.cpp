@@ -182,6 +182,21 @@ FLAME_AGENT_FUNCTION(idle) {
   return FLAME_AGENT_ALIVE;
 }
 
+void test_data(std::string const& agent_name,
+    std::vector<int> i_save, std::vector<double> d_save) {
+  size_t ii;
+  mem::MemoryManager& memoryManager = mem::MemoryManager::GetInstance();
+
+  std::vector<int>* a_i = memoryManager.GetVector<int>(agent_name, "i");
+  BOOST_CHECK_EQUAL_COLLECTIONS(i_save.begin(), i_save.end(),
+      a_i->begin(), a_i->end());
+  std::vector<double>* a_d = memoryManager.GetVector<double>(agent_name, "d");
+  // check array size is the same
+  BOOST_CHECK(a_d->size() == d_save.size());
+  for (ii = 0; ii < a_d->size(); ii++)
+    BOOST_CHECK_CLOSE(*(a_d->begin()+ii), *(d_save.begin()+ii), 0.0001);
+}
+
 void test_plugin(std::string const& plugin_name) {
   size_t ii;
   mem::MemoryManager& memoryManager = mem::MemoryManager::GetInstance();
@@ -208,23 +223,8 @@ void test_plugin(std::string const& plugin_name) {
   pop.append(plugin_name);
   flame::sim::Simulation sim2(model, pop);
 
-  std::vector<int>* a_i = memoryManager.GetVector<int>("a", "i");
-  BOOST_CHECK_EQUAL_COLLECTIONS(a_i_save.begin(), a_i_save.end(),
-      a_i->begin(), a_i->end());
-  std::vector<double>* a_d = memoryManager.GetVector<double>("a", "d");
-  // check array size is the same
-  BOOST_CHECK(a_d->size() == a_d_save.size());
-  for (ii = 0; ii < a_d->size(); ii++)
-    BOOST_CHECK_CLOSE(*(a_d->begin()+ii), *(a_d_save.begin()+ii), 0.0001);
-
-  std::vector<int>* b_i = memoryManager.GetVector<int>("b", "i");
-  BOOST_CHECK_EQUAL_COLLECTIONS(b_i_save.begin(), b_i_save.end(),
-      b_i->begin(), b_i->end());
-  std::vector<double>* b_d = memoryManager.GetVector<double>("b", "d");
-  // check array size is the same
-  BOOST_CHECK(b_d->size() == b_d_save.size());
-  for (ii = 0; ii < b_d->size(); ii++)
-    BOOST_CHECK_CLOSE(*(b_d->begin()+ii), *(b_d_save.begin()+ii), 0.0001);
+  test_data("a", a_i_save, a_d_save);
+  test_data("b", b_i_save, b_d_save);
 
   // Remove created pop file
   if (remove(pop.c_str()) != 0)
