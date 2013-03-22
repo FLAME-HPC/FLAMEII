@@ -174,10 +174,8 @@ class IOSQLitePop : public IO {
       while (1) {
         // execute statement
         s = sqlite3_step(selectStmt);
-        // if row result
-        if (s == SQLITE_ROW)
-          // interpret result
-          num_rows = atoi(reinterpret_cast<const char*>(
+        // if row result then interpret
+        if (s == SQLITE_ROW) num_rows = atoi(reinterpret_cast<const char*>(
               sqlite3_column_text(selectStmt, 0)));
         else if (s == SQLITE_DONE)
           break;
@@ -242,9 +240,8 @@ class IOSQLitePop : public IO {
       // use prepared statement
       std::string s = createUpdateStatement(agent_name, var_name, index_name);
       int buffer_size = s.size()+1;
-      const char * sSQL = s.c_str();
+      const char * tail = 0, * sSQL = s.c_str();
       sqlite3_stmt * stmt;
-      const char * tail = 0;
       sqlite3_prepare_v2(db, sSQL, buffer_size, &stmt, &tail);
 
       // for each agent instance
