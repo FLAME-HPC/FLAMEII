@@ -19,14 +19,11 @@
 #include <utility>
 #include <iostream>
 #include <sstream>
-#include "flame2/config.hpp"
-#include "flame2/mem/vector_wrapper.hpp"
-#include "flame2/exceptions/io.hpp"
 #include "xml_writer.hpp"
 
-namespace exc = flame::exceptions;
+// #include "flame2/config.hpp"  // Needed?
 
-namespace flame { namespace io { namespace xml {
+namespace flame { namespace io {
 
 // initialise text writer pointer to be zero
 XMLWriter::XMLWriter()
@@ -42,47 +39,47 @@ void XMLWriter::writeXMLEndTag(int count) {
   int ii;
   for (ii = 0; ii < count; ++ii)
     if (xmlTextWriterEndElement(writer_) < 0)
-      throw exc::flame_io_exception("Failed while writing XML end element");
+      throw std::runtime_error("Failed while writing XML end element");
 }
 
 void XMLWriter::writeXMLTag(std::string name) {
   // write a tag
   if (xmlTextWriterStartElement(writer_, BAD_CAST name.c_str()) < 0)
-    throw exc::flame_io_exception("Failed while writing XML start element");
+    throw std::runtime_error("Failed while writing XML start element");
 }
 
 void XMLWriter::writeXMLTag(std::string name, int value) {
   // write tag with an int value
   if (xmlTextWriterWriteFormatElement(
       writer_, BAD_CAST name.c_str(), "%d", value) < 0)
-    throw exc::flame_io_exception("Failed while writing XML tag");
+    throw std::runtime_error("Failed while writing XML tag");
 }
 
 void XMLWriter::writeXMLTag(std::string name, double value) {
   // write tag with a double value
   if (xmlTextWriterWriteFormatElement(
       writer_, BAD_CAST name.c_str(), "%f", value) < 0)
-    throw exc::flame_io_exception("Failed while writing XML tag");
+    throw std::runtime_error("Failed while writing XML tag");
 }
 
 void XMLWriter::writeXMLTag(std::string name, std::string value) {
   // write tag with a string value
   if (xmlTextWriterWriteFormatElement(writer_, BAD_CAST name.c_str(), "%s",
       value.c_str()) < 0)
-    throw exc::flame_io_exception("Failed while writing XML tag");
+    throw std::runtime_error("Failed while writing XML tag");
 }
 
 void XMLWriter::writeXMLTagAttribute(std::string name, std::string value) {
   // write an attribute
   if (xmlTextWriterWriteAttribute(writer_, BAD_CAST name.c_str(),
       BAD_CAST value.c_str()) < 0)
-    throw exc::flame_io_exception("Failed while writing XML attribute");
+    throw std::runtime_error("Failed while writing XML attribute");
 }
 
 void XMLWriter::endXMLDoc() {
   // close a doc and end tags
   if (xmlTextWriterEndDocument(writer_) < 0)
-    throw exc::flame_io_exception("Could not close XML doc");
+    throw std::runtime_error("Could not close XML doc");
 }
 
-}}}  // namespace flame::io::xml
+}}  // namespace flame::io::xml

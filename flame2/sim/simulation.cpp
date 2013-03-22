@@ -18,6 +18,7 @@
 #include "flame2/exe/fifo_task_queue.hpp"
 #include "flame2/exe/scheduler.hpp"
 #include "flame2/exceptions/sim.hpp"
+#include "flame2/mem/memory_manager.hpp"
 #include "simulation.hpp"
 
 namespace flame { namespace sim {
@@ -41,13 +42,15 @@ Simulation::Simulation(const m::Model &model, std::string pop_file) {
   registerModelWithMemoryManager(model.getAgentMemoryInfo());
   registerModelWithTaskManager(model);
 
+  // tell io manager the agent memory info
+  iomanager.setAgentMemoryInfo(model.getAgentMemoryInfo());
   // read pop data
-  iomanager.readPop(pop_file, model.getAgentMemoryInfo(), io::IOManager::xml);
+  iteration_ = iomanager.readPop(pop_file);
 }
 
 void Simulation::start(size_t iterations, size_t num_cores) {
   // create a scheduler
-  exe::Scheduler s;
+  exe::Scheduler s(iteration_+1);
   // add a FIFO queue to the scheduler with given num cores
   exe::Scheduler::QueueId q = s.CreateQueue<exe::FIFOTaskQueue>(num_cores);
   // add all task types to be handled by the queue
@@ -57,7 +60,7 @@ void Simulation::start(size_t iterations, size_t num_cores) {
 
   // run scheduler iteration for num iterations
   unsigned int ii;
-  for (ii = 1; ii <= iterations; ++ii) {
+  for (ii = iteration_+1; ii <= iterations+iteration_; ++ii) {
 #ifndef TESTBUILD
     printf("Iteration - %u\n", ii);
 #endif

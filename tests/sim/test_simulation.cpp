@@ -21,7 +21,7 @@
 #include "flame2/mb/client.hpp"
 #include "flame2/mb/message_iterator.hpp"
 #include "flame2/mb/message_board_manager.hpp"
-
+#include "flame2/mem/memory_manager.hpp"
 #include "flame2/api/flame2.hpp"
 
 namespace sim = flame::sim;
@@ -119,6 +119,7 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
   // Reset memory manager
   flame::mem::MemoryManager::GetInstance().Reset();
   flame::exe::TaskManager::GetInstance().Reset();
+  flame::io::IOManager::GetInstance().Reset();
 
   // Try and use generated output as input
   BOOST_CHECK_NO_THROW(
@@ -133,6 +134,7 @@ BOOST_AUTO_TEST_CASE(test_simulation) {
   flame::mem::MemoryManager::GetInstance().Reset();
   flame::exe::TaskManager::GetInstance().Reset();
   flame::mb::MessageBoardManager::GetInstance().Reset();
+  flame::io::IOManager::GetInstance().Reset();
 }
 
 //! Check exception throwing of unvalidated model being added to a simulation

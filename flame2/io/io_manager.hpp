@@ -1,5 +1,5 @@
 /*!
- * \file flame2/io/io_manager.hpp
+void validateDatavoid validateData * \file flame2/io/io_manager.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -12,10 +12,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <utility>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
-#include "io_xml_pop.hpp"
+#include "io_interface.hpp"
 
 namespace flame { namespace io {
 
@@ -23,34 +24,71 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
+typedef std::pair<IO*, void*> Plugin;
+
 class IOManager {
   public:
-    enum FileType { xml = 0 };
-
     static IOManager& GetInstance() {
       static IOManager instance;
       return instance;
     }
 
+    ~IOManager();
+
+    //! Set input type
+    void setInputType(std::string const& inputType);
+    //! Set output type
+    void setOutputType(std::string const& outputType);
+    //! Include directory for plugins
+    void includeIOPluginDirectory(std::string const& dir);
+
     void loadModel(std::string const& file, flame::model::XModel * model);
-    void readPop(std::string const& file_name, AgentMemory AgentMemory,
-        FileType fileType);
+    //! Called by sim
+    //! \return iteration of pop file given by file name
+    size_t readPop(std::string const& file_name);
+
+    void setIteration(size_t i);
+    void setAgentMemoryInfo(AgentMemory agentMemory);
+
+    // Called by io tasks
     void writePop(std::string const& agent_name, std::string const& var_name);
     void initialiseData();
     void finaliseData();
-    void setIteration(size_t i);
+
+#ifdef TESTBUILD
+    IO * getIOPlugin(std::string const& name);
+    //! Delete all input and output types
+    void Reset();
+#endif
 
   private:
+    //! Information about agents, their names and variables (types and names)
+    AgentMemory agentMemory_;
+    //! Model XML reader
+    xml::IOXMLModel ioxmlmodel_;
+    //! Path to directory holding population files
+    std::string path_;
+    //! Map from plugin name to plugin
+    std::map<std::string, Plugin> plugins_;
+    //! The current iteration number
+    size_t iteration_;
+    //! Input plugin
+    IO * inputPlugin_;
+    //! Output plugin
+    IO * outputPlugin_;
+
+    //! location .plugin files in directory and add to vector
+    void locatePlugins(
+        std::string const& dir, std::vector<std::string> * plugins);
+    //! Load an IO plugin from a shared object file
+    void loadIOPlugin(std::string const& path);
+
     //! This is a singleton class. Disable manual instantiation
-    IOManager() : iteration_(0) {}
+    IOManager();
     //! This is a singleton class. Disable copy constructor
     IOManager(const IOManager&);
     //! This is a singleton class. Disable assignment operation
     void operator=(const IOManager&);
-
-    xml::IOXMLModel ioxmlmodel;
-    xml::IOXMLPop   ioxmlpop;
-    size_t iteration_;
 };
 }}  // namespace flame::io
 #endif  // IO__IO_MANAGER_HPP_

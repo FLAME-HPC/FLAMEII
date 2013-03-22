@@ -27,12 +27,13 @@ class Simulation {
     Simulation(const m::Model &model, std::string pop_file);
     void start(size_t iterations, size_t num_cores = 1);
 #ifdef TESTBUILD
-    Simulation() {}
+    Simulation() : iteration_(1) {}
     void registerModelWithMemoryManagerTest(const AgentMemory& agentMemory);
     void registerModelWithTaskManagerTest(const m::Model &model);
 #endif
 
   private:
+    size_t iteration_;
     void registerModelWithMemoryManager(const AgentMemory& agentMemory);
     void registerModelWithTaskManager(const m::Model &model);
     void registerAgentTaskWithTaskManager(
