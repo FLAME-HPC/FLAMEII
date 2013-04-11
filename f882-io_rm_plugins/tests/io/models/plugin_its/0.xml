@@ -1,0 +1,33 @@
+<states>
+ <itno>0</itno>
+ <xagent>
+  <name>a</name>
+  <i>1</i>
+  <d>0.100000</d>
+ </xagent>
+ <xagent>
+  <name>a</name>
+  <i>2</i>
+  <d>0.200000</d>
+ </xagent>
+ <xagent>
+  <name>a</name>
+  <i>3</i>
+  <d>0.300000</d>
+ </xagent>
+ <xagent>
+  <name>b</name>
+  <d>11.110000</d>
+  <i>1111</i>
+ </xagent>
+ <xagent>
+  <name>b</name>
+  <d>22.220000</d>
+  <i>2222</i>
+ </xagent>
+ <xagent>
+  <name>b</name>
+  <d>33.330000</d>
+  <i>3333</i>
+ </xagent>
+</states>

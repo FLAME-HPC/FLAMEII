@@ -1,0 +1,14 @@
+Done.
+
+You can now compile your model using "make". This will compile a debug version
+of the simulation and produce the "run" executable. Always use the debug
+version for model development and testing. This version includes checks to
+detect erroneous operations, and fixes the random seed to aid validation.
+
+To compile a production version, use "make production". This gives you better
+runtime performance but runs the risk of undefined or incorrect behaviour if
+the model contains erroneous operations.
+
+Note that you will need to call "make clean" everytime you switch between
+a production and a debug build.
+
