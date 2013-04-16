@@ -248,6 +248,10 @@ dnl
               ;;
           esac
         done
+        
+        # include '-Idir' as a '-isystem dir' to stop gcc errors/warnings
+        HDF5_CPPFLAGS+=$(eval echo $HDF5_CPPFLAGS | sed 's/\-I/-isystem /g')
+        
 
         AC_MSG_RESULT([yes (version $[HDF5_VERSION])])
 

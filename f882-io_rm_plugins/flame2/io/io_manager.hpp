@@ -24,8 +24,6 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
-typedef std::pair<IO*, void*> Plugin;
-
 class IOManager {
   public:
     static IOManager& GetInstance() {
@@ -69,19 +67,13 @@ class IOManager {
     //! Path to directory holding population files
     std::string path_;
     //! Map from plugin name to plugin
-    std::map<std::string, Plugin> plugins_;
+    std::map<std::string, IO*> plugins_;
     //! The current iteration number
     size_t iteration_;
     //! Input plugin
     IO * inputPlugin_;
     //! Output plugin
     IO * outputPlugin_;
-
-    //! location .plugin files in directory and add to vector
-    void locatePlugins(
-        std::string const& dir, std::vector<std::string> * plugins);
-    //! Load an IO plugin from a shared object file
-    void loadIOPlugin(std::string const& path);
 
     //! This is a singleton class. Disable manual instantiation
     IOManager();

@@ -11,11 +11,29 @@
 module_headers = \
   io_interface.hpp \
   io_manager.hpp \
-  io_xml_model.hpp 
+  io_xml_model.hpp \
+  plugins/io_xml_pop.hpp \
+  plugins/xml_writer.hpp \
+  plugins/io_cli_pop.hpp \
+  plugins/io_csv_pop.hpp
 
 module_sources = \
   io_manager.cpp \
-  io_xml_model.cpp
+  io_xml_model.cpp \
+  plugins/io_xml_pop.cpp \
+  plugins/xml_writer.cpp \
+  plugins/io_cli_pop.cpp \
+  plugins/io_csv_pop.cpp
+
+#if HAVE_SQLITE
+module_headers += plugins/io_sqlite_pop.hpp
+module_sources += plugins/io_sqlite_pop.cpp
+#endif
+
+#if HAVE_HDF5
+module_headers += plugins/io_hdf5_pop.hpp
+module_sources += plugins/io_hdf5_pop.cpp
+#endif
 
 # Header install path
 library_includedir = $(pkgincludedir)/io

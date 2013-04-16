@@ -219,6 +219,10 @@ COMMON_LDFLAGS+="${BOOST_PROGRAM_OPTIONS_LIB} "
 # For now, we're hard-coded to require libxml2 ($XML_CPPFLAGS)
 COMMON_LDFLAGS+="${LIBXML2_LIBS} "
 
+# For HDF5
+COMMON_CPPFLAGS+="${HDF5_CPPFLAGS} "
+COMMON_LDFLAGS+="${HDF5_LDFLAGS} "
+
 #### SET DEFAULT CPPFLAGS (Can be overridden by users) ####
 
 GCC_FLAGS_LVL1="-fno-common -Wall -pedantic"
@@ -351,7 +355,6 @@ utils/flame2-config
 utils/Makefile
 tests/Makefile
 flame2/io/Makefile
-flame2/io/plugins/Makefile
 flame2/mb/Makefile
 flame2/exe/Makefile
 flame2/mem/Makefile

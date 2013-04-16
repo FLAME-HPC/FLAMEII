@@ -198,7 +198,6 @@ void test_data(std::string const& agent_name,
 }
 
 void test_plugin(std::string const& plugin_name) {
-  size_t ii;
   mem::MemoryManager& memoryManager = mem::MemoryManager::GetInstance();
   flame::io::IOManager& ioManager = flame::io::IOManager::GetInstance();
   // load model and pop
@@ -244,9 +243,11 @@ BOOST_AUTO_TEST_CASE(test_csv_plugin) {
   test_plugin("csv");
 }
 
+#ifdef HAVE_SQLITE
 BOOST_AUTO_TEST_CASE(test_sqlite_plugin) {
   test_plugin("sqlite");
 }
+#endif
 
 #ifdef HAVE_HDF5
 BOOST_AUTO_TEST_CASE(test_hdf5_plugin) {
