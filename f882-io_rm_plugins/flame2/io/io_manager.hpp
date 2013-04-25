@@ -37,8 +37,6 @@ class IOManager {
     void setInputType(std::string const& inputType);
     //! Set output type
     void setOutputType(std::string const& outputType);
-    //! Include directory for plugins
-    void includeIOPluginDirectory(std::string const& dir);
 
     void loadModel(std::string const& file, flame::model::XModel * model);
     //! Called by sim

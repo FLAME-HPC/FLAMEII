@@ -24,8 +24,6 @@ void GenSimulation::AddMessage(const std::string& message_name) {
 
 void GenSimulation::Generate(Printer* printer) const {
   printer->Print("flame::sim::SimManager sim_mgr;\n");
-  printer->Print("// set local plugin directory\n");
-  printer->Print("sim_mgr.includeIOPluginDirectory(plugin_dir);\n");
   printer->Print("// set population input and output types\n");
   printer->Print("sim_mgr.setPopInputType(input_type);\n");
   printer->Print("sim_mgr.setPopOutputType(output_type);\n");

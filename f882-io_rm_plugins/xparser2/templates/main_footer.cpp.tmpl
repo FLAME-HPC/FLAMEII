@@ -26,8 +26,7 @@
 
 void handle_program_options(int argc, const char* argv[],
     std::string * pop_path, std::string * input_type,
-    std::string * output_type, std::string * plugin_dir,
-    int * num_iters, int * num_cores) {
+    std::string * output_type, int * num_iters, int * num_cores) {
   try {
     po::options_description generic("Generic options");
     generic.add_options()
@@ -41,9 +40,7 @@ void handle_program_options(int argc, const char* argv[],
       ("input_type,i", po::value<std::string>(input_type)->default_value("xml"),
               "population input type")
       ("output_type,o", po::value<std::string>(output_type)->default_value("xml"),
-              "population output type")
-      ("plugin_dir,p", po::value<std::string>(plugin_dir)->default_value("plugins"),
-              "local plugin directory");
+              "population output type");
 
     po::options_description hidden("Hidden options");
     hidden.add_options()
@@ -71,7 +68,7 @@ void handle_program_options(int argc, const char* argv[],
       // --help option
       if (vm.count("help")) {
         std::cout << "Usage: " << argv[0] <<
-          " POP_DATA NUM_ITERATIONS [options]\n\n";
+          " [options] POP_DATA NUM_ITERATIONS [options]\n\n";
         std::cout << visible << "\n";
         exit(1);
       }
@@ -81,7 +78,7 @@ void handle_program_options(int argc, const char* argv[],
     catch(const boost::program_options::required_option& e) {
       // no model file given
       std::cout << "Usage: " << argv[0] <<
-        " POP_DATA NUM_ITERATIONS [options]\n\n";
+        " [options] POP_DATA NUM_ITERATIONS [options]\n\n";
       std::cout << visible << "\n";
       exit(1);
     }
@@ -89,7 +86,7 @@ void handle_program_options(int argc, const char* argv[],
       // options error
       std::cerr << "Error: " << e.what() << std::endl << std::endl;
       std::cout << "Usage: " << argv[0] <<
-        " POP_DATA NUM_ITERATIONS [options]\n\n";
+        " [options] POP_DATA NUM_ITERATIONS [options]\n\n";
       std::cout << visible << "\n";
       exit(1);
     }

@@ -115,7 +115,7 @@ int main(int argc, const char* argv[]) {
 
 void die_program_options(const std::string& prog,
     const po::options_description& visible) {
-  std::cout << "Usage: " << prog << " MODEL_FILE [options]\n\n";
+  std::cout << "Usage: " << prog << " [options] MODEL_FILE [options]\n\n";
   std::cout << visible << "\n";
   exit(1);
 }
