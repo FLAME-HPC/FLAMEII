@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOSQLitePop: writing of population to SQLite file
  */
+#ifdef HAVE_SQLITE3
 #include <stdio.h>
 #include <cstdlib>
 #include <sstream>
@@ -14,16 +15,17 @@
 #include <map>
 #include <stdexcept>
 #include "io_sqlite_pop.hpp"
-//#include "./sqlite3.h"
+#include "./sqlite3.h"
 #include "flame2/config.hpp"
 
 namespace flame { namespace io {
-/*
+
 std::string IOSQLitePop::getName() {
   return "sqlite";
 }
 
-void IOSQLitePop::readColumn(AgentMemory::iterator ait, sqlite3_stmt *selectStmt,
+void IOSQLitePop::readColumn(
+    AgentMemory::iterator ait, sqlite3_stmt *selectStmt,
     void (*addInt)(std::string const&, std::string const&, int),
     void (*addDouble)(std::string const&, std::string const&, double)) {
   int s;  // status code
@@ -89,7 +91,7 @@ void IOSQLitePop::readPop(std::string path,
 }
 
 static int callback(
-    void //NotUsed
+    void *  // NotUsed
     , int argc, char **argv, char **azColName) {
   int i;
   for (i = 0; i < argc; ++i) {
@@ -159,13 +161,12 @@ void IOSQLitePop::initialiseData() {
 void IOSQLitePop::checkTableSize(std::string const& agent_name, size_t size,
     std::string const& index_name) {
   // create the select statement to get the table size
-  std::string statement = "SELECT Count(*) FROM ";
-  statement.append(agent_name).append(";");
+  std::string sm = "SELECT Count(*) FROM ";
+  sm.append(agent_name).append(";");
   // the statement
   sqlite3_stmt *selectStmt;
   // prepare the statement
-  sqlite3_prepare(
-      db, statement.c_str(), statement.length()+1, &selectStmt, NULL);
+  sqlite3_prepare(db, sm.c_str(), sm.length()+1, &selectStmt, NULL);
   int s, num_rows;
   // loop
   while (1) {
@@ -180,22 +181,21 @@ void IOSQLitePop::checkTableSize(std::string const& agent_name, size_t size,
       throw std::runtime_error("SQLite statement failed");
   }
   // if table rows less than array size then add rows
-  if ((size_t)(num_rows) < size) {
+  if ((size_t)(num_rows) < size)
     // for ech new row
     for (size_t ii = num_rows; ii < size; ++ii) {
       // create insert row statement
-      statement = "INSERT INTO ";
+      sm = "INSERT INTO ";
       // add agent name
-      statement.append(agent_name).append("(");
+      sm.append(agent_name).append("(");
       // add index var with index
-      statement.append(index_name).append(") VALUES (");
+      sm.append(index_name).append(") VALUES (");
       std::ostringstream convert;
       convert << ii;
-      statement.append(convert.str()).append(");");
+      sm.append(convert.str()).append(");");
       // execute insert
-      executeSQLite(statement);
+      executeSQLite(sm);
     }
-  }
   // delete the statement
   sqlite3_finalize(selectStmt);
 }
@@ -215,7 +215,7 @@ void IOSQLitePop::writePop(std::string const& agent_name,
 
   // open sqlite file
   if (sqlite3_open(file_name_.c_str(), &db) != SQLITE_OK) {
-    fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    // fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
     throw std::runtime_error("Can't open SQLite database");
   }
 
@@ -232,7 +232,7 @@ void IOSQLitePop::writePop(std::string const& agent_name,
   checkTableSize(agent_name, size, index_name);
 
   // find var type
-  std::string var_type = getVariableType(agent_name, var_name);
+  std::string vt = getVariableType(agent_name, var_name);
 
   // use prepared statement
   std::string s = createUpdateStatement(agent_name, var_name, index_name);
@@ -244,9 +244,8 @@ void IOSQLitePop::writePop(std::string const& agent_name,
   // for each agent instance
   for (size_t ii = 0; ii < size; ++ii) {
     // write data to database
-    if (var_type == "int") sqlite3_bind_int(
-        stmt, 1, *(static_cast<int*>(ptr)+ii));
-    if (var_type == "double") sqlite3_bind_double(
+    if (vt == "int") sqlite3_bind_int(stmt, 1, *(static_cast<int*>(ptr)+ii));
+    if (vt == "double") sqlite3_bind_double(
         stmt, 1, *(static_cast<double*>(ptr)+ii));
     sqlite3_bind_int(stmt, 2, ii);
     sqlite3_step(stmt);  // commit
@@ -263,6 +262,8 @@ void IOSQLitePop::writePop(std::string const& agent_name,
 }
 
 void IOSQLitePop::finaliseData() {
-}*/
+}
 
 }}  // namespace flame::io
+
+#endif

@@ -206,8 +206,22 @@ FLAME_CHECK_LIBXML2
 #     i.e. --with-libxml2=LIBXML2_PATH
 
 # Check for hdf5
+# - calls : AC_ARG_WITH([hdf5])
 AX_LIB_HDF5()
-AM_CONDITIONAL(HAVE_HDF5, test "$with_hdf5" = "yes")
+#AM_CONDITIONAL(HAVE_HDF5, test "$with_hdf5" = "yes")
+#if test "x$with_hdf5" = "xyes"; then
+#  COMMON_CPPFLAGS+="${HDF5_CPPFLAGS} -DHAVE_HDF5 "
+#  COMMON_LDFLAGS+="${HDF5_LDFLAGS} "
+#fi
+
+# Check for sqlite
+# - calls : AC_ARG_WITH([sqlite3])
+AX_LIB_SQLITE3()
+#AM_CONDITIONAL(HAVE_SQLITE3, test "$WANT_SQLITE3" = "yes")
+#if test "x$WANT_SQLITE3" = "xyes"; then
+#  COMMON_CPPFLAGS+="-DHAVE_SQLITE3 "
+#  COMMON_LDFLAGS+="${SQLITE3_LDFLAGS} "
+#fi
 
 #### UPDATE FLAGS BASED ON DEPENDENCIES
 
@@ -220,8 +234,20 @@ COMMON_LDFLAGS+="${BOOST_PROGRAM_OPTIONS_LIB} "
 COMMON_LDFLAGS+="${LIBXML2_LIBS} "
 
 # For HDF5
-COMMON_CPPFLAGS+="${HDF5_CPPFLAGS} "
-COMMON_LDFLAGS+="${HDF5_LDFLAGS} "
+#COMMON_CPPFLAGS+="${HDF5_CPPFLAGS} "
+#COMMON_LDFLAGS+="${HDF5_LDFLAGS} "
+AS_IF([test "x$with_hdf5" = "xyes"], [
+  COMMON_CPPFLAGS+="${HDF5_CPPFLAGS} -DHAVE_HDF5 "
+  COMMON_LDFLAGS+="${HDF5_LDFLAGS} "
+])
+
+# For sqlite
+#COMMON_CPPFLAGS+="${SQLITE3_CFLAGS} "
+#COMMON_LDFLAGS+="${SQLITE3_LDFLAGS} "
+AS_IF([test "x$WANT_SQLITE3" = "xyes"], [
+  COMMON_CPPFLAGS+="-DHAVE_SQLITE3 "
+  COMMON_LDFLAGS+="${SQLITE3_LDFLAGS} "
+])
 
 #### SET DEFAULT CPPFLAGS (Can be overridden by users) ####
 
@@ -384,6 +410,9 @@ echo ""
 echo "Additional CPPFLAGS : $COMMON_CPPFLAGS"
 echo "Additional LDFLAGS  : $COMMON_LDFLAGS"
 echo "Additional LIBS     : $COMMON_LIBS"
+echo ""
+echo "HDF5 support    :  $with_hdf5"
+echo "SQLite3 support :  $WANT_SQLITE3"
 echo ""
 echo "-----------------------------------------------------------------------"
 echo ""

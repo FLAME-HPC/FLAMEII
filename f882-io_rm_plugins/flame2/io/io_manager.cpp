@@ -20,7 +20,12 @@
 #include "io_manager.hpp"
 #include "plugins/io_xml_pop.hpp"
 #include "plugins/io_csv_pop.hpp"
+#ifdef HAVE_SQLITE3
+#include "plugins/io_sqlite_pop.hpp"
+#endif
+#ifdef HAVE_HDF5
 #include "plugins/io_hdf5_pop.hpp"
+#endif
 #include "flame2/build_config.hpp"  // required for install path
 
 namespace flame { namespace io {
@@ -32,7 +37,12 @@ IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // add plugins
   plugins_.insert(std::pair<std::string, IO*>("xml", new IOXMLPop));
   plugins_.insert(std::pair<std::string, IO*>("csv", new IOCSVPop));
+#ifdef HAVE_SQLITE3
+  plugins_.insert(std::pair<std::string, IO*>("sqlite", new IOSQLitePop));
+#endif
+#ifdef HAVE_HDF5
   plugins_.insert(std::pair<std::string, IO*>("hdf5", new IOHDF5Pop));
+#endif
   // set default input and output options
   setInputType("xml");
   setOutputType("xml");

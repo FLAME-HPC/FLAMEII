@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(test_csv_plugin) {
   test_plugin("csv");
 }
 
-#ifdef HAVE_SQLITE
+#ifdef HAVE_SQLITE3
 BOOST_AUTO_TEST_CASE(test_sqlite_plugin) {
   test_plugin("sqlite");
 }

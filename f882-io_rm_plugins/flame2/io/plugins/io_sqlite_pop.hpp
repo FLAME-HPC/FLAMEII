@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOSQLitePop: writing of population to SQLite file
  */
+#ifdef HAVE_SQLITE3
 #include <stdio.h>
 #include <cstdlib>
 #include <sstream>
@@ -14,7 +15,7 @@
 #include <map>
 #include <stdexcept>
 #include "../io_interface.hpp"
-/*#include "./sqlite3.h"
+#include "./sqlite3.h"
 
 namespace flame { namespace io {
 
@@ -56,4 +57,5 @@ class IOSQLitePop : public IO {
     std::map<std::string, std::string> index_name_map;
 };
 
-}}  // namespace flame::io*/
+}}  // namespace flame::io
+#endif

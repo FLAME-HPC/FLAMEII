@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOHDF5Pop: writing of population to and from HDF5
  */
+#ifdef HAVE_HDF5
 #include <hdf5.h>     // HDF5 header
 #include <hdf5_hl.h>  // HDF5 High Level include file
 #include <string>
@@ -156,15 +157,14 @@ void IOHDF5Pop::readPop(std::string path,
   VarVec::iterator vit;
 
   // check file is hdf5
-  if (!H5Fis_hdf5(path.c_str()))
-    throw std::runtime_error("File not in HDF5 format");
+  if (!H5Fis_hdf5(path.c_str())) throw std::runtime_error("File not HDF5 file");
 
   // open hdf5 file
   hid_t h5file = H5Fopen(path.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   // validate the hdf5 file
   validate(h5file);
   // read data from file
-  for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait) {
+  for (ait = agentMemory_.begin(); ait != agentMemory_.end(); ++ait)
     for (vit = ait->second.begin(); vit != ait->second.end(); ++vit) {
       // set agent variable data set name
       std::string data = "agents/";
@@ -191,7 +191,6 @@ void IOHDF5Pop::readPop(std::string path,
       // close data set
       H5_ERR_CHECK(H5Dclose(h5dataset));
     }
-  }
   // close file
   H5_ERR_CHECK(H5Fclose(h5file));
 }
@@ -261,3 +260,5 @@ void IOHDF5Pop::writePop(std::string const& agent_name,
 void IOHDF5Pop::finaliseData() {}
 
 }}  // namespace flame::io
+
+#endif

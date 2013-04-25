@@ -13,10 +13,7 @@ noinst_PROGRAMS = run_tests
 run_tests_LIBS = @COMMON_LIBS@
 run_tests_LDFLAGS = @BOOST_UNIT_TEST_FRAMEWORK_LIB@ @COMMON_LDFLAGS@ -rpath @BOOST_LIBDIR@ -no-install
 run_tests_CPPFLAGS = @COMMON_CPPFLAGS@ @AM_CPPFLAGS@ @CPPFLAGS_TEST@
-if HAVE_HDF5
-# Define preprocessor macro for hdf5
-run_tests_CPPFLAGS += -DHAVE_HDF5
-endif
+
 run_tests_LDADD = \
   $(top_srcdir)/libflame2-test.la \
   $(top_srcdir)/xparser2/lib_xparser2.la \

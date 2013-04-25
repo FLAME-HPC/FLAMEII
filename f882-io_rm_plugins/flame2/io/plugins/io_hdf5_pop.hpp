@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief IOHDF5Pop: writing of population to and from HDF5
  */
+#ifdef HAVE_HDF5
 #include <hdf5.h>     // HDF5 header
 #include <hdf5_hl.h>  // HDF5 High Level include file
 #include <string>
@@ -44,3 +45,4 @@ class IOHDF5Pop : public IO {
 };
 
 }}  // namespace flame::io
+#endif

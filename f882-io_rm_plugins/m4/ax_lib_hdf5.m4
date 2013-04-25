@@ -112,7 +112,7 @@ AC_ARG_WITH([hdf5],
      with_hdf5="yes"
      H5CC="$withval"
    fi],
-   [with_hdf5="yes"]
+   [with_hdf5="no"]
 )
 
 dnl Set defaults to blank
