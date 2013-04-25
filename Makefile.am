@@ -22,8 +22,7 @@ SUBDIRS = \
   flame2/model \
   flame2/sim \
   utils \
-  xparser2 \
-  flame2/io/plugins
+  xparser2
 
 # Directories to include in the distribution
 DIST_SUBDIRS = $(SUBDIRS) tests

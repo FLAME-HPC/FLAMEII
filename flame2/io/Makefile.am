@@ -11,11 +11,23 @@
 module_headers = \
   io_interface.hpp \
   io_manager.hpp \
-  io_xml_model.hpp 
+  io_xml_model.hpp \
+	plugins/io_sqlite_pop.hpp \
+	plugins/io_hdf5_pop.hpp \
+  plugins/io_xml_pop.hpp \
+  plugins/xml_writer.hpp \
+  plugins/io_cli_pop.hpp \
+  plugins/io_csv_pop.hpp 
 
 module_sources = \
   io_manager.cpp \
-  io_xml_model.cpp
+  io_xml_model.cpp \
+	plugins/io_sqlite_pop.cpp \
+	plugins/io_hdf5_pop.cpp \
+  plugins/io_xml_pop.cpp \
+  plugins/xml_writer.cpp \
+  plugins/io_cli_pop.cpp \
+  plugins/io_csv_pop.cpp 
 
 # Header install path
 library_includedir = $(pkgincludedir)/io
@@ -43,6 +55,3 @@ noinst_LTLIBRARIES += lib_flame_io-test.la
 lib_flame_io_test_la_CPPFLAGS = $(common_flags) @CPPFLAGS_TEST@
 lib_flame_io_test_la_SOURCES  = $(module_headers) $(module_sources)
 endif
-
-
-

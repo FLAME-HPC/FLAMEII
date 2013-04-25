@@ -7,7 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief IOManager: management for I/O Backend
  */
-#include <dlfcn.h>  // for dynamic linking loader
 #include <string>
 #include <vector>
 #include <map>
@@ -19,6 +18,14 @@
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
+#include "plugins/io_xml_pop.hpp"
+#include "plugins/io_csv_pop.hpp"
+#ifdef HAVE_SQLITE3
+#include "plugins/io_sqlite_pop.hpp"
+#endif
+#ifdef HAVE_HDF5
+#include "plugins/io_hdf5_pop.hpp"
+#endif
 #include "flame2/build_config.hpp"  // required for install path
 
 namespace flame { namespace io {
@@ -26,90 +33,26 @@ namespace flame { namespace io {
 namespace exc = flame::exceptions;
 namespace fs = boost::filesystem;
 
-typedef boost::function<IO*()> pluginConstructor;
-
 IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
-  std::vector<std::string>::iterator it;
-  std::vector<std::string> plugins;
-
-  // search for plugins (when using test)
-  locatePlugins("../flame2/io/plugins", &plugins);
-  // search for plugins (when installed)
-  locatePlugins(flame::build_config::packagePluginDir, &plugins);
-
-  // iterate through all the plugins and call getIOPlugin and use an instance
-  for (it = plugins.begin(); it != plugins.end(); ++it)
-    loadIOPlugin(*it);
-
-  // check default xml plugin loaded
-  std::map<std::string, Plugin>::iterator pit = plugins_.find("xml");
-  if (pit == plugins_.end())
-    throw exc::flame_io_exception("Default IO plugin 'xml' not found");
-
-  // Set default input and output options
+  // add plugins
+  plugins_.insert(std::pair<std::string, IO*>("xml", new IOXMLPop));
+  plugins_.insert(std::pair<std::string, IO*>("csv", new IOCSVPop));
+#ifdef HAVE_SQLITE3
+  plugins_.insert(std::pair<std::string, IO*>("sqlite", new IOSQLitePop));
+#endif
+#ifdef HAVE_HDF5
+  plugins_.insert(std::pair<std::string, IO*>("hdf5", new IOHDF5Pop));
+#endif
+  // set default input and output options
   setInputType("xml");
   setOutputType("xml");
 }
 
-void IOManager::locatePlugins(
-        std::string const& dir, std::vector<std::string> * plugins) {
-  fs::directory_iterator end_iter;
-
-  // find all .plugin files in the specified directory
-  fs::path pluginsDir(dir);
-  if (fs::exists(pluginsDir) && fs::is_directory(pluginsDir)) {
-    for (fs::directory_iterator dir_iter(pluginsDir);
-        dir_iter != end_iter ; ++dir_iter) {
-      if (fs::is_regular_file(dir_iter->status())) {
-        if (dir_iter->path().extension() == ".plugin")
-          plugins->push_back(dir_iter->path().string());
-      }
-    }
-  }
-}
-
-void IOManager::loadIOPlugin(std::string const& path) {
-  // load the plugin's shared object file
-  void *handle = NULL;
-  if (!(handle = dlopen(path.c_str(), RTLD_LAZY))) {
-    printf("Failed loading plugin %s: %s\n", path.c_str(), dlerror());
-  } else {
-    // Get the pluginConstructor function ToDo fix compiler warning
-    pluginConstructor construct = (IO* (*)(void)) dlsym(handle, "getIOPlugin");
-    // if returns NULL then address of function could not be found
-    if (dlerror()) {
-      printf("Failed constructing plugin %s: "
-          "Could not find 'getIOPlugin' function\n", path.c_str());
-      dlclose(handle);
-    } else {
-      // construct a plugin
-      IO *plugin = construct();
-      // add plugin to set of plugins
-      std::string pluginName = plugin->getName();
-      std::map<std::string, Plugin>::iterator pit;
-      pit = plugins_.find(pluginName);
-      if (pit == plugins_.end()) {
-        plugins_.insert(std::pair<std::string, Plugin>
-          (pluginName, std::pair<IO*, void*>(plugin, handle)));
-      } else {
-#ifndef TESTBUILD
-        printf("Failed registering plugin %s: Plugin %s already exists\n",
-            path.c_str(), pluginName.c_str());
-#endif
-        delete plugin;
-        dlclose(handle);
-      }
-    }
-  }
-}
-
 IOManager::~IOManager() {
-  std::map<std::string, Plugin>::iterator it;
+  std::map<std::string, IO*>::iterator it;
   for (it = plugins_.begin(); it != plugins_.end(); ++it) {
     // delete plugin object
-    delete it->second.first;
-    // close the handle and unload the dynamic library
-    dlclose(it->second.second);
+    delete it->second;
   }
 }
 
@@ -229,24 +172,24 @@ void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
 }
 
 void IOManager::setInputType(std::string const& inputType) {
-  std::map<std::string, Plugin>::iterator pit;
+  std::map<std::string, IO*>::iterator pit;
 
   // find input type plugin
   pit = plugins_.find(inputType);
   if (pit != plugins_.end())
-    inputPlugin_ = pit->second.first;
+    inputPlugin_ = pit->second;
   else
     throw exc::flame_io_exception(
         "IO plugin not available for input type: " + inputType);
 }
 
 void IOManager::setOutputType(std::string const& outputType) {
-  std::map<std::string, Plugin>::iterator pit;
+  std::map<std::string, IO*>::iterator pit;
 
   // find output type plugin
   pit = plugins_.find(outputType);
   if (pit != plugins_.end()) {
-    outputPlugin_ = pit->second.first;
+    outputPlugin_ = pit->second;
     outputPlugin_->setPath(path_);
     outputPlugin_->setAgentMemoryInfo(agentMemory_);
   } else {
@@ -255,24 +198,12 @@ void IOManager::setOutputType(std::string const& outputType) {
   }
 }
 
-void IOManager::includeIOPluginDirectory(std::string const& dir) {
-  std::vector<std::string>::iterator it;
-  std::vector<std::string> plugins;
-
-  // search for plugins in directory
-  locatePlugins(dir, &plugins);
-
-  // iterate through all the plugins and call getIOPlugin and use an instance
-  for (it = plugins.begin(); it != plugins.end(); ++it)
-    loadIOPlugin(*it);
-}
-
 #ifdef TESTBUILD
 IO * IOManager::getIOPlugin(std::string const& name) {
-  std::map<std::string, Plugin>::iterator pit;
+  std::map<std::string, IO*>::iterator pit;
   // find plugin
   pit = plugins_.find(name);
-  if (pit != plugins_.end()) return pit->second.first;
+  if (pit != plugins_.end()) return pit->second;
   else
     throw exc::flame_io_exception(
         "IO plugin not available for type: " + name);

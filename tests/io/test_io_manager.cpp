@@ -184,43 +184,13 @@ BOOST_AUTO_TEST_CASE(test_writePop_model) {
   memoryManager.Reset();
   iomanager.Reset();
 }
-/*
-BOOST_AUTO_TEST_CASE(test_writePop_1_agent_var) {
+
+BOOST_AUTO_TEST_CASE(test_input_output_selection) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
-  flame::mem::MemoryManager& memoryManager =
-      flame::mem::MemoryManager::GetInstance();
-  model::Model model;
-  std::string zeroxml = "io/models/all_data_its/0.xml";
 
-  // Read model
-  iomanager.loadModel("io/models/all_data.xml", model.getXModel());
-  model.validate();
-  flame::sim::Simulation sim;
-  sim.registerModelWithMemoryManagerTest(model.getAgentMemoryInfo());
-  // Read pop
-  iomanager.readPop(zeroxml, model.getAgentMemoryInfo(), io::IOManager::xml);
+  BOOST_CHECK_THROW(iomanager.setOutputType("invalid"), e::flame_io_exception);
 
-  BOOST_CHECK_THROW(iomanager.writePop("na", "int_single"),
-                    std::runtime_error);
-
-  BOOST_CHECK_THROW(iomanager.writePop("agent_a", "na"), std::runtime_error);
-
-  BOOST_CHECK_NO_THROW(iomanager.writePop("agent_a", "int_single"));
-
-  // Check contents of 0_agent_a_int_single.xml
-  FILE *file;
-  zeroFile = fopen(zeroxml.c_str(), "r");
-  if (file == 0)
-          fprintf(stderr, "Warning: Could not open the file: %s\n",
-                  zeroxml.c_str());
-
-  // Remove created 0_agent_a_int_single.xml
-  if (remove("0_agent_a_int_single.xml") != 0)
-      fprintf(stderr, "Warning: Could not delete the generated file: %s\n",
-              "0_agent_a_int_single.xml");
-
-  // Reset memory manager as to not affect next test suite
-  memoryManager.Reset();
-}*/
+  BOOST_CHECK_THROW(iomanager.setInputType("invalid"), e::flame_io_exception);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

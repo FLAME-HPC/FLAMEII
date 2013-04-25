@@ -27,8 +27,6 @@ class SimManager {
     void setPopInputType(std::string const& type);
     //! Set IO output type
     void setPopOutputType(std::string const& type);
-    //! Include directory for plugins
-    void includeIOPluginDirectory(std::string const& dir);
 
   private:
 };

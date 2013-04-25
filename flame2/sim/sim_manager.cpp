@@ -26,9 +26,4 @@ void SimManager::setPopOutputType(std::string const& type) {
   flame::io::IOManager::GetInstance().setOutputType(type);
 }
 
-void SimManager::includeIOPluginDirectory(std::string const& dir) {
-  // call io manager to include dir
-  flame::io::IOManager::GetInstance().includeIOPluginDirectory(dir);
-}
-
 }}  // namespace flame::sim

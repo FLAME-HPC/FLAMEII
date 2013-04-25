@@ -17,8 +17,7 @@
 #include <utility>
 #include <boost/lexical_cast.hpp>
 #include "io_xml_pop.hpp"
-
-// #include "flame2/config.hpp"  // Needed?
+#include "flame2/config.hpp"
 
 // enable test build
 #define TESTBUILD 1
@@ -533,14 +532,6 @@ void IOXMLPop::processNode(xmlTextReaderPtr reader,
 
 std::string IOXMLPop::getName() {
   return "xml";
-}
-
-// set 'C' linkage for function names
-extern "C" {
-  // function to return an instance of a new IO plugin object
-  IO* getIOPlugin() {
-    return new IOXMLPop();
-  }
 }
 
 }}  // namespace flame::io
