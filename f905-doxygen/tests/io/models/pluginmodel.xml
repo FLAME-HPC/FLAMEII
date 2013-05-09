@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmodel version="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation='http://www.flame.ac.uk/schema/xmml_v2.xsd'>
+
+<name>test_plugin_model</name>
+<version>01</version>
+<description>Test the reading and writing of IO plugins</description>
+
+<agents>
+
+<xagent>
+<name>a</name>
+<description></description>
+<memory>
+  <variable><type>int</type><name>i</name><description></description></variable>
+  <variable><type>double</type><name>d</name><description></description></variable>
+</memory>
+<functions>
+
+<function><name>idle</name>
+<description></description>
+<currentState>start</currentState>
+<nextState>end</nextState>
+</function>
+
+</functions>
+</xagent>
+
+<xagent>
+<name>b</name>
+<description></description>
+<memory>
+  <variable><type>double</type><name>d</name><description></description></variable>
+  <variable><type>int</type><name>i</name><description></description></variable>
+</memory>
+<functions>
+
+<function><name>idle</name>
+<description></description>
+<currentState>start</currentState>
+<nextState>end</nextState>
+</function>
+
+</functions>
+</xagent>
+
+</agents>
+
+<messages>
+</messages>
+
+</xmodel>
