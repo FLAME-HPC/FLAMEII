@@ -1,5 +1,5 @@
 /*!
- * \file flame2/model/xmodel_check.cpp
+ * \file flame2/model/xmodel_validate.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

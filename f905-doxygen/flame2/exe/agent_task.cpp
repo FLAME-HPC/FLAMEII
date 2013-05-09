@@ -1,5 +1,5 @@
 /*!
- * \file flame2/exe/task.cpp
+ * \file flame2/exe/agent_task.cpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

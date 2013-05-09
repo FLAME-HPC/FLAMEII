@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_file.hpp
+ * \file xparser2/codegen/gen_file.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -16,7 +16,7 @@ namespace xparser { namespace codegen {
 
 /*! \brief Generates a file
  *
- * Prints out \c #include statements for the header requirements of all
+ * Prints out \c include statements for the header requirements of all
  * inserted generators. Then prints out the generated code for each inserted
  * generator (in the same order they were added).
  */
@@ -41,7 +41,7 @@ class GenFile : public CodeGenerator {
     }
 
   protected:
-    //! Prints #include statements for all required headers
+    //! Prints include statements for all required headers
     void GenerateIncludeStatements(Printer* printer) const;
     //! Prints content produced by all sub-generators
     void GenerateInsertedContent(Printer* printer) const;

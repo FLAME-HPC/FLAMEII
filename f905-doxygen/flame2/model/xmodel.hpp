@@ -47,7 +47,7 @@ class XModel {
     std::string getName();
     /*!
      * \brief Adds included model to a list
-     * \param[in] path Path of the sub model
+     * \param[in] name Path of the sub model
      * \return Boolean, true if name is unique
      * If the model file is not already in the list then it is added.
      * If not then false is returned.

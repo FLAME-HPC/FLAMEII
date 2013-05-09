@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_simulation.cpp
+ * \file xparser2/codegen/gen_simulation.cpp
  * \author Shawn Chin
  * \author Simon Coakley
  * \date January 2013

@@ -36,7 +36,7 @@ class Printer {
 
     /*! \brief Prints text to output stream
      * \param text Output text
-     * \param map Map of possible replacement candidates
+     * \param vars Map of possible replacement candidates
      *
      * Prints text with the corrent indentation inserted at each new line.
      *

@@ -1,5 +1,5 @@
 /*!
- * \file flame2/api/cxx/flame2.hpp
+ * \file flame2/api/flame2.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

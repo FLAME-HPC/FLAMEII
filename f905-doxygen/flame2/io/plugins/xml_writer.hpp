@@ -1,5 +1,5 @@
 /*!
- * \file flame2/io/xml_writer.hpp
+ * \file flame2/io/plugins/xml_writer.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
