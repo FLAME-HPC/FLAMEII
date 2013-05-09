@@ -25,11 +25,6 @@ XMachine::XMachine()
   : id_(0) {
 }
 
-/*!
- * \brief Prints XMachine
- *
- * Prints XMachine to standard out.
- */
 void XMachine::print() {
   boost::ptr_vector<XVariable>::iterator it;
   boost::ptr_vector<XFunction>::iterator f_it;

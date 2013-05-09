@@ -26,7 +26,12 @@ class WorkerThread {
     //! Starts the thread
     void Init();
 
-    //! Business logic for the thread
+    /*!
+     * \brief Business logic for the thread
+     *
+     * Retrieves tasks from the parent queue and runs them. Continue until a
+     * Termination task is issued.
+     */
     void ProcessQueue();
 
     //! Runs a given task

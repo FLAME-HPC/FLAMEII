@@ -16,8 +16,23 @@ namespace flame { namespace model {
 
 class XIOput {
   public:
+    /*!
+     * \brief Initialises XIOput
+     *
+     * Initialises XIOput with no random, no filter and no sort.
+     */
     XIOput();
+    /*!
+     * \brief Cleans up XIOput
+     *
+     * Cleans up XIOput by deleting any filter.
+     */
     ~XIOput();
+    /*!
+     * \brief Prints XIOput
+     *
+     * Prints XIOput to standard out.
+     */
     void print();
     void setMessageName(std::string name);
     std::string getMessageName();

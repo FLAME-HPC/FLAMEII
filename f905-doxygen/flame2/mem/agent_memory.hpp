@@ -56,7 +56,23 @@ class AgentMemory {
     //! as agents are added to AgentMemory.
     void HintPopulationSize(unsigned int size_hint);
 
-    //! Returns the current population size
+    /*!
+     * \brief Returns the current population size
+     *
+     * For now, we query the size from the first memory vector. In the future,
+     * once we have a more structured approach to populating the vectors, we
+     * should then simply return the counter value
+     *
+     * In debug more, we double check the size against all other memory vectors.
+     * To speed up subsequent calls, we cache the return value and skip the
+     * checks if the size remains the same.
+     *
+     * Throws flame::exceptions::flame_mem_exception when the sizes are inconsistent
+     *
+     * Not that these checks will not detect problems when other vectors apart from
+     * the first reduces in size.
+     *
+     */
     size_t GetPopulationSize(void);
 
     //! Returns typeless pointer to associated vector wrapper

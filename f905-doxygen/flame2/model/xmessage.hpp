@@ -18,13 +18,26 @@ namespace flame { namespace model {
 
 class XMessage {
   public:
+    /*!
+     * \brief Constructs XMessage
+     *
+     * Initialises id to be zero and start and finish tasks to be null.
+     */
     XMessage();
+    /*!
+     * \brief Prints XMessage
+     *
+     * Prints XMessage to standard out.
+     */
     void print();
     void setName(std::string name);
     std::string getName();
     XVariable * addVariable();
     XVariable * addVariable(std::string type, std::string name);
     boost::ptr_vector<XVariable> * getVariables();
+    /*!
+     * \brief Finds a variable name in the message memory
+     */
     bool validateVariableName(std::string name);
     void setID(int id);
     int getID();

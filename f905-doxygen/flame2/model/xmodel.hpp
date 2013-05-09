@@ -34,17 +34,36 @@ typedef std::set<std::string> StringSet;
 class XModel {
   public:
     XModel();
+    /*!
+     * \brief Print a model to stdout
+     *
+     * Print a whole model out to standard out.
+     */
     void print();
     int validate();
     void setPath(std::string path);
     std::string getPath();
     void setName(std::string name);
     std::string getName();
+    /*!
+     * \brief Adds included model to a list
+     * \param[in] path Path of the sub model
+     * \return Boolean, true if name is unique
+     * If the model file is not already in the list then it is added.
+     * If not then false is returned.
+     */
     bool addIncludedModel(std::string name);
     std::vector<std::string> * getIncludedModels();
     XVariable * addConstant();
     boost::ptr_vector<XVariable> * getConstants();
     XADT * addADT();
+    /*!
+     * \brief Returns an adt object with given name
+     * \param[in] name Name of the adt
+     * \return Pointer to the adt object or 0 if not found
+     * This function is used to validate adt names and provide a
+     * pointer to the object if valid.
+     */
     XADT * getADT(std::string name);
     boost::ptr_vector<XADT> * getADTs();
     void addTimeUnit(XTimeUnit * timeUnit);
@@ -56,6 +75,13 @@ class XModel {
     XMachine * getAgent(std::string name);
     XMessage * addMessage();
     XMessage * addMessage(std::string name);
+    /*!
+     * \brief Returns a message object with given name
+     * \param[in] name Name of the message
+     * \return Pointer to the message object or 0 if not found
+     * This function is used to validate message names and provide a
+     * pointer to the object if valid.
+     */
     XMessage * getMessage(std::string name);
     boost::ptr_vector<XMessage> * getMessages();
     void addAllowedDataType(std::string name);

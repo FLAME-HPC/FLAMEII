@@ -23,14 +23,6 @@
 
 namespace flame { namespace exe {
 
-/*!
- * \brief assigns a task type to the given queue
- * \param[in] qid Queue ID to assign the task type to
- * \param[in] type The task type to assign to the queue
- *
- * Throws flame::exceptions:invalid_argument if the queue id is invalid
- * or if the type has already been assigned.
- */
 void Scheduler::AssignType(QueueId qid, Task::TaskType type) {
   if (!IsValidQueueId(qid)) {
     throw flame::exceptions::invalid_argument("invalid queue id");
@@ -44,13 +36,6 @@ void Scheduler::AssignType(QueueId qid, Task::TaskType type) {
   }
 }
 
-/*!
- * \brief Specity tasks that can be split
- * \param[in] type Task type that should be split
- *
- * Throws flame::exceptions::invalid_argument if type has not yet been assigned
- * to a queue.
- */
 void Scheduler::SetSplittable(Task::TaskType type) {
   RouteMap::iterator iter = route_.find(type);
   if (iter == route_.end()) {
@@ -60,14 +45,6 @@ void Scheduler::SetSplittable(Task::TaskType type) {
   }
 }
 
-/*!
- * \brief Specifies the maximum number of subtask a created per split
- * \param[in] type Task type
- * \param[in] max_tasks_per_split max tasks per split
- *
- * Throws flame::exceptions::invalid_argument if type has not yet been assigned
- * to a queue.
- */
 void Scheduler::SetMaxTasksPerSplit(Task::TaskType type,
                                     size_t max_tasks_per_split) {
   RouteMap::iterator iter = route_.find(type);
@@ -78,13 +55,6 @@ void Scheduler::SetMaxTasksPerSplit(Task::TaskType type,
   }
 }
 
-/*!
- * \brief Returns the maximum number of subtask a created per split
- * \param[in] type Task type
- *
- * Throws flame::exceptions::invalid_argument if type has not yet been assigned
- * to a queue.
- */
 size_t Scheduler::GetMaxTasksPerSplit(Task::TaskType type) const {
   RouteMap::const_iterator iter = route_.find(type);
   if (iter == route_.end()) {
@@ -94,14 +64,6 @@ size_t Scheduler::GetMaxTasksPerSplit(Task::TaskType type) const {
   }
 }
 
-/*!
- * \brief Specifies the minimum vector size to maintain when splitting task
- * \param[in] type Task type
- * \param[in] min_vector_size min vector size
- *
- * Throws flame::exceptions::invalid_argument if type has not yet been assigned
- * to a queue.
- */
 void Scheduler::SetMinVectorSize(Task::TaskType type, size_t min_vector_size) {
   RouteMap::iterator iter = route_.find(type);
   if (iter == route_.end()) {
@@ -111,13 +73,6 @@ void Scheduler::SetMinVectorSize(Task::TaskType type, size_t min_vector_size) {
   }
 }
 
-/*!
- * \brief Returns the minimum vector size to maintain when splitting task
- * \param[in] type Task type
- *
- * Throws flame::exceptions::invalid_argument if type has not yet been assigned
- * to a queue.
- */
 size_t Scheduler::GetMinVectorSize(Task::TaskType type) const {
   RouteMap::const_iterator iter = route_.find(type);
   if (iter == route_.end()) {
@@ -127,31 +82,16 @@ size_t Scheduler::GetMinVectorSize(Task::TaskType type) const {
   }
 }
 
-//! \brief Returns true if the given id is a valid queue id
 bool Scheduler::IsValidQueueId(QueueId id) {
   return (id < queues_.size());
 }
 
-/*!
- * \brief Callback function used to indicate that a task is completed
- *
- * Assigned to each associated task queue for reverse communication
- */
 void Scheduler::TaskDoneCallback(Task::id_type task_id) {
   boost::unique_lock<boost::mutex> lock(doneq_mutex_);
   doneq_.push_back(task_id);
   doneq_cond_.notify_one();
 }
 
-/*!
- * \brief Runs a single iteration
- *
- * Tasks are retrieved from the Task Manager and all ready tasks (no
- * dependencies) are enqueued so they can be processed by the queues.
- *
- * A call to this method is blocking and returns once all tasks have been
- * completed.
- */
 void Scheduler::RunIteration() {
   TaskManager &tm = TaskManager::GetInstance();
   tm.Finalise();
@@ -186,15 +126,6 @@ void Scheduler::RunIteration() {
   ++iter_count_;  // increment iteration count (for next iter)
 }
 
-/*!
-  * \brief Equeues task within the associated queue
-  *
-  * The queue is selected based on the task type and contents of
-  * route_ map which is populated by AssignType().
-  *
-  * Throws flame::exceptions::invalid_type if a tasks with an unregistered
-  * type is encountered.
-  */
 void Scheduler::EnqueueTask(Task::id_type task_id) {
   TaskManager &tm = TaskManager::GetInstance();
   Task& task = tm.GetTask(task_id);

@@ -19,17 +19,38 @@ class FIFOTaskQueue : public TaskQueue {
   public:
     typedef boost::ptr_vector<WorkerThread> WorkerVector;
 
+    /*!
+     * \brief Constructor
+     * \param[in] slots Number of slots
+     *
+     * Populates the vector of worker threads and initialses the threads.
+     *
+     * Throws flame::exceptions::invalid_argument if an invalid value is given
+     * for slots.
+     */
     explicit FIFOTaskQueue(size_t slots);
+    /*!
+     * \brief Destructor
+     *
+     * Enqueue the termination task (signal worker threads to wrap up) and waits
+     * for all worker threads to complete before destroying this object.
+     */
     ~FIFOTaskQueue();
 
-    //! \brief Adds a task to the queue
-    //!
-    //! This method is meant to be called by the Scheduler
+    /*!
+     * \brief Adds a task to the queue
+     *
+     * This method is meant to be called by the Scheduler
+     */
     void Enqueue(Task::id_type task_id);
 
-    //! \brief Indicate that a task has been completed
-    //!
-    //! This method is meant to be called by a Worker Thread
+    /*!
+     * \brief Process a completed task
+     *
+     * This method is meant to be called by a worker thread.
+     *
+     * This triggers the callback function of the parent scheduler.
+     */
     void TaskDone(Task::id_type task_id);
 
     //! \brief Specify tasks than can be split (not applicable)
@@ -57,7 +78,13 @@ class FIFOTaskQueue : public TaskQueue {
       throw flame::exceptions::not_implemented("Non-splitting queue");
     }
 
-    //! \brief Returns the next available task.
+    /*!
+     * \brief Returns the next available task.
+     *
+     * If there are none available, the calling thread will be blocked
+     *
+     * This method is meant to be called by a Worker Thread
+     */
     Task::id_type GetNextTask();
 
     //! \brief Returns true if the queue is empty

@@ -27,6 +27,11 @@ typedef std::pair<std::string, std::string> Var;
 class XMachine {
   public:
     XMachine();
+    /*!
+     * \brief Prints XMachine
+     *
+     * Prints XMachine to standard out.
+     */
     void print();
     void setName(std::string name);
     std::string getName() const;

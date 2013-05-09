@@ -18,6 +18,11 @@ class Dependency {
   public:
     enum DependencyType { state = 0, communication, data, init,
         condition, variable, blank };
+    /*!
+     * \brief Initialises Dependency
+     *
+     * Initialises Dependency.
+     */
     Dependency(std::string name, DependencyType type);
     void setName(std::string name);
     std::string getName();

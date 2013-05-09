@@ -207,9 +207,7 @@ void XGraph::removeRedundantDependencies() {
   edge2dependency_->clear();
 }
 
-/*!
- \brief Has cycle exception struct
-
+/*
  Has cycle exception used by cycle detector and passes
  back edge to already discovered vertex.
  */
@@ -223,9 +221,7 @@ struct has_cycle : public std::exception {
     Edge d_;
 };
 
-/*!
- \brief Visitor function cycle detector struct
-
+/*
  Visitor function object passed to depth_first_search.
  Contains back_edge method that is called when the depth_first_search
  explores an edge to an already discovered vertex.

@@ -22,11 +22,6 @@ void printErr(const char *format, ...);
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialise all condition variables
- *
- * Initialise all condition variables.
- */
 XCondition::XCondition()
   : tempValue_(""),
   lhs_(""),
@@ -56,11 +51,6 @@ XCondition::XCondition()
   lhsCondition_(0),
   rhsCondition_(0) {}
 
-/*!
- * \brief Cleans up XCondtion
- *
- * Cleans up XCondtion by deleting any nested conditions.
- */
 XCondition::~XCondition() {
   /* Delete any nested conditions */
   delete lhsCondition_;
@@ -111,11 +101,6 @@ void XCondition::printTime() {
   std::fprintf(stdout, ")");
 }
 
-/*!
- * \brief Print the condition to stdout
- *
- * Print the condition to standard out.
- */
 void XCondition::print() {
   std::fprintf(stdout, "\t\t");
   if (isNot_) std::fprintf(stdout, "not(");
@@ -243,11 +228,6 @@ int XCondition::processSymbolsConditions() {
   return errors;
 }
 
-/*!
- * \brief Processes symbols in conditions/filters
- * \return Number of errors
- * Handles agent/message variables and numbers for values and handles operators.
- */
 int XCondition::processSymbols() {
   int errors = 0;
 

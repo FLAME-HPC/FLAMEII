@@ -22,9 +22,30 @@ class Task;
 
 class XFunction {
   public:
+    /*!
+     * \brief Constructs XFunction
+     *
+     * Initialises XFunction with no condition and no memory access info.
+     */
     XFunction();
+    /*!
+     * \brief Constructs XFunction
+     *
+     * Initialises XFunction with a name and no condition and
+     * no memory access info.
+     */
     explicit XFunction(std::string name);
+    /*!
+     * \brief Cleans up XFunction
+     *
+     * Cleans up XFunction by deleting condition and ioputs.
+     */
     ~XFunction();
+    /*!
+     * \brief Prints the XFunction
+     *
+     * Prints the XFunction to standard out.
+     */
     void print();
     void setName(std::string name);
     std::string getName();

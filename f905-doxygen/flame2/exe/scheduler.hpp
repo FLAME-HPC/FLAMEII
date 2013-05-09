@@ -55,22 +55,61 @@ class Scheduler {
       return (queues_.size() - 1);
     }
 
-    //! \brief assigns a task type to the given queue
+    /*!
+     * \brief assigns a task type to the given queue
+     * \param[in] qid Queue ID to assign the task type to
+     * \param[in] type The task type to assign to the queue
+     *
+     * Throws flame::exceptions:invalid_argument if the queue id is invalid
+     * or if the type has already been assigned.
+     */
     void AssignType(QueueId qid, Task::TaskType type);
 
-    //! \brief Specity tasks that can be split
+    /*!
+     * \brief Specity tasks that can be split
+     * \param[in] type Task type that should be split
+     *
+     * Throws flame::exceptions::invalid_argument if type has not yet been assigned
+     * to a queue.
+     */
     void SetSplittable(Task::TaskType type);
 
-    //! \brief Specifies the maximum number of subtask a created per split
+    /*!
+     * \brief Specifies the maximum number of subtask a created per split
+     * \param[in] type Task type
+     * \param[in] max_tasks_per_split max tasks per split
+     *
+     * Throws flame::exceptions::invalid_argument if type has not yet been assigned
+     * to a queue.
+     */
     void SetMaxTasksPerSplit(Task::TaskType type, size_t max_tasks_per_split);
 
-    //! \brief Returns the maximum number of subtask a created per split
+    /*!
+     * \brief Returns the maximum number of subtask a created per split
+     * \param[in] type Task type
+     *
+     * Throws flame::exceptions::invalid_argument if type has not yet been assigned
+     * to a queue.
+     */
     size_t GetMaxTasksPerSplit(Task::TaskType type) const;
 
-    //! \brief Specifies the minimum vector size to maintain when splitting task
+    /*!
+     * \brief Specifies the minimum vector size to maintain when splitting task
+     * \param[in] type Task type
+     * \param[in] min_vector_size min vector size
+     *
+     * Throws flame::exceptions::invalid_argument if type has not yet been assigned
+     * to a queue.
+     */
     void SetMinVectorSize(Task::TaskType type, size_t min_vector_size);
 
-    //! \brief Returns the minimum vector size to maintain when splitting task
+    /*!
+     * \brief Returns the minimum vector size to maintain when splitting task
+     * \param[in] type Task type
+     *
+     * Throws flame::exceptions::invalid_argument if type has not yet been assigned
+     * to a queue.
+     */
     size_t GetMinVectorSize(Task::TaskType type) const;
 
     /*! 
@@ -80,16 +119,27 @@ class Scheduler {
      */
     void TaskDoneCallback(Task::id_type task_id);
 
-    //! \brief Runs a single iteration
+    /*!
+     * \brief Runs a single iteration
+     *
+     * Tasks are retrieved from the Task Manager and all ready tasks (no
+     * dependencies) are enqueued so they can be processed by the queues.
+     *
+     * A call to this method is blocking and returns once all tasks have been
+     * completed.
+     */
     void RunIteration();
 
   private:
-    /*! 
-     * \brief Equeues task within the associated queue
-     *
-     * The queue is selected based on the task type and contents of
-     * route_ map which is populated by AssignType()
-     */
+    /*!
+      * \brief Equeues task within the associated queue
+      *
+      * The queue is selected based on the task type and contents of
+      * route_ map which is populated by AssignType().
+      *
+      * Throws flame::exceptions::invalid_type if a tasks with an unregistered
+      * type is encountered.
+      */
     void EnqueueTask(Task::id_type task_id);
 
     //! \brief Returns true if the given id is a valid queue id

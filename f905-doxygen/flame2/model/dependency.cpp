@@ -15,11 +15,6 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialises Dependency
- *
- * Initialises Dependency.
- */
 Dependency::Dependency(std::string name, DependencyType type)
   : name_(name), dependencyType_(type) {}
 

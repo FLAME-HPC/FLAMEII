@@ -18,7 +18,17 @@ namespace flame { namespace model {
 
 class XADT {
   public:
+    /*!
+     * \brief Constructs XADT
+     *
+     * Initialises holding dynamic arrays to be false.
+     */
     XADT();
+    /*!
+     * \brief Prints XADT
+     *
+     * Prints out XADT name and variables.
+     */
     void print();
     void setName(std::string name);
     std::string getName();

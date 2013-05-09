@@ -23,6 +23,14 @@ namespace flame { namespace model {
 class XModelValidate {
   public:
     explicit XModelValidate(XModel * m);
+    /*!
+     * \brief Validate the model
+     * \return The number of errors found
+     * \todo Check condition op IN has valid variables (if implemented).
+     * \todo Check for no agents (if needed).
+     * \todo Remove agents with no memory variables (if needed).
+     * Detailed description.
+     */
     int validate();
 
   private:
@@ -66,6 +74,14 @@ class XModelValidate {
     int validateSort(XIOput * xioput, XMessage * xmessage);
     int validateRandomString(XIOput * xioput);
     int validateMessage(XMessage * xmessage);
+    /*!
+     * \brief Validates a name string
+     * \param[in] name The string to validate
+     * \return Boolean result
+     * The iterator tries to find the first element that satisfies the predicate.
+     * If no disallowed character is found then you end with name.end() which is
+     * taken to be success and true is returned.
+     */
     bool name_is_allowed(std::string name);
     int validateTimeUnits(boost::ptr_vector<XTimeUnit> * timeUnits);
     int validateModelGraph();

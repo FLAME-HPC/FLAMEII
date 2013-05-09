@@ -46,14 +46,6 @@ XModelValidate::XModelValidate(XModel * m)
   agents_(m->getAgents()),
   messages_(m->getMessages()) {}
 
-/*!
- * \brief Validate the model
- * \return The number of errors found
- * \todo Check condition op IN has valid variables (if implemented).
- * \todo Check for no agents (if needed).
- * \todo Remove agents with no memory variables (if needed).
- * Detailed description.
- */
 int XModelValidate::validate() {
   int errors = 0, rc;
   std::vector<std::string>::iterator it;
@@ -761,14 +753,6 @@ bool char_is_disallowed(char c) {
   return !(isalnum(c) || c == '_' || c == '-');
 }
 
-/*!
- * \brief Validates a name string
- * \param[in] name The string to validate
- * \return Boolean result
- * The iterator tries to find the first element that satisfies the predicate.
- * If no disallowed character is found then you end with name.end() which is
- * taken to be success and true is returned.
- */
 bool XModelValidate::name_is_allowed(std::string name) {
   return std::find_if(name.begin(), name.end(),
       char_is_disallowed) == name.end();

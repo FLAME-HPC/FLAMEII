@@ -16,7 +16,20 @@ namespace flame { namespace model {
 
 class XTimeUnit {
   public:
+    /*!
+     * \brief Constructs XTimeUnit
+     *
+     * Initialises period and id to be zero
+     */
     XTimeUnit();
+    /*!
+     * \brief Prints XTimeUnit
+     *
+     * Prints XTimeUnit to standard out including
+     * name,
+     * unit and
+     * period.
+     */
     void print();
     void setName(std::string name);
     std::string getName();

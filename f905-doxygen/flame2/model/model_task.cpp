@@ -15,11 +15,6 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialises Task
- *
- * Initialises Task and sets level to be zero.
- */
 ModelTask::ModelTask(std::string parentName, std::string name, TaskType type)
   : parentName_(parentName), name_(name), taskType_(type), priorityLevel_(10),
     hasCondition_(false), startTask_(false), endTask_(false) {

@@ -43,11 +43,19 @@ class MessageBoardTask : public Task {
       throw flame::exceptions::not_implemented("method not applicable");
     }
 
-    //! Runs the task
+    /*!
+     * \brief Operations to perform when task is executed
+     *
+     * Runs board operations defined by op_ on named message board.
+     */
     void Run(void);
 
   protected:
-    //! Constructor (Limited to TaskManager)
+    /*!
+     * \brief Constructor (Limited to TaskManager)
+     *
+     * Initialies msg_name_ and op_, and checks that the specified board exists.
+     */
     MessageBoardTask(std::string task_name,
                      std::string msg_name,
                      Operation op);

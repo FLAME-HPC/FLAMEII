@@ -17,15 +17,6 @@
 
 namespace flame { namespace exe {
 
-/*!
- * \brief Constructor
- * \param[in] slots Number of slots
- *
- * Populates the vector of worker threads and initialses the threads.
- *
- * Throws flame::exceptions::invalid_argument if an invalid value is given
- * for slots.
- */
 FIFOTaskQueue::FIFOTaskQueue(size_t slots) : slots_(slots) {
   if (slots < 1) {
     throw flame::exceptions::invalid_argument("slots must be > 0");
@@ -40,12 +31,6 @@ FIFOTaskQueue::FIFOTaskQueue(size_t slots) : slots_(slots) {
   }
 }
 
-/*!
- * \brief Destructor
- *
- * Enqueue the termination task (signal worker threads to wrap up) and waits
- * for all worker threads to complete before destroying this object.
- */
 FIFOTaskQueue::~FIFOTaskQueue() {
   for (size_t i = 0; i < slots_; ++i) {
     Enqueue(Task::GetTermTaskId());
@@ -55,40 +40,20 @@ FIFOTaskQueue::~FIFOTaskQueue() {
   }
 }
 
-//! \brief Returns true if the queue is empty
 bool FIFOTaskQueue::empty() const {
   return queue_.empty();
 }
 
-/*!
- * \brief Adds a task to the queue
- *
- * This method is meant to be called by the Scheduler
- */
 void FIFOTaskQueue::Enqueue(Task::id_type task_id) {
   boost::lock_guard<boost::mutex> lock(mutex_);
   queue_.push(task_id);
   ready_.notify_one();
 }
 
-/*!
- * \brief Process a completed task
- *
- * This method is meant to be called by a worker thread.
- *
- * This triggers the callback function of the parent scheduler.
- */
 void FIFOTaskQueue::TaskDone(Task::id_type task_id) {
   callback_(task_id);
 }
 
-/*!
- * \brief Returns the next available task.
- *
- * If there are none available, the calling thread will be blocked
- *
- * This method is meant to be called by a Worker Thread
- */
 Task::id_type FIFOTaskQueue::GetNextTask() {
   boost::unique_lock<boost::mutex> lock(mutex_);
   while (queue_.empty()) {

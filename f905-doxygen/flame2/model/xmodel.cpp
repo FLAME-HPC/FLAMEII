@@ -27,11 +27,6 @@ XModel::XModel() {
   addAllowedDataType("char"); /* Allow? */
 }
 
-/*!
- * \brief Print a model to stdout
- *
- * Print a whole model out to standard out.
- */
 void XModel::print() {
   boost::ptr_vector<XVariable>::iterator c_it;
   boost::ptr_vector<XTimeUnit>::iterator tu_it;
@@ -117,13 +112,6 @@ std::string XModel::getName() {
   return name_;
 }
 
-/*!
- * \brief Adds included model to a list
- * \param[in] path Path of the sub model
- * \return Boolean, true if name is unique
- * If the model file is not already in the list then it is added.
- * If not then false is returned.
- */
 bool XModel::addIncludedModel(std::string path) {
   unsigned int ii;
 
@@ -155,13 +143,6 @@ XADT * XModel::addADT() {
   return xadt;
 }
 
-/*!
- * \brief Returns an adt object with given name
- * \param[in] name Name of the adt
- * \return Pointer to the adt object or 0 if not found
- * This function is used to validate adt names and provide a
- * pointer to the object if valid.
- */
 XADT * XModel::getADT(std::string name) {
   boost::ptr_vector<XADT>::iterator it;
   for (it = adts_.begin(); it != adts_.end(); ++it)
@@ -245,13 +226,6 @@ XMessage * XModel::addMessage(std::string name) {
   return xmessage;
 }
 
-/*!
- * \brief Returns a message object with given name
- * \param[in] name Name of the message
- * \return Pointer to the message object or 0 if not found
- * This function is used to validate message names and provide a
- * pointer to the object if valid.
- */
 XMessage * XModel::getMessage(std::string name) {
   boost::ptr_vector<XMessage>::iterator it;
   for (it =  messages_.begin(); it != messages_.end(); ++it)

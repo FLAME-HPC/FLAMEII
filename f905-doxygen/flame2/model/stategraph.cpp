@@ -230,35 +230,6 @@ void StateGraph::importStateGraphs(std::set<StateGraph*> graphs) {
   }
 }
 
-/*!
- \brief Has cycle exception struct
-
- Has cycle exception used by cycle detector and passes
- back edge to already discovered vertex.
- */
-struct has_cycle : public std::exception {
-    explicit has_cycle(Edge d) : d_(d) {}
-    const Edge edge() const throw() {
-      return d_;
-    }
-
-  protected:
-    Edge d_;
-};
-
-/*!
- \brief Visitor function cycle detector struct
-
- Visitor function object passed to depth_first_search.
- Contains back_edge method that is called when the depth_first_search
- explores an edge to an already discovered vertex.
- */
-struct cycle_detector : public boost::default_dfs_visitor {
-    void back_edge(Edge edge_t, const Graph &) {
-      throw has_cycle(edge_t);
-    }
-};
-
 std::pair<int, std::string> StateGraph::checkCyclicDependencies() {
   return graph_.checkCyclicDependencies();
 }

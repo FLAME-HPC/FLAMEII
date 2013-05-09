@@ -15,8 +15,27 @@ namespace flame { namespace model {
 
 class XVariable {
   public:
+    /*!
+     * \brief Initialises XVariable
+     *
+     * Initialises XVariable as
+     * fundamental (int or double)
+     * variable (not constant)
+     * scaler (not an array).
+     */
     XVariable();
+    /*!
+     * \brief Initialises XVariable
+     *
+     * Initialises XVariable using a name.
+     */
     explicit XVariable(std::string name);
+    /*!
+     * \brief Prints XVariable
+     *
+     * Prints XVariable to
+     * standard out.
+     */
     void print();
     void setName(std::string name);
     std::string getName() const;

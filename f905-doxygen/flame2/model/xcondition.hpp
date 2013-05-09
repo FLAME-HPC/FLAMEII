@@ -21,9 +21,29 @@ class XModel;
 
 class XCondition {
   public:
+    /*!
+     * \brief Initialise all condition variables
+     *
+     * Initialise all condition variables.
+     */
     XCondition();
+    /*!
+     * \brief Cleans up XCondtion
+     *
+     * Cleans up XCondtion by deleting any nested conditions.
+     */
     ~XCondition();
+    /*!
+     * \brief Print the condition to stdout
+     *
+     * Print the condition to standard out.
+     */
     void print();
+    /*!
+     * \brief Processes symbols in conditions/filters
+     * \return Number of errors
+     * Handles agent/message variables and numbers for values and handles operators.
+     */
     int processSymbols();
     int processSymbolsTime();
     int processSymbolsValues();
