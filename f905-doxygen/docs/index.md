@@ -8,15 +8,6 @@ Overview  {#mainpage_overview}
 
 stuff.
 
-
-Building and Installing  {#mainpage_installing}
-=======================
-
-(dependencies, how to build boost + flame2)
-
-Modules {#mainpage_modules}
-========
-
 Yadda yadda list of modules:
  * [MEM](@ref modmem) - Agent memory management
  * [EXE](@ref modexe) - Task scheduling and execution
@@ -24,10 +15,24 @@ Yadda yadda list of modules:
  * [IO](@ref modio) - Input/Output
  * [MODEL](@ref modmodel) - Model representation 
  * [SIM](@ref modsim) - Simulation management
- * [API](@ref modapi) - Modeller interface
+ * [API](@ref modapi) - Modeller Interface
  
 
-End-user APIs {#mainpage_api}
+Building and Installing  {#mainpage_installing}
+=======================
+
+See [Building and Installing FLAME-II](@ref installation)
+
+
+
+Using FLAME-II {#mainpage_usage}
 =============
 
-See [User API](@ref userapi).
+... basic usage is modelled after FLAME-I to ease transition. 
+See [using FLAME-II](@ref usage).
+
+... designed to be modular. Power users can define models programmatically and overload
+modules to customise behaviour, e.g. custom message boards for specific messages to 
+optimise storage and filtering.
+
+
