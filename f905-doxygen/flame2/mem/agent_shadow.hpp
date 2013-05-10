@@ -7,19 +7,14 @@
  * \copyright GNU Lesser General Public License
  * \brief Proxy object which only exposes selected vars of an agent
  */
-//! TODO(lsc): since the number of entries in vec_map_ and rw_set_ will be
-//! relatively small, the tree-based search used by std::map and
-//! std::set may not be ideal. Consider implementing variants that
-//! uses a sorted vector instead. See:
-//!  - AssocVector: http://loki-lib.sourceforge.net/html/a00645.html
-//!  - http://lafstern.org/matt/col1.pdf
-//!  - http://www.codeproject.com/Articles/27799/Stree
+// TODO(lsc): since the number of entries in vec_map_ and rw_set_ will be
+// relatively small, the tree-based search used by std::map and
+// std::set may not be ideal. Consider implementing variants that
+// uses a sorted vector instead. See:
+//  - AssocVector: http://loki-lib.sourceforge.net/html/a00645.html
+//  - http://lafstern.org/matt/col1.pdf
+//  - http://www.codeproject.com/Articles/27799/Stree
 
-//! TODO(lsc): Support task splitting. This involves:
-//!  - Creating new MemoryIterators that can be stepped through independently
-//!  - Using a counter to detect end-of-vector instead of vector::end()
-//!  - ptr_map_ pointing to an offset within a raw array
-//!  - Rewind() needs to reset to the correct offset, not vector::start()
 
 #ifndef MEM__AGENT_SHADOW_HPP_
 #define MEM__AGENT_SHADOW_HPP_
