@@ -1,5 +1,5 @@
-FLAME-II Developer Documentation {#mainpage}
-================================
+FLAME-II Documentation {#mainpage}
+===============================
 
 [TOC]
 
@@ -29,10 +29,9 @@ Using FLAME-II {#mainpage_usage}
 =============
 
 ... basic usage is modelled after FLAME-I to ease transition. 
-See [using FLAME-II](@ref usage).
+See [Basic usage of FLAME-II](@ref usage).
 
 ... designed to be modular. Power users can define models programmatically and overload
 modules to customise behaviour, e.g. custom message boards for specific messages to 
 optimise storage and filtering.
-
 
