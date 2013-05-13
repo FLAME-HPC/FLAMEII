@@ -3,6 +3,10 @@ Module - MEM (Agent Memory Management) {#modmem}
 
 [TOC]
 
+The MEM module handles the storage and access to agent memory. All interaction with
+the MEM module should be done via the `MemoryManager` -- a singleton instance of
+flame::mem::MemoryManager.
+
 Storage {#modmem-storage}
 ============
 
