@@ -24,34 +24,67 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
+/*!
+ * \brief Manages input and output of flame2
+ *
+ * This class acts as a singleton and is used to: load models; set input and
+ * output plugins; and read and write population data.
+ */
 class IOManager {
   public:
+    //! Get an instance of the IOManager
     static IOManager& GetInstance() {
       static IOManager instance;
       return instance;
     }
-
+    //! Destructor
     ~IOManager();
 
     //! Set input type
     void setInputType(std::string const& inputType);
     //! Set output type
     void setOutputType(std::string const& outputType);
-
+    /*!
+     * \brief Load a model
+     *
+     * \param[in] file The path to the file
+     * \param[out] model Pointer to the loaded model
+     */
     void loadModel(std::string const& file, flame::model::XModel * model);
-    //! Called by sim
-    //! \return iteration of pop file given by file name
+    /*!
+     * \brief Read a population file
+     *
+     * \param[in] file_name The path to the population file
+     * \return iteration number given by pop file name
+     */
     size_t readPop(std::string const& file_name);
-
+    /*!
+     * \brief Set the iteration number
+     *
+     * Set the iteration number so that output files are correctly numbered
+     *
+     * \param[in] i The iteration number
+     */
     void setIteration(size_t i);
+    //! Set the agent memory information
     void setAgentMemoryInfo(AgentMemory agentMemory);
 
-    // Called by io tasks
+    //! Write agent variable array (called by io tasks)
     void writePop(std::string const& agent_name, std::string const& var_name);
+    //! Initialise writing of data (called by io task)
     void initialiseData();
+    //! Finalise writing of data (called by io task)
     void finaliseData();
 
+    //! Add integer value to an agent variable array
+    void addInt(std::string const& agent_name,
+        std::string const& var_name, int value);
+    //! Add a double value to an agent variable array
+    void addDouble(std::string const& agent_name,
+        std::string const& var_name, double value);
+
 #ifdef TESTBUILD
+    //! Return a pointer to the IO plugin named
     IO * getIOPlugin(std::string const& name);
     //! Delete all input and output types
     void Reset();

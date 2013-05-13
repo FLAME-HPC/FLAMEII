@@ -62,14 +62,14 @@ void IOManager::loadModel(std::string const& file,
   ioxmlmodel_.readXMLModel(file, model);
 }
 
-void addInt(std::string const& agent_name,
+void IOManager::addInt(std::string const& agent_name,
     std::string const& var_name, int value) {
   // Add value to memory manager
   flame::mem::MemoryManager::GetInstance().
       GetVector<int>(agent_name, var_name)->push_back(value);
 }
 
-void addDouble(std::string const& agent_name,
+void IOManager::addDouble(std::string const& agent_name,
     std::string const& var_name, double value) {
   // Add value to memory manager
   flame::mem::MemoryManager::GetInstance().

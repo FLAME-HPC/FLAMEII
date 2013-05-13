@@ -19,12 +19,11 @@
 #include "io_xml_pop.hpp"
 #include "flame2/config.hpp"
 
-// enable test build
-#define TESTBUILD 1
-
 namespace flame { namespace io {
 
+//! Data type to hold a set of string pairs
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
+//! Data type to hold a set of strings
 typedef std::set<std::string> StringSet;
 
 IOXMLPop::IOXMLPop()

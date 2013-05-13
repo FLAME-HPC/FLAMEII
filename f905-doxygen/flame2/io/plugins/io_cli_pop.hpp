@@ -14,9 +14,16 @@
 
 namespace flame { namespace io {
 
+/*!
+ * \brief IO class for outputting agent memories to the command line
+ */
 class IOCLIPop : public IO {
     std::string getName();
-    //! Reading method, called by io manager
+    /*!
+     * \brief Reading method, called by io manager
+     *
+     * \warning Throws exception as not implemented
+    */
     void readPop(std::string /*path*/,
         void (*)(std::string const&, std::string const&, int),
         void (*)(std::string const&, std::string const&, double));

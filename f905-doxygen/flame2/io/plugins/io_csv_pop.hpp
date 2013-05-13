@@ -25,6 +25,9 @@ typedef std::pair<void*, size_t> PtrArray;
 typedef std::map<std::string, PtrArray> VarPtrArrayMap;
 typedef std::map<std::string, VarPtrArrayMap> AgentMemoryArrays;
 
+/*!
+ * \brief IO plugin for reading and writing CSV files
+ */
 class IOCSVPop : public IO {
     std::string getName();
     //! Reading method, called by io manager

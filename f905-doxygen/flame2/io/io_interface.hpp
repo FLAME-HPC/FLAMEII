@@ -16,10 +16,16 @@
 
 namespace flame { namespace io {
 
+//! A data type for holding model variable type and name
 typedef std::pair<std::string, std::string> Var;
+//! A data type for holding a vector of model variables
 typedef std::vector<Var> VarVec;
+//! A data type for holding agent memory variables
 typedef std::map<std::string, VarVec> AgentMemory;
 
+/*!
+ * \brief Interface class for implementing IO plugins
+ */
 class IO {
   public:
     virtual ~IO() {}

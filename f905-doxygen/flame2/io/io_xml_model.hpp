@@ -19,9 +19,20 @@ namespace model = flame::model;
 
 namespace flame { namespace io { namespace xml {
 
+/*!
+ * \brief Reads model XML files
+ */
 class IOXMLModel {
   public:
+    /*!
+     * \brief Constructor
+     */
     IOXMLModel() {}
+    /*!
+     * \brief Reads a model XML file into an XModel
+     * \param[in] file_name The path to the model file
+     * \param[out] model Pointer to the XModel
+     */
     void readXMLModel(std::string file_name, model::XModel * model);
 
   private:

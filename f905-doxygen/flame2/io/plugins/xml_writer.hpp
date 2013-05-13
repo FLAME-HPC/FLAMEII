@@ -15,16 +15,57 @@
 
 namespace flame { namespace io {
 
+/*!
+ * \brief Helper class to write XML using libxml2
+ */
 class XMLWriter {
   public:
+    /*!
+     * \brief Constructor
+     */
     explicit XMLWriter();
+    /*!
+     * \brief Set pointer to text to write to
+     * \param[in] writer The text writer pointer
+     */
     void setWriterPtr(xmlTextWriterPtr writer);
+    /*!
+     * \brief End file and close all tags
+     */
     void endXMLDoc();
+    /*!
+     * \brief End tag or tags
+     * \param[in] count Number of tags to close, default to 1
+     */
     void writeXMLEndTag(int count = 1);
+    /*!
+     * \brief Start a tag
+     * \param[in] name The name of the tag
+     */
     void writeXMLTag(std::string name);
+    /*!
+     * \brief Start a tag that holds an int value
+     * \param[in] name The name of the tag
+     * \param[in] value The int value
+     */
     void writeXMLTag(std::string name, int value);
+    /*!
+     * \brief Start a tag that holds a double value
+     * \param[in] name The name of the tag
+     * \param[in] value The double value
+     */
     void writeXMLTag(std::string name, double value);
+    /*!
+     * \brief Start a tag that holds a string
+     * \param[in] name The name of the tag
+     * \param[in] value The string value
+     */
     void writeXMLTag(std::string name, std::string value);
+    /*!
+     * \brief Start a tag that holds an attribute
+     * \param[in] name The name of the tag
+     * \param[in] value The attribute string value
+     */
     void writeXMLTagAttribute(std::string name, std::string value);
   private:
     xmlTextWriterPtr writer_;
