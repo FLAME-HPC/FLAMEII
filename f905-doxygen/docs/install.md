@@ -71,3 +71,25 @@ and libxml2 have been installed into the standard location:
 That will install the FLAME-II headers to `$FLAME2_DIR/include`, 
 the libraries to `$FLAME2_DIR/lib`, the binaries (including the xparser) to 
 `$FLAME2_DIR/bin`, plus some additional files to `$FLAME2_DIR/share/flame2`. 
+
+Enabling support for HDF3 or SQLite3  {#devbuild-hdf}
+-------------------------------------
+
+Support for hdf5 or sqlite3 for model input and output can be enabled thus:
+
+    --with-hdf5
+    
+or
+
+    --with-hdf5=path
+
+where path is the complete path to where `lib/libhdf5*` libraries and 
+`include/H5*` include files reside.
+
+    --with-sqlite3
+    
+or
+
+    --with-sqlite3=path
+
+where path is the installation prefix to the SQLite library. 
