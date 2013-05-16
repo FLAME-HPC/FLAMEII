@@ -3,17 +3,38 @@ Module - EXE (Task Scheduling and Execution) {#modexe}
 
 [TOC]
 
-
 Tasks {#modexe-task}
 ======
 
 (... what a task contains. diff between different Task subclasses, etc)
 
-(... mapping task names to agent functions -- task registration) 
-
 (... how tasks get access to agent memory and message boards)
 
 
+Task Manager {#modexe-taskmgr}
+============
+
+The [TaskManager](@ref flame::exe::TaskManager) is a singleton object that handles 
+the creation, storage, and indexing of all tasks. It also assists in the 
+[scheduling of tasks](@ref modexe-sched) by performing *dependency accounting* 
+(i.e. keeping track of fulfilled and pending dependencies for all tasks) and providing
+the methods that the `TaskScheduler` uses to update dependency information and 
+retrieve tasks.
+
+Task creation and indexing {#modexe-taskmgr-create}
+---------------------------
+(... mapping task names to agent functions -- task registration) 
+
+(... use of task id for more efficient indexing and referencing)
+
+Dependency accounting {#modexe-taskmgr-deps}
+---------------------
+(... dependency accounting)
+
+
+For implementation details, see:
+ * flame::exe::TaskManager
+ * flame::exe::Task
 
 Task Scheduling {#modexe-sched}
 ===============
@@ -29,10 +50,11 @@ It should be noted that the process is completely governed by the registered
 dependencies of the tasks -- **a non-conforming dependency graph (e.g. a cyclic graph) will
 result in an iteration that never completes**. 
 
-![Flowchart of operations achieved by the interaction between the Scheduler and TaskManager](images/exe_sched_flow.png)
+@img{images/exe_sched_flow.png, 15cm, Flowchart of operations achieved by the interaction between the Scheduler and TaskManager}
+
 
 The actual scheduling and execution of tasks is handled by 
-[TaskQueues](@ref flame::exe::TaskQueue). Each queue registered with the Scheduler
+[TaskQueues](@ref flame::exe::TaskQueue). Each queues registered with the Scheduler
 will be assigned a [Task type](@ref flame::exe::Task::TaskType) and this determines how
 enqueued tasks are routed to the appropriate `TaskQueue`.
 
@@ -44,7 +66,7 @@ Some `TaskQueues` can perform task splitting, i.e. splitting up a large task int
 ones so the load can be spread more evenly across all worker threads (see 
 flame::exe::SplittingFIFOTaskQueue).
 
-![Different queues within the scheduler allow concurrent operations with minimal locking](images/exe_sched.png)
+@img{images/exe_sched.png, 15cm, Different queues within the scheduler allow concurrent operations with minimal locking}
 
 The different queues and scheduling mechanisms allow the framework to better utilise the
 resources available. For example, a typical setup could be to use the following set of
@@ -81,7 +103,7 @@ This process is repeated until the
 `Term` task is issued (see flame::exe::Task::IsTermTask) after which the loop is broken
 and the thread terminates. 
 
-![Lifecycle of a worker thread](images/exe_worker_flow.png)
+@img{images/exe_worker_flow.png, 10cm, Lifecycle of a worker thread}
 
 In a standard implementation, the `Term` tasks are added to the queue by the destructor
 of the `TaskQueue` object just before waiting for all worker threads to join 

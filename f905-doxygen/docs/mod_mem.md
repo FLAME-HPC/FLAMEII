@@ -23,7 +23,8 @@ The use of `VectorWrapper` allows us to store and reference vectors in a
 type-agnostic fashion so in most cases the framework does not need to know the datatype
 behind each memory variable thus keeping the APIs clean and simple.
 
-![MemoryMap - vectors of arbitrary type referenced by a string](images/memorymap.png)
+
+@img{images/memorymap.png, 15cm, MemoryMap - vectors of arbitrary type referenced by a string}
 
 Instead of a standard std::map, `MemoryMap` is defined using boost::ptr_map. 
 This allows the lifetime of the `VectorWrapper` objects to be handled automatically by
