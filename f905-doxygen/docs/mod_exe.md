@@ -37,7 +37,7 @@ vector is used as the task id -- this gives us an integer-based identifier which
 efficient to store and lookup.
 
 On the user-level, tasks are identified by a string-based name; we therefore also store
-a map (see flame::exe::TaskNameMap) which maps the task name to its integer-based ID. 
+a map (see flame::exe::TaskNameMap ) which maps the task name to its integer-based ID. 
 This mapping also serves as a quick way to detect duplicate task names on registration.
 
 @img{images/taskmapping.png, 15cm, Mapping of task id and task name to instances}
