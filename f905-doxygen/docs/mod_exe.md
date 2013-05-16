@@ -50,8 +50,30 @@ lookup up the name map for the task id before we can retrieve the `Task` pointer
 
 Dependency accounting {#modexe-taskmgr-deps}
 ---------------------
-(... dependency accounting)
 
+At present, the `TaskManager` also keeps track of pending and fulfilled dependencies 
+for all tasks throughout an iteration. This essentially controls the traversal of 
+the dependency tree by ensuring that only *ready* tasks are available for enqueueing.
+The dependency accounting data is reset at the end of each iteration to prepare for 
+the next traversal of the tree.
+
+The main methods that are involved in dependency accounting are:
+ * [AddDependency()](@ref flame::exe::TaskManager::AddDependency) - assign a task 
+    dependency (used during the initialisation stage).
+ * [IterTaskAvailable()](@ref flame::exe::TaskManager::IterTaskAvailable) - check if there 
+    are tasks ready for execution
+ * [IterCompleted()](@ref flame::exe::TaskManager::IterCompleted) - check if all tasks 
+    have been executed
+ * [IterTaskPop()](@ref flame::exe::TaskManager::IterTaskPop) - retrieve a task that is 
+    ready for execution
+ * [IterTaskDone()](@ref flame::exe::TaskManager::IterTaskDone) - registers a completed 
+    tasks. This will update the table of fulfilled
+    dependencies and potentially migrated tasks to the ready queue.
+ * [IterReset()](@ref flame::exe::TaskManager::IterReset) - resets the accounting data 
+    in preparation for the next iteration.
+
+The intended user for these methods is the flame::exe::Scheduler::RunIteration. This
+interaction is descripted in the next section.
 
 For implementation details, see:
  * flame::exe::TaskManager

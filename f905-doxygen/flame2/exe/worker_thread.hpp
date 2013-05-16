@@ -16,6 +16,12 @@ namespace flame { namespace exe {
 
 class TaskQueue;
 
+//!
+//! \todo Figure out how to propagate exceptions back to the main thread so we can 
+//!       handle exceptions raised by API calls more elegantly.
+//!
+//! \todo Provide option to explicitly set thread affinity. At present, it appears that 
+//!       on some platforms all threads get assigned to the same CPU core.
 class WorkerThread {
   public:
     explicit WorkerThread(TaskQueue* taskqueue_ptr);

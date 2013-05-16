@@ -19,6 +19,15 @@
 
 namespace flame { namespace exe {
 
+//!
+//!
+//! \todo SplittingPriorityTaskQueue - a queue that schedules based on priority
+//!       instead of FIFO. Use either std::priority_queue or a custom one based
+//!       on a binary heap.
+//!
+//! \todo Improve load balance by trailing off splits with smaller chunks (for FIFO)
+//!       or support subsplitting if available threads > queued tasks (for priority queue)
+//!
 class SplittingFIFOTaskQueue : public TaskQueue {
   public:
     //! Default value for minimum vector size for each split task

@@ -7,14 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief Proxy object which only exposes selected vars of an agent
  */
-// TODO(lsc): since the number of entries in vec_map_ and rw_set_ will be
-// relatively small, the tree-based search used by std::map and
-// std::set may not be ideal. Consider implementing variants that
-// uses a sorted vector instead. See:
-//  - AssocVector: http://loki-lib.sourceforge.net/html/a00645.html
-//  - http://lafstern.org/matt/col1.pdf
-//  - http://www.codeproject.com/Articles/27799/Stree
-
 
 #ifndef MEM__AGENT_SHADOW_HPP_
 #define MEM__AGENT_SHADOW_HPP_
@@ -38,6 +30,11 @@ typedef std::set<std::string> WriteableSet;
 //! Smart pointer type used to return MemoryIterator
 typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
+//!
+//!
+//! \todo since the number of entries in vec_map_ and rw_set_ will be relatively small, 
+//!       the tree-based search used by std::map and std::set may not be ideal.
+//!       Consider using boost::flat_map and boost::flat_set (see flame::mb::writer_map_type).
 class AgentShadow {
   friend class MemoryManager;
   friend class MemoryIterator;
