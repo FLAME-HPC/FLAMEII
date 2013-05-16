@@ -1,6 +1,9 @@
 Omitting the typename identifier for templated functions  {#omittype}
 ========================================================
 
+When can I omit the typename identifier? {#omittype-when}
+========================================
+
 There are cases where the compiler can infer the type to use from the input arguments. 
 For example, consider: 
 
@@ -36,8 +39,8 @@ type `double`:
 	FLAME.SetMem("x", 10);  // NOT OK! SetMem<int>() inferred. Will cause runtime failures.
 	
 
-When it does not work
----------------------
+Why does this not apply to all API calls? {#omittype-notall}
+=========================================
 
 There are other FLAME-II functions where you cannot omit the identifiers. Take for 
 example: 
