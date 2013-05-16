@@ -3,14 +3,6 @@ Module - EXE (Task Scheduling and Execution) {#modexe}
 
 [TOC]
 
-Tasks {#modexe-task}
-======
-
-(... what a task contains. diff between different Task subclasses, etc)
-
-(... how tasks get access to agent memory and message boards)
-
-
 Task Manager {#modexe-taskmgr}
 ============
 
@@ -37,8 +29,8 @@ vector is used as the task id -- this gives us an integer-based identifier which
 efficient to store and lookup.
 
 On the user-level, tasks are identified by a string-based name; we therefore also store
-a map (see flame::exe::TaskNameMap ) which maps the task name to its integer-based ID. 
-This mapping also serves as a quick way to detect duplicate task names on registration.
+a map which associates the task name to its integer-based ID. 
+This mapping also serves as a quick way to detect duplicate task names during registration.
 
 @img{images/taskmapping.png, 15cm, Mapping of task id and task name to instances}
 
@@ -158,3 +150,42 @@ For implementation details, see:
  * flame::exe::WorkerThread
  * flame::exe::FIFOTaskQueue
  * flame::exe::Task
+ 
+ 
+Tasks {#modexe-task}
+======
+
+A [Task](@ref flame::exe::Task) object represents a unit of work than can be assigned 
+to a worker thread. For example, in the case of an Agent Task, this would be the 
+execution of an agent transition function on every element within a set of memory 
+vectors (representing an agent population).
+
+Each task object will contain all the information it needs to execute the 
+task, e.g. a handle to the function to be called (see flame::exe::TaskFunction), 
+[access control mechanism to access memory vectors](@ref modmem-shadow) or
+client objects that allow [interaction with message boards](@ref modmb-client).
+
+To reduce the granularity of a task, some tasks can be slip into smaller chunks by 
+subdividing the portion of the memory vector that the task is responsible for. The 
+splitting process may be different for different types of tasks, so the implementation
+is down to the implementation of each `Task` subclass. 
+
+A task split would result in a [TaskSplitter](@ref flame::exe::TaskSplitter) which 
+keeps stores the generated sub tasks and tracks the completion of each one. This
+ensures that all sub tasks have been completed before the parent `Task` can be marked
+as *completed*. 
+
+While not currently implemented, this approach to task splitting can support recursive 
+splitting, so sub tasks can potentially be split further if required. This would be 
+useful in ensuring a good load balance when there are relatively few ready tasks and 
+many available threads.
+
+Task splitting should only be initiated by a split-aware `TaskQueue`, e.g.
+flame::exe::SplittingFIFOTaskQueue.
+
+For implementation details, see:
+ * flame::exe::Task
+ * flame::exe::AgentTask
+ * flame::exe::TaskSplitter
+ * flame::exe::MessageBoardTask
+ * flame::exe::IOTask

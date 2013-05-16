@@ -19,6 +19,7 @@
 
 namespace flame { namespace exe {
 
+//! \brief wrapper class for agent transition functions
 typedef boost::function<
           flame::api::FLAME_AgentFunctionReturnType
           (flame::api::FLAME_AgentFunctionParamType)> TaskFunction;
