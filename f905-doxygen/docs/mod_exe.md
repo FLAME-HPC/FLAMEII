@@ -67,5 +67,29 @@ For implementation details, see:
 
 Worker Threads {#modexe-worker}
 ==============
+
+Each `TaskQueue` that requires asynchronous worker threads will hold a vector of 
+[WorkerThread](@ref flame::exe::WorkerThread) objects. The number of instances is 
+determined by the number of slots requested.
+
+The `WorkerThread` class uses boost::thread to implement threading in a portable way. 
+Once the thread starts, it goes into continuous loop of waiting for requesting a task
+from the parent queue and executing flame::exe::Task::Run. A callback function of the
+queue is issued after each run to indicate the completion of a task.
+
+This process is repeated until the
+`Term` task is issued (see flame::exe::Task::IsTermTask) after which the loop is broken
+and the thread terminates. 
+
 ![Lifecycle of a worker thread](images/exe_worker_flow.png)
 
+In a standard implementation, the `Term` tasks are added to the queue by the destructor
+of the `TaskQueue` object just before waiting for all worker threads to join 
+(for example, see implementation of flame::exe::FIFOTaskQueue::~FIFOTaskQueue). The 
+termination of threads is therefore done automatically when the `TaskQueue` gets 
+destroyed, but only when all enqueued tasks have been executed.
+
+For implementation details, see:
+ * flame::exe::WorkerThread
+ * flame::exe::FIFOTaskQueue
+ * flame::exe::Task
