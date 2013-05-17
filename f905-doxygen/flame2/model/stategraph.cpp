@@ -143,7 +143,7 @@ void StateGraph::generateStateGraphMessages(
   }
 }
 
-int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
+void StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
     std::string startState, std::set<std::string> endStates) {
   boost::ptr_vector<XFunction>::iterator fit;
 
@@ -164,8 +164,6 @@ int StateGraph::generateStateGraph(boost::ptr_vector<XFunction> * functions,
     if (endStates.find((*fit).getNextState()) != endStates.end())
     functionTask->setEndTask(true);
   }
-
-  return 0;
 }
 
 void StateGraph::importStateGraphTasks(StateGraph * graph,

@@ -67,6 +67,7 @@ class XMLWriter {
      * \param[in] value The attribute string value
      */
     void writeXMLTagAttribute(std::string name, std::string value);
+
   private:
     xmlTextWriterPtr writer_;
 };

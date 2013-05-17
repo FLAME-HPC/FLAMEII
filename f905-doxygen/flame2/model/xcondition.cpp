@@ -17,8 +17,7 @@
 #include "xmachine.hpp"
 #include "xmessage.hpp"
 #include "xmodel.hpp"
-
-void printErr(const char *format, ...);
+#include "printerr.hpp"
 
 namespace flame { namespace model {
 

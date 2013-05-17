@@ -18,30 +18,63 @@ namespace flame { namespace model {
 //! Use a shared pointer to automatically handle Task pointers
 typedef boost::shared_ptr<ModelTask> ModelTaskPtr;
 
+/*!
+ * \brief Class to hold list of tasks
+ *
+ * The list is held as a vector as position of the task relates
+ * to the vertex it is associated with
+ */
 class TaskList {
   public:
-    //! Constructor
+    /*!
+     * \brief Constructor
+     */
     TaskList();
-    //! Destructor
+    /*!
+     * \brief Destructor
+     */
     ~TaskList();
-    //! Add a task
+    /*!
+     * \brief Add a task
+     * \param[in] ptr Pointer to a task
+     */
     void addTask(ModelTaskPtr ptr);
-    //! Remove a task
-    //! \param index the task index
+    /*!
+     * \brief Remove a task
+     * \param index The task index
+     */
     void removeTask(size_t index);
-    //! \return The index of the task
+    /*!
+     * \brief Get the task index
+     * \param[in] t The task
+     * \return The index of the task
+     */
     size_t getIndex(ModelTask * t) const;
-    //! \return The task given the index
+    /*!
+     * \brief Get the task via an index
+     * \param[in] index The index
+     * \return The task given the index
+     */
     ModelTask * getTask(size_t index) const;
-    //! \return The task pointer object given the index
+    /*!
+     * \brief Get the task pointer object given an index
+     * \param[in] index The index
+     * \return The task pointer object given the index
+     */
     ModelTaskPtr getTaskPtr(size_t index) const;
-    //! \return The task list size
+    /*!
+     * \brief Get the number of tasks
+     * \return The task list size
+     */
     size_t getTaskCount() const;
-    //! Replace the entire task vector with the one given
+    /*!
+     * \brief Replace the entire task vector with the one given
+     * \param[in] vertex2task The new task vector
+     */
     void replaceTaskVector(std::vector<ModelTaskPtr> * vertex2task);
 
   private:
-    //! Pointer to the task vector so that mappings can be swapped
+    //! \brief Pointer to the task vector so that mappings can be swapped
     std::vector<ModelTaskPtr> * vertex2task_;
 };
 

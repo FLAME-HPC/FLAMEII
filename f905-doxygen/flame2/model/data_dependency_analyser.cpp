@@ -19,13 +19,13 @@ namespace flame { namespace model {
 DataDependencyAnalyser::DataDependencyAnalyser(XGraph * graph, std::string name)
   : graph_(graph), name_(name) {}
 
-void clearVarWriteSet(std::string name,
+void DataDependencyAnalyser::clearVarWriteSet(std::string name,
     VarMapToVertices * lastWrites) {
   VarMapToVertices::iterator it = lastWrites->find(name);
   if (it != lastWrites->end()) (*it).second.clear();
 }
 
-std::set<size_t> * getVertexSet(
+std::set<size_t> * DataDependencyAnalyser::getVertexSet(
     std::string name, VarMapToVertices * lastWrites) {
   VarMapToVertices::iterator it = lastWrites->find(name);
   if (it != lastWrites->end()) return &(*it).second;
@@ -34,12 +34,13 @@ std::set<size_t> * getVertexSet(
       std::make_pair(name, std::set<size_t>())).first)).second;
 }
 
-void addVectorToVarWriteSet(std::string name, Vertex v,
+void DataDependencyAnalyser::addVertexToVarWriteSet(std::string name, Vertex v,
     VarMapToVertices * lastWrites) {
   getVertexSet(name, lastWrites)->insert(v);
 }
 
-void copyVarWriteSets(VarMapToVertices * from, VarMapToVertices * to) {
+void DataDependencyAnalyser::copyVarWriteSets(
+    VarMapToVertices * from, VarMapToVertices * to) {
   VarMapToVertices::iterator it;
   std::set<size_t> * vset;
 
@@ -64,9 +65,9 @@ void DataDependencyAnalyser::addStartTask(
   // Add all variables to init task write list
   for (i = variables->begin(); i != variables->end(); ++i) {
     initTask->addWriteVariable((*i).getName());
-    addVectorToVarWriteSet((*i).getName(), initVertex,
+    addVertexToVarWriteSet((*i).getName(), initVertex,
         initTask->getLastWrites());
-    addVectorToVarWriteSet((*i).getName(), initVertex,
+    addVertexToVarWriteSet((*i).getName(), initVertex,
         initTask->getLastReads());
   }
 }
@@ -173,17 +174,17 @@ void DataDependencyAnalyser::addWritingVerticesToList(Vertex v, ModelTask * t) {
     // Edge to vertex
     graph_->addEdge(v, varVertex, (*varit), Dependency::variable);
     // Add new write
-    addVectorToVarWriteSet((*varit), varVertex, t->getLastWrites());
+    addVertexToVarWriteSet((*varit), varVertex, t->getLastWrites());
 #else
     // Add new write
-    addVectorToVarWriteSet((*varit), v, t->getLastWrites());
+    addVertexToVarWriteSet((*varit), v, t->getLastWrites());
 #endif
   }
   // For reading variables
   rwv = t->getReadVariables();
   for (varit = rwv->begin(); varit != rwv->end(); ++varit) {
     // Add new read
-    addVectorToVarWriteSet((*varit), v, t->getLastReads());
+    addVertexToVarWriteSet((*varit), v, t->getLastReads());
   }
 }
 

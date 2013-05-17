@@ -7,9 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief Checks and validates a loaded model
  */
-#ifndef TESTBUILD
-#include <cstdarg>
-#endif
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -21,18 +18,7 @@
 #include "flame2/config.hpp"
 #include "flame2/model/xmodel.hpp"
 #include "xmodel_validate.hpp"
-
-#ifdef TESTBUILD
-void printErr(const char */*format*/, ...) {}
-#else
-void printErr(const char *format, ...) {
-  // Print message to stderr
-  va_list arg;
-  va_start(arg, format);
-  std::vfprintf(stderr, format, arg);
-  va_end(arg);
-}
-#endif
+#include "printerr.hpp"
 
 namespace flame { namespace model {
 
@@ -72,7 +58,7 @@ int XModelValidate::validate() {
   for (m_it = messages_->begin(); m_it != messages_->end(); ++m_it)
     errors += validateMessage(&(*m_it));
   // validate model graph
-  errors += validateModelGraph();
+  validateModelGraph();
 
   // if errors print out information
   if (errors > 0) printErr("%d error(s) found.\n", errors);
@@ -122,7 +108,7 @@ int XModelValidate::validateAgentStateGraph(XMachine * agent) {
     ++errors;
   } else {
     // Generate state graph
-    errors += agent->generateStateGraph();
+    agent->generateStateGraph();
     // Check graph for no cyclic dependencies
     rerr = agent->checkCyclicDependencies();
     if (rerr.first > 0) {
@@ -181,7 +167,6 @@ int XModelValidate::validateAgent(XMachine * agent) {
 }
 
 void XModelValidate::processVariableDynamicArray(XVariable * variable) {
-  /* Handle dynamic arrays in variable type */
   /* If the type can end in _array */
   if (variable->getType().size() > 6) {
     /* If the type ends in _array */
@@ -199,7 +184,7 @@ void XModelValidate::processVariableDynamicArray(XVariable * variable) {
   }
 }
 
-bool castStringToInt(std::string * str, int * i) {
+bool XModelValidate::castStringToInt(std::string * str, int * i) {
   try {
     *i = boost::lexical_cast<int>(*str);
   }
@@ -749,25 +734,23 @@ int XModelValidate::validateMessage(XMessage * xmessage) {
   return errors;
 }
 
+/*!
+ * \brief Check if a character is disallowed in a name
+ * \param[in] c The character
+ * \return Boolean result
+ */
 bool char_is_disallowed(char c) {
   return !(isalnum(c) || c == '_' || c == '-');
 }
 
 bool XModelValidate::name_is_allowed(std::string name) {
-  return std::find_if(name.begin(), name.end(),
-      char_is_disallowed) == name.end();
+  return (std::find_if(name.begin(), name.end(),
+      char_is_disallowed) == name.end());
 }
 
-int XModelValidate::validateModelGraph() {
-  int rc;
+void XModelValidate::validateModelGraph() {
   // create model state graph
-  rc = model->generateStateGraph();
-
-  // check for cyclic dependencies
-  if (rc != 0)
-    rc += model->checkCyclicDependencies();
-
-  return rc;
+  model->generateStateGraph();
 }
 
 }}  // namespace flame::model

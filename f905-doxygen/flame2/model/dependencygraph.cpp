@@ -37,7 +37,7 @@ void DependencyGraph::setName(std::string name) {
   name_ = name;
 }
 
-int DependencyGraph::generateDependencyGraph(
+void DependencyGraph::generateDependencyGraph(
     boost::ptr_vector<XVariable> * variables) {
 #ifdef OUTPUT_GRAPHS
   writeGraphviz(name_ + "_1.dot");
@@ -73,10 +73,10 @@ int DependencyGraph::generateDependencyGraph(
 #ifdef OUTPUT_GRAPHS
   writeGraphviz(name_ + "_5.dot");
 #endif
-  return 0;
 }
 
-bool setContains(std::set<std::string>* a, std::set<std::string>* find_in_a) {
+bool DependencyGraph::setContains(
+    std::set<std::string>* a, std::set<std::string>* find_in_a) {
   std::set<std::string>::iterator fit, fit2;
 
   // For each string to find in 'a'

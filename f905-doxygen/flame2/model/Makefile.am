@@ -27,7 +27,8 @@ module_headers = \
   xmodel.hpp \
   xmodel_validate.hpp \
   xtimeunit.hpp \
-  xvariable.hpp
+  xvariable.hpp \
+  printerr.hpp
 
 module_sources = \
   agentfunction.cpp \
@@ -48,7 +49,8 @@ module_sources = \
   xmodel.cpp \
   xmodel_validate.cpp \
   xtimeunit.cpp \
-  xvariable.cpp
+  xvariable.cpp \
+  printerr.cpp
 
 # Header install path
 library_includedir = $(pkgincludedir)/model

@@ -17,114 +17,217 @@
 
 namespace flame { namespace model {
 
-// Define type used to hold variable writing tasks
+//! \brief Define type used to hold variable writing tasks
 typedef std::map<std::string, std::set<size_t> > VarMapToVertices;
 
+/*!
+ * \brief Class to hold a graph model task
+ */
 class ModelTask {
   public:
-    //! Type of the task
+    /*!
+     * \brief Type of the task
+     */
     enum TaskType { xfunction = 0, xstate, xmessage_sync, xmessage_clear,
       io_pop_write, start_agent, finish_agent, xcondition,
       xvariable, start_model, finish_model, xmessage};
-    //! Constructor
-    //! \param parentName agent or model name
-    //! \param name function/variable/message name
-    //! \param type the task type
+    /*!
+     * \brief Constructor
+     * \param parentName agent or model name
+     * \param name function/variable/message name
+     * \param type the task type
+     */
     ModelTask(std::string parentName, std::string name, TaskType type);
-    //! \return The task name
+    /*!
+     * \brief Get the task name
+     * \return The task name
+     */
     std::string getTaskName();
-    //! Set the parent name
+    /*!
+     * \brief Set the parent name
+     * \param[in] parentName The parent name
+     */
     void setParentName(std::string parentName);
-    //! \return The parent name
+    /*!
+     * \brief Get the parent name
+     * \return The parent name
+     */
     std::string getParentName() const;
-    //! Set the task name
+    /*!
+     * \brief Set the task name
+     * \param[in] name The task name
+     */
     void setName(std::string name);
-    //! \return the task name
+    /*!
+     * \brief Get the task name
+     * \return The task name
+     */
     std::string getName() const;
-    //! Set the task type
+    /*!
+     * \brief Set the task type
+     * \param[in] type The task type
+     */
     void setTaskType(TaskType type);
-    //! Return the task type
+    /*!
+     * \brief Get the task type
+     * \return The task type
+     */
     TaskType getTaskType();
-    //! Set the priority level
+    /*!
+     * \brief Set the priority level
+     * \param[in] l The priority level
+     */
     void setPriorityLevel(size_t l);
-    //! \return the priority level
+    /*!
+     * \brief Get the priority level
+     * \return the priority level
+     */
     size_t getPriorityLevel();
-    //! Add a read write variable
+    /*!
+     * \brief Add a read write variable
+     * \param[in] name Variable name
+     */
     void addReadWriteVariable(std::string name);
-    //! Add a read only variable
+    /*!
+     * \brief Add a read only variable
+     * \param name Variable name
+     */
     void addReadOnlyVariable(std::string name);
-    //! \return Set of read only variables
+    /*!
+     * \brief Get the set of read only variables
+     * \return Set of read only variables
+     */
     std::set<std::string>* getReadOnlyVariables();
-    //! Add a read variable
+    /*!
+     * \brief Add a read variable
+     * \param[in] name Variable name
+     */
     void addReadVariable(std::string name);
-    //! \return Set of read variables
+    /*!
+     * \brief Get the set of read variables
+     * \return Set of read variables
+     */
     std::set<std::string>* getReadVariables();
-    //! Add a write variable
+    /*!
+     * \brief Add a write variable
+     * \param[in] name Variable name
+     */
     void addWriteVariable(std::string name);
-    //! \return Set of write variables
+    /*!
+     * \brief Get the set of write variables
+     * \return Set of write variables
+     */
     std::set<std::string>* getWriteVariables();
-    //! Set if the task has a condition
+    /*!
+     * \brief Set if the task has a condition
+     * \param[in] hasCondition Boolean value
+     */
     void setHasCondition(bool hasCondition);
-    //! \return If the task has a condition
+    /*!
+     * \brief If condition
+     * \return If the task has a condition
+     */
     bool hasCondition();
-    //! \return Map of variables to last writing vertices
+    /*!
+     * \brief Get the last writes
+     * \return Map of variables to last writing vertices
+     */
     VarMapToVertices * getLastWrites();
-    //! \return Map of variables to last reading vertices
+    /*!
+     * \brief Get the last writes
+     * \return Map of variables to last reading vertices
+     */
     VarMapToVertices * getLastReads();
-    //! Add output message
+    /*!
+     * \brief Add output message
+     * \param[in] name Message name
+     */
     void addOutputMessage(std::string name);
-    //! \return Set of output messages
+    /*!
+     * \brief Get output messages
+     * \return Set of output messages
+     */
     std::set<std::string>* getOutputMessages();
-    //! Add input message
+    /*!
+     * \brief Add input message
+     * \param[in] name Message name
+     */
     void addInputMessage(std::string name);
-    //! \return Set of input messages
+    /*!
+     * \brief Get input messages
+     * \return Set of input messages
+     */
     std::set<std::string>* getInputMessages();
-    //! \return Set of read only variables
+    /*!
+     * \brief Get read only variables
+     * \return Set of read only variables
+     */
     std::set<std::string> getReadOnlyVariablesConst() const;
-    //! \return Set of write variables
+    /*!
+     * \brief Get write only variables
+     * \return Set of write variables
+     */
     std::set<std::string> getWriteVariablesConst() const;
-    //! \return Set of output messages
+    /*!
+     * \brief Get output messages
+     * \return Set of output messages
+     */
     std::set<std::string> getOutputMessagesConst() const;
-    //! \return Set of input messages
+    /*!
+     * \brief Get input messages
+     * \return Set of input messages
+     */
     std::set<std::string> getInputMessagesConst() const;
-    //! Set if task is start task
+    /*!
+     * \brief Set if task is start task
+     * \param[in] b Boolean value
+     */
     void setStartTask(bool b);
-    //! \return If task is start task
+    /*!
+     * \brief Check is task is a start task
+     * \return If task is start task
+     */
     bool startTask();
-    //! Set if task is end task
+    /*!
+     * \brief Set if task is end task
+     * \param[in] b Boolean value
+     */
     void setEndTask(bool b);
-    //! \return If task is end task
+    /*!
+     * \brief Is task an end task
+     * \return If task is end task
+     */
     bool endTask();
 
   private:
-    //! Agent name or model name
+    //! \brief Agent name or model name
     std::string parentName_;
-    //! Function/variable/message name
+    //! \brief Function/variable/message name
     std::string name_;
-    //! Task type
+    //! \brief Task type
     TaskType taskType_;
-    //! Priority level: determines the priority of this task should there
-    //! be more than one task in the queue
+    //! \brief Priority level: determines the priority of this task should
+    //!        there be more than one task in the queue
     size_t priorityLevel_;
-    //! Names of variables that are read only (RO variables)
+    //! \brief Names of variables that are read only (RO variables)
     std::set<std::string> readOnlyVariables_;
-    //! Names of variables that are read (RO and RW variables)
+    //! \brief Names of variables that are read (RO and RW variables)
     std::set<std::string> readVariables_;
-    //! Names of variables that are written (RW variables)
+    //! \brief Names of variables that are written (RW variables)
     std::set<std::string> writeVariables_;
-    //! Does this task have an associated condition
+    //! \brief Does this task have an associated condition
     bool hasCondition_;
-    //! Map of variables to last writing vertices
+    //! \brief Map of variables to last writing vertices
     VarMapToVertices lastWrites_;
-    //! Map of variables to last reading vertices
+    //! \brief Map of variables to last reading vertices
     VarMapToVertices lastReads_;
-    //! Names of messages that are output
+    //! \brief Names of messages that are output
     std::set<std::string> outputMessages_;
-    //! Names of messages that are input
+    //! \brief Names of messages that are input
     std::set<std::string> inputMessages_;
-    //! If task is a start task
+    //! \brief If task is a start task
     bool startTask_;
-    //! If task is an end task
+    //! \brief If task is an end task
     bool endTask_;
 };
 }}  // namespace flame::model

@@ -16,10 +16,13 @@
 
 namespace flame { namespace model {
 
+/*!
+ * Class to hold model messages information
+ */
 class XMessage {
   public:
     /*!
-     * \brief Constructs XMessage
+     * \brief Constructor
      *
      * Initialises id to be zero and start and finish tasks to be null.
      */
@@ -30,21 +33,56 @@ class XMessage {
      * Prints XMessage to standard out.
      */
     void print();
+    /*!
+     * \brief Set the message name
+     * \param[in] name The message name
+     */
     void setName(std::string name);
+    /*!
+     * \brief Set the message name
+     * \return The message name
+     */
     std::string getName();
+    /*!
+     * \brief Add a variable
+     * \return Pointer to the newly created XVariable
+     */
     XVariable * addVariable();
+    /*!
+     * \brief Add a variable with the variable type and name
+     * \param[in] type The variable type
+     * \param[in] name The variable name
+     * \return Pointer to the newly created XVariable
+     */
     XVariable * addVariable(std::string type, std::string name);
+    /*!
+     * \brief Get variables
+     * \return A pointer to a boost pointer vector with XVariable
+     */
     boost::ptr_vector<XVariable> * getVariables();
     /*!
      * \brief Finds a variable name in the message memory
+     * \param[in] name The variable name
+     * \return The boolean result
      */
     bool validateVariableName(std::string name);
+    /*!
+     * \brief Set identification number
+     * \param[in] id The identification number
+     */
     void setID(int id);
+    /*!
+     * \brief Get the identification number
+     * \return The identification number
+     */
     int getID();
 
   private:
+    //! \brief Identification number
     int id_;
+    //! \brief Message name
     std::string name_;
+    //! \brief Message variables
     boost::ptr_vector<XVariable> variables_;
 };
 }}  // namespace flame::model

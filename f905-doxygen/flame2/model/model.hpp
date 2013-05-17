@@ -18,48 +18,114 @@
 
 namespace flame { namespace model {
 
-//! \brief Used to create a model and register with framework
+/*!
+ * \brief Used to create a model and register with framework
+ */
 class Model {
   public:
+    /*!
+     * \brief Constructor
+     */
     Model();
+    /*!
+     * \brief Constructor with model name
+     * \param[in] model The model name
+     */
     explicit Model(std::string model);
-    //! Register agent function with the framework
+    /*!
+     * \brief Register agent function with the framework
+     * \param[in] name The function name
+     * \param[in] f_ptr Framework task function
+     */
     void registerAgentFunction(std::string name,
             flame::exe::TaskFunction f_ptr);
-    //! Validate the model
+    /*!
+     * \brief Validate the model
+     */
     void validate();
-    //! Add an agent
+    /*!
+     * \brief Add an agent
+     * \param[in] name The agent name
+     */
     void addAgent(std::string name);
-    //! Add an agent variable
+    /*!
+     * \brief Add an agent variable
+     * \param[in] agent_name The agent name
+     * \param[in] type The variable type
+     * \param[in] name The variable name
+     */
     void addAgentVariable(std::string agent_name,
             std::string type, std::string name);
-    //! Add an agent function
+    /*!
+     * \brief Add an agent function
+     * \param[in] agent_name The agent name
+     * \param[in] agentFunction The agent function
+     */
     void addAgentFunction(std::string agent_name,
         const AgentFunction& agentFunction);
-    //! Add a message
+    /*!
+     * \brief Add a message
+     * \param[in] name The message name
+     */
     void addMessage(std::string name);
-    //! Add a message variable
+    /*!
+     * \brief Add a message variable
+     * \param[in] message_name The message name
+     * \param[in] type The variable type
+     * \param[in] name The variable name
+     */
     void addMessageVariable(std::string message_name,
             std::string type, std::string name);
+    /*!
+     * \brief Get the task function of an agent function
+     * \param[in] name The function name
+     * \return The task function
+     */
     flame::exe::TaskFunction getAgentFunctionPointer(std::string name) const;
-
-    //! Check the model has been validated
+    /*!
+     * \brief Check the model has been validated
+     * \return Boolean result
+     */
     bool isValidated() const;
+    /*!
+     * \brief Get agent memory info
+     * \return The agent memory info
+     */
     AgentMemory getAgentMemoryInfo() const;
+    /*!
+     * \brief Get task dependencies
+     * \return Task dependencies
+     */
     TaskIdMap getTaskDependencies() const;
+    /*!
+     * \brief Get the task list
+     * \return The task list
+     */
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
+    /*!
+     * \brief Get the underlying model
+     * \return The underlying model
+     */
     flame::model::XModel * getXModel() { return &model_; }
 #endif
 
   private:
-    bool validated_;  //!< Check for a validated model
-    flame::model::XModel model_;  //!< The underlying model
+    //! \brief Check for a validated model
+    bool validated_;
+    //! \brief The underlying model
+    flame::model::XModel model_;
     //! \brief A map from function name to function pointer
     std::map<std::string, flame::exe::TaskFunction> funcMap_;
 
-    //! getAgent handled in Model because XModel returns 0 if
-    //! there is no agent so Model throws the exception
+    /*!
+     * \brief Get agent
+     * \param[in] name Agent name
+     * \return The agent
+     *
+     * getAgent handled in Model because XModel returns 0 if
+     * there is no agent so Model throws the exception
+     */
     XMachine * getAgent(std::string name);
 };
 

@@ -311,7 +311,7 @@ void XModel::outputDependencyGraph(const std::string& file_name) const {
   dependencyGraph_.writeGraphviz(file_name);
 }
 
-int XModel::generateStateGraph() {
+void XModel::generateStateGraph() {
   // for each agent import state graph
   boost::ptr_vector<XMachine>::iterator agent;
   std::set<StateGraph*> graphs;
@@ -325,13 +325,6 @@ int XModel::generateStateGraph() {
   }
 
   stateGraph_.importStateGraphs(graphs);
-
-  return 0;
-}
-
-int XModel::checkCyclicDependencies() {
-  // ToDo
-  return 0;
 }
 
 const TaskList * XModel::getTaskList() const {

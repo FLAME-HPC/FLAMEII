@@ -77,11 +77,11 @@ class IOManager {
     void finaliseData();
 
     //! Add integer value to an agent variable array
-    void addInt(std::string const& agent_name,
-        std::string const& var_name, int value);
+//    void addInt(std::string const& agent_name,
+//        std::string const& var_name, int value);
     //! Add a double value to an agent variable array
-    void addDouble(std::string const& agent_name,
-        std::string const& var_name, double value);
+//    void addDouble(std::string const& agent_name,
+//        std::string const& var_name, double value);
 
 #ifdef TESTBUILD
     //! Return a pointer to the IO plugin named

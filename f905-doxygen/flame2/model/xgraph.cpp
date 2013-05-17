@@ -207,26 +207,30 @@ void XGraph::removeRedundantDependencies() {
   edge2dependency_->clear();
 }
 
-/*
- Has cycle exception used by cycle detector and passes
- back edge to already discovered vertex.
+/*!
+ * \brief Has cycle exception used by cycle detector and passes
+ *        back edge to already discovered vertex.
  */
 struct has_cycle : public std::exception {
+    //! \brief Constructor
     explicit has_cycle(Edge d) : d_(d) {}
+    //! \brief Return edge
     const Edge edge() const throw() {
       return d_;
     }
 
   protected:
+    //! The edge
     Edge d_;
 };
 
-/*
- Visitor function object passed to depth_first_search.
- Contains back_edge method that is called when the depth_first_search
- explores an edge to an already discovered vertex.
+/*!
+ * \brief Visitor function object passed to depth_first_search.
+ * Contains back_edge method that is called when the depth_first_search
+ * explores an edge to an already discovered vertex.
  */
 struct cycle_detector : public boost::default_dfs_visitor {
+    //! \brief Throws has_cycle when back edge detected
     void back_edge(Edge edge_t, const Graph &) {
       throw has_cycle(edge_t);
     }
@@ -261,10 +265,12 @@ std::pair<int, std::string> XGraph::checkCyclicDependencies() {
   return std::make_pair(0, error_msg);
 }
 
-
+//! Writes vertex labels for a graphviz graph
 struct vertex_label_writer {
+    //! Constructor
     explicit vertex_label_writer(
         const TaskList &tasklist) : tasklist_(tasklist) {}
+    //! Write to out stream the label associated with the vertex
     void operator()(std::ostream& out, const Vertex& v) const {
       ModelTask * t = tasklist_.getTask(v);
       if (t->getTaskType() == ModelTask::io_pop_write) {
@@ -314,15 +320,20 @@ struct vertex_label_writer {
     }
 
   protected:
+    //! The task list used to get the associated task from the vertex
     const TaskList &tasklist_;
 };
 
+//! Writes edge labels for a graphviz graph
 struct edge_label_writer {
+    //! Enumeration of array type
     enum ArrowType { arrowForward = 0, arrowBackward };
+    //! Constructor
     edge_label_writer(EdgeMap * em,
         ArrowType at) :
           edge2dependency(em),
           arrowType(at) {}
+    //! Write to output stream the label associated with the edge
     void operator()(std::ostream& out, const Edge& e) const {
       Dependency * d = 0;
       EdgeMap::iterator it = edge2dependency->find(e);
@@ -334,93 +345,19 @@ struct edge_label_writer {
       out << "]";
     }
   protected:
+    //! Edge map to get the dependency associated with the edge
     EdgeMap * edge2dependency;
+    //! The arrow type
     ArrowType arrowType;
 };
 
+//! Writes graph statements for a graphviz graph
 struct graph_writer {
+    //! Write to output stream any graph statements
     void operator()(std::ostream& /*out*/) const {
       // out << "node [shape = rect]" << std::endl;
     }
 };
-
-/*  stategraph
-
-struct vertex_label_writer {
-    explicit vertex_label_writer(std::vector<TaskPtr> * vm) : vertex2task(vm) {}
-    void operator()(std::ostream& out, const Vertex& v) const {
-      Task * t = vertex2task->at(v).get();
-      if (t->getTaskType() == Task::io_pop_write) {
-        out << " [label=\"";
-        std::set<std::string>::iterator it;
-        for (it = t->getWriteVariables()->begin();
-            it != t->getWriteVariables()->end(); ++it) {
-          out << "" << (*it) << "\\n";
-        }
-        out << "\" shape=folder, style=filled, fillcolor=orange]";
-      } else {
-        out << " [label=\"";
-        if (t->getTaskType() == Task::xmessage_sync)
-          out << "SYNC: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::xmessage_clear)
-          out << "CLEAR: " << t->getName() << "\"";
-        else if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::start_model)
-          out << "Start\\n" << t->getParentName() << "\"";
-        else if (t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::finish_model)
-          out << "Finish\\n" << t->getParentName() << "\"";
-        else
-          out << t->getName() << "\"";
-        if (t->getTaskType() == Task::xfunction)
-          out << " shape=rect, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::xcondition)
-          out << " shape=invhouse, style=filled, fillcolor=yellow";
-        if (t->getTaskType() == Task::start_agent ||
-            t->getTaskType() == Task::finish_agent ||
-            t->getTaskType() == Task::start_model ||
-            t->getTaskType() == Task::finish_model)
-          out << " shape=ellipse, style=filled, fillcolor=red";
-        if (t->getTaskType() == Task::xvariable ||
-            t->getTaskType() == Task::xstate)
-          out << " shape=ellipse, style=filled, fillcolor=white";
-        if (t->getTaskType() == Task::xmessage_clear ||
-            t->getTaskType() == Task::xmessage_sync ||
-            t->getTaskType() == Task::xmessage) {
-          out << " shape=parallelogram, style=filled, ";
-          out << "fillcolor=lightblue";
-        }
-        if (t->getTaskType() == Task::io_pop_write)
-          out << " shape=folder, style=filled, fillcolor=orange";
-        out << "]";
-      }
-    }
-
-  protected:
-    std::vector<TaskPtr> * vertex2task;
-};
-
-struct edge_label_writer {
-    enum ArrowType { arrowForward = 0, arrowBackward };
-    edge_label_writer(EdgeMap * em,
-        ArrowType at) :
-          edge2dependency(em),
-          arrowType(at) {}
-    void operator()(std::ostream& out, const Edge& e) const {
-      Dependency * d = 0;
-      EdgeMap::iterator it = edge2dependency->find(e);
-      if (it != edge2dependency->end()) d = (*it).second;
-      out << " [";
-      if (d) if (d->getDependencyType() != Dependency::blank)
-        out << "label=\"" << d->getGraphName() << "\" ";
-      if (arrowType == edge_label_writer::arrowBackward) out << "dir = back";
-      out << "]";
-    }
-  protected:
-    EdgeMap * edge2dependency;
-    ArrowType arrowType;
-};
-*/
 
 void XGraph::writeGraphviz(const std::string& fileName) const {
   std::fstream graphfile;

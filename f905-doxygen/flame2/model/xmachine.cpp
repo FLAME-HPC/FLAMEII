@@ -173,18 +173,17 @@ std::set<std::string> XMachine::getEndStates() {
   return endStates_;
 }
 
-int XMachine::generateDependencyGraph() {
+void XMachine::generateDependencyGraph() {
   dependencyGraph_.importStateGraph(&stateGraph_);
-  return dependencyGraph_.generateDependencyGraph(getVariables());
+  dependencyGraph_.generateDependencyGraph(getVariables());
 }
 
 /*
  * This function is called from the model validator and
  * is then used to check for cycles and function conditions.
  */
-int XMachine::generateStateGraph() {
-  return stateGraph_.generateStateGraph(
-      &functions_, startState_, endStates_);
+void XMachine::generateStateGraph() {
+  stateGraph_.generateStateGraph(&functions_, startState_, endStates_);
 }
 
 StateGraph * XMachine::getStateGraph() {
