@@ -7,6 +7,7 @@
  * \copyright GNU Lesser General Public License
  * \brief Implementation of MessageBoard class
  */
+#include <boost/thread/locks.hpp>
 #include "flame2/config.hpp"
 #include "message_board.hpp"
 
