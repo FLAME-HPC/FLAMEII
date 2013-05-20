@@ -27,6 +27,9 @@ namespace flame { namespace mb {
  * type. The message board instance itself is type-agnostic and relies on
  * the underlying VectorWrapper to handle type-specific operations. This allows
  * us to treat all boards uniformly regardless of what message type it holds.
+ *
+ * \todo Reorganise class structure so `MessageBoard` (or its storage back) can 
+ *       be easily subclassed and used by framework users. 
  */
 class MessageBoard {
   public:
