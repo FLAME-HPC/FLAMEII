@@ -29,22 +29,45 @@ typedef std::map<std::string, VarPtrArrayMap> AgentMemoryArrays;
  * \brief IO plugin for reading and writing CSV files
  */
 class IOCSVPop : public IO {
+    /*!
+     * \brief Get the IO plugin name
+     * \return Plugin name
+     */
     std::string getName();
-    //! Reading method, called by io manager
+    /*!
+     * \brief Reading method, called by io manager
+     * \param[in] path File to read
+     * \param[out] addInt() Function to add integers
+     * \param[out] addDouble() Function to add doubles
+     */
     void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double));
-    //! Initialise writing out of data for an iteration
+    /*!
+     * \brief Initialise writing out of data for an iteration
+     */
     void initialiseData();
-    //! Write out an agent variable for all agents
+    /*!
+     * \brief Write out an agent variable for all agents
+     * \param[in] agent_name The agent name
+     * \param[in] var_name The variable name
+     * \param[in] size The size of the variable array
+     * \param[in] ptr Pointer to the variable array
+     */
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr);
-    //! Write out agents to file
+    /*!
+     * \brief Write out agents to file
+     * \param[in] fp File pointer
+     */
     void writeAgents(FILE * fp);
-    //! Finalise writing out of data for an iteration
+    /*!
+     * \brief Finalise writing out of data for an iteration
+     */
     void finaliseData();
 
   private:
+    //! \brief Agent memory information
     AgentMemoryArrays agentMemoryArrays_;
 };
 

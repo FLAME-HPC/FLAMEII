@@ -62,6 +62,12 @@ void IOManager::loadModel(std::string const& file,
   ioxmlmodel_.readXMLModel(file, model);
 }
 
+/*!
+ * \brief Function to pass to IO plugins to add integers to an agent variable array
+ * \param[in] agent_name Agent name
+ * \param[in] var_name Variable name
+ * \param[in] value Integer value
+ */
 void addInt(std::string const& agent_name,
     std::string const& var_name, int value) {
   // Add value to memory manager
@@ -69,6 +75,12 @@ void addInt(std::string const& agent_name,
       GetVector<int>(agent_name, var_name)->push_back(value);
 }
 
+/*!
+ * \brief Function to pass to IO plugins to add doubles to an agent variable array
+ * \param[in] agent_name Agent name
+ * \param[in] var_name Variable name
+ * \param[in] value Double value
+ */
 void addDouble(std::string const& agent_name,
     std::string const& var_name, double value) {
   // Add value to memory manager

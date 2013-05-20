@@ -69,6 +69,7 @@ class XMLWriter {
     void writeXMLTagAttribute(std::string name, std::string value);
 
   private:
+    //! \brief The XML text writer
     xmlTextWriterPtr writer_;
 };
 }}  // namespace flame::io

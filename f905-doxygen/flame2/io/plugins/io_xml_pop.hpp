@@ -21,17 +21,17 @@
 
 namespace flame { namespace io {
 
-//! Data type to hold model variable type and name
+//! \brief Data type to hold model variable type and name
 typedef std::pair<std::string, std::string> Var;
-//! Data type to hold an array pointer and its size
+//! \brief Data type to hold an array pointer and its size
 typedef std::pair<void*, size_t> PtrArray;
-//! Data type to hold a map between variable names and PtrArray
+//! \brief Data type to hold a map between variable names and PtrArray
 typedef std::map<std::string, PtrArray> VarPtrArrayMap;
-//! Data type to hold a map between agent names and VarPtrArrayMap
+//! \brief Data type to hold a map between agent names and VarPtrArrayMap
 typedef std::map<std::string, VarPtrArrayMap> AgentMemoryArrays;
-//! Data type to hold a vector of model variables
+//! \brief Data type to hold a vector of model variables
 typedef std::vector<Var> VarVec;
-//! Data type to hold a map between agent name and variables
+//! \brief Data type to hold a map between agent name and variables
 typedef std::map<std::string, VarVec> AgentMemory;
 
 /*!
@@ -39,7 +39,9 @@ typedef std::map<std::string, VarVec> AgentMemory;
  */
 class IOXMLPop : public IO {
   public:
-    //! Constructor
+    /*!
+     * \brief Constructor
+     */
     IOXMLPop();
     /*!
      * \brief Return plugin name
@@ -47,65 +49,140 @@ class IOXMLPop : public IO {
      * \return Plugin name
      */
     std::string getName();
-    //! Read XML population file
+    /*!
+     * \brief Read XML population file
+     * \param[in] file_name File to read
+     * \param[out] addInt Function to add integers
+     * \param[out] addDouble Function to add doubles
+     */
     void readPop(std::string file_name,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double));
-    //! Write agent variable array to XML file
+    /*!
+     * \brief Write agent variable array to XML file
+     * \param[in] agent_name The agent name
+     * \param[in] var_name The variable name
+     * \param[in] size The size of the variable array
+     * \param[in] ptr Pointer to the variable array
+     */
     void writePop(std::string const& agent_name, std::string const& var_name,
         size_t size, void * ptr);
-    //! Initialise XML file
+    /*!
+     * \brief Initialise XML file
+     */
     void initialiseData();
-    //! Finalise XML file
+    /*!
+     * \brief Finalise XML file
+     */
     void finaliseData();
-    //! Validate XML file with model definition
+    /*!
+     * \brief Validate XML file with model definition
+     * \param[in] data_file
+     */
     void validateData(std::string const& data_file);
 
   private:
-    //! Agent memory information
+    //! \brief Agent memory information
     AgentMemoryArrays agentMemoryArrays_;
-    //! Helper class to write XML
+    //! \brief Helper class to write XML
     XMLWriter writer_;
-    //! Pointer to method to add integers to flame2
+    /*!
+     * \brief Pointer to method to add integers to flame2
+     * \param[in] Variable type
+     * \param[in] Variable name
+     * \param[in] Integer value
+     */
     void (*addInt)(std::string const&, std::string const&, int);
-    //! Pointer to method to add doubles to flame2
+    /*!
+     * \brief Pointer to method to add doubles to flame2
+     * \param[in] Variable type
+     * \param[in] Variable name
+     * \param[in] Double value
+     */
     void (*addDouble)(std::string const&, std::string const&, double);
     /*!
      * \brief Open an XML file and return an xml doc pointer
-     * \return XML Doc pointer
+     * \param[out] doc The opened doc
+     * \param[in] data_file The file to open
      */
     void openXMLDoc(xmlDocPtr * doc, std::string const& data_file);
-    //! Write agent data to file
+    /*!
+     * \brief Write agent data to file
+     */
     void writeAgents();
-    //! Create data schema head
+    /*!
+     * \brief Create data schema head
+     */
     void createDataSchemaHead();
-    //! Create data schema agent name type
+    /*!
+     * \brief Create data schema agent name type
+     */
     void createDataSchemaAgentNameType();
-    //! Create data schema agent var choice
+    /*!
+     * \brief Create data schema agent var choice
+     */
     void createDataSchemaAgentVarChoice();
-    //! Create data schema agent vars
+    /*!
+     * \brief Create data schema agent vars
+     */
     void createDataSchemaAgentVars();
-    //! Create data schema agent var
+    /*!
+     * \brief Create data schema agent var
+     * \param[in] type The variable type
+     * \param[in] name The variable name
+     */
     void createDataSchemaAgentVar(std::string type, std::string name);
-    //! Create data schema agent definitions
+    /*!
+     * \brief Create data schema agent definitions
+     */
     void createDataSchemaDefineAgents();
-    //! Create data schema tag definitions
+    /*!
+     * \brief Create data schema tag definitions
+     */
     void createDataSchemaDefineTags();
-    //! Create data schema
+    /*!
+     * \brief Create data schema
+     * \param[in,out] buf XML buffer to write to
+     */
     void createDataSchema(xmlBufferPtr * buf);
-    //! Process xml tree start node
+    /*!
+     * \brief Process xml tree start node
+     * \param[in,out] tags Read XML tags
+     * \param[in] name Tag name
+     * \param[in] reader XML reader
+     */
     void processStartNode(std::vector<std::string> * tags, std::string name,
         xmlTextReaderPtr reader);
-    //! Process variable
+    /*!
+     * \brief Process variable
+     * \param[in] value The variable value
+     * \param[in,out] tags Read XML tags
+     * \param[in] agent The variables parent agent
+     */
     void processTextVariable(std::string value, std::vector<std::string> * tags,
         std::string * agent);
-    //! Process agent
+    /*!
+     * \brief Process agent
+     * \param[in,out] tags Read XML tags
+     * \param[in] reader XML reader
+     * \param[in] agent The agent
+     */
     void processTextAgent(std::vector<std::string> * tags,
         xmlTextReaderPtr reader, std::string * agent);
-    //! Process xml tree end node
+    /*!
+     * \brief Process xml tree end node
+     * \param[in,out] tags Read XML tags
+     * \param[in] name Tag name
+     * \param[in] agent The agent
+     */
     void processEndNode(std::vector<std::string> * tags, std::string name,
         std::string * agent);
-    //! Process xml tree node
+    /*!
+     * \brief Process xml tree node
+     * \param[in] reader XML reader
+     * \param[in,out] tags Read XML tags
+     * \param[in] agent The agent
+     */
     void processNode(xmlTextReaderPtr reader,
         std::vector<std::string> * tags, std::string * agent);
 };
