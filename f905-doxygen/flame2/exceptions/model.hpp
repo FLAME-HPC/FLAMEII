@@ -14,8 +14,15 @@
 
 namespace flame { namespace exceptions {
 
+/*!
+ * \brief FLAME MODEL exception
+ */
 class flame_model_exception : public flame_exception {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] msg Exception message
+     */
     explicit flame_model_exception(const std::string& msg)
         : flame_exception(msg) {}
 };
