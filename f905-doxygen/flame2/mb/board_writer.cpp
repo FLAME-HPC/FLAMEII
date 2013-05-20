@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb/board_writer.hpp
+ * \file flame2/mb/board_writer.cpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

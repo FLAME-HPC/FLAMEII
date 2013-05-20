@@ -1,5 +1,5 @@
 /*!
- * \file flame2/exe/task_manager.cpp
+ * \file flame2/exe/task_manager.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

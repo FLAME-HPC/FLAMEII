@@ -1,3 +1,4 @@
+//! \file docs/namespaces.hpp
 //! \brief Namespace used by all FLAME-II components:
 //!
 //! \todo Refactor namespaces so all fall under the following parent categories 

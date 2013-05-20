@@ -1,5 +1,5 @@
 /*!
- * \file flame2/exe/splitting_fifo_task_queue.cpp
+ * \file flame2/exe/splitting_fifo_task_queue.hpp
  * \author Shawn Chin
  * \date Oct 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

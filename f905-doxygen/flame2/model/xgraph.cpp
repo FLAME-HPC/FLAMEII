@@ -1,11 +1,11 @@
 /*!
- * \file flame2/model/dependencygraph.cpp
+ * \file flame2/model/xgraph.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DependencyGraph: holds dependency graph
+ * \brief XGraph: used to hold a graph
  */
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/graphviz.hpp>
