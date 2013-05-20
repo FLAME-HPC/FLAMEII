@@ -1,14 +1,20 @@
-//! \file docs/namespaces.hpp
-//! \brief Namespace used by all FLAME-II components:
-//!
-//! \todo Refactor namespaces so all fall under the following parent categories 
-//!    * `flame::core` - All more modules. Should not be accessed by end-users.
-//!    * `flame::interfaces` - Interfaces that are common to core modules and 
-//!       implementable by users' custom classes.
-//!    * `flame:``:api` - APIs exposed to end users
-//!    * `flame::contrib` - Reusable components contributed by users. Not officiall
-//!       supported by the FLAME project.
-//! 
+/*!
+ * \file docs/namespaces.hpp
+ * \author Shawn Chin
+ * \date 2012
+ * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
+ * \copyright Copyright (c) 2012 University of Sheffield
+ * \copyright GNU Lesser General Public License
+ * \brief Namespace used by all FLAME-II components:
+ *
+ * \todo Refactor namespaces so all fall under the following parent categories
+ *    * `flame::core` - All more modules. Should not be accessed by end-users.
+ *    * `flame::interfaces` - Interfaces that are common to core modules and
+ *       implementable by users' custom classes.
+ *    * `flame:``:api` - APIs exposed to end users
+ *    * `flame::contrib` - Reusable components contributed by users. Not officially
+ *       supported by the FLAME project.
+*/
 namespace flame {
 
 //! \brief API Module
@@ -19,11 +25,12 @@ namespace api {}
 //! \brief EXE Module
 //!
 //! Classes for handling tasks scheduling and execution
-namespace exe{}
+namespace exe {}
 
 //! \brief IO Module
 //!
-//! Classes for handling reading and writing of model description and population data.
+//! Classes for handling reading and writing of model description and
+//!     population data.
 namespace io {}
 
 //! \brief MB Module
@@ -45,5 +52,4 @@ namespace model {}
 //!
 //! Classes for orchestrating a simulation
 namespace sim {}
-
 }

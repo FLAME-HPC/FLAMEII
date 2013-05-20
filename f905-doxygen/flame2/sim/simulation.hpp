@@ -11,6 +11,7 @@
 #define SIM__SIMULATION_HPP_
 #include <string>
 #include <map>
+#include <set>
 #include <utility>
 #include <vector>
 #include "flame2/model/model.hpp"
