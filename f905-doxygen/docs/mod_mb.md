@@ -87,6 +87,48 @@ For implementation details, see:
  
 Board Iterators {#modmb-iterator}
 ===============
+
+The more efficient way to iterate through messages would be to directly refer to the
+array of messages that are store contiguous in memory within the `VectorWrapper` instance.
+However, this approach would mean that the messages must be iterated in-order which may
+not be a case for filtered or randomised access.
+
+To allow for both access methods, [MessageIterator](@ref flame::mb::MessageIterator) 
+contain [backends](@ref flame::mb::MessageIteratorBackend) 
+(which perform the actual iteration) that can be swapped out when a different access mode 
+is required. 
+
+For instance, a standard iterator would start off using a backend that contain a raw 
+pointer to the underlying vectors 
+([MessageIteratorBackendRaw](@ref flame::mb::MessageIteratorBackendRaw)). 
+This raw pointer is retrieved using 
+[VectorWrapper::GetRawPtr()](@ref flame::mem::VectorWrapper::GetRawPtr) and 
+stepped using [VectorWrapper::StepRawPtr()](@ref flame::mem::VectorWrapper::StepRawPtr)
+so the memory step sizes are dealt with automatically.
+
+@img{images/iterator_raw.png, 15cm, Raw iterator backends directly access memory vectors}
+
+When randomisation or sorting is required for the iterator, the backend is
+first swapped out for a mutable version (`MessageIteratorBackendMutable`), i.e. one that
+stores a vector of indices of messages. The indices vector indicate the order in which
+the message vector is accessed and can be mutated to allow partial or out-of-order iteration.
+
+@img{images/iterator_mutable.png, 15cm, Mutable iterator stores a list of indices to allow partial/unordered access}
+
+Naturally, iterators that contain mutable backends are less efficient as there are extra
+layers of indirection for each access.
+
+It is possible to write backends that are a compromise between the *raw* and *mutable*
+version for very specialised access patterns, e.g. iterators that continuosly return
+random entries from the board, strided access, etc. As these are very niche use cases,
+we leave it up to power users to implement their own subclasses for it. The FLAME-II
+interfaces and APIs should be designed to allow for this.
+
+For implementation details, see:
+ * flame::mb::MessageIterator
+ * flame::mb::MessageIteratorBackend
+ * flame::mb::MessageIteratorBackendRaw
+ * flame::mb::MessageIteratorBackendMutable (not yet implemented)
  
 Message Board Manager {#modmb-manager}
 =====================
