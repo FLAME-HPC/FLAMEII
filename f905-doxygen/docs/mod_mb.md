@@ -7,7 +7,7 @@ Overview {#modmb-overview}
 =========
 
 The MB module handles the storage and access to message boards. All interaction with
-the MB module should be done via the [MessageBoardManager](@ref modmb-manager) 
+the MB module should be done via the `MessageBoardManager`
 -- a singleton instance of flame::mb::MessageBoardManager.
 
 The most common `MessageBoardManager` methods are:
@@ -28,10 +28,6 @@ The most common `MessageBoardManager` methods are:
     empties the message board. This method is never run manually and should be
     run from a task launched by the scheduler.
     
-Message Board Manager {#modmb-manager}
-=====================
-
-(...more details here)
 
 Data Storage {#modmb-storate}
 ============
@@ -114,6 +110,7 @@ flame::mb::Client which are instantiated using flame::mb::Proxy::GetClient).
 For implementation details, see:
  * flame::mb::BoardWriter
  * flame::mb::MessageBoard
+ 
  
 Board Iterators {#modmb-iterator}
 ===============
