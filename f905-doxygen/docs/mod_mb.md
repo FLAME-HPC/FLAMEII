@@ -3,6 +3,36 @@ Module - MB (Message Management) {#modmb}
 
 [TOC]
 
+Overview {#modmb-overview}
+=========
+
+The MB module handles the storage and access to message boards. All interaction with
+the MB module should be done via the [MessageBoardManager](@ref modmb-manager) 
+-- a singleton instance of flame::mb::MessageBoardManager.
+
+The most common `MessageBoardManager` methods are:
+
+ * [MessageBoardManager::GetInstance()](@ref flame::mb::MessageBoardManager::GetInstance) -- 
+   class method to returns a reference to the singleton
+   `MessageBoardManager` instance. All methods should be run off this instance. 
+ * [RegisterMessage()](@ref flame::mb::MessageBoardManager::RegisterMessage) -- 
+    registers a new agent type.
+ * [GetBoardWriter()](@ref flame::mb::MessageBoardManager::GetBoardWriter) -- 
+    returns a [writer](@ref modmb-writers) object to allow thread-safe message posting
+ * [GetMessages()](@ref flame::mb::MessageBoardManager::GetMessages) -- 
+    returns a message board [iterator](@ref modmb-iterator).
+ * [Sync()](@ref flame::mb::MessageBoardManager::Sync) -- 
+    synchronises the message board. This method is never run manually and should be
+    run from a task launched by the scheduler.
+ * [Clear()](@ref flame::mb::MessageBoardManager::Clear) -- 
+    empties the message board. This method is never run manually and should be
+    run from a task launched by the scheduler.
+    
+Message Board Manager {#modmb-manager}
+=====================
+
+(...more details here)
+
 Data Storage {#modmb-storate}
 ============
 
@@ -130,9 +160,6 @@ For implementation details, see:
  * flame::mb::MessageIteratorBackendRaw
  * flame::mb::MessageIteratorBackendMutable (not yet implemented)
  
-Message Board Manager {#modmb-manager}
-=====================
-
 
 API Access to Message Boards (access control) {#modmb-api-acl}
 =============================================

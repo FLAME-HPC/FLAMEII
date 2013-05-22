@@ -3,6 +3,80 @@ Module - EXE (Task Scheduling and Execution) {#modexe}
 
 [TOC]
 
+Overview {#modexe-overview}
+========================
+
+The EXE module handles the coordination and execution of tasks.
+
+Most interaction with the EXE module would be done via the methods provided by the 
+[TaskManager](@ref modexe-taskmgr). This would generally be the creation of
+tasks and their dependencies.
+
+The most common `TaskManager` methods are:
+
+ * [TaskManager::GetInstance()](@ref flame::exe::TaskManager::GetInstance) -- 
+   class method to returns a reference to the singleton
+   `TaskManager` instance. All methods should be run off this instance. 
+ * [GetTask()](@ref flame::exe::TaskManager::GetTask) -- 
+    returns a reference to an existing task given a task name or task id.
+ * [AddDependency()](@ref flame::exe::TaskManager::AddDependency) -- 
+    registers a dependency between tasks
+ * [CreateAgentTask()](@ref flame::exe::TaskManager::CreateAgentTask) -- 
+    instantiates, registers and returns a reference to a new agent task.
+ * [CreateMessageBoardTask()](@ref flame::exe::TaskManager::CreateMessageBoardTask) -- 
+    instantiates, registers and returns a reference to a new message board task.
+ * [CreateIOTask()](@ref flame::exe::TaskManager::CreateIOTask) -- 
+    instantiates, registers and returns a reference to a new IO task.
+
+Here's an example of a task and its dependencies are registered:
+
+    #include "exe/task_manager.hpp"
+    #include "exe/task_interface.hpp"
+
+    // Get reference to the singleton TaskManager
+    flame::exe::TaskManager& tm = flame::exe::TaskManager::GetInstance();
+
+    // Register Task
+    flame::exe::Task &t1 = tm.CreateAgentTask("t1", "Circle", agent_func);
+
+    // Specify memory and message board access allowed for this task
+    t1.AllowAccess("x");  // read-only
+    t1.AllowAccess("y", true); // read-write
+    t1.AllowMessageRead("location");   // read access to "location" message
+    t1.AllowMessagePost("forces");   // post access to "forces" message
+
+    // Add dependency
+    tm.AddDependency("t1", "t0");  // t1 depends on t0 
+
+
+Once all tasks are registered, all that remains is to set up the 
+scheduler and queues. The type and quantity of queues will dictate
+the level of concurrency and scheduling mechanism used to execute tasks. For more 
+details see the section on [task scheduling](@ref modexe-sched).
+
+Here's an example of how a scheduler with a basic FIFO queue is set up:
+
+    #include "scheduler.hpp"
+    #include "task_interface.hpp"
+    #include "fifo_task_queue.hpp"
+
+    // instantiate scheduler object. There should only be one.
+    flame::exe::Scheduler scheduler;
+
+    // Register a queue and the number of slots
+    // Here we define a FIFO based queue with 4 slots (4 worker threads)
+    flame::exe::Scheduler::QueueId fifo_q = scheduler.CreateQueue<FIFOTaskQueue>(4);
+
+    // Assign all agent tasks to that queue
+    scheduler.AssignType(fifo_q, flame::exe::Task::AGENT_FUNCTION);
+
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+       scheduler.RunIteration();  // runs a single iteration
+    }
+
+    // all threads are automatically destroyed when the scheduler object goes out of scope
+
+
 Task Manager {#modexe-taskmgr}
 ============
 
@@ -12,6 +86,7 @@ the creation, storage, and indexing of all tasks. It also assists in the
 (i.e. keeping track of fulfilled and pending dependencies for all tasks) and providing
 the methods that the `TaskScheduler` uses to update dependency information and 
 retrieve tasks.
+
 
 Task creation and indexing {#modexe-taskmgr-create}
 ---------------------------

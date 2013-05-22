@@ -3,9 +3,25 @@ Module - MEM (Agent Memory Management) {#modmem}
 
 [TOC]
 
+Overview {#modmem-overview}
+=========
+
 The MEM module handles the storage and access to agent memory. All interaction with
 the MEM module should be done via the `MemoryManager` -- a singleton instance of
 flame::mem::MemoryManager.
+
+The most common `MemoryManager` methods are:
+
+ * [MemoryManager::GetInstance()](@ref flame::mem::MemoryManager::GetInstance) -- 
+   class method to returns a reference to the singleton
+   `MemoryManager` instance. All methods should be run off this instance. 
+ * [RegisterAgent()](@ref flame::mem::MemoryManager::RegisterAgent) -- 
+    registers a new agent type.
+ * [RegisterAgentVar()](@ref flame::mem::MemoryManager::RegisterAgentVar) -- 
+    registers a memory variable for a specific agent type.
+ * [GetAgentShadow()](@ref flame::mem::MemoryManager::GetAgentShadow) -- 
+    retrieve a [*shadow*](@ref modmem-shadow) of a specific agent. *Shadows* are proxy
+    objects that provides limited and controlled access to the actual agent. 
 
 Storage {#modmem-storage}
 ============
