@@ -191,6 +191,12 @@ class DependencyGraph {
      */
     bool setContains(
         std::set<std::string>* a, std::set<std::string>* find_in_a);
+    /*!
+     * \brief Copy a vertex including all in and out edges
+     * \param[in] in The vertex to copy
+     * \return The new copied vertex
+     */
+    Vertex copyVertexIncludingEdges(Vertex in);
 #ifdef GROUP_WRITE_VARS
     /*!
      * \brief Return true if both sets are the same

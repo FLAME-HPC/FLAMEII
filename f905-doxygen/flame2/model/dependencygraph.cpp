@@ -159,29 +159,54 @@ void DependencyGraph::removeStateDependencies() {
     graph_.removeDependency(*etrit);
 }
 
+Vertex DependencyGraph::copyVertexIncludingEdges(Vertex in) {
+  OutEdgeIterator oei, oei_end;
+  InEdgeIterator iei, iei_end;
+
+  // get state model task
+  ModelTask * t = graph_.getTask(in);
+  // create new condition vertex to replace state vertex
+  ModelTask * task = new ModelTask(t->getParentName(),
+      t->getName(), t->getTaskType());
+  Vertex vertex = graph_.addVertex(task);
+  // copy edges
+  for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(in);
+      iei != iei_end; ++iei) graph_.addEdge(graph_.getEdgeSource(*iei),
+          vertex, "", Dependency::condition);
+  for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(in);
+      oei != oei_end; ++oei) graph_.addEdge(vertex,
+          graph_.getEdgeTarget(*oei), "", Dependency::condition);
+  return vertex;
+}
+
 void DependencyGraph::transformConditionalStatesToConditions(
     boost::ptr_vector<XVariable> * variables) {
   std::pair<VertexIterator, VertexIterator> vp;
-  boost::graph_traits<Graph>::out_edge_iterator oei, oei_end;
   boost::ptr_vector<XVariable>::iterator it;
   size_t count = 0;
+  std::vector<Vertex> verticiesToRemove;
 
-  // For each vertex
+  // for each vertex
   for (vp = graph_.getVertices(); vp.first != vp.second; ++vp.first) {
-    // If out edges is larger than 1 and a state task
+    // if out edges is larger than 1 and a state task
     if (graph_.getVertexOutDegree(*vp.first) > 1 &&
         graph_.getTask(*vp.first)->getTaskType() == ModelTask::xstate) {
-      ModelTask * t = graph_.getTask(*vp.first);
-      // Change task type to a condition
-      t->setTaskType(ModelTask::xcondition);
-      t->setName(boost::lexical_cast<std::string>(count++));
-      t->setPriorityLevel(5);
-      // Conditions read all variables (assume to help with splitting)
-      for (it = variables->begin(); it != variables->end(); ++it) {
-        t->addReadWriteVariable((*it).getName());
-      }
+      // copy state vertex
+      Vertex vertex = copyVertexIncludingEdges(*vp.first);
+      // update new vertex as a condition
+      ModelTask * task = graph_.getTask(vertex);
+      task->setName(boost::lexical_cast<std::string>(count++));
+      task->setTaskType(ModelTask::xcondition);
+      task->setPriorityLevel(5);
+      // conditions read all variables (assume to help with splitting)
+      for (it = variables->begin(); it != variables->end(); ++it)
+        task->addReadWriteVariable((*it).getName());
+      // add state vertex to list of vertices to remove
+      verticiesToRemove.push_back(*vp.first);
     }
   }
+  // remove vertices from graph
+  graph_.removeVertices(&verticiesToRemove);
 }
 
 void DependencyGraph::contractVertices(
