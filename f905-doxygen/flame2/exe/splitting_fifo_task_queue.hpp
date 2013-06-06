@@ -25,8 +25,10 @@ namespace flame { namespace exe {
 //!       instead of FIFO. Use either std::priority_queue or a custom one based
 //!       on a binary heap.
 //!
-//! \todo Improve load balance by trailing off splits with smaller chunks (for FIFO)
-//!       or support subsplitting if available threads > queued tasks (for priority queue)
+//! \todo Improve load balance by trailing off splits with
+//!         smaller chunks (for FIFO)
+//!       or support subsplitting
+//!         if available threads > queued tasks (for priority queue)
 //!
 class SplittingFIFOTaskQueue : public TaskQueue {
   public:

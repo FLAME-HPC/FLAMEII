@@ -30,11 +30,11 @@ typedef std::set<std::string> WriteableSet;
 //! Smart pointer type used to return MemoryIterator
 typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
-//!
-//!
-//! \todo since the number of entries in vec_map_ and rw_set_ will be relatively small, 
-//!       the tree-based search used by std::map and std::set may not be ideal.
-//!       Consider using boost::flat_map and boost::flat_set (see flame::mb::writer_map_type).
+//! \todo since the number of entries in vec_map_ and rw_set_ will be
+//!       relatively small, the tree-based search used by std::map and std::set
+//!       may not be ideal.
+//!       Consider using boost::flat_map and boost::flat_set
+//!         (see flame::mb::writer_map_type).
 class AgentShadow {
   friend class MemoryManager;
   friend class MemoryIterator;

@@ -18,38 +18,39 @@
 
 namespace flame { namespace mem {
 
-//! \brief Abstract base class of a proxy object that can be used to refer to vectors of
-//!        arbitrary type.
+//! \brief Abstract base class of a proxy object that can be used to refer to
+//!        vectors of arbitrary type.
 //!
-//! Templated derived classes of this class form the main data storage for agent memory
-//! and the default message board. 
-//! 
-//! This class allows us to store, refer to, and operate on vectors in a type-agnostic
-//! fashion.
+//! Templated derived classes of this class form the main data storage for
+//! agent memory and the default message board.
+//!
+//! This class allows us to store, refer to, and operate on vectors in a
+//! type-agnostic fashion.
 class VectorWrapperBase {
   public:
     virtual ~VectorWrapperBase() {}
-    
+
     //! \brief Request a change in capacity
     //!
     //! \param n minimum capacity required for the vector
     //!
     //! This calls std::vector::reserve on the underlying vector object.
     virtual void reserve(unsigned int n) = 0;
-    
+
     //! \brief Returns the number of elements in the vector
     //! \returns number of elements in the vector
     //!
     //! This calls std::vector::size on the underlying vector object.
     virtual size_t size() const = 0;
-    
+
     //! \brief Returns whether the vector is empty (i.e. whether its size is 0)
     //! \returns true if vector is empty, false otherwise
     //!
     //! This calls std::vector::empty on the underlying vector object.
     virtual bool empty() const = 0;
-    
-    //! \brief Removes all elements from the vector leaving the container with size 0
+
+    //! \brief Removes all elements from the vector leaving the container
+    //!        with size 0
     //!
     //! This calls std::vector::clear on the underlying vector object.
     virtual void clear() = 0;
@@ -61,7 +62,8 @@ class VectorWrapperBase {
     //! \brief Extends the vector by copying in contents of \c vec
     //! \param vec vector to copy contents from
     //!
-    //! Throws throw flame::exceptions::invalid_type if \c vec is of mismatching type
+    //! Throws throw flame::exceptions::invalid_type if \c vec is of
+    //! mismatching type
     virtual void Extend(VectorWrapperBase* vec) = 0;
 
     //! \brief Return a boost::any object of current type initialsed with value
@@ -72,7 +74,7 @@ class VectorWrapperBase {
 
     //! \brief Returns a pointer to the Nth element in the internal
     //! array, or NULL if the vector is empty
-    //! \param offset 
+    //! \param offset
     //! \returns pointer to an specific vector element
     virtual void* GetRawPtr(size_t offset = 0) = 0;
 
@@ -88,7 +90,8 @@ class VectorWrapperBase {
 
     //! \brief Appends to vector a value wrapped in boost::any
     //! \param value value to be appended to the vector
-    //! Throws throw flame::exceptions::invalid_type if \c value is of mismatching type
+    //! Throws throw flame::exceptions::invalid_type if \c value is of
+    //! mismatching type
     virtual void push_back(boost::any value) = 0;
 
     //! \brief Returns the type info of the underlying datatype
@@ -116,11 +119,11 @@ template <typename T>
 class VectorWrapper: public VectorWrapperBase {
   public:
     typedef T data_type;  //!< value type
-    typedef std::vector<T> vector_type; //!< vector type
+    typedef std::vector<T> vector_type;  //!< vector type
 
     VectorWrapper() { data_type_ = &typeid(T); }
 
-	//! \brief Copy constructor
+    //! \brief Copy constructor
     explicit VectorWrapper(const VectorWrapper& v) : VectorWrapperBase(v) {
       data_type_ = v.data_type_;
       v_ = v.v_;
