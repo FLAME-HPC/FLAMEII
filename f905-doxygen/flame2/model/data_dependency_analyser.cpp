@@ -169,7 +169,7 @@ void DataDependencyAnalyser::addWritingVerticesToList(Vertex v, ModelTask * t) {
     clearVarWriteSet((*varit), t->getLastReads());
 #ifdef USE_VARIABLE_VERTICES
     // New vertex
-    Task * task = new Task(name_, (*varit), Task::xvariable);
+    ModelTask * task = new ModelTask(name_, (*varit), ModelTask::xvariable);
     Vertex varVertex = graph_->addVertex(task);
     // Edge to vertex
     graph_->addEdge(v, varVertex, (*varit), Dependency::variable);

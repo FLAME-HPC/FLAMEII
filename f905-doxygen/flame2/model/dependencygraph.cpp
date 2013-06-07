@@ -53,16 +53,16 @@ void DependencyGraph::generateDependencyGraph(
   // Add data and condition dependencies
   DataDependencyAnalyser dda = DataDependencyAnalyser(&graph_, name_);
   dda.addDataDependencies(variables);
-  // Remove state dependencies
-  removeStateDependencies();
+  // Add data output tasks
+  AddVariableOutput();
 #ifdef OUTPUT_GRAPHS
   writeGraphviz(name_ + "_3.dot");
 #endif
-  // Add data output tasks
-  AddVariableOutput();
+  // Remove state dependencies
+  removeStateDependencies();
 #ifdef USE_VARIABLE_VERTICES
   // Contract variable vertices
-  contractVertices(Task::xvariable, Dependency::variable);
+  contractVertices(ModelTask::xvariable, Dependency::variable);
 #endif
 
 #ifdef OUTPUT_GRAPHS
@@ -172,10 +172,10 @@ Vertex DependencyGraph::copyVertexIncludingEdges(Vertex in) {
   // copy edges
   for (boost::tie(iei, iei_end) = graph_.getVertexInEdges(in);
       iei != iei_end; ++iei) graph_.addEdge(graph_.getEdgeSource(*iei),
-          vertex, "", Dependency::condition);
+          vertex, "", Dependency::state);
   for (boost::tie(oei, oei_end) = graph_.getVertexOutEdges(in);
       oei != oei_end; ++oei) graph_.addEdge(vertex,
-          graph_.getEdgeTarget(*oei), "", Dependency::condition);
+          graph_.getEdgeTarget(*oei), "", Dependency::state);
   return vertex;
 }
 
