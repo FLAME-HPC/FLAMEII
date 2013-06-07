@@ -144,4 +144,6 @@ test:
 
 endif
 
-
+.PHONY: docs
+docs:
+	cd docs; doxygen
