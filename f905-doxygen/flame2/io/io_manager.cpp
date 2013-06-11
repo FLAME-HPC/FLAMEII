@@ -13,8 +13,6 @@
 #include <utility>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/variant.hpp>
-#include <boost/function.hpp>
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
