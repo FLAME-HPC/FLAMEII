@@ -44,6 +44,7 @@ bool AgentMemory::IsRegistered(const std::string& var_name) const {
 }
 
 size_t AgentMemory::GetPopulationSize(void) {
+  // try and get first memory vector
   MemoryMap::iterator iter = mem_map_.begin();
   if (iter == mem_map_.end()) {  // no memory vars
 #ifdef DEBUG

@@ -147,12 +147,16 @@ class VectorWrapper: public VectorWrapperBase {
     }
 
     void* GetRawPtr(size_t offset) {
+      // if offset zero
       if (offset == 0) {
+        // if vector empty return NULL else return front
         return (v_.empty()) ? NULL : &(v_.front());
       } else {
+        // if offset if larger then vector size then throw exception
         if (offset >= v_.size()) {
           throw flame::exceptions::invalid_argument("invalid offset");
         }
+        // return offset of vector
         return &v_[offset];
       }
     }
@@ -162,6 +166,7 @@ class VectorWrapper: public VectorWrapperBase {
     }
 
     void* StepRawPtr(void* ptr) {
+      // if ptr NULL or ptr at end of vector
       if (ptr == NULL || ptr == &(v_.back())) {
         return NULL;
       }
