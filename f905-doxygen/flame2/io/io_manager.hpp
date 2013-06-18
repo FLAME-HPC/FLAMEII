@@ -14,6 +14,7 @@ void validateDatavoid validateData * \file flame2/io/io_manager.hpp
 #include <map>
 #include <set>
 #include <utility>
+#include <boost/ptr_container/ptr_map.hpp>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 #include "io_interface.hpp"
@@ -37,8 +38,6 @@ class IOManager {
       static IOManager instance;
       return instance;
     }
-    //! Destructor
-    ~IOManager();
 
     //! Set input type
     void setInputType(std::string const& inputType);
@@ -76,13 +75,6 @@ class IOManager {
     //! Finalise writing of data (called by io task)
     void finaliseData();
 
-    //! Add integer value to an agent variable array
-//    void addInt(std::string const& agent_name,
-//        std::string const& var_name, int value);
-    //! Add a double value to an agent variable array
-//    void addDouble(std::string const& agent_name,
-//        std::string const& var_name, double value);
-
 #ifdef TESTBUILD
     //! Return a pointer to the IO plugin named
     IO * getIOPlugin(std::string const& name);
@@ -98,7 +90,7 @@ class IOManager {
     //! Path to directory holding population files
     std::string path_;
     //! Map from plugin name to plugin
-    std::map<std::string, IO*> plugins_;
+    boost::ptr_map<std::string, IO> plugins_;
     //! The current iteration number
     size_t iteration_;
     //! Input plugin

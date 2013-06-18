@@ -33,25 +33,21 @@ namespace fs = boost::filesystem;
 
 IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // add plugins
-  plugins_.insert(std::pair<std::string, IO*>("xml", new IOXMLPop));
-  plugins_.insert(std::pair<std::string, IO*>("csv", new IOCSVPop));
+  std::auto_ptr<IO> ioxmlpop(new IOXMLPop);
+  plugins_.insert("xml", ioxmlpop);
+  std::auto_ptr<IO> iocsvpop(new IOCSVPop);
+  plugins_.insert("csv", iocsvpop);
 #ifdef HAVE_SQLITE3
-  plugins_.insert(std::pair<std::string, IO*>("sqlite", new IOSQLitePop));
+  std::auto_ptr<IO> iosqlitepop(new IOSQLitePop);
+  plugins_.insert("sqlite", iosqlitepop);
 #endif
 #ifdef HAVE_HDF5
-  plugins_.insert(std::pair<std::string, IO*>("hdf5", new IOHDF5Pop));
+  std::auto_ptr<IO> iohdf5pop(new IOHDF5Pop);
+  plugins_.insert("hdf5", iohdf5pop);
 #endif
   // set default input and output options
   setInputType("xml");
   setOutputType("xml");
-}
-
-IOManager::~IOManager() {
-  std::map<std::string, IO*>::iterator it;
-  for (it = plugins_.begin(); it != plugins_.end(); ++it) {
-    // delete plugin object
-    delete it->second;
-  }
 }
 
 void IOManager::loadModel(std::string const& file,
@@ -182,7 +178,7 @@ void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
 }
 
 void IOManager::setInputType(std::string const& inputType) {
-  std::map<std::string, IO*>::iterator pit;
+  boost::ptr_map<std::string, IO>::iterator pit;
 
   // find input type plugin
   pit = plugins_.find(inputType);
@@ -194,7 +190,7 @@ void IOManager::setInputType(std::string const& inputType) {
 }
 
 void IOManager::setOutputType(std::string const& outputType) {
-  std::map<std::string, IO*>::iterator pit;
+  boost::ptr_map<std::string, IO>::iterator pit;
 
   // find output type plugin
   pit = plugins_.find(outputType);
@@ -210,7 +206,7 @@ void IOManager::setOutputType(std::string const& outputType) {
 
 #ifdef TESTBUILD
 IO * IOManager::getIOPlugin(std::string const& name) {
-  std::map<std::string, IO*>::iterator pit;
+  boost::ptr_map<std::string, IO>::iterator pit;
   // find plugin
   pit = plugins_.find(name);
   if (pit != plugins_.end()) return pit->second;
