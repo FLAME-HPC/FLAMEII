@@ -14,6 +14,7 @@
 
 namespace flame { namespace exe {
 
+//! Task that perform IO operations
 class IOTask : public Task {
   friend class TaskManager;
   public:
@@ -47,14 +48,14 @@ class IOTask : public Task {
     void Run(void);
 
   protected:
-    // Tasks should only be created via Task Manager
+    //! Protected constructor so tasks can only be created via Task Manager
     IOTask(std::string task_name, std::string agent_name,
            std::string var_name, Operation op);
 
   private:
-    std::string agent_name_;
-    std::string var_name_;
-    Operation op_;
+    std::string agent_name_;  //!< agent name
+    std::string var_name_;  //!< variable name
+    Operation op_;  //!< Operation type
 };
 
 }}  // namespace flame::exe

@@ -16,8 +16,10 @@
 
 namespace flame { namespace exe {
 
+//! Datatype for Task Queue callback function
 typedef boost::function<void (Task::id_type)> TaskQueueCallback;
 
+//! Abstract class for Task Queues
 class TaskQueue {
   friend class WorkerThread;
   public:
@@ -63,9 +65,9 @@ class TaskQueue {
     }
 
   protected:
-    boost::mutex mutex_;
-    boost::condition_variable ready_;
-    TaskQueueCallback callback_;
+    boost::mutex mutex_;  //!< Mutex object 
+    boost::condition_variable ready_;  //!< Condition variable
+    TaskQueueCallback callback_;  //!< callback function for task queue
 };
 
 }}  // namespace flame::exe

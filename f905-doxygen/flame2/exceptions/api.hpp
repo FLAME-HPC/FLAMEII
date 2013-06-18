@@ -18,11 +18,16 @@ namespace flame { namespace exceptions {
 //! Parent class for all API related exceptions */
 class flame_api_exception : public flame_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_exception(const std::string& func, const std::string& msg)
         : flame_exception(msg), f_(func), m_(msg) {}
 
     ~flame_api_exception() throw() {}
 
+    //! prints out exception message
     const char* what() const throw() {
       std::ostringstream out;
       out << "Usage Error: [" << f_ << "] " << m_ << std::endl;
@@ -37,6 +42,10 @@ class flame_api_exception : public flame_exception {
 //! \brief API usage exception - Invalid operation
 class flame_api_invalid_operation : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_invalid_operation(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };
@@ -44,6 +53,10 @@ class flame_api_invalid_operation : public flame_api_exception {
 //! API not yet implemented
 class flame_api_not_implemented : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_not_implemented(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };
@@ -51,6 +64,10 @@ class flame_api_not_implemented : public flame_api_exception {
 //! API usage exception - mismatching data type
 class flame_api_invalid_type : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_invalid_type(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };
@@ -58,6 +75,10 @@ class flame_api_invalid_type : public flame_api_exception {
 //! API usage exception - out of range
 class flame_api_out_of_range : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_out_of_range(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };
@@ -65,6 +86,10 @@ class flame_api_out_of_range : public flame_api_exception {
 //! API usage exception - Invalid parameters provided
 class flame_api_unknown_param : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_unknown_param(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };
@@ -72,6 +97,10 @@ class flame_api_unknown_param : public flame_api_exception {
 //! API usage exception - Restricted operation
 class flame_api_access_denied : public flame_api_exception {
   public:
+    /*!
+     * \param func Caller function name
+     * \param msg Message
+     */
     flame_api_access_denied(const std::string& func, const std::string& msg)
       : flame_api_exception(func, msg) {}
 };

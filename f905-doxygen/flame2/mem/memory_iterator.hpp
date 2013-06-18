@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
+ * \brief Memory Iterator
  */
 #ifndef MEM__MEMORY_ITERATOR_HPP_
 #define MEM__MEMORY_ITERATOR_HPP_
@@ -18,9 +18,12 @@
 
 namespace flame { namespace mem {
 
+//! Map of anonymous pointers
 typedef std::map<std::string, void*> VoidPtrMap;
+//! Type of element stored in VoidPtrMap
 typedef VoidPtrMap::value_type VoidPtrMapValue;
 
+//! Agent memory iterator
 class MemoryIterator {
   friend class AgentShadow;
 

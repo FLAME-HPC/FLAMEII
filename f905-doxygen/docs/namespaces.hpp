@@ -15,6 +15,10 @@
  *    * `flame::contrib` - Reusable components contributed by users. Not officially
  *       supported by the FLAME project.
 */
+
+//! \brief FLAME2
+//!
+//! Namespace used by libflame2
 namespace flame {
 
 //! \brief API Module
@@ -52,4 +56,22 @@ namespace model {}
 //!
 //! Classes for orchestrating a simulation
 namespace sim {}
+
+//! \brief Exceptions
+//!
+//! Exception subclasses that are thrown by FLAME2
+namespace exceptions {}
+
+}
+
+//! \brief Xparser2
+//!
+//! Namespace used by xparser2
+namespace xparser {
+
+//! \brief Code generators
+//!
+//! Code generator classes
+namespace codegen {}
+
 }

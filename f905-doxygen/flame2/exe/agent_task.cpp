@@ -23,6 +23,7 @@ namespace mem = flame::mem;
 namespace mb = flame::mb;
 namespace api = flame::api;
 
+//! Map of VectorWrapper instances
 typedef std::pair<std::string, mem::VectorWrapperBase*>  VectorMapValue;
 
 AgentTask::AgentTask(std::string task_name, std::string agent_name,

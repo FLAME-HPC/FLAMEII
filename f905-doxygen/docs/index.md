@@ -6,9 +6,9 @@ FLAME-II Documentation {#mainpage}
 Overview  {#mainpage_overview}
 ========
 
-The FLAME-II package consists of two components -- the FLAME-II runtime library and
-headers (libflame2) and a model parser ([xparser](@ref xparser)) which allows modellers to use FLAME-II
-in a way similar to FLAME-I.
+The FLAME-II package consists of two components -- the FLAME-II headers
+and runtime library (libflame2) and a model parser ([xparser](@ref xparser))
+which allows modellers to use FLAME-II in a way similar to FLAME-I.
 
 libflame2 consists of the following modules:
  * [MEM](@ref modmem) - Agent memory management

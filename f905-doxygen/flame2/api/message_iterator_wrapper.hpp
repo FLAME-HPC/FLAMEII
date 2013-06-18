@@ -76,7 +76,10 @@ class MessageIteratorWrapper {
       return parent_->AtEnd();
     }
 
-    //! Returns the number of messages in the iterator
+    /*!
+     * \brief Returns the number of messages in the iterator
+     * \return number of messages addressed by the iterator
+     */
     inline size_t GetCount(void) const {
       ASSERT_PTR_NOT_NULL(parent_);
       return parent_->GetCount();
@@ -117,7 +120,7 @@ class MessageIteratorWrapper {
 
     /*!
      * \brief Return the current message in the iteration
-     *
+     * \return Value of message
      * Messages are return by-value. This allows for 'safer' usage at the
      * expense of the copy overheads.
      *
@@ -147,7 +150,7 @@ class MessageIteratorWrapper {
     }
 
   private:
-    SharedMessageIterator parent_;  // shared pointer to the actual iterator
+    SharedMessageIterator parent_;  //! shared pointer to the actual iterator
 };
 
 }}  // namespace::api

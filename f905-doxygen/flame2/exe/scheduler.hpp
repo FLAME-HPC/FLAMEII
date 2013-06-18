@@ -28,7 +28,9 @@ namespace flame { namespace exe {
  */
 class Scheduler {
   public:
+    //! Datatype for queue id
     typedef size_t QueueId;
+    //! Map of task type to queue id
     typedef std::map<Task::TaskType, QueueId> RouteMap;
 
     //! Constructor. Initialises iter_count to 1
@@ -39,7 +41,7 @@ class Scheduler {
 
     /*!
      * \brief Creates a task queue of the given type and returns its id
-     * \param[in] slots The number of slots to allocated for the queue
+     * \param slots The number of slots to allocated for the queue
      * \return Id used to identify the newly created queue
      *
      * The type of queue determines the task allocation algorithm, while the
@@ -57,8 +59,8 @@ class Scheduler {
 
     /*!
      * \brief assigns a task type to the given queue
-     * \param[in] qid Queue ID to assign the task type to
-     * \param[in] type The task type to assign to the queue
+     * \param qid Queue ID to assign the task type to
+     * \param type The task type to assign to the queue
      *
      * Throws flame::exceptions:invalid_argument if the queue id is invalid
      * or if the type has already been assigned.
@@ -67,7 +69,7 @@ class Scheduler {
 
     /*!
      * \brief Specity tasks that can be split
-     * \param[in] type Task type that should be split
+     * \param type Task type that should be split
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.
@@ -76,8 +78,8 @@ class Scheduler {
 
     /*!
      * \brief Specifies the maximum number of subtask a created per split
-     * \param[in] type Task type
-     * \param[in] max_tasks_per_split max tasks per split
+     * \param type Task type
+     * \param max_tasks_per_split max tasks per split
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.
@@ -86,7 +88,8 @@ class Scheduler {
 
     /*!
      * \brief Returns the maximum number of subtask a created per split
-     * \param[in] type Task type
+     * \param type Task type
+     * \return number of maximum tasks per split
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.
@@ -95,8 +98,8 @@ class Scheduler {
 
     /*!
      * \brief Specifies the minimum vector size to maintain when splitting task
-     * \param[in] type Task type
-     * \param[in] min_vector_size min vector size
+     * \param type Task type
+     * \param min_vector_size min vector size
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.
@@ -105,7 +108,7 @@ class Scheduler {
 
     /*!
      * \brief Returns the minimum vector size to maintain when splitting task
-     * \param[in] type Task type
+     * \param type Task type
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.
@@ -114,7 +117,7 @@ class Scheduler {
 
     /*! 
      * \brief Callback function used to indicate that a task is completed
-     *
+     * \param task_id task id
      * Assigned to each associated task queue for reverse communication
      */
     void TaskDoneCallback(Task::id_type task_id);
@@ -133,7 +136,8 @@ class Scheduler {
   private:
     /*!
       * \brief Equeues task within the associated queue
-      *
+      * \param task_id task id
+      * 
       * The queue is selected based on the task type and contents of
       * route_ map which is populated by AssignType().
       *
@@ -142,13 +146,16 @@ class Scheduler {
       */
     void EnqueueTask(Task::id_type task_id);
 
-    //! \brief Returns true if the given id is a valid queue id
+    /*!
+     * \brief Returns true if the given id is a valid queue id
+     * \param id queue id
+     */
     bool IsValidQueueId(QueueId id);
 
-    boost::mutex doneq_mutex_;  //! mutex to control access to done queue
-    boost::condition_variable doneq_cond_;  //! condition variable for done Q
-    boost::ptr_vector<TaskQueue> queues_;  //! Collection of task queues
-    RouteMap route_;  //! Map which associates task type to task queue
+    boost::mutex doneq_mutex_;  //!< mutex to control access to done queue
+    boost::condition_variable doneq_cond_;  //!< condition variable for done Q
+    boost::ptr_vector<TaskQueue> queues_;  //!< Collection of task queues
+    RouteMap route_;  //!< Map which associates task type to task queue
 
     /*!
      * \brief Done queue
@@ -157,7 +164,7 @@ class Scheduler {
      */
     std::vector<Task::id_type> doneq_;
 
-    size_t iter_count_;
+    size_t iter_count_;  //!< current iteration count
 };
 
 }}  // namespace flame::exe

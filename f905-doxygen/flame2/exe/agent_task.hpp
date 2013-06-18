@@ -19,6 +19,7 @@
 
 namespace flame { namespace exe {
 
+//! Task that runs agent transition functions
 class AgentTask : public Task {
   friend class TaskManager;
 
@@ -28,6 +29,7 @@ class AgentTask : public Task {
 
     /*!
      * \brief Returns a new instance of a MemoryIterator
+     * \return pointer to memory iterator
      *
      * Creates and returns a memory iterator using the assigned agent shadow.
      *
@@ -72,7 +74,10 @@ class AgentTask : public Task {
   protected:
     /*!
      * \brief Constructor (Tasks should only be created via Task Manager)
-     *
+     * \param task_name Task name
+     * \param agent_name Agent name
+     * \param func_ptr Agent transition function
+     * 
      * Initialises all parameters.
      *
      * An agent shadow instance is created and stored in shadow_ptr_. This stores
@@ -87,16 +92,19 @@ class AgentTask : public Task {
     AgentTask(std::string task_name, std::string agent_name,
               TaskFunction func_ptr);
 
-    std::string agent_name_;  //! Name of associated agent
-    TaskFunction func_;  //! Function associated with task
-    flame::mem::AgentShadowPtr shadow_ptr_;  //! Pointer to AgentShadow
+    std::string agent_name_;  //!< Name of associated agent
+    TaskFunction func_;  //!< Function associated with task
+    flame::mem::AgentShadowPtr shadow_ptr_;  //!< Pointer to AgentShadow
 
-    bool is_split_;  //! Flag indicating task is a subtask (split task)
-    size_t offset_;  //! Memory iterator offset (only used if is_split_)
-    size_t count_;  //! Number of agents to iterate (only used if is_split_)
+    bool is_split_;  //!< Flag indicating task is a subtask (split task)
+    size_t offset_;  //!< Memory iterator offset (only used if is_split_)
+    size_t count_;  //!< Number of agents to iterate (only used if is_split_)
 
     /*!
      * \brief Alternative constructor used internally to produce split task
+     * \param parent parent task
+     * \param offset memory vector offset
+     * \param count number of agents addressed by this task
      *
      * Copies all internal variables but changes the values for offset_ and count_.
      *

@@ -15,8 +15,11 @@
 
 namespace flame { namespace exe {
 
+//! Task Queue that schedules task in the order they were enqueued
 class FIFOTaskQueue : public TaskQueue {
   public:
+    //! vector storing WorkerThread instances. Instances will be automatically
+    //! deleted by the vector destructor.
     typedef boost::ptr_vector<WorkerThread> WorkerVector;
 
     /*!
@@ -39,13 +42,15 @@ class FIFOTaskQueue : public TaskQueue {
 
     /*!
      * \brief Adds a task to the queue
-     *
+     * \param task_id Task id
+     * 
      * This method is meant to be called by the Scheduler
      */
     void Enqueue(Task::id_type task_id);
 
     /*!
      * \brief Process a completed task
+     * \param task_id Task id
      *
      * This method is meant to be called by a worker thread.
      *
@@ -80,7 +85,8 @@ class FIFOTaskQueue : public TaskQueue {
 
     /*!
      * \brief Returns the next available task.
-     *
+     * \return id of next available task
+     * 
      * If there are none available, the calling thread will be blocked
      *
      * This method is meant to be called by a Worker Thread
@@ -91,11 +97,11 @@ class FIFOTaskQueue : public TaskQueue {
     bool empty() const;
 
   protected:
-    size_t slots_;  //! Number of processing slots (worker threads)
-    WorkerVector workers_;  //! Collection of worker threads
+    size_t slots_;  //!< Number of processing slots (worker threads)
+    WorkerVector workers_;  //!< Collection of worker threads
 
   private:
-    std::queue<Task::id_type> queue_;  //! FIFO task queue
+    std::queue<Task::id_type> queue_;  //!< FIFO task queue
 };
 
 }}  // namespace flame::exe

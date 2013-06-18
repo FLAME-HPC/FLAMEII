@@ -25,6 +25,7 @@
 
 namespace flame { namespace exe {
 
+//! map type used to associate task name with task id
 typedef std::map<std::string, size_t> TaskNameMap;
 
 /*!

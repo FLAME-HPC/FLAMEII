@@ -21,7 +21,7 @@ namespace flame { namespace mem {
 
 //! Map to store collection of AgentMemory
 typedef boost::ptr_map<std::string, AgentMemory> AgentMap;
-
+//! Shared pointer to AgentShadow instance
 typedef boost::shared_ptr<AgentShadow> AgentShadowPtr;
 
 //! Memory Manager object.

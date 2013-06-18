@@ -5,10 +5,7 @@
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief DESCRIPTION
- *
- * This class is not thread-safe and relies on the calling class to
- * protect all access to with a mutex.
+ * \brief TaskSplitter class used to coordinate task splitting
  */
 #ifndef EXE__TASK_SPLITTER_HPP_
 #define EXE__TASK_SPLITTER_HPP_
@@ -17,6 +14,12 @@
 
 namespace flame { namespace exe {
 
+/*!
+ * \brief Class used to coordinate and track task splitting
+ *
+ * This class is not thread-safe and relies on the calling class to
+ * protect all access to with a mutex.
+ */
 class TaskSplitter {
   public:
     typedef std::vector<Task::Handle> TaskVector;

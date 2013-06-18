@@ -161,4 +161,27 @@ For implementation details, see:
 API Access to Message Boards (access control) {#modmb-api-acl}
 =============================================
 
-(Details about Client and Proxy) 
+Message boards are never accessed directly by the APIs. Instead, they are
+accessed through methods of a flame::mb::Client object. This object stores
+a set of message names that the client can read from, and a map of
+[BoardWriters](@ref flame::mb::BoardWriter) that the client can write to.
+
+Considering the relative low number of messages that will be access per
+agent function, boost::container::flat_set and boost::container::flat_map
+are used instead of std::set and std::map to improve access speed.
+For a discussion on this, see http://lafstern.org/matt/col1.pdf.
+
+The contents of the set/map are populated when the Client object is
+instantiated using the [Proxy](@ref flame::mb::Proxy) object.
+
+The [Proxy](@ref flame::mb::Proxy) is essentially a
+[Client](@ref flame::mb::Client) factory -- it is attached to any
+[Task](@ref flame::exe::Task) instance that needs access to message boards
+and stores a list message names that can be read from from posted to.
+Access is granted by calling the
+[Proxy::AllowRead](@ref flame::mb::Proxy::AllowRead) and
+[Proxy::AllowPost](@ref flame::mb::Proxy::AllowPost) methods. 
+
+For implementation details, see:
+ * flame::mb::Client
+ * flame::mb::Proxy

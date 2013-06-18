@@ -238,7 +238,7 @@ vectors (representing an agent population).
 Each task object will contain all the information it needs to execute the 
 task, e.g. a handle to the function to be called (see flame::exe::TaskFunction), 
 [access control mechanism to access memory vectors](@ref modmem-shadow) or
-client objects that allow [interaction with message boards](@ref modmb-client).
+client objects that allow [interaction with message boards](@ref modmb-api-acl).
 
 To reduce the granularity of a task, some tasks can be slip into smaller chunks by 
 subdividing the portion of the memory vector that the task is responsible for. The 

@@ -14,14 +14,22 @@
 
 namespace flame { namespace exceptions {
 
+//! Base class of exceptions specific to MEM module
 class flame_mem_exception : public flame_exception {
   public:
+    /*! Constructor
+     * \param msg Excetion message
+     */
     explicit flame_mem_exception(const std::string& msg)
         : flame_exception(msg) {}
 };
 
+//! Invalid agent specified
 class invalid_agent : public flame_mem_exception {
   public:
+    /*! Constructor
+     * \param msg Excetion message
+     */
     explicit invalid_agent(const std::string& msg)
         : flame_mem_exception(msg) {}
 };

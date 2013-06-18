@@ -25,12 +25,17 @@ typedef boost::function<
           (flame::api::FLAME_AgentFunctionParamType)> TaskFunction;
 
 class TaskSplitter;  // forward declaration
+
+//! Shared pointer to TaskSplitter instance
 typedef boost::shared_ptr<TaskSplitter> TaskSplitterHandle;
 
+//! Abstract class for Task object
 class Task {
   public:
-    typedef size_t id_type;
+    typedef size_t id_type;  //!< datatype for task id
+    //! Shorthand for message board Client
     typedef flame::mb::Proxy::client MessageBoardClient;
+    //! Shared pointer to Task instance
     typedef boost::shared_ptr<Task> Handle;
 
     //! Identifier for different task types
@@ -63,7 +68,7 @@ class Task {
                                          size_t min_task_size) = 0;
 
     //! Adds read access to message board
-    //! TODO(lsc) Move this into AgentTask?
+    //! \todo Perhaps move this into AgentTask?
     void AllowMessageRead(const std::string& msg_name) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -72,7 +77,7 @@ class Task {
     }
 
     //! Adds post access to message board
-    //! TODO(lsc) Move this into AgentTask?
+    //! \todo Perhaps move this into AgentTask?
     void AllowMessagePost(const std::string& msg_name) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -81,7 +86,7 @@ class Task {
     }
 
     //! Returns message board access client
-    //! TODO(lsc) Move this into AgentTask?
+    //! \todo Perhaps this into AgentTask?
     MessageBoardClient GetMessageBoardClient(void) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -109,11 +114,12 @@ class Task {
     }
 
   protected:
+    //! Shared pointer to message board Proxy
     typedef boost::shared_ptr<flame::mb::Proxy> ProxyHandle;
 
-    id_type task_id_;
-    std::string task_name_;
-    ProxyHandle mb_proxy_;
+    id_type task_id_;  //!< Task id
+    std::string task_name_;  //!< Task name
+    ProxyHandle mb_proxy_;  //!< message board proxy
 };
 
 

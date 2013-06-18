@@ -15,20 +15,34 @@
 
 namespace flame { namespace exceptions {
 
+//! Base class for exceptions specific to EXE module
 class flame_exe_exception : public flame_exception {
   public:
+    /*! Constructor
+     * \param msg Excetion message
+     */
     explicit flame_exe_exception(const std::string& msg)
         : flame_exception(msg) {}
 };
 
+//! None available
 class none_available : public flame_exe_exception {
   public:
+    /*! Constructor
+     * \param msg Excetion message
+     */
     explicit none_available(const std::string& msg)
         : flame_exe_exception(msg) {}
 };
 
+//! Runtime exception during task execution
 class flame_task_exception : public flame_exe_exception {
   public:
+    /*! Constructor
+     * \param agent_name Associated agent name
+     * \param task_name Task where exection occured
+     * \param msg Excetion message
+     */
     flame_task_exception(const std::string& agent_name,
                             const std::string& task_name,
                             const std::string& msg)
@@ -37,6 +51,7 @@ class flame_task_exception : public flame_exe_exception {
 
     ~flame_task_exception() throw() {}
 
+    //! Prints details and location of exception
     const char* what() const throw() {
       std::ostringstream out;
       out << std::endl;
@@ -49,9 +64,9 @@ class flame_task_exception : public flame_exe_exception {
     }
 
   private:
-    std::string agent_;
-    std::string task_;
-    std::string msg_;
+    std::string agent_;  //! agent name
+    std::string task_;  //! task name
+    std::string msg_;  //! exception message
 };
 
 }}  // namespace flame::exceptions
