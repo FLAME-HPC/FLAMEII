@@ -11,7 +11,7 @@
 #define FLAME2__API__FLAME2_HPP_
 #include "flame2/api/agent_api.hpp"
 
-//! Return code for agent function to signify that agent should remain alive
+//! Return code for agent function to remain alive 
 #define FLAME_AGENT_ALIVE 0
 //! Return code for agent function to trigger death of agent
 #define FLAME_AGENT_DEAD  1
@@ -25,8 +25,9 @@ using flame::api::FLAME_AgentFunctionParamType;
 //! return type expected of all agent transition function
 using flame::api::FLAME_AgentFunctionReturnType;
 
-//! Macro for defining agent transition functions with the correct input
-//! argument and return type
+/*! \brief Macro for defining agent transition functions with the
+ * correct input argument and return type
+ */
 #define FLAME_AGENT_FUNCTION(funcName) \
           FLAME_AgentFunctionReturnType \
           funcName(FLAME_AgentFunctionParamType FLAME)

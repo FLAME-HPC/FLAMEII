@@ -85,6 +85,7 @@ class MemoryManager {
     void AssertVarRegistered(const std::string& agent_name,
                              const std::string& var_name) const;
 
+    //! Returns an AgentShadow instance
     AgentShadowPtr GetAgentShadow(const std::string& agent_name);
 
 #ifdef TESTBUILD
