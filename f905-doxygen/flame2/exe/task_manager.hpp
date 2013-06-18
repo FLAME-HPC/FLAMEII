@@ -38,9 +38,9 @@ typedef std::map<std::string, size_t> TaskNameMap;
  */
 class TaskManager {
   public:
-    typedef Task::id_type TaskId;
-    typedef std::set<TaskId> IdSet;
-    typedef std::vector<TaskId> IdVector;
+    typedef Task::id_type TaskId;  //!< task id type
+    typedef std::set<TaskId> IdSet;  //!< set of task ids
+    typedef std::vector<TaskId> IdVector;  //!< vector of task ids
 
     //! \brief Returns instance of singleton object
     static TaskManager& GetInstance() {
@@ -123,6 +123,7 @@ class TaskManager {
 
     /*!
      * \brief Pops and returns a task that is ready for execution
+     * \return task id
      *
      * Throws flame::exceptions::none_available if the queue is empty
      */

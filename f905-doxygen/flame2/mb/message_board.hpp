@@ -41,6 +41,8 @@ class MessageBoard {
     /*!
      * \brief Factory method to create a board storing messages of a
      * specific type
+     * \param msg_name message name
+     * \return pointer to MessageBoard instance
      *
      * We need to know the datatype of a message during instantiation so we can
      * assign an appropriate VectorWrapper to the board. We do not want to
@@ -83,6 +85,7 @@ class MessageBoard {
 
     /*!
      * \brief Returns the number of messages within the board
+     * \return number of messages
      *
      * Note that messages posted after the last Sync() may not be taken into
      * account.
@@ -91,7 +94,8 @@ class MessageBoard {
 
     /*!
      * \brief Returns an BoardWriter instance
-     * 
+     * \return board writer
+     *
      * Writes to the board are buffered and not immediately accessible. This
      * allows writes to be performed concurrently and in a distributed manner
      * without expensive locking and repeated communication.
@@ -103,6 +107,7 @@ class MessageBoard {
 
     /*!
      * \brief Returns a message iterator
+     * \return message iterator
      *
      * The returned iterator can be used to iterate through messages that are
      * in the board at the point where the iterator was created. Any messages
@@ -119,8 +124,8 @@ class MessageBoard {
     //! datatype for storing collection of active board writers
     typedef std::vector<writer> WriterVector;
 
-    std::string name_;  //! message name
-    WriterVector writers_;  //! collection of active board writers
+    std::string name_;  //!< message name
+    WriterVector writers_;  //!< collection of active board writers
     // store a reference board writer of the correct type
     // All writers for this board will be cloned from this one, thus allowing
     // the GetBoardWriter call to be typeless.
@@ -136,7 +141,7 @@ class MessageBoard {
     //! Pointer to VectorWrapper instance to store messages
     boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
 
-    boost::mutex mutex_;  //! mutex lock for orchestrating concurrent access
+    boost::mutex mutex_;  //!< mutex lock for orchestrating concurrent access
 
     //! Internal constructor used by factory method to instantiate board
     MessageBoard(const std::string& msg_name,

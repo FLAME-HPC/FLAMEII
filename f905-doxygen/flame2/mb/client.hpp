@@ -67,7 +67,9 @@ class Client {
 
     /*!
      * \brief Returns a board writer instance for posting message
-     * 
+     * \param msg_name message name
+     * \return board writer
+     *
      * Throws flame::exceptions::invalid_argument if given message name is
      * invalid.
      *
@@ -78,7 +80,9 @@ class Client {
 
     /*!
      * \brief Returns an iterator to read messages from the given message board
-     * 
+     * \param msg_name message name
+     * \return message iterator
+     *
      * Throws flame::exceptions::invalid_argument if given message name is
      * invalid.
      *
@@ -87,11 +91,11 @@ class Client {
      */
     MessageBoard::iterator GetMessages(const std::string& msg_name);
 
-    // TODO(lsc): GetMessages(msg_name, query);  // when filtering enabled
+    // TODO: GetMessages(msg_name, query);  // when filtering enabled
 
   private:
-    writer_map_type writers_;  //! Cache of writers for each allowed message
-    acl_set_type acl_read_;  //! Names of messages client can read from
+    writer_map_type writers_;  //!< Cache of writers for each allowed message
+    acl_set_type acl_read_;  //!< Names of messages client can read from
 };
 
 }}  // namespace flame::mb

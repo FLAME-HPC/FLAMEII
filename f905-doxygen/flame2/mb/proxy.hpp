@@ -31,14 +31,18 @@ class Proxy {
     //! Datatype for shared pointer to a Client instance
     typedef boost::shared_ptr<Client> client;
 
-    //! Returns a shared pointer to a client instance that has the apropriate
-    //! access permissions
+    /*! 
+     * \brief Returns a shared pointer to a client instance that has the apropriate
+     *        access permissions
+     * \return shared pointer to client instance
+     */
     client GetClient(void) {
       return client(new Client(acl_read_, acl_post_));
     }
 
     /*!
      * \brief Grant read access a specific board to clients of this proxy
+     * \param msg_name message name
      *
      * Throws flame::exceptions::invalid_argument if the provided message name
      * is not valid.
@@ -64,6 +68,7 @@ class Proxy {
 
     /*!
      * \brief Grant post access a specific board to clients of this proxy
+     * \param msg_name message name
      *
      * Throws flame::exceptions::invalid_argument if the provided message name
      * is not valid.
@@ -89,6 +94,8 @@ class Proxy {
 
     /*!
      * \brief Const version of the assignment operator
+     * \param source instance to copy from
+     * \return reference to new copy
      *
      * This is required because we use boost::container::flat_set for our class
      * members. For details, see http://bit.ly/SZg7dZ
@@ -101,15 +108,23 @@ class Proxy {
 
   private:
     // acl_set_type defined in client.hpp
-    acl_set_type acl_read_;  //! Set of message names with read access
-    acl_set_type acl_post_;  //! Set of message names with post access
+    acl_set_type acl_read_;  //!< Set of message names with read access
+    acl_set_type acl_post_;  //!< Set of message names with post access
 
-    //! Returns true if read access has been granted to given message
+    /*! 
+     * \brief Query if read access has been granted to given message
+     * \param msg_name message name
+     * \return true if read access granted
+     */
     inline bool _can_read(const std::string& msg_name) {
       return (acl_read_.find(msg_name) != acl_read_.end());
     }
 
-    //! Returns true if post access has been granted to given message
+    /*! 
+     * \brief Query if post access has been granted to given message
+     * \param msg_name message name
+     * \return true if post access granted
+     */
     inline bool _can_post(const std::string& msg_name) {
       return (acl_post_.find(msg_name) != acl_post_.end());
     }

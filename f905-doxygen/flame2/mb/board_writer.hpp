@@ -27,11 +27,15 @@ class BoardWriter {
   friend class MessageBoard;  //! Give MessageBoard access to protected methods
 
   public:
-    //! Returns the number of posted messages
+    /*! 
+     * \brief Query the number of posted messages
+     * \return number of posted messages
+     */
     size_t GetCount(void) const;
 
     /*!
      * \brief Returns true if still connected to parent board
+     * \return true if still connected
      *
      * Once disconnected, messages can no longer be posted.
      */
@@ -39,6 +43,7 @@ class BoardWriter {
 
     /*!
      * \brief Posts a message
+     * \param msg reference to message to be posted
      *
      * Posted message will be buffered in the writer and only copied to the
      * message board during a message board sync.
@@ -83,9 +88,12 @@ class BoardWriter {
     void Disconnect();
 
   private:
-    bool connected_;  //! Flag to determine if the writer is still connected
+    bool connected_;  //!< Flag to determine if the writer is still connected
 
-    //! Private constructor with takes a pointer to a VectorWrapper object
+    /*! 
+     * \brief Private constructor with takes a pointer to a VectorWrapper object
+     * \param vec pointer to message data vector
+     */
     explicit BoardWriter(flame::mem::VectorWrapperBase *vec)
         : data_(vec), connected_(true) {}
 };

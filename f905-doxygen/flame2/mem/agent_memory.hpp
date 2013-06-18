@@ -31,6 +31,10 @@ typedef boost::ptr_map<std::string, VectorWrapperBase> MemoryMap;
 //! Container for memory vectors associated with an agent type
 class AgentMemory {
   public:
+    /*!
+     * \brief constructor
+     * \param agent_name agent name
+     */
     explicit AgentMemory(const std::string& agent_name)
         : agent_name_(agent_name),
 #ifdef DEBUG
@@ -38,7 +42,10 @@ class AgentMemory {
 #endif
           registration_closed_(false) {}
 
-    //! Registers a memory variable of a specific type
+    /*! 
+     * \brief Registers a memory variable of a specific type
+     * \param var_name variable name
+     */
     template <typename T>
     void RegisterVar(std::string var_name) {
       if (registration_closed_) {
@@ -51,13 +58,19 @@ class AgentMemory {
       }
     }
 
-    //! Hint at a population size so required memory can be reserved
-    //! in advance. This saves having to constantly reallocate memory
-    //! as agents are added to AgentMemory.
+    /*!
+     * \brief indicate likely population size
+     * \param size_hint size hint
+     *
+     * Hint at a population size so required memory can be reserved
+     * in advance. This saves having to constantly reallocate memory
+     * as agents are added to AgentMemory.
+     */
     void HintPopulationSize(unsigned int size_hint);
 
     /*!
      * \brief Returns the current population size
+     * \return population size
      *
      * For now, we query the size from the first memory vector. In the future,
      * once we have a more structured approach to populating the vectors, we
@@ -75,10 +88,18 @@ class AgentMemory {
      */
     size_t GetPopulationSize(void);
 
-    //! Returns typeless pointer to associated vector wrapper
+    /*! 
+     * \brief Returns typeless pointer to associated vector wrapper
+     * \param var_name variable name
+     * \return pointer to VectorWrapper instance
+     */
     VectorWrapperBase* GetVectorWrapper(const std::string& var_name);
 
-    //! Returns a pointer to the actual data vector
+    /*! 
+     * \brief retrieve pointer to underlying data vector 
+     * \param var_name variable name
+     * \return pointer to the typed vector instance
+     */
     template <typename T>
     std::vector<T>* GetVector(const std::string& var_name) {
       VectorWrapperBase* ptr;
@@ -99,14 +120,18 @@ class AgentMemory {
       return static_cast<std::vector<T>*>(ptr->GetVectorPtr());
     }
 
-    //! Returns true if said memory variable has been registered.
+    /*! 
+     * \brief Query if said memory variable has been registered.
+     * \param var_name variable name
+     * \return true if memory variable has been registered
+     */
     bool IsRegistered(const std::string& var_name) const;
 
   private:
-    std::string agent_name_;  //! Name of agent
-    MemoryMap mem_map_;  //! Map of var names to VectorWrapper
+    std::string agent_name_;  //!< Name of agent
+    MemoryMap mem_map_;  //!< Map of var names to VectorWrapper
 #ifdef DEBUG
-    size_t cached_size_;
+    size_t cached_size_;  //!< Cache of size
 #endif
 
     //! Indicates that vectors have been resized/populated so new variables

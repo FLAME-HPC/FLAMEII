@@ -53,22 +53,41 @@ class Task {
     //! Returns the task type
     virtual TaskType get_task_type() const = 0;
 
-    //! Returns a memory iterator for this task
-    //! TODO(lsc) Move this into AgentTask?
+    /*! 
+     * \brief Returns a memory iterator for this task
+     * \return shared pointer to message iterator
+     *
+     * \todo Perhaps move this into AgentTask?
+     */
     virtual flame::mem::MemoryIteratorPtr GetMemoryIterator() const = 0;
 
-    //! Defines access control to agent memory variables
-    //! TODO(lsc) Move this into AgentTask?
+    /*!
+     * \brief Defines access control to agent memory variables
+     * \param var_name variable name
+     * \param writeable is variable writeable (default = false)
+     * 
+     * \todo Perhaps move this into AgentTask?
+     */
     virtual void AllowAccess(const std::string& var_name,
                              bool writeable = false) = 0;
 
-    //! Returns a task splitter which allows task to be exected in segments
-    //! Should return null handle if cannot be split.
+    /*! 
+     * \brief Returns a task splitter which allows task to be exected in segments
+     * \param max_tasks maximum number of tasks resulting from this split
+     * \param min_task_size minimum size of task after split
+     * \return handle to TaskSplitter instance
+     *
+     * This Should return a null handle if task cannot be split.
+     */
     virtual TaskSplitterHandle SplitTask(size_t max_tasks,
                                          size_t min_task_size) = 0;
 
-    //! Adds read access to message board
-    //! \todo Perhaps move this into AgentTask?
+    /*! 
+     * \brief Adds read access to message board
+     * \param msg_name message name
+     *
+     * \todo Perhaps move this into AgentTask?
+     */
     void AllowMessageRead(const std::string& msg_name) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -76,8 +95,12 @@ class Task {
       mb_proxy_->AllowRead(msg_name);
     }
 
-    //! Adds post access to message board
-    //! \todo Perhaps move this into AgentTask?
+    /*! 
+     * \brief Adds post access to message board
+     * \param msg_name message name
+     *
+     * \todo Perhaps move this into AgentTask?
+     */
     void AllowMessagePost(const std::string& msg_name) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -85,8 +108,12 @@ class Task {
       mb_proxy_->AllowPost(msg_name);
     }
 
-    //! Returns message board access client
-    //! \todo Perhaps this into AgentTask?
+    /*! 
+     * \brief Returns message board access client
+     * \return client than can be used to access message board
+     *
+     * \todo Perhaps this into AgentTask?
+     */
     MessageBoardClient GetMessageBoardClient(void) {
       if (!mb_proxy_) {
         mb_proxy_ = ProxyHandle(new flame::mb::Proxy);
@@ -100,7 +127,7 @@ class Task {
     //! Sets the task id
     void set_task_id(id_type id) { task_id_ = id; }
 
-    //! Returns the task name
+    //! Retuqrns the task name
     std::string get_task_name() const { return task_name_; }
 
     //! Returns true if the given task id is a termination signal
@@ -126,3 +153,4 @@ class Task {
 
 }}  // namespace flame::exe
 #endif  // EXE__RUNNABLE_TASK_HPP_
+

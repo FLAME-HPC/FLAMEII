@@ -109,6 +109,7 @@ class Scheduler {
     /*!
      * \brief Returns the minimum vector size to maintain when splitting task
      * \param type Task type
+     * \return minimum size of split task
      *
      * Throws flame::exceptions::invalid_argument if type has not yet been assigned
      * to a queue.

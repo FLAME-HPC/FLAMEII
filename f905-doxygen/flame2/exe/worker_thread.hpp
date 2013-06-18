@@ -25,6 +25,10 @@ class TaskQueue;
 //!       CPU core.
 class WorkerThread {
   public:
+    /*!
+     * \brief Constructor
+     * \param taskqueue_ptr Pointer to parent task queue
+     */
     explicit WorkerThread(TaskQueue* taskqueue_ptr);
 
     //! Waits for thread to complete
@@ -45,8 +49,8 @@ class WorkerThread {
     void RunTask(Task::id_type task_id);
 
   private:
-    boost::thread thread_;  //! Thread instance
-    TaskQueue* tq_;  //! Pointer to parent task queue
+    boost::thread thread_;  //!< Thread instance
+    TaskQueue* tq_;  //!< Pointer to parent task queue
 };
 
 }}  // namespace flame::exe

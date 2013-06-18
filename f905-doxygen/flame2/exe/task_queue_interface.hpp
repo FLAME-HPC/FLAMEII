@@ -52,9 +52,14 @@ class TaskQueue {
     //! Returns minimum vector size after split
     virtual size_t GetMinVectorSize(void) const = 0;
 
-    //! Returns a task reference given a task id
-    //! This usually forward the call to the TaskManager but it gives the queue
-    //! an opportunity to intercept the call
+    /*! 
+     * \brief Returns a task reference given a task id
+     * \param task_id task id
+     * \return reference to Task instance
+     *
+     * This usually forwards the call to the TaskManager but it gives the queue
+     * an opportunity to intercept the call
+     */
     virtual Task& GetTaskById(Task::id_type task_id) {
       return TaskManager::GetInstance().GetTask(task_id);
     }
@@ -72,3 +77,4 @@ class TaskQueue {
 
 }}  // namespace flame::exe
 #endif  // EXE__TASK_QUEUE_INTERFACE_HPP_
+

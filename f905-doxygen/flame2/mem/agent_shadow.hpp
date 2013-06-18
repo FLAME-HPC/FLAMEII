@@ -30,6 +30,8 @@ typedef std::set<std::string> WriteableSet;
 //! Smart pointer type used to return MemoryIterator
 typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
+//! Agent shadow
+//!
 //! \todo since the number of entries in vec_map_ and rw_set_ will be
 //!       relatively small, the tree-based search used by std::map and std::set
 //!       may not be ideal.
@@ -40,35 +42,58 @@ class AgentShadow {
   friend class MemoryIterator;
 
   public:
-    //! Enables access to an agent variable
+    /*! 
+     * \brief Enables access to an agent variable
+     * \param var_name variable name
+     * \param writeable should the variable be writeable (default = false)
+     */
     void AllowAccess(const std::string& var_name, bool writeable = false);
 
-    //! Returns the population size
+    /*! 
+     * \brief Query the population size
+     * \return population size
+     */
     size_t get_size();
 
-    //! Returns a new instance of a MemoryIterator
+    /*! 
+     * \brief Retrieve a new instance of a MemoryIterator
+     * \return pointer to memory iterator
+     */
     MemoryIteratorPtr GetMemoryIterator();
 
-    //! Returns a new instance of a MemoryIterator which targets only a
-    //! subset of memory
+    /*! 
+     * \brief Retrieve a new instance of a MemoryIterator which targets only a
+     *        subset of memory
+     * \param offset memory offset
+     * \param count number of messages addressed by iterator
+     * \return pointer to memory iterator
+     */
     MemoryIteratorPtr GetMemoryIterator(size_t offset, size_t count);
 
   protected:
-    // Limit constructor to MemoryManager
+    /*!
+     * \brief protected constructor. Accessible only by MemoryManager.
+     * \param am agent memory
+     */
     explicit AgentShadow(AgentMemory* am);
     // Accessible to MemoryIterator
-    WriteableSet rw_set_;  //! Set of var names that has write access
+    WriteableSet rw_set_;  //!< Set of var names that has write access
     // Accessible to MemoryIterator
-    ConstVectorMap vec_map_;  //! map accessible vars
+    ConstVectorMap vec_map_;  //!< map accessible vars
 
+	/*!
+	 * \brief Query if variable name is registered
+	 * \param \var_name variable name
+	 * \return true if registered
+	 */
     bool IsRegistered(const std::string& var_name) const;
 
   private:
-    // size_t size_;  //! Size if memory vectors
-    AgentMemory* am_;  //! Pointer to parent AgentMemory object
+    // size_t size_;  //!< Size if memory vectors
+    AgentMemory* am_;  //!< Pointer to parent AgentMemory object
 
-    AgentShadow(const AgentShadow&);  //! Disable copy ctor
-    void operator=(const AgentShadow&);  //! Disable assignment
+    AgentShadow(const AgentShadow&);  //!< Disable copy ctor
+    void operator=(const AgentShadow&);  //!< Disable assignment
 };
 
 }}  //  namespace flame::mem

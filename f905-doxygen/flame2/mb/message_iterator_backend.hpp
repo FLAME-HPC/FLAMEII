@@ -16,7 +16,11 @@ namespace flame { namespace mb {
 //! Abstract base class for message iterator backends
 class MessageIteratorBackend {
   public:
-    //! Factory method to instantiate a backend of a specific type
+    /*! 
+     * \brief Factory method to instantiate a backend of a specific type
+     * \param vw_ptr pointer to message vector wrapper
+     * \return pointer to MessageIteratorBacked instance
+     */
     template <typename BackendType>
     static MessageIteratorBackend* create(
           flame::mem::VectorWrapperBase* vw_ptr) {
@@ -28,10 +32,16 @@ class MessageIteratorBackend {
     //! Destructor
     virtual ~MessageIteratorBackend(void) {}
 
-    //! Returns true if end of iteration reached (or if iterator is empty)
+    /*! 
+     * \brief Query if end of iteration reached (or if iterator is empty)
+     * \return true if end of iteration reached
+     */
     virtual bool AtEnd(void) const = 0;
 
-    //! Returns the number of messages within the scope of the iterator
+    /*! 
+     * \brief Query the number of messages within the scope of the iterator
+     * \return number of messages
+     */
     virtual size_t GetCount(void) const = 0;
 
     //! Move the iteration cursor back to the starting position
@@ -51,10 +61,11 @@ class MessageIteratorBackend {
      *
      * Front-end class should always check using IsMutable().
      */
-    virtual bool Randomise(void) = 0;
+    virtual void Randomise(void) = 0;
 
     /*!
      * \brief Returns an anonymous pointer to the memory location of the message
+     * \return raw pointer to message
      *
      * The front-end code is expected to cast this to the correct type and
      * return a copy of the message to end-users. The returned memory location
@@ -65,13 +76,22 @@ class MessageIteratorBackend {
      */
     virtual void* Get(void) = 0;
 
-    //! Returns true if the backend is mutable
+    /*! 
+     * \brief Query if backend is mutable
+     * \return true if mutable
+     */
     virtual bool IsMutable(void) const = 0;
 
-    //! Returns a new mutable backend which addresses the same messages
+    /*! 
+     * \brief Create a new mutable backend which addresses the same messages
+     * \return pointer to new MessageIteratorBackend instance
+     */
     virtual MessageIteratorBackend* GetMutableVersion(void) const = 0;
 
-    //! Returns a type_info of the underlying message type
+    /*! 
+     * \brief Query type_info of the underlying message type
+     * \return type_info of message datatype
+     */
     const std::type_info* GetDataType() const {
       return data_type_;
     }
