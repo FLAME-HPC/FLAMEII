@@ -18,6 +18,8 @@ module_headers = \
   stategraph.hpp \
   task_list.hpp \
   xadt.hpp \
+  xcondition_values.hpp \
+  xcondition_time.hpp \
   xcondition.hpp \
   xfunction.hpp \
   xgraph.hpp \
@@ -40,6 +42,8 @@ module_sources = \
   stategraph.cpp \
   task_list.cpp \
   xadt.cpp \
+  xcondition_values.cpp \
+  xcondition_time.cpp \
   xcondition.cpp \
   xfunction.cpp \
   xgraph.cpp \

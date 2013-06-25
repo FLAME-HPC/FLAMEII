@@ -9,6 +9,7 @@
  */
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <string>
 #include <boost/lexical_cast.hpp>
 #include "flame2/config.hpp"
 #include "io_xml_element.hpp"

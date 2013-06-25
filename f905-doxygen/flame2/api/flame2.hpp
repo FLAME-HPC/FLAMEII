@@ -11,7 +11,7 @@
 #define FLAME2__API__FLAME2_HPP_
 #include "flame2/api/agent_api.hpp"
 
-//! Return code for agent function to remain alive 
+//! Return code for agent function to remain alive
 #define FLAME_AGENT_ALIVE 0
 //! Return code for agent function to trigger death of agent
 #define FLAME_AGENT_DEAD  1

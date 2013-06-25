@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(validate_model) {
    * error and test separately. */
   iomanager.loadModel("io/models/all_not_valid.xml", &model);
   rc = model.validate();
-  BOOST_CHECK(rc == 42);
+  BOOST_CHECK(rc == 41);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

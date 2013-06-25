@@ -7,6 +7,8 @@
  * \copyright GNU Lesser General Public License
  * \brief IOXMLAgents: reading of agents from XML
  */
+#include <string>
+#include <vector>
 #include "flame2/config.hpp"
 #include "io_xml_agents.hpp"
 #include "io_xml_element.hpp"
@@ -221,13 +223,8 @@ void IOXMLAgents::readSort(xmlNode * node,
   }
 }
 
-void IOXMLAgents::readConditionTime(model::XCondition * xcondition,
+void IOXMLAgents::readConditionTime(model::XConditionTime * xconditiontime,
     xmlNode *cur_node) {
-  /* Update condition to indicate this
-   * is a time condition not anything else */
-  xcondition->setIsTime(true);
-  xcondition->setIsValues(false);
-  xcondition->setIsConditions(false);
   xmlNode *cur_node_2 = NULL;
   for (cur_node_2 = cur_node->children;
       cur_node_2; cur_node_2 = cur_node_2->next) {
@@ -236,12 +233,14 @@ void IOXMLAgents::readConditionTime(model::XCondition * xcondition,
       std::string name_2 = ioxmlelement.getElementName(cur_node_2);
       /* Handle each time element */
       if (name_2 == "period") {
-        xcondition->setTimePeriod(ioxmlelement.getElementValue(cur_node_2));
+        xconditiontime->setTimePeriod(ioxmlelement.getElementValue(cur_node_2));
       } else if (name_2 == "phase") {
-        xcondition->setTimePhaseVariable(ioxmlelement.getElementValue(cur_node_2));
+        xconditiontime->setTimePhaseVariable(
+            ioxmlelement.getElementValue(cur_node_2));
       } else if (name_2 == "duration") {
-        xcondition->setFoundTimeDuration(true);
-        xcondition->setTimeDurationString(ioxmlelement.getElementValue(cur_node_2));
+        xconditiontime->setFoundTimeDuration(true);
+        xconditiontime->setTimeDurationString(
+            ioxmlelement.getElementValue(cur_node_2));
       } else {
         ioxmlelement.readUnknownElement(cur_node_2);
       }
@@ -253,13 +252,13 @@ void IOXMLAgents::readConditionLhs(model::XCondition * xc,
     xmlNode *cur_node) {
   /* Set up and read lhs */
   xc->setLhsCondition(new model::XCondition);
-  xc->setTempValue("");
+  xc->values.setTempValue("");
   readCondition(cur_node, xc->lhsCondition());
   /* Handle if lhs is a value or a condition */
-  if (xc->lhsCondition()->tempValue() != "") {
+  if (xc->lhsCondition()->values.tempValue() != "") {
     /* lhs is a value */
-    xc->setLhs(xc->lhsCondition()->tempValue());
-    xc->setLhsIsValue(true);
+    xc->values.setLhs(xc->lhsCondition()->values.tempValue());
+    xc->values.setLhsIsValue(true);
     delete xc->lhsCondition();
     xc->setLhsCondition(0);
   } else {
@@ -272,13 +271,13 @@ void IOXMLAgents::readConditionRhs(model::XCondition * xc,
     xmlNode *cur_node) {
   /* Set up and read rhs */
   xc->setRhsCondition(new model::XCondition);
-  xc->setTempValue("");
+  xc->values.setTempValue("");
   readCondition(cur_node, xc->rhsCondition());
   /* Handle if rhs is a value or a condition */
-  if (xc->rhsCondition()->tempValue() != "") {
+  if (xc->rhsCondition()->values.tempValue() != "") {
     /* rhs is a value */
-    xc->setRhs(xc->rhsCondition()->tempValue());
-    xc->setRhsIsValue(true);
+    xc->values.setRhs(xc->rhsCondition()->values.tempValue());
+    xc->values.setRhsIsValue(true);
     delete xc->rhsCondition();
     xc->setRhsCondition(0);
   } else {
@@ -300,16 +299,18 @@ void IOXMLAgents::readCondition(xmlNode * node,
       /* Handle each child and call appropriate
        * processing function */
       if (name == "not") { xc->setIsNot(true);
-      readCondition(cur_node, xc);
+        readCondition(cur_node, xc);
       } else if (name == "time") {
-        readConditionTime(xc, cur_node);
+        xc->setIsTime(true);
+        readConditionTime(&xc->time, cur_node);
       } else if (name == "lhs") {
         readConditionLhs(xc, cur_node);
-      } else if (name == "op") { xc->setOp(ioxmlelement.getElementValue(cur_node));
+      } else if (name == "op") {
+        xc->setOp(ioxmlelement.getElementValue(cur_node));
       } else if (name == "rhs") {
         readConditionRhs(xc, cur_node);
       } else if (name == "value") {
-        xc->setTempValue(ioxmlelement.getElementValue(cur_node));
+        xc->values.setTempValue(ioxmlelement.getElementValue(cur_node));
       } else {
         ioxmlelement.readUnknownElement(cur_node);
       }

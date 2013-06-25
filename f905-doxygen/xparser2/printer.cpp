@@ -73,10 +73,10 @@ void Printer::write_(const char* data, int size) {
   s_->write(data, size);
 }
 
-int Printer::PrintVariable(const char* text, const char* end, int& pos,
+int Printer::PrintVariable(const char* text, const char* end, int* pos,
     const std::map<std::string, std::string>& vars) {
   int endpos = end - text;
-  std::string varname(text + pos, endpos - pos);
+  std::string varname(text + *pos, endpos - *pos);
   if (varname.empty()) {
     // Two delimiters in a row reduce to a literal delimiter character.
     write_(&delim_, 1);
@@ -92,7 +92,7 @@ int Printer::PrintVariable(const char* text, const char* end, int& pos,
     }
   }
 
-  pos = endpos + 1;
+  *pos = endpos + 1;
   return endpos;
 }
 
@@ -124,7 +124,7 @@ void Printer::Print(const char* text,
       }
 
       // handle var and advance past the var placeholder
-      i = PrintVariable(text, end, pos, vars);
+      i = PrintVariable(text, end, &pos, vars);
     }
   }
 

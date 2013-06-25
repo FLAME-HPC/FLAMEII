@@ -33,7 +33,7 @@ If you're a FLAME-II developer, see
 
 
 Using FLAME-II {#mainpage_usage}
-=============
+==============
 
 In this early release of FLAME-II, we support only the basic usage -- this is modelled 
 after FLAME-I to ease transition. See [Basic usage of FLAME-II](@ref usage).
@@ -48,5 +48,15 @@ to build highly parallel and very efficient models without having to start from 
 For more details on the design plans, see 
 [FLAME-II : a redesign of the flexible large-scale agent-based modelling environment](http://epubs.stfc.ac.uk/bitstream/8576/RAL-TR-2012-019.pdf)
 (RAL Technical Reports, RAL-TR-2012-019, November 2012).
+
+
+
+Developer Notes {#mainpage_developer}
+===============
+
+Standards used on the code base include:
+ * [Style](@ref codestyle)
+ * [Metrics](@ref codemetrics)
+ * [Memory](@ref valgrind)
 
 

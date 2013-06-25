@@ -114,7 +114,7 @@ class Printer {
      * \param vars Map of possible replacement candidates
      * \return New position in string
      */
-    int PrintVariable(const char* text, const char* end, int& pos,
+    int PrintVariable(const char* text, const char* end, int* pos,
         const std::map<std::string, std::string>& vars);
 
     // Disable copy constructor and assignment

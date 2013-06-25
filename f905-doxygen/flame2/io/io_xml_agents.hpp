@@ -11,6 +11,8 @@
 #define IO__IO_XML_AGENTS_HPP_
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <string>
+#include <vector>
 #include "flame2/model/xmodel.hpp"
 #include "io_xml_variables.hpp"
 #include "io_xml_element.hpp"
@@ -88,10 +90,11 @@ class IOXMLAgents {
     void readCondition(xmlNode * node, model::XCondition * xcondition);
     /*!
      * \brief Read condition time
-     * \param[out] xcondition The condition
+     * \param[out] xconditiontime The condition time
      * \param[in] cur_node The element
      */
-    void readConditionTime(model::XCondition * xcondition, xmlNode *cur_node);
+    void readConditionTime(
+        model::XConditionTime * xconditiontime, xmlNode *cur_node);
     /*!
      * \brief Read condition left hand side
      * \param[out] xcondition The condition
