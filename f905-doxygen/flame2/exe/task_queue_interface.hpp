@@ -70,7 +70,7 @@ class TaskQueue {
     }
 
   protected:
-    boost::mutex mutex_;  //!< Mutex object 
+    boost::mutex mutex_;  //!< Mutex object
     boost::condition_variable ready_;  //!< Condition variable
     TaskQueueCallback callback_;  //!< callback function for task queue
 };

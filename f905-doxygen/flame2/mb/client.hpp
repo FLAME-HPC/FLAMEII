@@ -91,7 +91,7 @@ class Client {
      */
     MessageBoard::iterator GetMessages(const std::string& msg_name);
 
-    // TODO: GetMessages(msg_name, query);  // when filtering enabled
+    // TODO(shawn): GetMessages(msg_name, query);  // when filtering enabled
 
   private:
     writer_map_type writers_;  //!< Cache of writers for each allowed message

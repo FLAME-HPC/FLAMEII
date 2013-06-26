@@ -245,7 +245,7 @@ void IOXMLModel::readDataTypes(xmlNode * node,
 void IOXMLModel::readDataType(xmlNode * node,
     model::XModel * model) {
   xmlNode *cur_node = NULL;
-  model::XADT * xadt = model->addADT();
+  model::XDataType * xadt = model->addDataType();
 
   /* Loop through each child of dataType */
   for (cur_node = node->children;

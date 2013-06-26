@@ -132,7 +132,7 @@ class MemoryIterator {
     //! Protected constructor. Access limited to AgentShadow
     //! \param shadow pointer to parent agent shadow
     explicit MemoryIterator(AgentShadow* shadow);
-    
+
     //! Protected constructor. Access limited to AgentShadow
     //! \param shadow pointer to parent agent shadow
     //! \param offset memory offset

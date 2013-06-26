@@ -23,7 +23,7 @@ namespace flame { namespace exe {
 class TaskSplitter {
   public:
     typedef std::vector<Task::Handle> TaskVector;  //!< vector of task handles
-    
+
     /*!
      * \brief constuctor
      * \param id task id

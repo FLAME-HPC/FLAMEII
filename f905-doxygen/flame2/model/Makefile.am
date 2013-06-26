@@ -17,19 +17,22 @@ module_headers = \
   model.hpp \
   stategraph.hpp \
   task_list.hpp \
-  xadt.hpp \
+  validate_name.hpp \
+  xdatatype.hpp \
   xcondition_values.hpp \
   xcondition_time.hpp \
   xcondition.hpp \
   xfunction.hpp \
   xgraph.hpp \
   xioput.hpp \
+  xmachine_validate.hpp \
   xmachine.hpp \
   xmessage.hpp \
   xmodel.hpp \
   xmodel_validate.hpp \
   xtimeunit.hpp \
   xvariable.hpp \
+  xvariables_validate.hpp \
   printerr.hpp
 
 module_sources = \
@@ -41,19 +44,22 @@ module_sources = \
   model.cpp \
   stategraph.cpp \
   task_list.cpp \
-  xadt.cpp \
+  validate_name.cpp \
+  xdatatype.cpp \
   xcondition_values.cpp \
   xcondition_time.cpp \
   xcondition.cpp \
   xfunction.cpp \
   xgraph.cpp \
   xioput.cpp \
+  xmachine_validate.cpp \
   xmachine.cpp \
   xmessage.cpp \
   xmodel.cpp \
   xmodel_validate.cpp \
   xtimeunit.cpp \
   xvariable.cpp \
+  xvariables_validate.cpp \
   printerr.cpp
 
 # Header install path

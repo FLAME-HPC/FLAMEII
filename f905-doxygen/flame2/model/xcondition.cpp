@@ -145,16 +145,15 @@ int XCondition::processSymbols() {
   return errors;
 }
 
-int XCondition::validateTime(XMachine * agent, XModel * model,
+int XCondition::validateTime(XMachine * agent,
+    boost::ptr_vector<XTimeUnit>& timeUnits,
     XCondition * rootCondition) {
   int errors = 0;
   boost::ptr_vector<XTimeUnit>::iterator it;
   /* Check time period is valid time unit */
   bool validPeriod_ = false;
-  for (it = model->getTimeUnits()->begin();
-      it != model->getTimeUnits()->end(); ++it) {
-    if (time.timePeriod() == (*it).getName())
-      validPeriod_ = true;
+  for (it = timeUnits.begin(); it != timeUnits.end(); ++it) {
+    if (time.timePeriod() == (*it).getName()) validPeriod_ = true;
   }
   /* Handle invalid time period */
   if (!validPeriod_) {
@@ -180,7 +179,8 @@ int XCondition::validateTime(XMachine * agent, XModel * model,
 }
 
 int XCondition::validate(XMachine * agent, XMessage * xmessage,
-    XModel * model, XCondition * rootCondition) {
+    boost::ptr_vector<XTimeUnit>& timeUnits,
+    XCondition * rootCondition) {
   int rc, errors = 0;
 
   // Based upon lhs and rhs define condition type
@@ -189,17 +189,17 @@ int XCondition::validate(XMachine * agent, XMessage * xmessage,
 
   if (isTime_) {
     // Validate time
-    errors += validateTime(agent, model, rootCondition);
+    errors += validateTime(agent, timeUnits, rootCondition);
   } else if (isValues_) {
     // Validate values
     errors += values.validateValues(agent, xmessage,
         rootCondition->getReadOnlyVariables());
   } else if (isConditions_) {
     // validate lhs condition
-    rc = lhsCondition_->validate(agent, xmessage, model, rootCondition);
+    rc = lhsCondition_->validate(agent, xmessage, timeUnits, rootCondition);
     errors += rc;
     // validate rhs condition
-    rc = rhsCondition_->validate(agent, xmessage, model, rootCondition);
+    rc = rhsCondition_->validate(agent, xmessage, timeUnits, rootCondition);
     errors += rc;
   } else {
     // If not proper type then give error

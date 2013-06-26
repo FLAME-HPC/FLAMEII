@@ -17,7 +17,7 @@
 #include <utility>
 #include "xmachine.hpp"
 #include "xvariable.hpp"
-#include "xadt.hpp"
+#include "xdatatype.hpp"
 #include "xtimeunit.hpp"
 #include "xmessage.hpp"
 #include "xmodel_validate.hpp"
@@ -104,7 +104,7 @@ class XModel {
      * \brief Add a user defined abstract data type
      * \return A pointer to the new XADT created
      */
-    XADT * addADT();
+    XDataType * addDataType();
     /*!
      * \brief Returns an adt object with given name
      * \param[in] name Name of the adt
@@ -112,12 +112,12 @@ class XModel {
      * This function is used to validate adt names and provide a
      * pointer to the object if valid.
      */
-    XADT * getADT(std::string name);
+    XDataType * getDataType(std::string name);
     /*!
      * \brief Get the model abstract data types
      * \return Pointer to a boost pointer vector of ADTs
      */
-    boost::ptr_vector<XADT> * getADTs();
+    boost::ptr_vector<XDataType> * getDataTypes();
     /*!
      * \brief Add a time unit
      * \param[in] timeUnit The time unit to add
@@ -179,16 +179,6 @@ class XModel {
      * \return A pointer to a boost pointer vector of XMessage
      */
     boost::ptr_vector<XMessage> * getMessages();
-    /*!
-     * \brief Add an allowed data type
-     * \param[in] name The data type name
-     */
-    void addAllowedDataType(std::string name);
-    /*!
-     * \brief Get allowed data types
-     * \return A pointer to a vector of data type names
-     */
-    std::vector<std::string> * getAllowedDataTypes();
     /*!
      * \brief Check to see if an agent exists
      * \param[in] agent_name The agent name to check
@@ -266,12 +256,10 @@ class XModel {
     std::vector<std::string> includedModels_;
     //! \brief List of paths of function files
     std::vector<std::string> functionFiles_;
-    //! \brief A list of allowed data types to check variables
-    std::vector<std::string> allowedDataTypes_;
     //! \brief List of environment constants
     boost::ptr_vector<XVariable> constants_;
-    //! \brief List of user define abstract data types
-    boost::ptr_vector<XADT> adts_;
+    //! \brief List of model data types
+    boost::ptr_vector<XDataType> datatypes_;
     //! \brief List of time units
     boost::ptr_vector<XTimeUnit> timeUnits_;
     //! \brief List of agents

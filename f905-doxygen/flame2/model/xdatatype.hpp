@@ -1,14 +1,14 @@
 /*!
- * \file flame2/model/xadt.hpp
+ * \file flame2/model/xdatatype.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2012 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief XADT: holds abstract data type information
+ * \brief XDataType: holds model data type information
  */
-#ifndef MODEL__XADT_HPP_
-#define MODEL__XADT_HPP_
+#ifndef MODEL__XDATATYPE_HPP_
+#define MODEL__XDATATYPE_HPP_
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <vector>
@@ -17,20 +17,26 @@
 namespace flame { namespace model {
 
 /*!
- * Class to hold user define abstract data type information
+ * Class to hold model data type information
  */
-class XADT {
+class XDataType {
   public:
     /*!
      * \brief Constructor
      *
      * Initialises holding dynamic arrays to be false.
      */
-    XADT();
+    XDataType();
     /*!
-     * \brief Prints XADT
+     * \brief Constructor that sets name and isFundamental
      *
-     * Prints out XADT name and variables.
+     * Initialises holding dynamic arrays to be false.
+     */
+    XDataType(std::string name, bool isFundamental);
+    /*!
+     * \brief Prints data type
+     *
+     * Prints out data type name and variables.
      */
     void print();
     /*!
@@ -42,7 +48,7 @@ class XADT {
      * \brief Get data type name
      * \return Name
      */
-    std::string getName();
+    std::string getName() const;
     /*!
      * \brief Add variable to the data type
      * \return Pointer to new XVariable
@@ -62,15 +68,39 @@ class XADT {
      * \brief Does data type hold dynamic arrays
      * \return Boolean result
      */
-    bool holdsDynamicArray();
+    bool holdsDynamicArray() const;
+    /*!
+     * \brief Set data type as fundamental
+     * \param[in] isFundamental Is fundamental
+     */
+    void setFundamental(bool isFundamental);
+    /*!
+     * \brief Is data type fundamental
+     * \return Result
+     */
+    bool isFundamental() const;
+    /*!
+     * \brief Set the identification number
+     * \param[in] id The identification number
+     */
+    void setID(int id);
+    /*!
+     * \brief Get the identification number
+     * \return The identification number
+     */
+    int getID();
 
   private:
+    //! \brief Identification number
+    int id_;
     //! \brief Data type name
     std::string name_;
     //! \brief List of data type variables
     boost::ptr_vector<XVariable> variables_;
     //! \brief Does the data type hold dynamic arrays
     bool holdsDynamicArray_;
+    //! \brief Is the data type fundamental
+    bool isFundamental_;
 };
 }}  // namespace flame::model
-#endif  // MODEL__XADT_HPP_
+#endif  // MODEL__XDATATYPE_HPP_

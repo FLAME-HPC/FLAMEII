@@ -61,7 +61,6 @@ namespace sim {}
 //!
 //! Exception subclasses that are thrown by FLAME2
 namespace exceptions {}
-
 }
 
 //! \brief Xparser2
@@ -73,5 +72,4 @@ namespace xparser {
 //!
 //! Code generator classes
 namespace codegen {}
-
 }

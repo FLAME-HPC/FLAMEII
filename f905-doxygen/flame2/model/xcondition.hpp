@@ -11,8 +11,10 @@
 #define MODEL__XCONDITION_HPP_
 #include <string>
 #include <set>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "xcondition_values.hpp"
 #include "xcondition_time.hpp"
+#include "xtimeunit.hpp"
 
 namespace flame { namespace model {
 
@@ -64,11 +66,11 @@ class XCondition {
      * \brief Validate the condition
      * \param[in] agent The agent
      * \param[in] message The message
-     * \param[in] model The model
      * \param[in] rootCondition The condition
      * \return Number of errors
      */
-    int validate(XMachine * agent, XMessage * message, XModel * model,
+    int validate(XMachine * agent, XMessage * message,
+        boost::ptr_vector<XTimeUnit>& timeUnits,
         XCondition * rootCondition);
     /*!
      * \brief Validate a time condition
@@ -77,7 +79,8 @@ class XCondition {
      * \param[in] rootCondition The condition
      * \return Number of errors
      */
-    int validateTime(XMachine * agent, XModel * model,
+    int validateTime(XMachine * agent,
+        boost::ptr_vector<XTimeUnit>& timeUnits,
         XCondition * rootCondition);
     /*!
      * \brief Get read only variables used by the condition
