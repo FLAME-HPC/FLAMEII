@@ -9,6 +9,7 @@
  */
 #include <cctype>
 #include <string>
+#include <algorithm>
 #include "flame2/config.hpp"
 #include "validate_name.hpp"
 
