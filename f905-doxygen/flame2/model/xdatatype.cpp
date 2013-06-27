@@ -18,9 +18,9 @@ namespace flame { namespace model {
 XDataType::XDataType() : id_(0), holdsDynamicArray_(false),
     isFundamental_(false) {}
 
-XDataType::XDataType(std::string name, bool isFundamental)
+XDataType::XDataType(std::string name, bool isfundamental)
   : id_(0), name_(name), holdsDynamicArray_(false),
-    isFundamental_(isFundamental) {}
+    isFundamental_(isfundamental) {}
 
 void XDataType::print() {
   boost::ptr_vector<XVariable>::iterator it;
@@ -55,8 +55,8 @@ bool XDataType::holdsDynamicArray() const {
   return holdsDynamicArray_;
 }
 
-void XDataType::setFundamental(bool isFundamental) {
-  isFundamental_ = isFundamental;
+void XDataType::setFundamental(bool isfundamental) {
+  isFundamental_ = isfundamental;
 }
 
 bool XDataType::isFundamental() const {

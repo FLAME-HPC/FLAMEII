@@ -32,7 +32,7 @@ class XDataType {
      *
      * Initialises holding dynamic arrays to be false.
      */
-    XDataType(std::string name, bool isFundamental);
+    XDataType(std::string name, bool isfundamental);
     /*!
      * \brief Prints data type
      *
