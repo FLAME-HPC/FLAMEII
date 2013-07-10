@@ -17,7 +17,7 @@ namespace flame { namespace io { namespace xml {
 
 class IOXMLVariables {
   public:
-    IOXMLVariables() {}
+    IOXMLVariables() : ioxmlelement() {}
     /*!
      * \brief Read variables
      * \param[in] node The element

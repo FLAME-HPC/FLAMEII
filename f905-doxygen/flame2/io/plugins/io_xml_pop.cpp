@@ -27,7 +27,7 @@ typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 typedef std::set<std::string> StringSet;
 
 IOXMLPop::IOXMLPop()
-  : addInt(0), addDouble(0) {}
+  : agentMemoryArrays_(), writer_(), addInt(0), addDouble(0) {}
 
 // This method is empty because you can't (without a lot of difficulty)
 // write xml row-wise

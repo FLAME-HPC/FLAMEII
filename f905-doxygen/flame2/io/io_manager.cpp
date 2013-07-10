@@ -31,7 +31,8 @@ namespace flame { namespace io {
 namespace exc = flame::exceptions;
 namespace fs = boost::filesystem;
 
-IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
+IOManager::IOManager() : agentMemory_(), ioxmlmodel_(), path_(), plugins_(),
+    iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // add plugins
   std::auto_ptr<IO> ioxmlpop(new IOXMLPop);
   plugins_.insert("xml", ioxmlpop);

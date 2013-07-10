@@ -21,7 +21,7 @@ namespace flame { namespace io { namespace xml {
 
 class IOXMLAgents {
   public:
-    IOXMLAgents() {}
+    IOXMLAgents() : ioxmlvariables(), ioxmlelement() {}
     /*!
      * \brief Read agents
      * \param[in] node The element

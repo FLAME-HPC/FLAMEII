@@ -28,6 +28,7 @@ typedef std::map<std::string, VarVec> AgentMemory;
  */
 class IO {
   public:
+    IO() : agentMemory_(), iteration_(0), path_() {}
     virtual ~IO() {}
 
     //! Get the name of the plugin

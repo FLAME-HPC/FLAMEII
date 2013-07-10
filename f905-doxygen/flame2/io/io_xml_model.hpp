@@ -30,7 +30,7 @@ class IOXMLModel {
     /*!
      * \brief Constructor
      */
-    IOXMLModel() {}
+    IOXMLModel() : ioxmlagents(), ioxmlvariables(), ioxmlelement() {}
     /*!
      * \brief Reads a model XML file into an XModel
      * \param[in] file_name The path to the model file
