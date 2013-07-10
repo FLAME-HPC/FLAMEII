@@ -116,7 +116,7 @@ class MemoryManager {
 
   private:
     //! This is a singleton class. Disable manual instantiation
-    MemoryManager() {}
+    MemoryManager() : agent_map_() {}
     //! This is a singleton class. Disable copy constructor
     MemoryManager(const MemoryManager&);
     //! This is a singleton class. Disable assignment operation

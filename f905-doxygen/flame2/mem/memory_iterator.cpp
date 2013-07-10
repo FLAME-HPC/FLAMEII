@@ -14,7 +14,8 @@
 namespace flame { namespace mem {
 
 MemoryIterator::MemoryIterator(AgentShadow* shadow)
-    : position_(0), offset_(0), shadow_(shadow) {
+    : position_(0), size_(0), offset_(0), count_(0), shadow_(shadow),
+      ptr_map_(), vec_map_ptr_(), rw_set_ptr_() {
   vec_map_ptr_ = &(shadow->vec_map_);
   rw_set_ptr_ = &(shadow->rw_set_);
   size_ = shadow->get_size();
@@ -25,7 +26,8 @@ MemoryIterator::MemoryIterator(AgentShadow* shadow)
 }
 
 MemoryIterator::MemoryIterator(AgentShadow* shadow, size_t offset, size_t count)
-    : position_(0),  offset_(offset), count_(count), shadow_(shadow)  {
+    : position_(0), size_(0), offset_(offset), count_(count), shadow_(shadow),
+      ptr_map_(), vec_map_ptr_(), rw_set_ptr_() {
   size_ = shadow->get_size();
   // check offset is valid
   if (offset_ >= size_) {

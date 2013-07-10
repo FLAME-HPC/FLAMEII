@@ -17,7 +17,7 @@
 namespace flame { namespace mem {
 
 AgentShadow::AgentShadow(AgentMemory* am)
-    : am_(am) {}
+    : rw_set_(), vec_map_(), am_(am) {}
 
 void AgentShadow::AllowAccess(const std::string& var_name,
                                       bool writeable) {

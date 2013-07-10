@@ -36,7 +36,7 @@ class AgentMemory {
      * \param agent_name agent name
      */
     explicit AgentMemory(const std::string& agent_name)
-        : agent_name_(agent_name),
+        : agent_name_(agent_name), mem_map_(),
 #ifdef DEBUG
           cached_size_(0),
 #endif

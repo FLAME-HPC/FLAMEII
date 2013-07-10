@@ -148,6 +148,10 @@ class MemoryIterator {
     VoidPtrMap ptr_map_;  //!< map of raw pointers of vars
     ConstVectorMap* vec_map_ptr_;  //!< pointer to vec map
     WriteableSet* rw_set_ptr_;  //!< Pointer to set of writeable vars
+    //! This class has pointer members so disable copy constructor
+    MemoryIterator(const MemoryIterator&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const MemoryIterator&);
 };
 
 }}  //  namespace flame::mem
