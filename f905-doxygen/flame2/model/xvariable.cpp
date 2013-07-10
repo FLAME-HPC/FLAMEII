@@ -15,21 +15,24 @@
 namespace flame { namespace model {
 
 XVariable::XVariable()
-: isDynamicArray_(false),
-  isStaticArray_(false),
-  staticArraySize_(0),
-  hasADTType_(false),
-  holdsDynamicArray_(false),
-  constantSet_(false),
-  constant_(false) {}
-
-XVariable::XVariable(std::string name)
-: name_(name),
+: type_(), name_(),
   isDynamicArray_(false),
   isStaticArray_(false),
   staticArraySize_(0),
   hasADTType_(false),
   holdsDynamicArray_(false),
+  constantString_(),
+  constantSet_(false),
+  constant_(false) {}
+
+XVariable::XVariable(std::string name)
+: type_(), name_(name),
+  isDynamicArray_(false),
+  isStaticArray_(false),
+  staticArraySize_(0),
+  hasADTType_(false),
+  holdsDynamicArray_(false),
+  constantString_(),
   constantSet_(false),
   constant_(false) {}
 

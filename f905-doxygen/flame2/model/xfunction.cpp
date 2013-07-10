@@ -17,12 +17,14 @@
 namespace flame { namespace model {
 
 XFunction::XFunction()
-  : condition_(0), memoryAccessInfoAvailable_(true) {}
+  : name_(), currentState_(), nextState_(), inputs_(), outputs_(),
+    condition_(0), memoryAccessInfoAvailable_(true),
+    readOnlyVariables_(), readWriteVariables_() {}
 
 XFunction::XFunction(std::string name)
-: name_(name),
-  condition_(0),
-  memoryAccessInfoAvailable_(true) {}
+: name_(name), currentState_(), nextState_(), inputs_(), outputs_(),
+  condition_(0), memoryAccessInfoAvailable_(true),
+  readOnlyVariables_(), readWriteVariables_() {}
 
 XFunction::~XFunction() {
   /* Delete any condition */

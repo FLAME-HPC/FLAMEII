@@ -76,6 +76,10 @@ class TaskList {
   private:
     //! \brief Pointer to the task vector so that mappings can be swapped
     std::vector<ModelTaskPtr> * vertex2task_;
+    //! \brief This class has pointer members so disable copy constructor
+    TaskList(const TaskList&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const TaskList&);
 };
 
 }}  // namespace flame::model

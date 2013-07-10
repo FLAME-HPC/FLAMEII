@@ -16,13 +16,9 @@
 
 namespace flame { namespace model {
 
-XIOput::XIOput() {
-  /* Set default options */
-  random_ = false;
-  filter_ = 0;
-  randomSet_ = false;
-  sort_ = false;
-}
+XIOput::XIOput()
+  : messageName_(), randomString_(), randomSet_(false), random_(false),
+    sort_(false), sortKey_(), sortOrder_(), filter_(0) {}
 
 XIOput::~XIOput() {
   /* Delete any filter */

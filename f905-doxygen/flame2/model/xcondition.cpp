@@ -22,7 +22,7 @@
 namespace flame { namespace model {
 
 XCondition::XCondition()
-  : op_(""),
+  : values(), time(), op_(""),
   isNot_(false),
   isTime_(false),
   isValues_(false),
@@ -30,7 +30,7 @@ XCondition::XCondition()
   lhsIsCondition_(false),
   rhsIsCondition_(false),
   lhsCondition_(0),
-  rhsCondition_(0) {}
+  rhsCondition_(0), readOnlyVariables_() {}
 
 XCondition::~XCondition() {
   /* Delete any nested conditions */

@@ -14,7 +14,8 @@
 
 namespace flame { namespace model {
 
-XTimeUnit::XTimeUnit() : period_(0), id_(0) {}
+XTimeUnit::XTimeUnit()
+  : name_(), unit_(), periodString_(), period_(0), id_(0) {}
 
 void XTimeUnit::print() {
   std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());

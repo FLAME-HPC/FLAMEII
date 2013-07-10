@@ -22,7 +22,8 @@
 namespace flame { namespace model {
 
 XMachine::XMachine()
-  : id_(0) {
+  : id_(0), name_(), variables_(), functions_(), startState_(), endStates_(),
+    stateGraph_(), dependencyGraph_() {
 }
 
 void XMachine::print() {

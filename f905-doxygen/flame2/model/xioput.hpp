@@ -135,6 +135,10 @@ class XIOput {
     std::string sortOrder_;
     //! \brief The input filter if used
     XCondition * filter_;
+    //! \brief This class has pointer members so disable copy constructor
+    XIOput(const XIOput&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const XIOput&);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XIOPUT_HPP_

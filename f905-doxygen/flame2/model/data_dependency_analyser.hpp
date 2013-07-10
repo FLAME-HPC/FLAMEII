@@ -105,6 +105,10 @@ class DataDependencyAnalyser {
      * \param[out] to Map to copy to
      */
     void copyVarWriteSets(VarMapToVertices * from, VarMapToVertices * to);
+    //! \brief This class has pointer members so disable copy constructor
+    DataDependencyAnalyser(const DataDependencyAnalyser&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const DataDependencyAnalyser&);
 };
 
 } /* namespace model */

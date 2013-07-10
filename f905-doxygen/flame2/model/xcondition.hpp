@@ -216,6 +216,10 @@ class XCondition {
      * \brief Print conditions
      */
     void printConditions();
+    //! \brief This class has pointer members so disable copy constructor
+    XCondition(const XCondition&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const XCondition&);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XCONDITION_HPP_

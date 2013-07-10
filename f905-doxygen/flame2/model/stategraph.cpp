@@ -31,7 +31,7 @@
 
 namespace flame { namespace model {
 
-StateGraph::StateGraph() {}
+StateGraph::StateGraph() : graph_(), name_() {}
 
 EdgeMap * StateGraph::getEdgeDependencyMap() {
   return graph_.getEdgeDependencyMap();

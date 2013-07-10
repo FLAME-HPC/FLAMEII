@@ -19,7 +19,10 @@
 
 namespace flame { namespace model {
 
-XModel::XModel() {
+XModel::XModel()
+  : name_(), path_(), includedModels_(), functionFiles_(), constants_(),
+    datatypes_(), timeUnits_(), agents_(), messages_(), dependencyGraph_(),
+    stateGraph_() {
   // initialise list of data types
   XDataType * intdatatype = addDataType();
   intdatatype->setName("int");

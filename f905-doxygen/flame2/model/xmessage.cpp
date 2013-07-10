@@ -16,7 +16,7 @@
 namespace flame { namespace model {
 
 XMessage::XMessage()
-  : id_(0) {}
+  : id_(0), name_(), variables_() {}
 
 void XMessage::print() {
   boost::ptr_vector<XVariable>::iterator it;

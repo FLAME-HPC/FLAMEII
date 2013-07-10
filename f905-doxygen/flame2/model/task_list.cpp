@@ -14,7 +14,7 @@
 
 namespace flame { namespace model {
 
-TaskList::TaskList() {
+TaskList::TaskList() : vertex2task_(0) {
   vertex2task_ = new std::vector<ModelTaskPtr>;
 }
 

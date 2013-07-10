@@ -31,7 +31,7 @@
 
 namespace flame { namespace model {
 
-DependencyGraph::DependencyGraph() {}
+DependencyGraph::DependencyGraph() : graph_(), name_() {}
 
 void DependencyGraph::setName(std::string name) {
   name_ = name;
@@ -51,7 +51,7 @@ void DependencyGraph::generateDependencyGraph(
   writeGraphviz(name_ + "_2.dot");
 #endif
   // Add data and condition dependencies
-  DataDependencyAnalyser dda = DataDependencyAnalyser(&graph_, name_);
+  DataDependencyAnalyser dda(&graph_, name_);
   dda.addDataDependencies(variables);
   // Add data output tasks
   AddVariableOutput();

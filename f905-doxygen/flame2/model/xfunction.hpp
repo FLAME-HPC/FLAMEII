@@ -173,6 +173,10 @@ class XFunction {
     std::vector<std::string> readOnlyVariables_;
     //! \brief List of read only variables the function accesses
     std::vector<std::string> readWriteVariables_;
+    //! \brief This class has pointer members so disable copy constructor
+    XFunction(const XFunction&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const XFunction&);
 };
 }}  // namespace flame::model
 #endif  // MODEL__XFUNCTION_HPP_

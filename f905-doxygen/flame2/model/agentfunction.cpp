@@ -17,9 +17,8 @@ namespace flame { namespace model {
 
 AgentFunction::AgentFunction(std::string name,
     std::string current_state, std::string next_state)
-: name_(name),
-  currentState_(current_state),
-  nextState_(next_state) {}
+: name_(name), currentState_(current_state), nextState_(next_state),
+  inputs_(), outputs_(), readOnlyVariables_(), readWriteVariables_() {}
 
 void AgentFunction::addInput(std::string name) {
   // insert input

@@ -241,6 +241,10 @@ class XGraph {
     ModelTask * endTask_;
     //! \brief Set of end tasks
     std::set<ModelTask*> endTasks_;
+    //! \brief This class has pointer members so disable copy constructor
+    XGraph(const XGraph&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const XGraph&);
 };
 
 }}  // namespace flame::model

@@ -15,11 +15,11 @@
 
 namespace flame { namespace model {
 
-XDataType::XDataType() : id_(0), holdsDynamicArray_(false),
+XDataType::XDataType() : id_(0), name_(), variables_(), holdsDynamicArray_(false),
     isFundamental_(false) {}
 
 XDataType::XDataType(std::string name, bool isfundamental)
-  : id_(0), name_(name), holdsDynamicArray_(false),
+  : id_(0), name_(name), variables_(), holdsDynamicArray_(false),
     isFundamental_(isfundamental) {}
 
 void XDataType::print() {
