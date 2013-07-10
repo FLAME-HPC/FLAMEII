@@ -64,7 +64,7 @@ typedef boost::shared_ptr<flame::mb::MessageIterator> SharedMessageIterator;
 class MessageIteratorWrapper {
   public:
     //! Default constructor with null pointer
-    MessageIteratorWrapper(void) {}
+    MessageIteratorWrapper(void) : parent_() {}
 
     //! Constructor which initialises the pointer to actual message iterator
     explicit MessageIteratorWrapper(SharedMessageIterator iter)

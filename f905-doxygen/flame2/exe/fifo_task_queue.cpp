@@ -17,7 +17,8 @@
 
 namespace flame { namespace exe {
 
-FIFOTaskQueue::FIFOTaskQueue(size_t slots) : slots_(slots) {
+FIFOTaskQueue::FIFOTaskQueue(size_t slots)
+  : slots_(slots), workers_(), queue_() {
   if (slots < 1) {
     throw flame::exceptions::invalid_argument("slots must be > 0");
   }

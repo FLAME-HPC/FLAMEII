@@ -45,6 +45,9 @@ class Task {
       MB_FUNCTION
     };
 
+    //! Constructor, initialise data members
+    Task() : task_id_(0), task_name_(), mb_proxy_() {}
+
     virtual ~Task() {}
 
     //! Runs the task

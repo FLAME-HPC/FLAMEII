@@ -13,7 +13,7 @@
 namespace flame { namespace exe {
 
 TaskSplitter::TaskSplitter(Task::id_type id, const TaskVector& tasks)
-    : id_(id), running_(0), next_(0), tasks_(tasks) {
+    : id_(id), pending_(0), running_(0), next_(0), tasks_(tasks) {
   pending_ = tasks_.size();
 }
 

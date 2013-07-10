@@ -15,7 +15,8 @@
 #include "worker_thread.hpp"
 namespace flame { namespace exe {
 
-WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr) : tq_(taskqueue_ptr) {}
+WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr)
+  : thread_(), tq_(taskqueue_ptr) {}
 
 void WorkerThread::Init() {
   thread_ = boost::thread(&WorkerThread::ProcessQueue, this);

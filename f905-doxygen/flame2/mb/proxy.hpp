@@ -31,6 +31,9 @@ class Proxy {
     //! Datatype for shared pointer to a Client instance
     typedef boost::shared_ptr<Client> client;
 
+    //! Constructor, initialise data members
+    Proxy() : acl_read_(), acl_post_() {}
+
     /*! 
      * \brief Returns a shared pointer to a client instance that has the apropriate
      *        access permissions

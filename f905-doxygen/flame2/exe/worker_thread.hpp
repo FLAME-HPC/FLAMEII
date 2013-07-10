@@ -51,6 +51,10 @@ class WorkerThread {
   private:
     boost::thread thread_;  //!< Thread instance
     TaskQueue* tq_;  //!< Pointer to parent task queue
+    //! This class has pointer members so disable copy constructor
+    WorkerThread(const WorkerThread&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const WorkerThread&);
 };
 
 }}  // namespace flame::exe

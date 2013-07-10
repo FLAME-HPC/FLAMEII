@@ -16,9 +16,8 @@
 namespace flame { namespace exe {
 
 SplittingFIFOTaskQueue::SplittingFIFOTaskQueue(size_t slots)
-    : slots_(slots),
-      max_splits_(slots),
-      min_vector_size_(DEFAULT_MIN_VECTOR_SIZE) {
+    : splittable_(), queue_(), workers_(), split_map_(), slots_(slots),
+      max_splits_(slots), min_vector_size_(DEFAULT_MIN_VECTOR_SIZE) {
   if (slots < 1) {
     throw flame::exceptions::invalid_argument("slots must be > 0");
   }

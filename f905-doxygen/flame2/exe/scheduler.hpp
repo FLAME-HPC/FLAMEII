@@ -34,10 +34,12 @@ class Scheduler {
     typedef std::map<Task::TaskType, QueueId> RouteMap;
 
     //! Constructor. Initialises iter_count to 1
-    Scheduler() : iter_count_(1) {}
+    Scheduler() : doneq_mutex_(), doneq_cond_(), queues_(), route_(), doneq_(),
+        iter_count_(1) {}
 
     //! Constructor. Allows for custom value for initial iter_count.
-    explicit Scheduler(size_t iter_count) : iter_count_(iter_count) {}
+    explicit Scheduler(size_t iter_count) : doneq_mutex_(), doneq_cond_(),
+        queues_(), route_(), doneq_(), iter_count_(iter_count) {}
 
     /*!
      * \brief Creates a task queue of the given type and returns its id

@@ -23,6 +23,9 @@ typedef boost::function<void (Task::id_type)> TaskQueueCallback;
 class TaskQueue {
   friend class WorkerThread;
   public:
+    //! Constructor. initialise data members
+    TaskQueue() : mutex_(), ready_(), callback_() {}
+
     virtual ~TaskQueue() {}
 
     //! Adds a task to the queue

@@ -147,7 +147,9 @@ class TaskManager {
 
   private:
     // This is a singleton class. Disable manual instantiation
-    TaskManager() : finalised_(false) {}
+    TaskManager() : mutex_task_(), tasks_(), name_map_(), roots_(), leaves_(),
+      parents_(), children_(), finalised_(false), pending_deps_(),
+      ready_tasks_(), pending_tasks_(), assigned_tasks_() {}
     // This is a singleton class. Disable copy constructor
     TaskManager(const TaskManager&);
     // This is a singleton class. Disable assignment operation
