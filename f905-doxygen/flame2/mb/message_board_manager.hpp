@@ -122,7 +122,7 @@ class MessageBoardManager {
     board_map map_;  //!< map of message board instances
 
     //! This is a singleton class. Disable manual instantiation
-    MessageBoardManager() {}
+    MessageBoardManager() : map_() {}
     //! This is a singleton class. Disable copy constructor
     MessageBoardManager(const MessageBoardManager&);
     //! This is a singleton class. Disable assignment operation

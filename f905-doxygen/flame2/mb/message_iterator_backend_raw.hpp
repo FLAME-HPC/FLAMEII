@@ -124,6 +124,10 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
     size_t count_;  //!< Number of messages within the scope of iteration
     size_t pos_;  //!< Current cursor position
     void* current_;  //!< Pointer to current message
+    //! This class has pointer members so disable copy constructor
+    MessageIteratorBackendRaw(const MessageIteratorBackendRaw&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const MessageIteratorBackendRaw&);
 };
 
 }}  // namespace flame::mb

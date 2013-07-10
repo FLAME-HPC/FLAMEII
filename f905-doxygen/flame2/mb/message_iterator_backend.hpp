@@ -29,6 +29,9 @@ class MessageIteratorBackend {
       return b;
     }
 
+    //! Constructor, initialise data members
+    MessageIteratorBackend(void) : data_type_(0) {}
+
     //! Destructor
     virtual ~MessageIteratorBackend(void) {}
 
@@ -99,6 +102,10 @@ class MessageIteratorBackend {
   private:
     //! Cache of the type_info of the underlying message type
     const std::type_info *data_type_;
+    //! This class has pointer members so disable copy constructor
+    MessageIteratorBackend(const MessageIteratorBackend&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const MessageIteratorBackend&);
 };
 
 }}  // namespace flame::mb

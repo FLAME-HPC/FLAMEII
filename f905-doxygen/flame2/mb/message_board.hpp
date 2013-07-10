@@ -147,7 +147,8 @@ class MessageBoard {
     MessageBoard(const std::string& msg_name,
                  flame::mem::VectorWrapperBase *vec,
                  BoardWriter *board_writer)
-        : name_(msg_name), writer_template_(board_writer), data_(vec) {}
+        : name_(msg_name), writers_(), writer_template_(board_writer),
+          data_(vec), mutex_() {}
 
     //! Internal routine used to disconnect and delete collection of writers
     void _DeleteWriters(void);
