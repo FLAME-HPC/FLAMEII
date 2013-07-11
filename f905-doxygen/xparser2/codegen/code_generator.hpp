@@ -18,8 +18,10 @@ namespace xparser { namespace codegen {
 //! Abstract base class for generator objects
 class CodeGenerator {
   public:
-    typedef xparser::Printer Printer;  //! shortcut to Printer class
-    typedef std::set<std::string> StringSet;  //! Set of strings
+    //! \brief Shortcut to Printer class
+    typedef xparser::Printer Printer;
+    //! \brief Shortcut to set of strings
+    typedef std::set<std::string> StringSet;
 
     /*! \brief Constructor
      *
@@ -32,6 +34,7 @@ class CodeGenerator {
     virtual ~CodeGenerator() {}
 
     /*! \brief Writes generated output to given Printer instance
+     *  \param[out] printer Used to write output to
      *
      * Subclasses must overload this to perform the actual code generation
      * and printing.
@@ -50,6 +53,7 @@ class CodeGenerator {
 
   protected:
     /*! \brief Specifies a header required by the generated code
+     *  \param[in] header The required header
      *
      * This method should be called in the construct if required
      */
@@ -58,6 +62,7 @@ class CodeGenerator {
     }
 
     /*! \brief Specifies a header required by the generated code
+     *  \param[in] header Set of required headers
      *
      * This method should be called in the construct if required
      */
@@ -66,6 +71,7 @@ class CodeGenerator {
     }
 
     /*! \brief Specifies a system header required by the generated code
+     *  \param[in] header The required system header
      *
      * This method should be called in the construct if required
      */
@@ -74,6 +80,7 @@ class CodeGenerator {
     }
 
     /*! \brief Specifies a system header required by the generated code
+     *  \param[in] header Set of required system headers
      *
      * This method should be called in the construct if required
      */

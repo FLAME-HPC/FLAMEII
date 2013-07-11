@@ -15,8 +15,13 @@
 
 namespace flame { namespace model {
 
+//! \brief Used to validate variables
 class XVariablesValidate {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] datatypes Model data types
+     */
     explicit XVariablesValidate(const boost::ptr_vector<XDataType>& datatypes);
     /*!
      * \brief Validate variables

@@ -47,32 +47,94 @@ namespace gen = xparser::codegen;  // namespace shorthand
 namespace m = flame::model;
 namespace po = boost::program_options;
 
-// Functions defined further down
+/*!
+ * \brief Handle command line program options
+ * \param[in] argc Argument count
+ * \param[in] argv Argument vector
+ * \param[out] model_file The model file path
+ * \param[out] output_state_graph Enable output of state graph
+ * \param[out] output_dependency_graph Enbale output of dependency graph
+ */
 void handle_options(int argc, const char* argv[], std::string* model_file,
     bool* output_state_graph, bool* output_dependency_graph);
+/*!
+ * \brief Create build options for command line program options
+ * \param[out] cmdline_options Command line options
+ * \param[out] visible Visible options
+ * \param[out] p Positional options
+ * \param[out] model_file The model file path
+ */
 void build_options(po::options_description* cmdline_options,
     po::options_description* visible,
     po::positional_options_description* p,
     std::string* model_file);
+/*!
+ * \brief Give warning when command line option error
+ * \param[in] prog Program name
+ * \param[in] visible Visible options
+ */
 void die_program_options(const std::string& prog,
     const po::options_description& visible);
+/*!
+ * \brief Generate program files to run model
+ * \param[in] model The model data
+ */
 void build_output(m::XModel* model);
+/*!
+ * \brief Generate agent code
+ * \param[in] model The model data
+ * \param[out] maincpp The file to write to
+ */
 void generate_agents(m::XModel *model, gen::GenMainCpp *maincpp);
+/*!
+ * \brief Generate agent function code
+ * \param[in] agent The agent data
+ * \param[out] maincpp The file to write to
+ */
 void generate_agent_functions(m::XMachine *agent, gen::GenMainCpp *maincpp);
+/*!
+ * \brief Generate agent function registration and header code
+ * \param[in] model The model data
+ * \param[out] maincpp The file to write to
+ * \param[out] file_name Name of header file
+ */
 void generate_agent_func_def(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
+/*!
+ * \brief Generate message code
+ * \param[in] model The model data
+ * \param[out] maincpp The file to write to
+ * \param[out] file_name Name of header file
+ */
 void generate_messages(m::XModel *model,
     gen::GenMainCpp *maincpp, std::string file_name);
+/*!
+ * \brief Generate simulation setup code
+ * \param[in] model The model data
+ * \param[out] maincpp The file to write to
+ */
 void setup_simulation(m::XModel *model, gen::GenMainCpp *maincpp);
+/*!
+ * \brief Output graphs
+ * \param[in] model The model data
+ * \param[out] output_state_graph Enable output of state graph
+ * \param[out] output_dependency_graph Enbale output of dependency graph
+ */
 void output_graphs(const m::XModel& model,
     bool output_state_graph, bool output_dependency_graph);
 
-// Print error message then quit with given return code
+//! \brief Print error message then quit with given return code
 void die(const std::string& message, int rc = 2) {
   std::cerr << "Error: " << message << std::endl;
   exit(rc);
 }
 
+/*!
+ * \brief Program main method
+ * \param[in] argc Argument count
+ * \param[in] argv Argument vector
+ * \return Return code
+ */
 int main(int argc, const char* argv[]) {
   // program options from the command line
   std::string model_file;

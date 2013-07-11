@@ -20,8 +20,15 @@
 
 namespace flame { namespace model {
 
+//! \brief Used to validate agents
 class XMachineValidate {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] datatypes Model data types
+     * \param[in] messages Model messages
+     * \param[in] timeUnits Model time units
+     */
     XMachineValidate(const boost::ptr_vector<XDataType>& datatypes,
         boost::ptr_vector<XMessage>& messages,
         boost::ptr_vector<XTimeUnit>& timeUnits);

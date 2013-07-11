@@ -29,6 +29,7 @@ class GenFile : public CodeGenerator {
     void Generate(Printer* printer) const;
 
     /*! \brief Appends sub-generator
+     *  \param[in] generator The generator to insert
      *
      * A copy of the generator is store so the input generator can be modified
      * and reused.

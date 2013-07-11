@@ -13,6 +13,7 @@
 
 namespace flame { namespace model {
 
+//! \brief Used to validate names within models
 class ValidateName {
   public:
     /*!

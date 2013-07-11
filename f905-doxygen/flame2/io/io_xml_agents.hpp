@@ -1,5 +1,5 @@
 /*!
- * \file flame2/io/io_xml_agent.hpp
+ * \file flame2/io/io_xml_agents.hpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -19,8 +19,10 @@
 
 namespace flame { namespace io { namespace xml {
 
+//! \brief Handle reading agents from XML
 class IOXMLAgents {
   public:
+    //! \brief Constructor, initialises data members
     IOXMLAgents() : ioxmlvariables(), ioxmlelement() {}
     /*!
      * \brief Read agents

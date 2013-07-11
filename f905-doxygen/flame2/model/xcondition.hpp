@@ -66,6 +66,7 @@ class XCondition {
      * \brief Validate the condition
      * \param[in] agent The agent
      * \param[in] message The message
+     * \param[in] timeUnits Model time units
      * \param[in] rootCondition The condition
      * \return Number of errors
      */
@@ -75,7 +76,7 @@ class XCondition {
     /*!
      * \brief Validate a time condition
      * \param[in] agent The agent
-     * \param[in] model The model
+     * \param[in] timeUnits Model time units
      * \param[in] rootCondition The condition
      * \return Number of errors
      */

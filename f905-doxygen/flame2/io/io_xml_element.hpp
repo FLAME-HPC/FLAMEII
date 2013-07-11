@@ -13,8 +13,10 @@
 
 namespace flame { namespace io { namespace xml {
 
+//! \brief Handle XML elements
 class IOXMLElement {
   public:
+    //! \brief Constructor
     IOXMLElement() {}
     /*!
      * \brief Get element name

@@ -1,5 +1,5 @@
 /*!
- * \file flame2/io/io_xml_agent.cpp
+ * \file flame2/io/io_xml_agents.cpp
  * \author Simon Coakley
  * \date 2012
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory

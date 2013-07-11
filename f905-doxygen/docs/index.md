@@ -52,11 +52,7 @@ For more details on the design plans, see
 
 
 Developer Notes {#mainpage_developer}
-===============
+---------------
 
-Standards used on the code base include:
- * [Style](@ref codestyle)
- * [Metrics](@ref codemetrics)
- * [Memory](@ref valgrind)
-
+For notes on development policies and standards see [Developer Notes](@ref developer).
 

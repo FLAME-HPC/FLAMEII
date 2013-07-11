@@ -23,10 +23,16 @@ namespace xparser { namespace codegen {
 //! \brief Generates code to register an agent and its memory
 class GenAgent : public CodeGenerator {
   public:
-    typedef std::pair<std::string, std::string> VarPair;  //! type name pair
-    typedef std::vector<VarPair> VarPairVector;  //! Collection of VarPair
-    typedef std::set<std::string> VarnameSet;  //! Set of var names
-
+    //! \brief Type name pair
+    typedef std::pair<std::string, std::string> VarPair;
+    //! \brief Collection of VarPair
+    typedef std::vector<VarPair> VarPairVector;
+    //! \brief Set of var names
+    typedef std::set<std::string> VarnameSet;
+    /*!
+     * \brief Constructor
+     * \param[in] agent_name Agent name
+     */
     explicit GenAgent(const std::string& agent_name);
     //! Adds an agent variable and its type
     void AddVar(const std::string& var_type, const std::string& var_name);

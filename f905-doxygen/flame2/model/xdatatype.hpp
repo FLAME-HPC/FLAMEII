@@ -29,6 +29,8 @@ class XDataType {
     XDataType();
     /*!
      * \brief Constructor that sets name and isFundamental
+     * \param[in] name The data type name
+     * \param[in] isfundamental Is fundamental data type
      *
      * Initialises holding dynamic arrays to be false.
      */

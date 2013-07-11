@@ -15,18 +15,31 @@
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
-//! Generates code to register a message and register its datatype
+//! \brief Generates code to register a message and register its datatype
 class GenMessage : public CodeGenerator {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] msg_name Message name
+     */
     explicit GenMessage(const std::string& msg_name);
-    //! Adds a message variable and its type
+    /*!
+     * \brief Adds a message variable and its type
+     * \param[in] var_type Variable type
+     * \param[in] var_name Variable name
+     */
     void AddVar(const std::string& var_type, const std::string& var_name);
-    //! Prints the generated code to the printer instance
+    /*!
+     * \brief Prints the generated code to the printer instance
+     * \param[out] printer The printer to write to
+     */
     void Generate(Printer* printer) const;
 
   private:
-    typedef std::pair<std::string, std::string> VarPair;  //! type-name pair
-    typedef std::vector<VarPair> VarPairVector;  //! Collection of vars
+    //! \brief Type-name pair
+    typedef std::pair<std::string, std::string> VarPair;
+    //! \brief Collection of vars
+    typedef std::vector<VarPair> VarPairVector;
 
     /*! \brief Collection of VarPair
      *

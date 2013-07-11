@@ -20,7 +20,8 @@ namespace xparser { namespace codegen {
 //! Generates code to setup a simulation
 class GenSimulation : public CodeGenerator {
   public:
-    typedef std::set<std::string> MessagenameSet;  //! Set of message names
+    //! \brief Set of message names
+    typedef std::set<std::string> MessagenameSet;
 
     explicit GenSimulation();
     //! Adds a message type

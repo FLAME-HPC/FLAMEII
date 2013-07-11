@@ -17,7 +17,8 @@ namespace xparser { namespace codegen {
 //! Generates a model Makefile
 class GenMakefile : public CodeGenerator {
   public:
-    typedef std::set<std::string> StringSet;  //! Set of strings
+    //! \brief Set of strings
+    typedef std::set<std::string> StringSet;
 
     //! Constructor, initialises data members
     GenMakefile() : headers_(), sources_() {}

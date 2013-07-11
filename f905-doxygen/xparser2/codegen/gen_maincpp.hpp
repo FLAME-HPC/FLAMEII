@@ -17,7 +17,8 @@ namespace xparser { namespace codegen {
 class GenMainCpp : public GenFile {
   public:
     GenMainCpp();
-    //! Prints the generated code to the printer instance
+    //! \brief Prints the generated code to the printer instance
+    //! \param[out] printer The printer instance to write code to
     void Generate(Printer* printer) const;
 };
 

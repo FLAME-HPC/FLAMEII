@@ -48,7 +48,7 @@ class XConditionValues {
      * \brief Validate values
      * \param[in] agent The agent
      * \param[in] xmessage The message
-     * \param[in] rootCondition The condition
+     * \param[in] readOnlyVariables Condition agent variables
      * \return Number of errors
      */
     int validateValues(XMachine * agent, XMessage * xmessage,

@@ -15,8 +15,10 @@
 
 namespace flame { namespace io { namespace xml {
 
+//! \brief Handle reading variables from XML
 class IOXMLVariables {
   public:
+    //! \brief Constructor, initialises data members
     IOXMLVariables() : ioxmlelement() {}
     /*!
      * \brief Read variables
