@@ -30,7 +30,8 @@ typedef std::set< std::pair<std::string, std::string> > StringPairSet;
 //! \brief Type to hold a list of Var
 typedef std::vector<Var> VarVec;
 
-Simulation::Simulation(const m::Model &model, std::string pop_file) {
+Simulation::Simulation(const m::Model &model, std::string pop_file)
+  : iteration_(0) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
   // check model has been validated

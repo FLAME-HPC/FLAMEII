@@ -121,13 +121,11 @@ class VectorWrapper: public VectorWrapperBase {
     typedef T data_type;  //!< value type
     typedef std::vector<T> vector_type;  //!< vector type
 
-    VectorWrapper() { data_type_ = &typeid(T); }
+    VectorWrapper() : data_type_(&typeid(T)), v_(0) {}
 
     //! \brief Copy constructor
-    explicit VectorWrapper(const VectorWrapper& v) : VectorWrapperBase(v) {
-      data_type_ = v.data_type_;
-      v_ = v.v_;
-    }
+    explicit VectorWrapper(const VectorWrapper& v)
+      : VectorWrapperBase(v), data_type_(v.data_type_), v_(v.v_) {}
 
     void reserve(unsigned int n) { v_.reserve(n); }
     size_t size() const { return v_.size(); }
@@ -202,6 +200,8 @@ class VectorWrapper: public VectorWrapperBase {
   private:
     const std::type_info *data_type_;  //!< pointer to type_info of current type
     std::vector<T> v_;  //!< underlying container
+    //! This class has pointer members so disable assignment operation
+    void operator=(const VectorWrapper&);
 };
 
 
