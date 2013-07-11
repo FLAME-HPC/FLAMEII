@@ -26,7 +26,7 @@ class CodeGenerator {
      * Subclasses should overload this to make calls to RequireHeader() and
      * RequireSysHeader() when required.
      */
-    inline CodeGenerator() {}
+    inline CodeGenerator() : required_headers_(), required_sys_headers_() {}
 
     //! Destructor
     virtual ~CodeGenerator() {}

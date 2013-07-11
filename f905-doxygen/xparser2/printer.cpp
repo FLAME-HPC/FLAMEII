@@ -50,7 +50,7 @@ const char* get_cstr_from_file(const std::string& filename) {
 namespace xparser {
 
 Printer::Printer(std::ostream *s, char delimiter)
-  : s_(s), delim_(delimiter), at_start_of_line_(true) {
+  : s_(s), indent_(), delim_(delimiter), at_start_of_line_(true) {
 }
 
 void Printer::Indent() {

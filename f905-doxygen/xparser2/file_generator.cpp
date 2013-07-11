@@ -16,12 +16,12 @@
 #include "file_generator.hpp"
 namespace xparser {
 
-FileGenerator::FileGenerator() {
+FileGenerator::FileGenerator() : outdir_() {
   // use current working dir as output dir
   ChangeOutputDirectory(boost::filesystem::current_path().string());
 }
 
-FileGenerator::FileGenerator(const std::string& output_dir) {
+FileGenerator::FileGenerator(const std::string& output_dir) : outdir_() {
   ChangeOutputDirectory(output_dir);
 }
 

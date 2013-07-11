@@ -34,6 +34,11 @@ class AgentFunctionHeaderSnippets;
  */
 class SingleVarSnippet : public CodeGenerator {
   public:
+
+    //! Constructor, initialises data members
+    SingleVarSnippet() : vars_() {}
+
+    //! Destructor
     virtual ~SingleVarSnippet() {}
 
     //! Generates output text, once per added variablr

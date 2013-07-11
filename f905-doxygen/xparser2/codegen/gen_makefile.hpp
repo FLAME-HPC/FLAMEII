@@ -19,6 +19,9 @@ class GenMakefile : public CodeGenerator {
   public:
     typedef std::set<std::string> StringSet;  //! Set of strings
 
+    //! Constructor, initialises data members
+    GenMakefile() : headers_(), sources_() {}
+
     //! Adds a header file to the list of project files
     void AddHeaderFile(const std::string& filename);
     //! Adds a source file to the list of project files

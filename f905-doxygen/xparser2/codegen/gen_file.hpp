@@ -22,6 +22,9 @@ namespace xparser { namespace codegen {
  */
 class GenFile : public CodeGenerator {
   public:
+    //! /brief Constructor, initialise data members
+    GenFile() : generators_() {}
+
     //! Writes generated file content to printer instance
     void Generate(Printer* printer) const;
 

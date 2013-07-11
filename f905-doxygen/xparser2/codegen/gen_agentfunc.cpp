@@ -21,7 +21,8 @@ GenAgentFunc::GenAgentFunc(const std::string& agent_name,
     const std::string& func_name,
       const std::string& current_state, const std::string& next_state)
   : agent_name_(agent_name), func_name_(func_name),
-    current_state_(current_state), next_state_(next_state) {}
+    current_state_(current_state), next_state_(next_state),
+    outputs_(), inputs_(), read_write_vars_(), read_only_vars_() {}
 
 void GenAgentFunc::AddOutput(const std::string& message_name) {
   if (std::find(outputs_.begin(), outputs_.end(), message_name)

@@ -12,7 +12,7 @@
 namespace xparser { namespace codegen {
 
 GenMessage::GenMessage(const std::string& msg_name)
-    : name_(msg_name) {
+    : vars_(), name_(msg_name) {
 }
 
 // var_type and var_name validation not performed
