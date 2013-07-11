@@ -24,7 +24,8 @@ namespace model {
 Model::Model()
   : validated_(false), model_(), funcMap_() {}
 
-Model::Model(std::string path_to_model) : validated_(false), model_(), funcMap_() {
+Model::Model(std::string path_to_model)
+  : validated_(false), model_(), funcMap_() {
   // Load model
   flame::io::IOManager::GetInstance().loadModel(path_to_model, &model_);
   // Validate model

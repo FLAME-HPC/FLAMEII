@@ -34,7 +34,6 @@ class AgentFunctionHeaderSnippets;
  */
 class SingleVarSnippet : public CodeGenerator {
   public:
-
     //! Constructor, initialises data members
     SingleVarSnippet() : vars_() {}
 

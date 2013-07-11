@@ -15,7 +15,8 @@
 
 namespace flame { namespace model {
 
-XDataType::XDataType() : id_(0), name_(), variables_(), holdsDynamicArray_(false),
+XDataType::XDataType()
+  : id_(0), name_(), variables_(), holdsDynamicArray_(false),
     isFundamental_(false) {}
 
 XDataType::XDataType(std::string name, bool isfundamental)

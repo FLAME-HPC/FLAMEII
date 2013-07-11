@@ -42,7 +42,8 @@ AgentTask::AgentTask(std::string task_name, std::string agent_name,
 }
 
 AgentTask::AgentTask(const AgentTask& parent, size_t offset, size_t count)
-    : agent_name_(), func_(), shadow_ptr_(), is_split_(true), offset_(offset), count_(count) {
+    : agent_name_(), func_(), shadow_ptr_(), is_split_(true),
+      offset_(offset), count_(count) {
   func_ = parent.func_;
   task_id_ = parent.task_id_;
   mb_proxy_ = parent.mb_proxy_;

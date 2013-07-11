@@ -29,7 +29,8 @@
 namespace flame { namespace model {
 
 XGraph::XGraph()
-  : graph_(0), tasklist_(), edge2dependency_(0), startTask_(0), endTask_(0), endTasks_() {
+  : graph_(0), tasklist_(), edge2dependency_(0),
+    startTask_(0), endTask_(0), endTasks_() {
   // Initialise pointers
   graph_ = new Graph;
   edge2dependency_ = new EdgeMap;
