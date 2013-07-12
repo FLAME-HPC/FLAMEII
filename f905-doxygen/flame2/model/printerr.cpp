@@ -11,6 +11,7 @@
 #include <cstdarg>
 #include <cstdio>
 #endif
+#include "printerr.hpp"
 #include "flame2/config.hpp"
 
 #ifdef TESTBUILD
