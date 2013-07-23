@@ -18,6 +18,8 @@ namespace flame { namespace io {
  * \brief IO class for outputting agent memories to the command line
  */
 class IOCLIPop : public IO {
+  public:
+    //! \brief Get the name of the plugin
     std::string getName();
     /*!
      * \brief Reading method, called by io manager
@@ -27,12 +29,12 @@ class IOCLIPop : public IO {
     void readPop(std::string /*path*/,
         void (*)(std::string const&, std::string const&, int),
         void (*)(std::string const&, std::string const&, double));
-    //! Initialise writing out of data for an iteration
+    //! \brief Initialise writing out of data for an iteration
     void initialiseData();
-    //! Write out an agent variable for all agents
+    //! \brief Write out an agent variable for all agents
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr);
-    //! Finalise writing out of data for an iteration
+    //! \brief Finalise writing out of data for an iteration
     void finaliseData();
 };
 
