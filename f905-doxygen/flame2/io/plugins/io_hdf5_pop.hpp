@@ -17,31 +17,76 @@
 
 namespace flame { namespace io {
 
-class IOHDF5Pop : public IO {
-    std::string getFileName();
+/*!
+ * \brief IO Plugin to read and write to HDF5 files
+ */
+class IOHDF5Pop : public IOInterface {
+  public:
+    /*!
+     * \brief Constructor
+     */
+    IOHDF5Pop() {}
+    /*!
+     * \brief Return plugin name
+     * \return Plugin name
+     */
     std::string getName();
-    //! Validate file
+    /*!
+     * \brief Validate file
+     * \param[in] h5file File to validate
+     */
     void validate(hid_t h5file);
-    void readIntDataset(hid_t h5dataset, size_t size,
-        std::string const& agent_name, std::string const& var_name,
-        void (*addInt)(std::string const&, std::string const&, int));
-    void readDoubleDataset(hid_t h5dataset, size_t size,
-        std::string const& agent_name, std::string const& var_name,
-        void (*addDouble)(std::string const&, std::string const&, double));
-    //! Reading method, called by io manager
+    /*!
+     * \brief Read HDF5 population file
+     * \param[in] path File to read
+     * \param[out] addInt Function to add integers
+     * \param[out] addDouble Function to add doubles
+     */
     void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double));
-    //! Initialise writing out of data for an iteration
+    //! \brief Initialise writing out of data for an iteration
     void initialiseData();
-    //! Write out an agent variable for all agents
+    /*!
+     * \brief Write agent variable array to HDF5 file
+     * \param[in] agent_name The agent name
+     * \param[in] var_name The variable name
+     * \param[in] size The size of the variable array
+     * \param[in] ptr Pointer to the variable array
+     */
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr);
-    //! Finalise writing out of data for an iteration
+    //! \brief Finalise writing out of data for an iteration
     void finaliseData();
 
   private:
-    hid_t h5_Circle_datatype;
+    /*!
+     * \brief Return file name
+     * \return File name
+     */
+    std::string getFileName();
+    /*!
+     * \brief Read integer data set
+     * \param[in] h5dataset Data set to read
+     * \param[in] size Vector size
+     * \param[in] agent_name Agent name
+     * \param[in] var_name Variable name
+     * \param[out] addInt Function to add integers
+     */
+    void readIntDataset(hid_t h5dataset, size_t size,
+        std::string const& agent_name, std::string const& var_name,
+        void (*addInt)(std::string const&, std::string const&, int));
+    /*!
+     * \brief Read double data set
+     * \param[in] h5dataset Data set to read
+     * \param[in] size Vector size
+     * \param[in] agent_name Agent name
+     * \param[in] var_name Variable name
+     * \param[out] addDouble Function to add doubles
+     */
+    void readDoubleDataset(hid_t h5dataset, size_t size,
+        std::string const& agent_name, std::string const& var_name,
+        void (*addDouble)(std::string const&, std::string const&, double));
 };
 
 }}  // namespace flame::io

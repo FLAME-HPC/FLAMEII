@@ -35,7 +35,14 @@ namespace exe {}
 //!
 //! Classes for handling reading and writing of model description and
 //!     population data.
-namespace io {}
+namespace io {
+
+//! \brief IO XML Module
+//!
+//! Classes for handling reading and writing of XML model description and
+//!     population data.
+namespace xml {}
+}
 
 //! \brief MB Module
 //!

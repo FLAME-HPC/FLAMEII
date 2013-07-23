@@ -25,7 +25,7 @@ namespace flame { namespace model {
 typedef std::pair<std::string, std::string> Var;
 
 /*!
- * Class to hold agent information
+ * \brief Class to hold agent information
  */
 class XMachine {
   public:

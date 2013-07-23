@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2013 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Interface class for output types
+ * \brief Interface class for io plugins
  */
 #ifndef IO__IO_INTERFACE_HPP_
 #define IO__IO_INTERFACE_HPP_
@@ -26,10 +26,10 @@ typedef std::map<std::string, VarVec> AgentMemory;
 /*!
  * \brief Interface class for implementing IO plugins
  */
-class IO {
+class IOInterface {
   public:
-    IO() : agentMemory_(), iteration_(0), path_() {}
-    virtual ~IO() {}
+    IOInterface() : agentMemory_(), iteration_(0), path_() {}
+    virtual ~IOInterface() {}
 
     //! Get the name of the plugin
     virtual std::string getName() = 0;

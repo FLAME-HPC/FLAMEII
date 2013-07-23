@@ -15,7 +15,7 @@
 
 namespace flame { namespace exceptions {
 
-//! Parent class for all API related exceptions */
+//! Parent class for all API related exceptions
 class flame_api_exception : public flame_exception {
   public:
     /*!

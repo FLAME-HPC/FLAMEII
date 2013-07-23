@@ -28,7 +28,7 @@ typedef std::map<std::string, VarPtrArrayMap> AgentMemoryArrays;
 /*!
  * \brief IO plugin for reading and writing CSV files
  */
-class IOCSVPop : public IO {
+class IOCSVPop : public IOInterface {
   public:
     //! \brief Constructor, initialise data members
     IOCSVPop() : agentMemoryArrays_() {}

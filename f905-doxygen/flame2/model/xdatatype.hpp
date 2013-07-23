@@ -17,7 +17,7 @@
 namespace flame { namespace model {
 
 /*!
- * Class to hold model data type information
+ * \brief Class to hold model data type information
  */
 class XDataType {
   public:

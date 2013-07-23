@@ -16,6 +16,7 @@ namespace flame { namespace exe {
 
 class TaskQueue;
 
+//! \brief Basic worker thread
 //!
 //! \todo Figure out how to propagate exceptions back to the main thread so we
 //!       can handle exceptions raised by API calls more elegantly.

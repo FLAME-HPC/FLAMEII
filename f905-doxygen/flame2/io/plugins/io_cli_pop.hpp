@@ -17,7 +17,7 @@ namespace flame { namespace io {
 /*!
  * \brief IO class for outputting agent memories to the command line
  */
-class IOCLIPop : public IO {
+class IOCLIPop : public IOInterface {
   public:
     //! \brief Get the name of the plugin
     std::string getName();

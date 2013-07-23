@@ -226,6 +226,7 @@ struct has_cycle : public std::exception {
 
 /*!
  * \brief Visitor function object passed to depth_first_search.
+ *
  * Contains back_edge method that is called when the depth_first_search
  * explores an edge to an already discovered vertex.
  */

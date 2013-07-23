@@ -17,7 +17,7 @@
 namespace flame { namespace model {
 
 /*!
- * Class to hold model messages information
+ * \brief Class to hold model messages information
  */
 class XMessage {
   public:

@@ -30,8 +30,7 @@ typedef std::set<std::string> WriteableSet;
 //! Smart pointer type used to return MemoryIterator
 typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
-//! Agent shadow
-//!
+//! \brief Proxy object which only exposes selected vars of an agent
 //! \todo since the number of entries in vec_map_ and rw_set_ will be
 //!       relatively small, the tree-based search used by std::map and std::set
 //!       may not be ideal.

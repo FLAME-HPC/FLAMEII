@@ -77,7 +77,7 @@ class IOManager {
 
 #ifdef TESTBUILD
     //! Return a pointer to the IO plugin named
-    IO * getIOPlugin(std::string const& name);
+    IOInterface * getIOPlugin(std::string const& name);
     //! Delete all input and output types
     void Reset();
 #endif
@@ -90,13 +90,13 @@ class IOManager {
     //! Path to directory holding population files
     std::string path_;
     //! Map from plugin name to plugin
-    boost::ptr_map<std::string, IO> plugins_;
+    boost::ptr_map<std::string, IOInterface> plugins_;
     //! The current iteration number
     size_t iteration_;
     //! Input plugin
-    IO * inputPlugin_;
+    IOInterface * inputPlugin_;
     //! Output plugin
-    IO * outputPlugin_;
+    IOInterface * outputPlugin_;
 
     //! This is a singleton class. Disable manual instantiation
     IOManager();

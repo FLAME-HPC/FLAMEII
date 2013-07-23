@@ -17,7 +17,7 @@
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
-//! Generates struct declaration for datatypes that can be stored in
+//! \brief Generates struct declaration for datatypes that can be stored in
 //! flame::mem::VectorWrapper
 class GenDataStruct : public CodeGenerator {
   public:

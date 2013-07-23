@@ -68,7 +68,7 @@ void addDouble(std::string const&, std::string const&, double) {}
 // Test the reading of XML population files
 BOOST_AUTO_TEST_CASE(test_read_XML_pop) {
   size_t ii;
-  io::IO * ioxmlpop;
+  io::IOInterface * ioxmlpop;
   io::xml::IOXMLModel ioxmlmodel;
   model::XModel model;
   mem::MemoryManager& memoryManager =

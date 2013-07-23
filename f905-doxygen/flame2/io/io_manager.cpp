@@ -34,9 +34,9 @@ namespace fs = boost::filesystem;
 IOManager::IOManager() : agentMemory_(), ioxmlmodel_(), path_(), plugins_(),
     iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // add plugins
-  std::auto_ptr<IO> ioxmlpop(new IOXMLPop);
+  std::auto_ptr<IOInterface> ioxmlpop(new IOXMLPop);
   plugins_.insert("xml", ioxmlpop);
-  std::auto_ptr<IO> iocsvpop(new IOCSVPop);
+  std::auto_ptr<IOInterface> iocsvpop(new IOCSVPop);
   plugins_.insert("csv", iocsvpop);
 #ifdef HAVE_SQLITE3
   std::auto_ptr<IO> iosqlitepop(new IOSQLitePop);
@@ -179,7 +179,7 @@ void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
 }
 
 void IOManager::setInputType(std::string const& inputType) {
-  boost::ptr_map<std::string, IO>::iterator pit;
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
 
   // find input type plugin
   pit = plugins_.find(inputType);
@@ -191,7 +191,7 @@ void IOManager::setInputType(std::string const& inputType) {
 }
 
 void IOManager::setOutputType(std::string const& outputType) {
-  boost::ptr_map<std::string, IO>::iterator pit;
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
 
   // find output type plugin
   pit = plugins_.find(outputType);
@@ -206,8 +206,8 @@ void IOManager::setOutputType(std::string const& outputType) {
 }
 
 #ifdef TESTBUILD
-IO * IOManager::getIOPlugin(std::string const& name) {
-  boost::ptr_map<std::string, IO>::iterator pit;
+IOInterface * IOManager::getIOPlugin(std::string const& name) {
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
   // find plugin
   pit = plugins_.find(name);
   if (pit != plugins_.end()) return pit->second;

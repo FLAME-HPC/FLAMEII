@@ -37,7 +37,7 @@ typedef std::map<std::string, VarVec> AgentMemory;
 /*!
  * \brief IO Plugin to read and write to XML files
  */
-class IOXMLPop : public IO {
+class IOXMLPop : public IOInterface {
   public:
     /*!
      * \brief Constructor
@@ -45,7 +45,6 @@ class IOXMLPop : public IO {
     IOXMLPop();
     /*!
      * \brief Return plugin name
-     *
      * \return Plugin name
      */
     std::string getName();

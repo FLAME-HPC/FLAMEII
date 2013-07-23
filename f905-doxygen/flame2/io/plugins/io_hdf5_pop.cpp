@@ -16,6 +16,7 @@
 #include "io_hdf5_pop.hpp"
 #include "flame2/config.hpp"
 
+//! \brief Macro to do HDF5 error checking
 #define H5_ERR_CHECK(func)                                                 \
 do {                                                                       \
   herr_t h5status = func;                                                  \

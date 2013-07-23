@@ -24,7 +24,8 @@ typedef boost::ptr_map<std::string, AgentMemory> AgentMap;
 //! Shared pointer to AgentShadow instance
 typedef boost::shared_ptr<AgentShadow> AgentShadowPtr;
 
-//! Memory Manager object.
+//! \brief Management and storage class for agent data
+//!
 //! This is a singleton class - only one instance should exist throughtout
 //! the simulation. Instances are accessed using MemoryManager::GetInstance().
 //! Apart from the Get* methods, all others should be called during the

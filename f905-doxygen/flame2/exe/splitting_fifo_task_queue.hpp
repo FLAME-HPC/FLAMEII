@@ -19,7 +19,7 @@
 
 namespace flame { namespace exe {
 
-//!
+//! \brief Splitting First In First Out Task Queue
 //!
 //! \todo SplittingPriorityTaskQueue - a queue that schedules based on priority
 //!       instead of FIFO. Use either std::priority_queue or a custom one based

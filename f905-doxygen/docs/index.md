@@ -19,7 +19,8 @@ libflame2 consists of the following modules:
  * [SIM](@ref modsim) - Simulation management
  * [API](@ref modapi) - Modeller Interface
 
-
+[Xparser](@ref xparser) consists of code generators and templates and
+uses flame2 [IO](@ref modio) and [MODEL](@ref modmodel) modules.
 
 Building and Installing  {#mainpage_installing}
 =======================
@@ -52,7 +53,7 @@ For more details on the design plans, see
 
 
 Developer Notes {#mainpage_developer}
----------------
+===============
 
 For notes on development policies and standards see [Developer Notes](@ref developer).
 
