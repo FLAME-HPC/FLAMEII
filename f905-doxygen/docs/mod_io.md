@@ -81,11 +81,29 @@ IO Plugins {#modio-ioplugins}
 
 The framework provides some built-in IO plugins:
 
- * [XML](@ref flame::io::IOXMLPop) -- the default, but is not column based and writes all data out on finalising the data.
- * [CSV](@ref flame::io::IOCSVPop) -- again not column based and writes all data out on finalising the data.
- * [CLI](@ref flame::io::IOCLIPop) -- no reading option but writes output to the command line to help debugging.
- * [HDF5](@ref flame::io::IOHDF5Pop) -- compile option, currently the 'best' output format, make default?
- * [SQLite](@ref flame::io::IOSQLitePop) -- compile option, a database but using indexes to write column wise.
+ * [XML](@ref flame::io::IOXMLPop) -- 
+   the default, but is not column based and writes all data out on finalising the data.
+ * [CSV](@ref flame::io::IOCSVPop) -- 
+   again not column based and writes all data out on finalising the data.
+ * [CLI](@ref flame::io::IOCLIPop) -- 
+   no reading option but writes output to the command line to help debugging.
+ * [HDF5](@ref flame::io::IOHDF5Pop) -- 
+   compile option, currently the 'best' output format, make default?
+ * [SQLite](@ref flame::io::IOSQLitePop) -- 
+   compile option, a database but using indexes to write column wise.
+
+For speedup FLAME-II tries to write out agent data vector wise per agent variable.
+This requires a data format that can write to a file column wise.
+Unfortunately most file formats expect data to be row wise.
+For example XML and CSV can only, realistically, be written line by line, agent by agent, and not variable by variable.
+SQLite uses a database which also expects data to be added in rows. We can circumvent this by indexing rows and writing
+each variable row by row which isn't perfect but works, especially if we batch the SQL statements to be executed.
+HDF5 on the other hand can write vectors very efficiently and is a much better match for FLAME-II requirements.
+
+The problem with writing agent variables vector wise is at the end of each iteration when agents can be
+removed and added to a simulation.
+Removing elements from vectors requires packing each of the variable vectors which is time consuming and counterproductive.
+A solution which be to provide an index to removed agents but this is also an inefficient overhead.
 
 Note: a way for users to plugin there own IO plugins at runtime was developed but was found to be platform dependent.
 There has been no further development of this feature.

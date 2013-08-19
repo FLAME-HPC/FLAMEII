@@ -20,7 +20,7 @@ libflame2 consists of the following modules:
  * [API](@ref modapi) - Modeller Interface
 
 [Xparser](@ref xparser) consists of code generators and templates and
-uses flame2 [IO](@ref modio) and [MODEL](@ref modmodel) modules.
+uses FLAME-II [IO](@ref modio) and [MODEL](@ref modmodel) modules.
 
 Building and Installing  {#mainpage_installing}
 =======================

@@ -120,7 +120,3 @@ All agent dependency graphs are joined to create the model dependency graph, usi
  4. Change agent message tasks to model message sync tasks and add message clear tasks
 
 @img{images/infection_model/infection_dependencygraph.png, 15cm, Dependency graph - Infection model}
-
-**TODO:Simon**
-
-(include description and design of module here)
