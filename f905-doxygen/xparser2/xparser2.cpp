@@ -287,7 +287,7 @@ void build_output(m::XModel* model) {
   generate_agent_func_def(model, &maincpp, "agent_function_definitions.hpp");
   makefile.AddHeaderFile("agent_function_definitions.hpp");
 
-  // Define and messages
+  // Define message types
   generate_messages(model, &maincpp, "message_datatypes.hpp");
   makefile.AddHeaderFile("message_datatypes.hpp");
 
