@@ -96,6 +96,10 @@ class IOSQLitePop : public IOInterface {
      */
     std::string createUpdateStatement(std::string const& agent_name,
         std::string const& var_name, std::string const& index_name);
+    //! \brief This class has pointer members so disable copy constructor
+    IOSQLitePop(const IOSQLitePop&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const IOSQLitePop&);
 };
 
 }}  // namespace flame::io
