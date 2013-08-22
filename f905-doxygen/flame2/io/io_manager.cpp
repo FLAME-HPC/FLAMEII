@@ -39,11 +39,11 @@ IOManager::IOManager() : agentMemory_(), ioxmlmodel_(), path_(), plugins_(),
   std::auto_ptr<IOInterface> iocsvpop(new IOCSVPop);
   plugins_.insert("csv", iocsvpop);
 #ifdef HAVE_SQLITE3
-  std::auto_ptr<IO> iosqlitepop(new IOSQLitePop);
+  std::auto_ptr<IOInterface> iosqlitepop(new IOSQLitePop);
   plugins_.insert("sqlite", iosqlitepop);
 #endif
 #ifdef HAVE_HDF5
-  std::auto_ptr<IO> iohdf5pop(new IOHDF5Pop);
+  std::auto_ptr<IOInterface> iohdf5pop(new IOHDF5Pop);
   plugins_.insert("hdf5", iohdf5pop);
 #endif
   // set default input and output options
