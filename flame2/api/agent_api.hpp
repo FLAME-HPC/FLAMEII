@@ -1,5 +1,5 @@
 /*!
- * \file flame2/api/cxx/agent_api.hpp
+ * \file flame2/api/agent_api.hpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -67,6 +67,7 @@ class AgentAPI {
     /*!
      * \brief Returns an agent memory value
      * \param var_name Name of memory variable to retrieve
+     * \return Value of requested memory variable
      *
      * Possible exceptions:
      *  - flame::exceptions::flame_api_invalid_type (Invalid type specified)
@@ -166,6 +167,7 @@ class AgentAPI {
     /*!
      * \brief Returns a message iterator
      * \param msg_name Name of message to post
+     * \return iterator that can be used to iterate through board content
      *
      * Possible exceptions:
      *  - flame::exceptions::flame_api_unknown_param (Unknown message name)

@@ -36,7 +36,7 @@ class Printer {
 
     /*! \brief Prints text to output stream
      * \param text Output text
-     * \param map Map of possible replacement candidates
+     * \param vars Map of possible replacement candidates
      *
      * Prints text with the corrent indentation inserted at each new line.
      *
@@ -107,6 +107,15 @@ class Printer {
      * \param size The number of chars to write
      */
     void write_(const char* data, int size);
+    /*! \brief Handle printing of variables
+     * \param text Output text
+     * \param end Location of closing delimiter
+     * \param pos Current position
+     * \param vars Map of possible replacement candidates
+     * \return New position in string
+     */
+    int PrintVariable(const char* text, const char* end, int* pos,
+        const std::map<std::string, std::string>& vars);
 
     // Disable copy constructor and assignment
     Printer(const Printer&);

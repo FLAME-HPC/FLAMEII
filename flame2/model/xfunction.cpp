@@ -16,40 +16,21 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Constructs XFunction
- *
- * Initialises XFunction with no condition and no memory access info.
- */
 XFunction::XFunction()
-  : condition_(0), memoryAccessInfoAvailable_(true) {}
+  : name_(), currentState_(), nextState_(), inputs_(), outputs_(),
+    condition_(0), memoryAccessInfoAvailable_(true),
+    readOnlyVariables_(), readWriteVariables_() {}
 
-/*!
- * \brief Constructs XFunction
- *
- * Initialises XFunction with a name and no condition and
- * no memory access info.
- */
 XFunction::XFunction(std::string name)
-: name_(name),
-  condition_(0),
-  memoryAccessInfoAvailable_(true) {}
+: name_(name), currentState_(), nextState_(), inputs_(), outputs_(),
+  condition_(0), memoryAccessInfoAvailable_(true),
+  readOnlyVariables_(), readWriteVariables_() {}
 
-/*!
- * \brief Cleans up XFunction
- *
- * Cleans up XFunction by deleting condition and ioputs.
- */
 XFunction::~XFunction() {
   /* Delete any condition */
   delete condition_;
 }
 
-/*!
- * \brief Prints the XFunction
- *
- * Prints the XFunction to standard out.
- */
 void XFunction::print() {
   boost::ptr_vector<XIOput>::iterator it;
   std::fprintf(stdout, "\tFunction Name: %s\n", getName().c_str());

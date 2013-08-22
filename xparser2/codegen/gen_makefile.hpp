@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_makefile.hpp
+ * \file xparser2/codegen/gen_makefile.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -17,7 +17,11 @@ namespace xparser { namespace codegen {
 //! Generates a model Makefile
 class GenMakefile : public CodeGenerator {
   public:
-    typedef std::set<std::string> StringSet;  //! Set of strings
+    //! \brief Set of strings
+    typedef std::set<std::string> StringSet;
+
+    //! Constructor, initialises data members
+    GenMakefile() : headers_(), sources_() {}
 
     //! Adds a header file to the list of project files
     void AddHeaderFile(const std::string& filename);

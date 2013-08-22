@@ -27,6 +27,7 @@ class MessageBoardManager {
 
     /*!
      * \brief Creates and stores a message board of a given name and type
+     * \param msg_name message name
      *
      * Throws flame::exceptions::logic_error if a name that already exists
      * is provided.
@@ -46,6 +47,8 @@ class MessageBoardManager {
 
     /*!
      * \brief Returns a shared pointer to BoardWriter instance for board
+     * \param msg_name message name
+     * \return board writer
      *
      * Throws flame::exceptions::invalid_argument if unknown message name
      * is provided.
@@ -56,6 +59,8 @@ class MessageBoardManager {
 
     /*!
      * \brief Returns a shared pointer to MessageIterator instance for board
+     * \param msg_name message name
+     * \return message iterator
      *
      * Throws flame::exceptions::invalid_argument if unknown message name
      * is provided.
@@ -66,6 +71,7 @@ class MessageBoardManager {
 
     /*!
      * \brief Synchronises the specified board
+     * \param msg_name message name
      *
      * Throws flame::exceptions::invalid_argument if unknown message name
      * is provided.
@@ -76,6 +82,7 @@ class MessageBoardManager {
 
     /*!
      * \brief Clears the specified board
+     * \param msg_name message name
      *
      * Throws flame::exceptions::invalid_argument if unknown message name
      * is provided.
@@ -86,6 +93,8 @@ class MessageBoardManager {
 
     /*!
      * \brief Returns the number of messages in the specified board
+     * \param msg_name message name
+     * \return number of messages
      *
      * Throws flame::exceptions::invalid_argument if unknown message name
      * is provided.
@@ -110,16 +119,19 @@ class MessageBoardManager {
     //! Datatype to map message name to board instances
     typedef boost::ptr_map<std::string, MessageBoard> board_map;
 
-    board_map map_;  //! map of message board instances
+    board_map map_;  //!< map of message board instances
 
     //! This is a singleton class. Disable manual instantiation
-    MessageBoardManager() {}
+    MessageBoardManager() : map_() {}
     //! This is a singleton class. Disable copy constructor
     MessageBoardManager(const MessageBoardManager&);
     //! This is a singleton class. Disable assignment operation
     void operator=(const MessageBoardManager&);
 
-    //! Utility routine to return a reference to a board give a message name
+    /*! 
+     * \brief Utility routine to return a reference to a board give a message name
+     * \param msg_name message name
+     */
     inline MessageBoard& _GetMessageBoard(const std::string& msg_name) {
       try {
         return map_.at(msg_name);

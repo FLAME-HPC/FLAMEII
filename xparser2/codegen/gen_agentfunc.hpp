@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_agentfunc.hpp
+ * \file xparser2/codegen/gen_agentfunc.hpp
  * \author Simon Coakley
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -19,9 +19,16 @@
 namespace xparser { namespace codegen {
 
 //! \brief Generates code to register an agent function, its inputs, outputs,
-//! and memory access
+//!        and memory access
 class GenAgentFunc : public CodeGenerator {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] agent_name Agent name
+     * \param[in] func_name Function name
+     * \param[in] current_state Current state
+     * \param[in] next_state Next state
+     */
     explicit GenAgentFunc(const std::string& agent_name,
         const std::string& func_name,
             const std::string& current_state, const std::string& next_state);

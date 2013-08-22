@@ -19,23 +19,27 @@
 
 namespace flame { namespace model {
 
-XModel::XModel() {
-  /* Initialise list of data types */
-  addAllowedDataType("int");
-  addAllowedDataType("float");
-  addAllowedDataType("double");
-  addAllowedDataType("char"); /* Allow? */
+XModel::XModel()
+  : name_(), path_(), includedModels_(), functionFiles_(), constants_(),
+    datatypes_(), timeUnits_(), agents_(), messages_(), dependencyGraph_(),
+    stateGraph_() {
+  // initialise list of data types
+  XDataType * intdatatype = addDataType();
+  intdatatype->setName("int");
+  intdatatype->setFundamental(true);
+  XDataType * floatdatatype = addDataType();
+  floatdatatype->setName("float");
+  floatdatatype->setFundamental(true);
+  XDataType * doubledatatype = addDataType();
+  doubledatatype->setName("double");
+  doubledatatype->setFundamental(true);
+  // do we allow char as a data type?
 }
 
-/*!
- * \brief Print a model to stdout
- *
- * Print a whole model out to standard out.
- */
 void XModel::print() {
   boost::ptr_vector<XVariable>::iterator c_it;
   boost::ptr_vector<XTimeUnit>::iterator tu_it;
-  boost::ptr_vector<XADT>::iterator adt_it;
+  boost::ptr_vector<XDataType>::iterator adt_it;
   boost::ptr_vector<XMessage>::iterator m_it;
   boost::ptr_vector<XMachine>::iterator a_it;
   std::vector<std::string>::iterator s_it;
@@ -45,7 +49,7 @@ void XModel::print() {
   for (c_it = constants_.begin(); c_it != constants_.end(); ++c_it)
     (*c_it).print();
   std::printf("Data types:\n");
-  for (adt_it = adts_.begin(); adt_it != adts_.end(); ++adt_it)
+  for (adt_it = datatypes_.begin(); adt_it != datatypes_.end(); ++adt_it)
     (*adt_it).print();
   std::printf("Time units:\n");
   for (tu_it = timeUnits_.begin(); tu_it != timeUnits_.end(); ++tu_it)
@@ -117,13 +121,6 @@ std::string XModel::getName() {
   return name_;
 }
 
-/*!
- * \brief Adds included model to a list
- * \param[in] path Path of the sub model
- * \return Boolean, true if name is unique
- * If the model file is not already in the list then it is added.
- * If not then false is returned.
- */
 bool XModel::addIncludedModel(std::string path) {
   unsigned int ii;
 
@@ -149,29 +146,23 @@ boost::ptr_vector<XVariable> * XModel::getConstants() {
   return &constants_;
 }
 
-XADT * XModel::addADT() {
-  XADT * xadt = new XADT;
-  adts_.push_back(xadt);
-  return xadt;
+XDataType * XModel::addDataType() {
+  XDataType * xdatatype = new XDataType;
+  xdatatype->setID(datatypes_.size());
+  datatypes_.push_back(xdatatype);
+  return xdatatype;
 }
 
-/*!
- * \brief Returns an adt object with given name
- * \param[in] name Name of the adt
- * \return Pointer to the adt object or 0 if not found
- * This function is used to validate adt names and provide a
- * pointer to the object if valid.
- */
-XADT * XModel::getADT(std::string name) {
-  boost::ptr_vector<XADT>::iterator it;
-  for (it = adts_.begin(); it != adts_.end(); ++it)
+XDataType * XModel::getDataType(std::string name) {
+  boost::ptr_vector<XDataType>::iterator it;
+  for (it = datatypes_.begin(); it != datatypes_.end(); ++it)
     if (name == (*it).getName()) return &(*it);
   throw flame::exceptions::flame_model_exception(
       "ADT does not exist");
 }
 
-boost::ptr_vector<XADT> * XModel::getADTs() {
-  return &adts_;
+boost::ptr_vector<XDataType> * XModel::getDataTypes() {
+  return &datatypes_;
 }
 
 void XModel::addTimeUnit(XTimeUnit * tU) {
@@ -245,13 +236,6 @@ XMessage * XModel::addMessage(std::string name) {
   return xmessage;
 }
 
-/*!
- * \brief Returns a message object with given name
- * \param[in] name Name of the message
- * \return Pointer to the message object or 0 if not found
- * This function is used to validate message names and provide a
- * pointer to the object if valid.
- */
 XMessage * XModel::getMessage(std::string name) {
   boost::ptr_vector<XMessage>::iterator it;
   for (it =  messages_.begin(); it != messages_.end(); ++it)
@@ -261,14 +245,6 @@ XMessage * XModel::getMessage(std::string name) {
 
 boost::ptr_vector<XMessage> * XModel::getMessages() {
   return &messages_;
-}
-
-void XModel::addAllowedDataType(std::string name) {
-  allowedDataTypes_.push_back(name);
-}
-
-std::vector<std::string> * XModel::getAllowedDataTypes() {
-  return &allowedDataTypes_;
 }
 
 bool XModel::doesAgentExist(std::string agent_name) const {
@@ -337,7 +313,7 @@ void XModel::outputDependencyGraph(const std::string& file_name) const {
   dependencyGraph_.writeGraphviz(file_name);
 }
 
-int XModel::generateStateGraph() {
+void XModel::generateStateGraph() {
   // for each agent import state graph
   boost::ptr_vector<XMachine>::iterator agent;
   std::set<StateGraph*> graphs;
@@ -351,13 +327,6 @@ int XModel::generateStateGraph() {
   }
 
   stateGraph_.importStateGraphs(graphs);
-
-  return 0;
-}
-
-int XModel::checkCyclicDependencies() {
-  // ToDo
-  return 0;
 }
 
 const TaskList * XModel::getTaskList() const {

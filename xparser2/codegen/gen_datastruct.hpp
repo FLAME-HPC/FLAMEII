@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_datastruct.hpp
+ * \file xparser2/codegen/gen_datastruct.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -17,7 +17,7 @@
 #include "code_generator.hpp"
 namespace xparser { namespace codegen {
 
-//! Generates struct declaration for datatypes that can be stored in
+//! \brief Generates struct declaration for datatypes that can be stored in
 //! flame::mem::VectorWrapper
 class GenDataStruct : public CodeGenerator {
   public:

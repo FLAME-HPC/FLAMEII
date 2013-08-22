@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_model.hpp
+ * \file xparser2/codegen/gen_model.hpp
  * \author Simon Coakley
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory

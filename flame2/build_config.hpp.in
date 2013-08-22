@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/config.hpp
+ * \file flame2/build_config.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -21,11 +21,15 @@
 
 namespace flame { namespace build_config {
 
+//! \brief Package plugin directory
 const std::string packagePluginDir(
   "@FLAME2_INSTALL_PLUGINDIR@");
+//! \brief Package data directory
 const std::string packageDataDir(
   "@FLAME2_INSTALL_DATADIR@");
+//! \brief Package name
 const std::string packageName("@PACKAGE_NAME@");
+//! \brief Version string
 const std::string version("@VERSION@");
 
 }}  // namespace flame::build_config

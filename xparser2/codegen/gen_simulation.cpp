@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_simulation.cpp
+ * \file xparser2/codegen/gen_simulation.cpp
  * \author Shawn Chin
  * \author Simon Coakley
  * \date January 2013
@@ -13,7 +13,7 @@
 #include "gen_simulation.hpp"
 namespace xparser { namespace codegen {
 
-GenSimulation::GenSimulation() {}
+GenSimulation::GenSimulation() : messages_() {}
 
 void GenSimulation::AddMessage(const std::string& message_name) {
   if (messages_.find(message_name) != messages_.end()) {

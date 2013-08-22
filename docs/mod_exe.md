@@ -1,0 +1,266 @@
+Module - EXE (Task Scheduling and Execution) {#modexe}
+==================================
+
+[TOC]
+
+Overview {#modexe-overview}
+========================
+
+The EXE module handles the coordination and execution of tasks.
+
+Most interaction with the EXE module would be done via the methods provided by the 
+[TaskManager](@ref modexe-taskmgr). This would generally be the creation of
+tasks and their dependencies.
+
+The most common `TaskManager` methods are:
+
+ * [TaskManager::GetInstance()](@ref flame::exe::TaskManager::GetInstance) -- 
+   class method to returns a reference to the singleton
+   `TaskManager` instance. All methods should be run off this instance. 
+ * [GetTask()](@ref flame::exe::TaskManager::GetTask) -- 
+    returns a reference to an existing task given a task name or task id.
+ * [AddDependency()](@ref flame::exe::TaskManager::AddDependency) -- 
+    registers a dependency between tasks
+ * [CreateAgentTask()](@ref flame::exe::TaskManager::CreateAgentTask) -- 
+    instantiates, registers and returns a reference to a new agent task.
+ * [CreateMessageBoardTask()](@ref flame::exe::TaskManager::CreateMessageBoardTask) -- 
+    instantiates, registers and returns a reference to a new message board task.
+ * [CreateIOTask()](@ref flame::exe::TaskManager::CreateIOTask) -- 
+    instantiates, registers and returns a reference to a new IO task.
+
+Here's an example of a task and its dependencies are registered:
+
+    #include "exe/task_manager.hpp"
+    #include "exe/task_interface.hpp"
+
+    // Get reference to the singleton TaskManager
+    flame::exe::TaskManager& tm = flame::exe::TaskManager::GetInstance();
+
+    // Register Task
+    flame::exe::Task &t1 = tm.CreateAgentTask("t1", "Circle", agent_func);
+
+    // Specify memory and message board access allowed for this task
+    t1.AllowAccess("x");  // read-only
+    t1.AllowAccess("y", true); // read-write
+    t1.AllowMessageRead("location");   // read access to "location" message
+    t1.AllowMessagePost("forces");   // post access to "forces" message
+
+    // Add dependency
+    tm.AddDependency("t1", "t0");  // t1 depends on t0 
+
+
+Once all tasks are registered, all that remains is to set up the 
+scheduler and queues. The type and quantity of queues will dictate
+the level of concurrency and scheduling mechanism used to execute tasks. For more 
+details see the section on [task scheduling](@ref modexe-sched).
+
+Here's an example of how a scheduler with a basic FIFO queue is set up:
+
+    #include "scheduler.hpp"
+    #include "task_interface.hpp"
+    #include "fifo_task_queue.hpp"
+
+    // instantiate scheduler object. There should only be one.
+    flame::exe::Scheduler scheduler;
+
+    // Register a queue and the number of slots
+    // Here we define a FIFO based queue with 4 slots (4 worker threads)
+    flame::exe::Scheduler::QueueId fifo_q = scheduler.CreateQueue<FIFOTaskQueue>(4);
+
+    // Assign all agent tasks to that queue
+    scheduler.AssignType(fifo_q, flame::exe::Task::AGENT_FUNCTION);
+
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+       scheduler.RunIteration();  // runs a single iteration
+    }
+
+    // all threads are automatically destroyed when the scheduler object goes out of scope
+
+
+Task Manager {#modexe-taskmgr}
+============
+
+The [TaskManager](@ref flame::exe::TaskManager) is a singleton object that handles 
+the creation, storage, and indexing of all tasks. It also assists in the 
+[scheduling of tasks](@ref modexe-sched) by performing *dependency accounting* 
+(i.e. keeping track of fulfilled and pending dependencies for all tasks) and providing
+the methods that the `TaskScheduler` uses to update dependency information and 
+retrieve tasks.
+
+
+Task creation and indexing {#modexe-taskmgr-create}
+---------------------------
+
+The `TaskManager` provides factory methods that should be used to create all tasks, e.g. 
+[CreateAgentTask](@ref flame::exe::TaskManager::CreateAgentTask), 
+[CreateMessagBoardTask](@ref flame::exe::TaskManager::CreateMessageBoardTask), 
+and [CreateIOTask](@ref flame::exe::TaskManager::CreateIOTask). These methods 
+instantiate the tasks using the appropriate `Task` subclass and exposes arguments
+that are relevant to the said tasks.
+
+Once a `Task` instance is created, it is stored within a boost::ptr_vector which 
+automatically manages the lifespan of the object. The offset of the task within the 
+vector is used as the task id -- this gives us an integer-based identifier which is
+efficient to store and lookup.
+
+On the user-level, tasks are identified by a string-based name; we therefore also store
+a map which associates the task name to its integer-based ID. 
+This mapping also serves as a quick way to detect duplicate task names during registration.
+
+@img{images/taskmapping.png, 15cm, Mapping of task id and task name to instances}
+
+Calls to flame::exe::TaskManager::GetTask using a `task_id` parameter can be performed
+efficiently since we simply obtain the `Task` pointer using the id as the vector offset.
+Calls using a string-based `task_name` parameter are less performant since it requires
+lookup up the name map for the task id before we can retrieve the `Task` pointer.
+
+
+Dependency accounting {#modexe-taskmgr-deps}
+---------------------
+
+At present, the `TaskManager` also keeps track of pending and fulfilled dependencies 
+for all tasks throughout an iteration. This essentially controls the traversal of 
+the dependency tree by ensuring that only *ready* tasks are available for enqueueing.
+The dependency accounting data is reset at the end of each iteration to prepare for 
+the next traversal of the tree.
+
+The main methods that are involved in dependency accounting are:
+ * [AddDependency()](@ref flame::exe::TaskManager::AddDependency) - assign a task 
+    dependency (used during the initialisation stage).
+ * [IterTaskAvailable()](@ref flame::exe::TaskManager::IterTaskAvailable) - check if there 
+    are tasks ready for execution
+ * [IterCompleted()](@ref flame::exe::TaskManager::IterCompleted) - check if all tasks 
+    have been executed
+ * [IterTaskPop()](@ref flame::exe::TaskManager::IterTaskPop) - retrieve a task that is 
+    ready for execution
+ * [IterTaskDone()](@ref flame::exe::TaskManager::IterTaskDone) - registers a completed 
+    tasks. This will update the table of fulfilled
+    dependencies and potentially migrated tasks to the ready queue.
+ * [IterReset()](@ref flame::exe::TaskManager::IterReset) - resets the accounting data 
+    in preparation for the next iteration.
+
+The intended user for these methods is the flame::exe::Scheduler::RunIteration. This
+interaction is descripted in the next section.
+
+For implementation details, see:
+ * flame::exe::TaskManager
+ * flame::exe::Task
+
+Task Scheduling {#modexe-sched}
+===============
+
+The activation and scheduling of tasks is achieved through the interation between the
+[Scheduler](@ref flame::exe::Scheduler) and the [TaskManager](@ref flame::exe::TaskManager).
+At the beginning of an iteration, the Scheduler is populated with tasks that are ready for
+immediate execution (no dependencies) after which the completion of each task triggers
+the execution of callback functions that marks fulfilled dependencies and enqueues
+further tasks that have all dependencies met. 
+
+It should be noted that the process is completely governed by the registered 
+dependencies of the tasks -- **a non-conforming dependency graph (e.g. a cyclic graph) will
+result in an iteration that never completes**. 
+
+@img{images/exe_sched_flow.png, 15cm, Flowchart of operations achieved by the interaction between the Scheduler and TaskManager}
+
+
+The actual scheduling and execution of tasks is handled by 
+[TaskQueues](@ref flame::exe::TaskQueue). Each queues registered with the Scheduler
+will be assigned a [Task type](@ref flame::exe::Task::TaskType) and this determines how
+enqueued tasks are routed to the appropriate `TaskQueue`.
+
+Each `TaskQueue` will contain one or more [WorkerThreads](@ref flame::exe::WorkerThread)
+whereby the number of worker threads determines the number of slots it has, i.e. the number 
+of concurrent tasks it can execute. Each `TaskQueue` may use a different scheduling 
+algorithm -- e.g. FIFO or Priority-driven -- to assign enqueued tasks to worker threads. 
+Some `TaskQueues` can perform task splitting, i.e. splitting up a large task into smaller
+ones so the load can be spread more evenly across all worker threads (see 
+flame::exe::SplittingFIFOTaskQueue).
+
+@img{images/exe_sched.png, 15cm, Different queues within the scheduler allow concurrent operations with minimal locking}
+
+The different queues and scheduling mechanisms allow the framework to better utilise the
+resources available. For example, a typical setup could be to use the following set of
+`TaskQueues`: 
+ * priority-driven queue for CPU-intensive tasks (such as agent functions) with 
+ the number of worker threads matching the number of CPU cores
+ * FIFO queue for I/O operations (e.g. writing output data to disk) with the number of 
+ threads matching the maximum number of simultaneous writes that the I/O subsystem can 
+ handle efficiently
+ * FIFO queue for communication operations (e.g. message board syncs) with the number of
+ threads determining the maximum number of simultaneous communications. 
+ 
+
+For implementation details, see:
+ * flame::exe::TaskManager
+ * flame::exe::Scheduler
+ * flame::exe::TaskQueue
+ * flame::exe::SplittingFIFOTaskQueue
+ 
+
+Worker Threads {#modexe-worker}
+==============
+
+Each `TaskQueue` that requires asynchronous worker threads will hold a vector of 
+[WorkerThread](@ref flame::exe::WorkerThread) objects. The number of instances is 
+determined by the number of slots requested.
+
+The `WorkerThread` class uses boost::thread to implement threading in a portable way. 
+Once the thread starts, it goes into continuous loop of waiting for requesting a task
+from the parent queue and executing flame::exe::Task::Run. A callback function of the
+queue is issued after each run to indicate the completion of a task.
+
+This process is repeated until the
+`Term` task is issued (see flame::exe::Task::IsTermTask) after which the loop is broken
+and the thread terminates. 
+
+@img{images/exe_worker_flow.png, 10cm, Lifecycle of a worker thread}
+
+In a standard implementation, the `Term` tasks are added to the queue by the destructor
+of the `TaskQueue` object just before waiting for all worker threads to join 
+(for example, see implementation of flame::exe::FIFOTaskQueue::~FIFOTaskQueue). The 
+termination of threads is therefore done automatically when the `TaskQueue` gets 
+destroyed, but only when all enqueued tasks have been executed.
+
+For implementation details, see:
+ * flame::exe::WorkerThread
+ * flame::exe::FIFOTaskQueue
+ * flame::exe::Task
+ 
+ 
+Tasks {#modexe-task}
+======
+
+A [Task](@ref flame::exe::Task) object represents a unit of work than can be assigned 
+to a worker thread. For example, in the case of an Agent Task, this would be the 
+execution of an agent transition function on every element within a set of memory 
+vectors (representing an agent population).
+
+Each task object will contain all the information it needs to execute the 
+task, e.g. a handle to the function to be called (see flame::exe::TaskFunction), 
+[access control mechanism to access memory vectors](@ref modmem-shadow) or
+client objects that allow [interaction with message boards](@ref modmb-api-acl).
+
+To reduce the granularity of a task, some tasks can be slip into smaller chunks by 
+subdividing the portion of the memory vector that the task is responsible for. The 
+splitting process may be different for different types of tasks, so the implementation
+is down to the implementation of each `Task` subclass. 
+
+A task split would result in a [TaskSplitter](@ref flame::exe::TaskSplitter) which 
+keeps stores the generated sub tasks and tracks the completion of each one. This
+ensures that all sub tasks have been completed before the parent `Task` can be marked
+as *completed*. 
+
+While not currently implemented, this approach to task splitting can support recursive 
+splitting, so sub tasks can potentially be split further if required. This would be 
+useful in ensuring a good load balance when there are relatively few ready tasks and 
+many available threads.
+
+Task splitting should only be initiated by a split-aware `TaskQueue`, e.g.
+flame::exe::SplittingFIFOTaskQueue.
+
+For implementation details, see:
+ * flame::exe::Task
+ * flame::exe::AgentTask
+ * flame::exe::TaskSplitter
+ * flame::exe::MessageBoardTask
+ * flame::exe::IOTask

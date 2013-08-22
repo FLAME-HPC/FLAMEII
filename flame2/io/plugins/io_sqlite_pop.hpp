@@ -19,42 +19,87 @@
 
 namespace flame { namespace io {
 
-class IOSQLitePop : public IO {
-    //! Return the plugin name
+/*!
+ * \brief IO Plugin to read and write to SQLite files
+ */
+class IOSQLitePop : public IOInterface {
+  public:
+    /*!
+     * \brief Constructor
+     */
+    IOSQLitePop() : db(0), file_name_(), index_name_map() {}
+    /*!
+     * \brief Return plugin name
+     * \return Plugin name
+     */
     std::string getName();
-    //! read a column from a database
-    void readColumn(AgentMemory::iterator ait, sqlite3_stmt *selectStmt,
-        void (*addInt)(std::string const&, std::string const&, int),
-        void (*addDouble)(std::string const&, std::string const&, double));
-    //! Reading method, called by io manager
+    /*!
+     * \brief Read SQLite population file
+     * \param[in] path File to read
+     * \param[out] addInt Function to add integers
+     * \param[out] addDouble Function to add doubles
+     */
     void readPop(std::string path,
         void (*addInt)(std::string const&, std::string const&, int),
         void (*addDouble)(std::string const&, std::string const&, double));
-    //! Execute SQLite statement
-    void executeSQLite(std::string statement);
-    //! Set file name using given path and iteration number
-    void setFileName();
-    //! Initialise writing out of data for an iteration
+    //! \brief Initialise writing out of data for an iteration
     void initialiseData();
-    //! query table size and expand if needed
-    void checkTableSize(std::string const& agent_name, size_t size,
-        std::string const& index_name);
-    //! Create insert statement for writePop
-    std::string createUpdateStatement(std::string const& agent_name,
-        std::string const& var_name, std::string const& index_name);
-    //! Write out an agent variable for all agents
+    /*!
+     * \brief Write agent variable array to XML file
+     * \param[in] agent_name The agent name
+     * \param[in] var_name The variable name
+     * \param[in] size The size of the variable array
+     * \param[in] ptr Pointer to the variable array
+     */
     void writePop(std::string const& agent_name,
         std::string const& var_name, size_t size, void * ptr);
-    //! Finalise writing out of data for an iteration
+    //! \brief Finalise writing out of data for an iteration
     void finaliseData();
 
   private:
-    //! The SQLite database
+    //! \brief The SQLite database
     sqlite3 *db;
-    //! Path the the database file
+    //! \brief Path the the database file
     std::string file_name_;
-    //! The index var name for each agent type
+    //! \brief The index var name for each agent type
     std::map<std::string, std::string> index_name_map;
+    /*!
+     * \brief Read a column from a database
+     * \param[in] ait Agent memory iterator
+     * \param[in] selectStmt SQL select statement
+     * \param[out] addInt Function to add integers
+     * \param[out] addDouble Function to add doubles
+     */
+    void readColumn(AgentMemory::iterator ait, sqlite3_stmt *selectStmt,
+        void (*addInt)(std::string const&, std::string const&, int),
+        void (*addDouble)(std::string const&, std::string const&, double));
+    /*!
+     * \brief Execute SQLite statement
+     * \param[in] statement SQL statement to execute
+     */
+    void executeSQLite(std::string statement);
+    //! \brief Set file name using given path and iteration number
+    void setFileName();
+    /*!
+     * \brief Query table size and expand if needed
+     * \param[in] agent_name Agent name
+     * \param[in] size Size to check from
+     * \param[in] index_name Index
+     */
+    void checkTableSize(std::string const& agent_name, size_t size,
+        std::string const& index_name);
+    /*!
+     * \brief Create insert statement for writePop
+     * \param[in] agent_name Agent name
+     * \param[in] var_name Variable name
+     * \param[in] index_name Index
+     */
+    std::string createUpdateStatement(std::string const& agent_name,
+        std::string const& var_name, std::string const& index_name);
+    //! \brief This class has pointer members so disable copy constructor
+    IOSQLitePop(const IOSQLitePop&);
+    //! \brief This class has pointer members so disable assignment operation
+    void operator=(const IOSQLitePop&);
 };
 
 }}  // namespace flame::io

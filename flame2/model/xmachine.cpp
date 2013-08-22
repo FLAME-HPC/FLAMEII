@@ -13,7 +13,6 @@
 #include <set>
 #include <utility>
 #include "flame2/config.hpp"
-#include "flame2/mem/memory_manager.hpp"
 #include "flame2/exceptions/model.hpp"
 #include "xmachine.hpp"
 #include "stategraph.hpp"
@@ -22,14 +21,10 @@
 namespace flame { namespace model {
 
 XMachine::XMachine()
-  : id_(0) {
+  : id_(0), name_(), variables_(), functions_(), startState_(), endStates_(),
+    stateGraph_(), dependencyGraph_() {
 }
 
-/*!
- * \brief Prints XMachine
- *
- * Prints XMachine to standard out.
- */
 void XMachine::print() {
   boost::ptr_vector<XVariable>::iterator it;
   boost::ptr_vector<XFunction>::iterator f_it;
@@ -178,18 +173,17 @@ std::set<std::string> XMachine::getEndStates() {
   return endStates_;
 }
 
-int XMachine::generateDependencyGraph() {
+void XMachine::generateDependencyGraph() {
   dependencyGraph_.importStateGraph(&stateGraph_);
-  return dependencyGraph_.generateDependencyGraph(getVariables());
+  dependencyGraph_.generateDependencyGraph(getVariables());
 }
 
 /*
  * This function is called from the model validator and
  * is then used to check for cycles and function conditions.
  */
-int XMachine::generateStateGraph() {
-  return stateGraph_.generateStateGraph(
-      &functions_, startState_, endStates_);
+void XMachine::generateStateGraph() {
+  stateGraph_.generateStateGraph(&functions_, startState_, endStates_);
 }
 
 StateGraph * XMachine::getStateGraph() {

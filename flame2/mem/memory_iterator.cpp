@@ -14,22 +14,26 @@
 namespace flame { namespace mem {
 
 MemoryIterator::MemoryIterator(AgentShadow* shadow)
-    : position_(0), offset_(0), shadow_(shadow) {
+    : position_(0), size_(0), offset_(0), count_(0), shadow_(shadow),
+      ptr_map_(), vec_map_ptr_(), rw_set_ptr_() {
   vec_map_ptr_ = &(shadow->vec_map_);
   rw_set_ptr_ = &(shadow->rw_set_);
   size_ = shadow->get_size();
-  count_ = size_;  // We're iterating through the whole population
+  count_ = size_;  // we're iterating through the whole population
   BOOST_FOREACH(const ConstVectorMap::value_type& iter, *vec_map_ptr_) {
     ptr_map_[iter.first] = iter.second->GetRawPtr();
   }
 }
 
 MemoryIterator::MemoryIterator(AgentShadow* shadow, size_t offset, size_t count)
-    : position_(0),  offset_(offset), count_(count), shadow_(shadow)  {
+    : position_(0), size_(0), offset_(offset), count_(count), shadow_(shadow),
+      ptr_map_(), vec_map_ptr_(), rw_set_ptr_() {
   size_ = shadow->get_size();
+  // check offset is valid
   if (offset_ >= size_) {
     throw flame::exceptions::invalid_argument("Invalid offset");
   }
+  // check count is valid
   if (count == 0 || (offset_ + count_) > size_) {
     throw flame::exceptions::invalid_argument("Invalid count");
   }
@@ -60,6 +64,7 @@ void MemoryIterator::Rewind() {
 }
 
 bool MemoryIterator::AtEnd() const {
+  // if position same as count then at end
   return (position_ == count_);
 }
 

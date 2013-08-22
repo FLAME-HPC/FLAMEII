@@ -16,8 +16,20 @@ namespace flame { namespace exe {
 
 class TaskQueue;
 
+//! \brief Basic worker thread
+//!
+//! \todo Figure out how to propagate exceptions back to the main thread so we
+//!       can handle exceptions raised by API calls more elegantly.
+//!
+//! \todo Provide option to explicitly set thread affinity. At present, it
+//!       appears that on some platforms all threads get assigned to the same
+//!       CPU core.
 class WorkerThread {
   public:
+    /*!
+     * \brief Constructor
+     * \param taskqueue_ptr Pointer to parent task queue
+     */
     explicit WorkerThread(TaskQueue* taskqueue_ptr);
 
     //! Waits for thread to complete
@@ -26,15 +38,24 @@ class WorkerThread {
     //! Starts the thread
     void Init();
 
-    //! Business logic for the thread
+    /*!
+     * \brief Business logic for the thread
+     *
+     * Retrieves tasks from the parent queue and runs them. Continue until a
+     * Termination task is issued.
+     */
     void ProcessQueue();
 
     //! Runs a given task
     void RunTask(Task::id_type task_id);
 
   private:
-    boost::thread thread_;  //! Thread instance
-    TaskQueue* tq_;  //! Pointer to parent task queue
+    boost::thread thread_;  //!< Thread instance
+    TaskQueue* tq_;  //!< Pointer to parent task queue
+    //! This class has pointer members so disable copy constructor
+    WorkerThread(const WorkerThread&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const WorkerThread&);
 };
 
 }}  // namespace flame::exe

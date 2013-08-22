@@ -15,24 +15,17 @@
 #include "worker_thread.hpp"
 namespace flame { namespace exe {
 
-WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr) : tq_(taskqueue_ptr) {}
+WorkerThread::WorkerThread(TaskQueue* taskqueue_ptr)
+  : thread_(), tq_(taskqueue_ptr) {}
 
-//! Starts the thread
 void WorkerThread::Init() {
   thread_ = boost::thread(&WorkerThread::ProcessQueue, this);
 }
 
-//! Waits for thread to complete
 void WorkerThread::join() {
   thread_.join();
 }
 
-/*!
- * \brief Business logic for the thread
- *
- * Retrieves tasks from the parent queue and runs them. Continue until a
- * Termination task is issued.
- */
 void WorkerThread::ProcessQueue() {
   #ifdef DBGBUILD
     srand(1);  // for debug, fix thread-local random seed
@@ -56,7 +49,6 @@ void WorkerThread::ProcessQueue() {
   // #endif
 }
 
-//! Runs a given task
 void WorkerThread::RunTask(Task::id_type task_id) {
   // #ifdef TESTBUILD
   //   std::cout << " - " << boost::this_thread::get_id()

@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_simulation.hpp
+ * \file xparser2/codegen/gen_simulation.hpp
  * \author Shawn Chin
  * \author Simon Coakley
  * \date January 2013
@@ -20,7 +20,8 @@ namespace xparser { namespace codegen {
 //! Generates code to setup a simulation
 class GenSimulation : public CodeGenerator {
   public:
-    typedef std::set<std::string> MessagenameSet;  //! Set of message names
+    //! \brief Set of message names
+    typedef std::set<std::string> MessagenameSet;
 
     explicit GenSimulation();
     //! Adds a message type

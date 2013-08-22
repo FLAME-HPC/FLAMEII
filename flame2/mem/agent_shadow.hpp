@@ -7,19 +7,6 @@
  * \copyright GNU Lesser General Public License
  * \brief Proxy object which only exposes selected vars of an agent
  */
-//! TODO(lsc): since the number of entries in vec_map_ and rw_set_ will be
-//! relatively small, the tree-based search used by std::map and
-//! std::set may not be ideal. Consider implementing variants that
-//! uses a sorted vector instead. See:
-//!  - AssocVector: http://loki-lib.sourceforge.net/html/a00645.html
-//!  - http://lafstern.org/matt/col1.pdf
-//!  - http://www.codeproject.com/Articles/27799/Stree
-
-//! TODO(lsc): Support task splitting. This involves:
-//!  - Creating new MemoryIterators that can be stepped through independently
-//!  - Using a counter to detect end-of-vector instead of vector::end()
-//!  - ptr_map_ pointing to an offset within a raw array
-//!  - Rewind() needs to reset to the correct offset, not vector::start()
 
 #ifndef MEM__AGENT_SHADOW_HPP_
 #define MEM__AGENT_SHADOW_HPP_
@@ -43,40 +30,69 @@ typedef std::set<std::string> WriteableSet;
 //! Smart pointer type used to return MemoryIterator
 typedef boost::shared_ptr<MemoryIterator> MemoryIteratorPtr;
 
+//! \brief Proxy object which only exposes selected vars of an agent
+//! \todo since the number of entries in vec_map_ and rw_set_ will be
+//!       relatively small, the tree-based search used by std::map and std::set
+//!       may not be ideal.
+//!       Consider using boost::flat_map and boost::flat_set
+//!         (see flame::mb::writer_map_type).
 class AgentShadow {
   friend class MemoryManager;
   friend class MemoryIterator;
 
   public:
-    //! Enables access to an agent variable
+    /*! 
+     * \brief Enables access to an agent variable
+     * \param var_name variable name
+     * \param writeable should the variable be writeable (default = false)
+     */
     void AllowAccess(const std::string& var_name, bool writeable = false);
 
-    //! Returns the population size
+    /*! 
+     * \brief Query the population size
+     * \return population size
+     */
     size_t get_size();
 
-    //! Returns a new instance of a MemoryIterator
+    /*! 
+     * \brief Retrieve a new instance of a MemoryIterator
+     * \return pointer to memory iterator
+     */
     MemoryIteratorPtr GetMemoryIterator();
 
-    //! Returns a new instance of a MemoryIterator which targets only a
-    //! subset of memory
+    /*! 
+     * \brief Retrieve a new instance of a MemoryIterator which targets only a
+     *        subset of memory
+     * \param offset memory offset
+     * \param count number of messages addressed by iterator
+     * \return pointer to memory iterator
+     */
     MemoryIteratorPtr GetMemoryIterator(size_t offset, size_t count);
 
   protected:
-    // Limit constructor to MemoryManager
+    /*!
+     * \brief protected constructor. Accessible only by MemoryManager.
+     * \param am agent memory
+     */
     explicit AgentShadow(AgentMemory* am);
     // Accessible to MemoryIterator
-    WriteableSet rw_set_;  //! Set of var names that has write access
+    WriteableSet rw_set_;  //!< Set of var names that has write access
     // Accessible to MemoryIterator
-    ConstVectorMap vec_map_;  //! map accessible vars
+    ConstVectorMap vec_map_;  //!< map accessible vars
 
+	/*!
+	 * \brief Query if variable name is registered
+	 * \param \var_name variable name
+	 * \return true if registered
+	 */
     bool IsRegistered(const std::string& var_name) const;
 
   private:
-    // size_t size_;  //! Size if memory vectors
-    AgentMemory* am_;  //! Pointer to parent AgentMemory object
+    // size_t size_;  //!< Size if memory vectors
+    AgentMemory* am_;  //!< Pointer to parent AgentMemory object
 
-    AgentShadow(const AgentShadow&);  //! Disable copy ctor
-    void operator=(const AgentShadow&);  //! Disable assignment
+    AgentShadow(const AgentShadow&);  //!< Disable copy ctor
+    void operator=(const AgentShadow&);  //!< Disable assignment
 };
 
 }}  //  namespace flame::mem

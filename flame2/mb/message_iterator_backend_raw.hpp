@@ -63,8 +63,13 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
       current_ = v_->GetRawPtr();
     }
 
-    //! Step to the next message if we're not yet at the end. If there's nothing
-    //! to step to, do nothing and return false.
+    /*!
+     * \brief steps to the next message
+     * \return true if cursor moved, false if already at the end.
+     *
+     * Step to the next message if we're not yet at the end. If there's nothing
+     * to step to, do nothing and return false.
+     */
     inline bool Next(void) {
       pos_++;
       if (AtEnd()) {
@@ -82,22 +87,33 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
      *
      * Always throws flame::exceptions::not_implemented.
      */
-    inline bool Randomise(void) {
+    inline void Randomise(void) {
       throw flame::exceptions::not_implemented(
           "Raw backend cannot be randomised");
     }
 
-    //! Returns a pointer to the current message, or NULL if end of iteration
+    /*! 
+     * \brief Returns a pointer to the current message, or NULL if end of iteration
+     * \return pointer to current message
+     */
     inline void* Get(void) {
       return current_;
     }
 
-    //! Returns false. This backend is not mutable
+    /*! 
+     * \brief Query if this backend is mutable
+     * \return false. This backend is not mutable.
+     */
     inline bool IsMutable(void) const {
       return false;
     }
 
-    //! Returns a mutable version of this backend (not yet implemented)
+    /*! 
+     * \brief Create mutable version of this backend
+     * \return pointer to new MessageIteratorBackend instance
+     * 
+     * (not yet implemented)
+     */
     inline MessageIteratorBackend* GetMutableVersion(void) const {
       throw flame::exceptions::not_implemented("not yet implemented");
     }
@@ -105,9 +121,13 @@ class MessageIteratorBackendRaw : public MessageIteratorBackend {
   private:
     //! Pointer to the VectorWrapper of the board
     flame::mem::VectorWrapperBase* v_;
-    size_t count_;  //! Number of messages within the scope of iteration
-    size_t pos_;  //! Current cursor position
-    void* current_;  //! Pointer to current message
+    size_t count_;  //!< Number of messages within the scope of iteration
+    size_t pos_;  //!< Current cursor position
+    void* current_;  //!< Pointer to current message
+    //! This class has pointer members so disable copy constructor
+    MessageIteratorBackendRaw(const MessageIteratorBackendRaw&);
+    //! This class has pointer members so disable assignment operation
+    void operator=(const MessageIteratorBackendRaw&);
 };
 
 }}  // namespace flame::mb

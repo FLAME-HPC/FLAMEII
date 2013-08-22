@@ -1,5 +1,5 @@
 /*!
- * \file tests/mb/test_board_manager2.cpp
+ * \file tests/mb/test_board_manager.cpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

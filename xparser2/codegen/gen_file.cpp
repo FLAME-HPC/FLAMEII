@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_file.cpp
+ * \file xparser2/codegen/gen_file.cpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory

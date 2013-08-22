@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/code_generator.hpp
+ * \file xparser2/codegen/gen_snippets.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -34,6 +34,10 @@ class AgentFunctionHeaderSnippets;
  */
 class SingleVarSnippet : public CodeGenerator {
   public:
+    //! Constructor, initialises data members
+    SingleVarSnippet() : vars_() {}
+
+    //! Destructor
     virtual ~SingleVarSnippet() {}
 
     //! Generates output text, once per added variablr

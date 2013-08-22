@@ -15,17 +15,32 @@
 
 namespace flame { namespace sim {
 
+/*!
+ * \brief Class to represent the simulation manager
+ */
 class SimManager {
   public:
+    /*!
+     * \brief Constructor
+     */
     explicit SimManager();
-    //! Register message type with the framework
+    /*!
+     * \brief Register message type with the framework
+     * \param[in] name The message data type name
+     */
     template <typename T>
     void registerMessageType(std::string name) {
       flame::mb::MessageBoardManager::GetInstance().RegisterMessage<T>(name);
     }
-    //! Set IO input type
+    /*!
+     * \brief Set the population input IO type
+     * \param[in] type The type name
+     */
     void setPopInputType(std::string const& type);
-    //! Set IO output type
+    /*!
+     * \brief Set the population output IO type
+     * \param[in] type The type name
+     */
     void setPopOutputType(std::string const& type);
 
   private:

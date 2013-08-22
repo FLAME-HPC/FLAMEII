@@ -25,13 +25,13 @@ namespace flame { namespace sim {
 
 namespace exe = flame::exe;
 
+//! \brief Type to hold a set of pair of strings
 typedef std::set< std::pair<std::string, std::string> > StringPairSet;
-typedef std::set<std::string> StringSet;
-
-typedef std::pair<std::string, std::string> Var;
+//! \brief Type to hold a list of Var
 typedef std::vector<Var> VarVec;
 
-Simulation::Simulation(const m::Model &model, std::string pop_file) {
+Simulation::Simulation(const m::Model &model, std::string pop_file)
+  : iteration_(0) {
   flame::io::IOManager& iomanager = flame::io::IOManager::GetInstance();
 
   // check model has been validated
@@ -94,7 +94,7 @@ void Simulation::registerModelWithMemoryManager(
   }
 }
 
-void registerAllowAccess(exe::Task * task,
+void Simulation::registerAllowAccess(exe::Task * task,
     StringSet vars, bool writeable) {
   StringSet::iterator sit;
 
@@ -103,7 +103,7 @@ void registerAllowAccess(exe::Task * task,
     task->AllowAccess((*sit), writeable);
 }
 
-void registerAllowMessage(exe::Task * task,
+void Simulation::registerAllowMessage(exe::Task * task,
     StringSet messages, bool post) {
   StringSet::iterator sit;
 

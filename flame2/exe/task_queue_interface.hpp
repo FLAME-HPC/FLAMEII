@@ -16,11 +16,16 @@
 
 namespace flame { namespace exe {
 
+//! Datatype for Task Queue callback function
 typedef boost::function<void (Task::id_type)> TaskQueueCallback;
 
+//! Abstract class for Task Queues
 class TaskQueue {
   friend class WorkerThread;
   public:
+    //! Constructor. initialise data members
+    TaskQueue() : mutex_(), ready_(), callback_() {}
+
     virtual ~TaskQueue() {}
 
     //! Adds a task to the queue
@@ -50,9 +55,14 @@ class TaskQueue {
     //! Returns minimum vector size after split
     virtual size_t GetMinVectorSize(void) const = 0;
 
-    //! Returns a task reference given a task id
-    //! This usually forward the call to the TaskManager but it gives the queue
-    //! an opportunity to intercept the call
+    /*! 
+     * \brief Returns a task reference given a task id
+     * \param task_id task id
+     * \return reference to Task instance
+     *
+     * This usually forwards the call to the TaskManager but it gives the queue
+     * an opportunity to intercept the call
+     */
     virtual Task& GetTaskById(Task::id_type task_id) {
       return TaskManager::GetInstance().GetTask(task_id);
     }
@@ -63,10 +73,11 @@ class TaskQueue {
     }
 
   protected:
-    boost::mutex mutex_;
-    boost::condition_variable ready_;
-    TaskQueueCallback callback_;
+    boost::mutex mutex_;  //!< Mutex object
+    boost::condition_variable ready_;  //!< Condition variable
+    TaskQueueCallback callback_;  //!< callback function for task queue
 };
 
 }}  // namespace flame::exe
 #endif  // EXE__TASK_QUEUE_INTERFACE_HPP_
+

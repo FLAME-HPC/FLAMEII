@@ -14,51 +14,32 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialises XVariable
- *
- * Initialises XVariable as
- * fundamental (int or double)
- * variable (not constant)
- * scaler (not an array).
- */
 XVariable::XVariable()
-: isDynamicArray_(false),
-  isStaticArray_(false),
-  staticArraySize_(0),
-  hasADTType_(false),
-  holdsDynamicArray_(false),
-  constantSet_(false),
-  constant_(false) {}
-
-/*!
- * \brief Initialises XVariable
- *
- * Initialises XVariable using a name.
- */
-XVariable::XVariable(std::string name)
-: name_(name),
+: type_(), name_(),
   isDynamicArray_(false),
   isStaticArray_(false),
   staticArraySize_(0),
   hasADTType_(false),
   holdsDynamicArray_(false),
+  constantString_(),
   constantSet_(false),
   constant_(false) {}
 
-/*!
- * \brief Prints XVariable
- *
- * Prints XVariable to
- * standard out.
- */
+XVariable::XVariable(std::string name)
+: type_(), name_(name),
+  isDynamicArray_(false),
+  isStaticArray_(false),
+  staticArraySize_(0),
+  hasADTType_(false),
+  holdsDynamicArray_(false),
+  constantString_(),
+  constantSet_(false),
+  constant_(false) {}
+
 void XVariable::print() {
   std::fprintf(stdout, "\t%s %s\n",
       getType().c_str(), getName().c_str());
 }
-
-/* All other functions are for setting and getting
- * class variables */
 
 void XVariable::setName(std::string name) {
   name_ = name;

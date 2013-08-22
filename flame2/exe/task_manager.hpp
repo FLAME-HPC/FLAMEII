@@ -1,5 +1,5 @@
 /*!
- * \file flame2/exe/task_manager.cpp
+ * \file flame2/exe/task_manager.hpp
  * \author Shawn Chin
  * \date 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -25,6 +25,7 @@
 
 namespace flame { namespace exe {
 
+//! map type used to associate task name with task id
 typedef std::map<std::string, size_t> TaskNameMap;
 
 /*!
@@ -37,9 +38,9 @@ typedef std::map<std::string, size_t> TaskNameMap;
  */
 class TaskManager {
   public:
-    typedef Task::id_type TaskId;
-    typedef std::set<TaskId> IdSet;
-    typedef std::vector<TaskId> IdVector;
+    typedef Task::id_type TaskId;  //!< task id type
+    typedef std::set<TaskId> IdSet;  //!< set of task ids
+    typedef std::vector<TaskId> IdVector;  //!< vector of task ids
 
     //! \brief Returns instance of singleton object
     static TaskManager& GetInstance() {
@@ -47,12 +48,12 @@ class TaskManager {
       return instance;
     }
 
-    //! \brief Registers and returns a new Agent Task
+    //! \brief Instantiates, registers and returns a new Agent Task
     Task& CreateAgentTask(std::string task_name,
                           std::string agent_name,
                           TaskFunction func_ptr);
 
-    //! \brief Registers and returns a new MessageBoard Task
+    //! \brief Instantiates, registers and returns a new MessageBoard Task
     Task& CreateMessageBoardTask(std::string task_name,
                                  std::string msg_name,
                                  MessageBoardTask::Operation op);
@@ -63,7 +64,7 @@ class TaskManager {
                        std::string var_name,
                        IOTask::Operation op);
 
-    //! \brief Returns a registered Task given a task id
+    //! \brief Registers and returns a new IO Task
     Task& GetTask(TaskId task_id);
 
     //! \brief Returns a registered Task given a task name
@@ -72,10 +73,10 @@ class TaskManager {
     //! \brief Returns the number of registered tasks
     size_t GetTaskCount() const;
 
-    //! \brief Adds a dependency to a task.
+    //! Adds a dependency between two registered tasks (by name)
     void AddDependency(std::string task_name, std::string dependency_name);
 
-    //! \brief Adds a dependency to a task
+    //! Adds a dependency between two registered tasks (by id)
     void AddDependency(TaskId task_id, TaskId dependency_id);
 
     //! \brief Retrieves a set of dependencies for a given task
@@ -120,7 +121,12 @@ class TaskManager {
     //! \brief Indicates that a specific task has been completed
     void IterTaskDone(TaskId task_id);
 
-    //! \brief Pops and returns a task that is ready for execution
+    /*!
+     * \brief Pops and returns a task that is ready for execution
+     * \return task id
+     *
+     * Throws flame::exceptions::none_available if the queue is empty
+     */
     TaskId IterTaskPop();
 
 
@@ -141,12 +147,29 @@ class TaskManager {
 
   private:
     // This is a singleton class. Disable manual instantiation
-    TaskManager() : finalised_(false) {}
+    TaskManager() : mutex_task_(), tasks_(), name_map_(), roots_(), leaves_(),
+      parents_(), children_(), finalised_(false), pending_deps_(),
+      ready_tasks_(), pending_tasks_(), assigned_tasks_() {}
     // This is a singleton class. Disable copy constructor
     TaskManager(const TaskManager&);
     // This is a singleton class. Disable assignment operation
     void operator=(const TaskManager&);
-
+    /*!
+     * \brief Internal method to register a task within the manager
+     *
+     * The index within tasks_ vector is used as the task id. This allows us to have
+     * int-based keys which are easier to pass around and look up.
+     *
+     * Entries for this task are also made in internal variables used for handing
+     * task dependencies.
+     *
+     * Throws flame::exceptions::logic_error if the task manager is already
+     * finalised, or if a task with that name has already been registered.
+     *
+     * Throws flame::exceptions::out_of_range if the number of tasks exceeds the
+     * maximum size (unlikely to happen). The maximum value depends on the limits
+     * of an array index.
+     */
     void RegisterTask(std::string task_name, Task* task_ptr);
 
     //! \brief Returns true if given id is a valid task id

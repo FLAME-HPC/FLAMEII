@@ -44,7 +44,11 @@ class MessageIterator {
     //! shared pointer type to be returned as handle to iterator instances
     typedef boost::shared_ptr<MessageIterator> handle;
 
-    //! Factory method to instantiate a MessageIterator with the default backend
+    /*! 
+     * \brief Factory method to instantiate a MessageIterator with the default backend
+     * \param vw_ptr pointer to message vectorwrapper
+     * \return pointer to message iterator
+     */
     static MessageIterator* create(flame::mem::VectorWrapperBase* vw_ptr) {
       return new MessageIterator(
           MessageIteratorBackend::create<MessageIteratorBackendRaw>(vw_ptr));
@@ -60,12 +64,18 @@ class MessageIterator {
     }
     */
 
-    //! Returns true if end of iterator reached
+    /*! 
+     * \brief query if end of iterator reached
+     * \return true if end of iterator reached
+     */
     inline bool AtEnd(void) const {
       return backend_->AtEnd();
     }
 
-    //! Returns the number of messages within the scope of the iterator
+    /*!
+     * \brief Query the number of messages within the scope of the iterator
+     * \return number of messages
+     */
     inline size_t GetCount(void) const {
       return backend_->GetCount();
     }
@@ -107,6 +117,7 @@ class MessageIterator {
 
     /*!
      * \brief Returns a copy of the current message
+     * \return value of message
      *
      * Throws flame::exceptions::invalid_type if the specified type does not
      * match the message type.

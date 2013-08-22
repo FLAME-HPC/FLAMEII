@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_datastruct.cpp
+ * \file xparser2/codegen/gen_datastruct.cpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -16,7 +16,7 @@
 namespace xparser { namespace codegen {
 
 GenDataStruct::GenDataStruct(const std::string& struct_name)
-    : struct_name_(struct_name) {
+    : vars_(), dupe_check_(), struct_name_(struct_name) {
   RequireSysHeader("ostream");
 }
 

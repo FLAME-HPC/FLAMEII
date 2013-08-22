@@ -12,12 +12,13 @@
 #include <string>
 #include <stdexcept>
 #include <boost/foreach.hpp>
+#include <boost/thread/locks.hpp>
 #include "flame2/config.hpp"
 #include "flame2/exceptions/all.hpp"
 #include "task_manager.hpp"
 #include "agent_task.hpp"
 
-//! Internal routine which asserts that the manager is not finalised
+// Internal routine which asserts that the manager is not finalised
 static inline void check_not_finalised(bool finalised) {
   if (finalised) {
     throw flame::exceptions::logic_error(
@@ -25,7 +26,7 @@ static inline void check_not_finalised(bool finalised) {
   }
 }
 
-//! Internal routine which asserts that the manager is finalised
+// Internal routine which asserts that the manager is finalised
 static inline void check_finalised(bool finalised) {
   if (!finalised) {
     throw flame::exceptions::logic_error("Finalise() has not been called");
@@ -34,7 +35,6 @@ static inline void check_finalised(bool finalised) {
 
 namespace flame { namespace exe {
 
-//! \brief Instantiates, registers and returns a new Agent Task
 Task& TaskManager::CreateAgentTask(std::string task_name,
                                    std::string agent_name,
                                    TaskFunction func_ptr) {
@@ -50,7 +50,6 @@ Task& TaskManager::CreateAgentTask(std::string task_name,
   return *task_ptr;
 }
 
-//! \brief Instantiates, registers and returns a new MessageBoard Task
 Task& TaskManager::CreateMessageBoardTask(std::string task_name,
                                          std::string msg_name,
                                          MessageBoardTask::Operation op) {
@@ -65,7 +64,6 @@ Task& TaskManager::CreateMessageBoardTask(std::string task_name,
   return *task_ptr;
 }
 
-//! \brief Registers and returns a new IO Task
 Task& TaskManager::CreateIOTask(std::string task_name,
                                 std::string agent_name,
                                 std::string var_name,
@@ -81,22 +79,6 @@ Task& TaskManager::CreateIOTask(std::string task_name,
   return *task_ptr;
 }
 
-/*!
- * \brief Internal method to register a task within the manager
- *
- * The index within tasks_ vector is used as the task id. This allows us to have
- * int-based keys which are easier to pass around and look up.
- *
- * Entries for this task are also made in internal variables used for handing
- * task dependencies.
- *
- * Throws flame::exceptions::logic_error if the task manager is already
- * finalised, or if a task with that name has already been registered.
- *
- * Throws flame::exceptions::out_of_range if the number of tasks exceeds the
- * maximum size (unlikely to happen). The maximum value depends on the limits
- * of an array index.
- */
 void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   if (finalised_) {
     throw flame::exceptions::logic_error("Finalise() called. No more updates");
@@ -128,7 +110,6 @@ void TaskManager::RegisterTask(std::string task_name, Task* task_ptr) {
   leaves_.insert(id);
 }
 
-//! Returns a task id given a task name
 TaskManager::TaskId TaskManager::GetId(std::string task_name) const {
   try {
     return name_map_.at(task_name);
@@ -138,12 +119,10 @@ TaskManager::TaskId TaskManager::GetId(std::string task_name) const {
   }
 }
 
-//! Returns a task reference given a task name
 Task& TaskManager::GetTask(std::string task_name) {
   return GetTask(GetId(task_name));
 }
 
-//! Returns a task reference given a task id
 Task& TaskManager::GetTask(TaskManager::TaskId task_id) {
   try {
     return tasks_.at(task_id);
@@ -153,13 +132,11 @@ Task& TaskManager::GetTask(TaskManager::TaskId task_id) {
   }
 }
 
-//! Adds a dependency between two registered tasks (by name)
 void TaskManager::AddDependency(std::string task_name,
                                 std::string dependency_name) {
   AddDependency(GetId(task_name), GetId(dependency_name));
 }
 
-//! Adds a dependency between two registered tasks (by id)
 void TaskManager::AddDependency(TaskManager::TaskId task_id,
                                 TaskManager::TaskId dependency_id) {
   if (!IsValidID(task_id) || !IsValidID(dependency_id)) {
@@ -183,12 +160,10 @@ void TaskManager::AddDependency(TaskManager::TaskId task_id,
   leaves_.erase(dependency_id);
 }
 
-//! Returns dependencies of the task as a set of ids
 TaskManager::IdSet& TaskManager::GetDependencies(std::string task_name) {
   return GetDependencies(GetId(task_name));
 }
 
-//! Returns dependencies of the task as a set of ids
 TaskManager::IdSet& TaskManager::GetDependencies(TaskManager::TaskId id) {
   try {
     return parents_.at(id);
@@ -199,7 +174,6 @@ TaskManager::IdSet& TaskManager::GetDependencies(TaskManager::TaskId id) {
 }
 
 #ifdef DEBUG
-//! Returns true if a proposed dependency will result in a cyclic dependency
 bool TaskManager::WillCauseCyclicDependency(TaskManager::TaskId task_id,
                                         TaskManager::TaskId target) {
   if (task_id == target) return true;
@@ -228,12 +202,10 @@ bool TaskManager::WillCauseCyclicDependency(TaskManager::TaskId task_id,
 }
 #endif
 
-//! Returns dependents of the task as a set of ids
 TaskManager::IdSet& TaskManager::GetDependents(std::string task_name) {
   return GetDependents(GetId(task_name));
 }
 
-//! Returns dependents of the task as a set of ids
 TaskManager::IdSet& TaskManager::GetDependents(TaskManager::TaskId id) {
   try {
     return children_.at(id);
@@ -243,7 +215,6 @@ TaskManager::IdSet& TaskManager::GetDependents(TaskManager::TaskId id) {
   }
 }
 
-//! Returns the number of registered tasks
 size_t TaskManager::GetTaskCount() const {
 #ifdef DEBUG
   if (tasks_.size() != children_.size() || tasks_.size() != parents_.size()) {
@@ -253,23 +224,19 @@ size_t TaskManager::GetTaskCount() const {
   return tasks_.size();
 }
 
-//! Returns true if the given task id is valid
 bool TaskManager::IsValidID(TaskManager::TaskId task_id) const {
   return (task_id < tasks_.size());
 }
 
-//! Indicates that new tasks can no longer be registered
 void TaskManager::Finalise() {
   finalised_ = true;
   IterReset();
 }
 
-//! Returns true if the manager has been finalised
 bool TaskManager::IsFinalised() const {
   return finalised_;
 }
 
-//! \brief Resets control data so a new iteration of tasks can begin
 void TaskManager::IterReset() {
   check_finalised(finalised_);
   boost::lock_guard<boost::mutex> lock(mutex_task_);
@@ -287,13 +254,11 @@ void TaskManager::IterReset() {
   }
 }
 
-//! \brief Returns true if there are tasks ready for execution
 bool TaskManager::IterTaskAvailable() const {
   check_finalised(finalised_);
   return (!ready_tasks_.empty());
 }
 
-//! \brief Returns true if all tasks have been executed
 bool TaskManager::IterCompleted() const {
   check_finalised(finalised_);
   return (pending_tasks_.empty()
@@ -301,31 +266,22 @@ bool TaskManager::IterCompleted() const {
           && ready_tasks_.empty());
 }
 
-//! \brief Returns the number of tasks ready for execution
 size_t TaskManager::IterGetReadyCount() const {
   check_finalised(finalised_);
   return ready_tasks_.size();
 }
 
-//! \brief Returns the number of tasks that are still waiting for their
-//! dependencies to be met
 size_t TaskManager::IterGetPendingCount() const {
   check_finalised(finalised_);
   return pending_tasks_.size();
 }
 
-//! \brief Returns the number of tasks that have been assigned but not
-//! completed.
 size_t TaskManager::IterGetAssignedCount() const {
   check_finalised(finalised_);
   return assigned_tasks_.size();
 }
 
-/*!
- * \brief Pops and returns a task that is ready for execution
- *
- * Throws flame::exceptions::none_available if the queue is empty
- */
+// Pops and returns a task that is ready for execution
 TaskManager::TaskId TaskManager::IterTaskPop() {
   check_finalised(finalised_);
   boost::lock_guard<boost::mutex> lock(mutex_task_);
@@ -340,7 +296,6 @@ TaskManager::TaskId TaskManager::IterTaskPop() {
   return task_id;
 }
 
-//! \brief Indicates that a specific task has been completed
 void TaskManager::IterTaskDone(TaskManager::TaskId task_id) {
   check_finalised(finalised_);
   boost::lock_guard<boost::mutex> lock(mutex_task_);

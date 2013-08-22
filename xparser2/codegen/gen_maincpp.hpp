@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_maincpp.hpp
+ * \file xparser2/codegen/gen_maincpp.hpp
  * \author Shawn Chin
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -17,7 +17,8 @@ namespace xparser { namespace codegen {
 class GenMainCpp : public GenFile {
   public:
     GenMainCpp();
-    //! Prints the generated code to the printer instance
+    //! \brief Prints the generated code to the printer instance
+    //! \param[out] printer The printer instance to write code to
     void Generate(Printer* printer) const;
 };
 

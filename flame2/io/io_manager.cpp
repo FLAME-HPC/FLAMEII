@@ -13,8 +13,6 @@
 #include <utility>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/variant.hpp>
-#include <boost/function.hpp>
 #include "flame2/config.hpp"
 #include "flame2/mem/memory_manager.hpp"
 #include "io_manager.hpp"
@@ -33,27 +31,24 @@ namespace flame { namespace io {
 namespace exc = flame::exceptions;
 namespace fs = boost::filesystem;
 
-IOManager::IOManager() : iteration_(0), inputPlugin_(0), outputPlugin_(0) {
+IOManager::IOManager() : agentMemory_(), ioxmlmodel_(), path_(), plugins_(),
+    iteration_(0), inputPlugin_(0), outputPlugin_(0) {
   // add plugins
-  plugins_.insert(std::pair<std::string, IO*>("xml", new IOXMLPop));
-  plugins_.insert(std::pair<std::string, IO*>("csv", new IOCSVPop));
+  std::auto_ptr<IOInterface> ioxmlpop(new IOXMLPop);
+  plugins_.insert("xml", ioxmlpop);
+  std::auto_ptr<IOInterface> iocsvpop(new IOCSVPop);
+  plugins_.insert("csv", iocsvpop);
 #ifdef HAVE_SQLITE3
-  plugins_.insert(std::pair<std::string, IO*>("sqlite", new IOSQLitePop));
+  std::auto_ptr<IOInterface> iosqlitepop(new IOSQLitePop);
+  plugins_.insert("sqlite", iosqlitepop);
 #endif
 #ifdef HAVE_HDF5
-  plugins_.insert(std::pair<std::string, IO*>("hdf5", new IOHDF5Pop));
+  std::auto_ptr<IOInterface> iohdf5pop(new IOHDF5Pop);
+  plugins_.insert("hdf5", iohdf5pop);
 #endif
   // set default input and output options
   setInputType("xml");
   setOutputType("xml");
-}
-
-IOManager::~IOManager() {
-  std::map<std::string, IO*>::iterator it;
-  for (it = plugins_.begin(); it != plugins_.end(); ++it) {
-    // delete plugin object
-    delete it->second;
-  }
 }
 
 void IOManager::loadModel(std::string const& file,
@@ -62,6 +57,12 @@ void IOManager::loadModel(std::string const& file,
   ioxmlmodel_.readXMLModel(file, model);
 }
 
+/*!
+ * \brief Function to pass to IO plugins to add integers to an agent variable array
+ * \param[in] agent_name Agent name
+ * \param[in] var_name Variable name
+ * \param[in] value Integer value
+ */
 void addInt(std::string const& agent_name,
     std::string const& var_name, int value) {
   // Add value to memory manager
@@ -69,6 +70,12 @@ void addInt(std::string const& agent_name,
       GetVector<int>(agent_name, var_name)->push_back(value);
 }
 
+/*!
+ * \brief Function to pass to IO plugins to add doubles to an agent variable array
+ * \param[in] agent_name Agent name
+ * \param[in] var_name Variable name
+ * \param[in] value Double value
+ */
 void addDouble(std::string const& agent_name,
     std::string const& var_name, double value) {
   // Add value to memory manager
@@ -172,7 +179,7 @@ void IOManager::setAgentMemoryInfo(AgentMemory agentMemory) {
 }
 
 void IOManager::setInputType(std::string const& inputType) {
-  std::map<std::string, IO*>::iterator pit;
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
 
   // find input type plugin
   pit = plugins_.find(inputType);
@@ -184,7 +191,7 @@ void IOManager::setInputType(std::string const& inputType) {
 }
 
 void IOManager::setOutputType(std::string const& outputType) {
-  std::map<std::string, IO*>::iterator pit;
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
 
   // find output type plugin
   pit = plugins_.find(outputType);
@@ -199,8 +206,8 @@ void IOManager::setOutputType(std::string const& outputType) {
 }
 
 #ifdef TESTBUILD
-IO * IOManager::getIOPlugin(std::string const& name) {
-  std::map<std::string, IO*>::iterator pit;
+IOInterface * IOManager::getIOPlugin(std::string const& name) {
+  boost::ptr_map<std::string, IOInterface>::iterator pit;
   // find plugin
   pit = plugins_.find(name);
   if (pit != plugins_.end()) return pit->second;

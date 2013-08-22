@@ -1,5 +1,5 @@
 /*!
- * \file xparser2/gen_agent.cpp
+ * \file xparser2/codegen/gen_agent.cpp
  * \author Simon Coakley
  * \date January 2013
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
@@ -16,7 +16,7 @@
 namespace xparser { namespace codegen {
 
 GenAgent::GenAgent(const std::string& agent_name)
-    : agent_name_(agent_name) {}
+    : vars_(), dupe_check_(), agent_name_(agent_name) {}
 
 // var_type and var_name validation not performed
 void GenAgent::AddVar(const std::string& var_type,

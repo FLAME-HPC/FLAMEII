@@ -15,14 +15,12 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialises Task
- *
- * Initialises Task and sets level to be zero.
- */
 ModelTask::ModelTask(std::string parentName, std::string name, TaskType type)
   : parentName_(parentName), name_(name), taskType_(type), priorityLevel_(10),
-    hasCondition_(false), startTask_(false), endTask_(false) {
+    readOnlyVariables_(), readVariables_(), writeVariables_(),
+    hasCondition_(false),
+    lastWrites_(), lastReads_(), outputMessages_(), inputMessages_(),
+    startTask_(false), endTask_(false) {
   // set priority level depending on task type
   if (type == ModelTask::xmessage_sync) priorityLevel_ = 10;
   if (type == ModelTask::xmessage_clear) priorityLevel_ = 1;

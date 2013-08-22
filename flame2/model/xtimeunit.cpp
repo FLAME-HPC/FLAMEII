@@ -14,21 +14,9 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Constructs XTimeUnit
- *
- * Initialises period and id to be zero
- */
-XTimeUnit::XTimeUnit() : period_(0), id_(0) {}
+XTimeUnit::XTimeUnit()
+  : name_(), unit_(), periodString_(), period_(0), id_(0) {}
 
-/*!
- * \brief Prints XTimeUnit
- *
- * Prints XTimeUnit to standard out including
- * name,
- * unit and
- * period.
- */
 void XTimeUnit::print() {
   std::fprintf(stdout, "\tTime Unit Name: %s\n", getName().c_str());
   std::fprintf(stdout, "\tUnit  : %s\n", getUnit().c_str());

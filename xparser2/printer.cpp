@@ -50,7 +50,7 @@ const char* get_cstr_from_file(const std::string& filename) {
 namespace xparser {
 
 Printer::Printer(std::ostream *s, char delimiter)
-  : s_(s), delim_(delimiter), at_start_of_line_(true) {
+  : s_(s), indent_(), delim_(delimiter), at_start_of_line_(true) {
 }
 
 void Printer::Indent() {
@@ -71,6 +71,29 @@ void Printer::write_(const char* data, int size) {
     s_->write(indent_.data(), indent_.size());  // place indent string
   }
   s_->write(data, size);
+}
+
+int Printer::PrintVariable(const char* text, const char* end, int* pos,
+    const std::map<std::string, std::string>& vars) {
+  int endpos = end - text;
+  std::string varname(text + *pos, endpos - *pos);
+  if (varname.empty()) {
+    // Two delimiters in a row reduce to a literal delimiter character.
+    write_(&delim_, 1);
+  } else {
+    // lookup var map and perform substitution
+    std::map<std::string, std::string>::const_iterator \
+        iter = vars.find(varname);
+    if (iter == vars.end()) {
+      throw flame::exceptions::invalid_argument(
+          std::string("Unknown var - ") + varname);
+    } else {
+      write_(iter->second.data(), iter->second.size());
+    }
+  }
+
+  *pos = endpos + 1;
+  return endpos;
 }
 
 void Printer::Print(const char* text,
@@ -100,26 +123,8 @@ void Printer::Print(const char* text,
           "Closing delimiter not found");
       }
 
-      int endpos = end - text;
-      std::string varname(text + pos, endpos - pos);
-      if (varname.empty()) {
-        // Two delimiters in a row reduce to a literal delimiter character.
-        write_(&delim_, 1);
-      } else {
-        // lookup var map and perform substitution
-        std::map<std::string, std::string>::const_iterator \
-            iter = vars.find(varname);
-        if (iter == vars.end()) {
-          throw flame::exceptions::invalid_argument(
-              std::string("Unknown var - ") + varname);
-        } else {
-          write_(iter->second.data(), iter->second.size());
-        }
-      }
-
-      // advance past the var placeholder
-      i = endpos;
-      pos = endpos + 1;
+      // handle var and advance past the var placeholder
+      i = PrintVariable(text, end, &pos, vars);
     }
   }
 

@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
   BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
       "io/models/missing.xml", &model),
-      e::inaccessable_file);
+      e::inaccessible_file);
 
   BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
       "io/models/malformed_xml.xml", &model),
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_read_XML_model) {
 
   BOOST_CHECK_THROW(ioxmlmodel.readXMLModel(
       "io/models/submodel_missing.xml", &model),
-      e::inaccessable_file);
+      e::inaccessible_file);
 
   BOOST_CHECK_NO_THROW(ioxmlmodel.readXMLModel(
       "io/models/all_not_valid.xml", &model));

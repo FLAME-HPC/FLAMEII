@@ -1,5 +1,5 @@
 /*!
- * \file tests/mb2/test_message_iteration.cpp
+ * \file tests/mb/test_message_iterator.cpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory

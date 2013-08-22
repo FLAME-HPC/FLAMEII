@@ -14,20 +14,52 @@
 
 namespace flame { namespace model {
 
+/*!
+ * \brief Class to hold a graph dependency
+ */
 class Dependency {
   public:
+    /*!
+     * \brief Enumeration of dependency types
+     */
     enum DependencyType { state = 0, communication, data, init,
         condition, variable, blank };
+    /*!
+     * \brief Constructor
+     * \param[in] name Dependency name
+     * \param[in] type Dependency type
+     */
     Dependency(std::string name, DependencyType type);
+    /*!
+     * \brief Set dependency name
+     * \param[in] name The name
+     */
     void setName(std::string name);
+    /*!
+     * \brief Get dependency name
+     * \return The name
+     */
     std::string getName();
+    /*!
+     * \brief Set dependency type
+     * \param[in] type The type
+     */
     void setDependencyType(DependencyType type);
+    /*!
+     * \brief Get dependency type
+     * \return The dependency type
+     */
     DependencyType getDependencyType();
+    /*!
+     * \brief Get a name from the dependency type
+     * \return Dependency type name description
+     */
     std::string getGraphName();
 
   private:
-    /* State name/Message name/Memory variable name */
+    //! \brief Dependency name
     std::string name_;
+    //! \brief Dependency name
     DependencyType dependencyType_;
 };
 }}  // namespace flame::model

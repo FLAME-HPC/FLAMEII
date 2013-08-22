@@ -27,84 +27,180 @@
 
 namespace flame { namespace model {
 
-//! Define task id as unsigned integer
+//! \brief Define task id as unsigned integer
 typedef size_t TaskId;
-//! Define multimap of task ids to hold dependencies
+//! \brief Define multimap of task ids to hold dependencies
 typedef std::multimap<TaskId, TaskId> TaskIdMap;
 
+/*!
+ * \brief Class to hold a dependency graph
+ */
 class DependencyGraph {
   public:
-    //! Constructor
+    /*!
+     * \brief Constructor
+     */
     DependencyGraph();
-    //! Generate dependency graph (from imported state graph)
-    int generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
-    //! Checks for cyclic dependencies within a graph
-    //! \return first integer for number of errors,
-    //!         second string for error message
+    /*!
+     * \brief Generate dependency graph (from imported state graph)
+     * \param[in] variables Agent variables
+     */
+    void generateDependencyGraph(boost::ptr_vector<XVariable> * variables);
+    /*!
+     * \brief Checks for cyclic dependencies within a graph
+     * \return first integer for number of errors,
+     *         second string for error message
+     */
     std::pair<int, std::string> checkCyclicDependencies();
-    //! Checks for conditions on functions from a state
-    //! with more than one out edge
-    //! \return first integer for number of errors,
-    //!         second string for error message
+    /*!
+     * \brief Checks for conditions on functions from a state
+     *        with more than one out edge
+     * \return first integer for number of errors,
+     *         second string for error message
+     */
     std::pair<int, std::string> checkFunctionConditions();
-    //! Set the name of the graph (agent or model name)
+    /*!
+     * \brief Set the name of the graph (agent or model name)
+     * \param[in] name The agent/model name
+     */
     void setName(std::string name);
-    //! Import a dependency graph
+    /*!
+     * \brief Import a dependency graph
+     * \param[in] graph Dependency graph to import
+     */
     void import(DependencyGraph * graph);
-    //! Write graph out to a dot file
+    /*!
+     * \brief Write graph out to a dot file
+     * \param[in] fileName The path to the file to write out to
+     */
     void writeGraphviz(const std::string& fileName) const;
-    //! Import a set of dependency graphs.
-    //! Used by models to import agent graphs
+    /*!
+     * \brief Import a set of dependency graphs.
+     * \param[in] graphs Set of dependency graphs to import
+     *
+     * Used by models to import agent graphs
+     */
     void importGraphs(std::set<DependencyGraph*> graphs);
-    //! Import a state graph as a starting point
+    /*!
+     * \brief Import a state graph as a starting point
+     * \param[in] stateGraph State graph to import
+     */
     void importStateGraph(StateGraph * stateGraph);
-    //! Return all the graph dependencies
+    /*!
+     * \brief Return all the graph dependencies
+     * \return The task dependencies
+     */
     TaskIdMap getTaskDependencies() const;
-    //! Return the task list
+    /*!
+     * \brief Return the task list
+     * \return The task list
+     */
     const TaskList * getTaskList() const;
 #ifdef TESTBUILD
-    //! Check to see if a dependencies between tasks exists
+    /*!
+     * \brief Check to see if a dependencies between tasks exists
+     * \param[in] type1 First task
+     * \param[in] name1 First task name
+     * \param[in] type2 Second task
+     * \param[in] name2 Second task name
+     * \return Boolean result
+     */
     bool dependencyExists(ModelTask::TaskType type1, std::string name1,
         ModelTask::TaskType type2, std::string name2);
-    //! Add a task
+    /*!
+     * \brief Add a task
+     * \param[in] t The task to add
+     */
     Vertex addTestVertex(ModelTask * t);
-    //! Add a dependency
+    /*!
+     * \brief Add a dependency
+     * \param[in] to Source vertex
+     * \param[in] from Target vertex
+     * \param[in] name Dependency name
+     * \param[in] type Dependency type
+     */
     void addTestEdge(Vertex to, Vertex from, std::string name,
             Dependency::DependencyType type);
-    //! Set a start task
+    /*!
+     * \brief Set a start task
+     * \param[in] task The start task
+     */
     void setTestStartTask(ModelTask * task);
-    //! Set an end task
+    /*!
+     * \brief Set an end task
+     * \param[in] task The end task
+     */
     void addTestEndTask(ModelTask * task);
 #endif
 
   private:
-    //! The underlying graph
+    //! \brief The underlying graph
     XGraph graph_;
-    //! The graph name (either model or agent name)
+    //! \brief The graph name (either model or agent name)
     std::string name_;
 
-    //! Return new message vertex or existing one if found
+    /*!
+     * \brief Get message vertex
+     * \param[in] name The message name
+     * \param[in] type The task type
+     * \return The vertex
+     */
     Vertex getMessageVertex(std::string name, ModelTask::TaskType type);
-    //! Change message tasks to sync tasks
+    /*!
+     * \brief Change message tasks to sync tasks
+     */
     void changeMessageTasksToSync();
-    //! Add message clear tasks
+    /*!
+     * \brief Add message clear tasks
+     */
     void addMessageClearTasks();
-    //! Change state tasks with more than 1 outgoing transition into
-    //! a condition task
+    /*!
+     * \brief Transform conditional states to conditions
+     * \param[in] variables Agent variables
+     *
+     * Change state tasks with more than 1 outgoing transition into
+     * a condition task
+     */
     void transformConditionalStatesToConditions(
             boost::ptr_vector<XVariable> * variables);
-    //! Set start task to not be a state and remove all state tasks
+    /*!
+     * \brief Set start task to not be a state and remove all state tasks
+     */
     void contractStateVertices();
-    //! Remove state type dependencies
+    /*!
+     * \brief Remove state type dependencies
+     */
     void removeStateDependencies();
-    //! Add data dependencies between writing and reading functions for
-    //! each variable
+    /*!
+     * \brief Add data dependencies between writing and reading functions for
+     *        each variable
+     */
     void AddVariableOutput();
-    //! Remove vertex type and replace with edge with given dependency type
+    /*!
+     * \brief Remove vertex type and replace with edge with given dependency type
+     * \param[in] taskType The task type to replace
+     * \param[in] dependencyType The dependency type to be the replacement
+     */
     void contractVertices(ModelTask::TaskType taskType,
             Dependency::DependencyType dependencyType);
+    /*!
+     * \brief Find a string from one set in another set
+     * \param[in] a Set of strings to search
+     * \param[in] find_in_a Set of string to find
+     * \return Boolean result
+     */
+    bool setContains(
+        std::set<std::string>* a, std::set<std::string>* find_in_a);
+    /*!
+     * \brief Copy a vertex including all in and out edges
+     * \param[in] in The vertex to copy
+     * \return The new copied vertex
+     */
+    Vertex copyVertexIncludingEdges(Vertex in);
 #ifdef GROUP_WRITE_VARS
-    //! Return true if both sets are the same
+    /*!
+     * \brief Return true if both sets are the same
+     */
     bool compareTaskSets(std::set<size_t> a, std::set<size_t> b);
 #endif
 };

@@ -5,7 +5,7 @@
  * \copyright Copyright (c) 2013 STFC Rutherford Appleton Laboratory
  * \copyright Copyright (c) 2013 University of Sheffield
  * \copyright GNU Lesser General Public License
- * \brief Interface class for output types
+ * \brief Interface class for io plugins
  */
 #ifndef IO__IO_INTERFACE_HPP_
 #define IO__IO_INTERFACE_HPP_
@@ -16,13 +16,20 @@
 
 namespace flame { namespace io {
 
+//! A data type for holding model variable type and name
 typedef std::pair<std::string, std::string> Var;
+//! A data type for holding a vector of model variables
 typedef std::vector<Var> VarVec;
+//! A data type for holding agent memory variables
 typedef std::map<std::string, VarVec> AgentMemory;
 
-class IO {
+/*!
+ * \brief Interface class for implementing IO plugins
+ */
+class IOInterface {
   public:
-    virtual ~IO() {}
+    IOInterface() : agentMemory_(), iteration_(0), path_() {}
+    virtual ~IOInterface() {}
 
     //! Get the name of the plugin
     virtual std::string getName() = 0;

@@ -14,6 +14,7 @@ void validateDatavoid validateData * \file flame2/io/io_manager.hpp
 #include <map>
 #include <set>
 #include <utility>
+#include <boost/ptr_container/ptr_map.hpp>
 #include "flame2/exceptions/io.hpp"
 #include "io_xml_model.hpp"
 #include "io_interface.hpp"
@@ -24,35 +25,59 @@ typedef std::pair<std::string, std::string> Var;
 typedef std::vector<Var> VarVec;
 typedef std::map<std::string, VarVec> AgentMemory;
 
+/*!
+ * \brief Manages input and output of flame2
+ *
+ * This class acts as a singleton and is used to: load models; set input and
+ * output plugins; and read and write population data.
+ */
 class IOManager {
   public:
+    //! Get an instance of the IOManager
     static IOManager& GetInstance() {
       static IOManager instance;
       return instance;
     }
 
-    ~IOManager();
-
     //! Set input type
     void setInputType(std::string const& inputType);
     //! Set output type
     void setOutputType(std::string const& outputType);
-
+    /*!
+     * \brief Load a model
+     *
+     * \param[in] file The path to the file
+     * \param[out] model Pointer to the loaded model
+     */
     void loadModel(std::string const& file, flame::model::XModel * model);
-    //! Called by sim
-    //! \return iteration of pop file given by file name
+    /*!
+     * \brief Read a population file
+     *
+     * \param[in] file_name The path to the population file
+     * \return iteration number given by pop file name
+     */
     size_t readPop(std::string const& file_name);
-
+    /*!
+     * \brief Set the iteration number
+     *
+     * Set the iteration number so that output files are correctly numbered
+     *
+     * \param[in] i The iteration number
+     */
     void setIteration(size_t i);
+    //! Set the agent memory information
     void setAgentMemoryInfo(AgentMemory agentMemory);
 
-    // Called by io tasks
+    //! Write agent variable array (called by io tasks)
     void writePop(std::string const& agent_name, std::string const& var_name);
+    //! Initialise writing of data (called by io task)
     void initialiseData();
+    //! Finalise writing of data (called by io task)
     void finaliseData();
 
 #ifdef TESTBUILD
-    IO * getIOPlugin(std::string const& name);
+    //! Return a pointer to the IO plugin named
+    IOInterface * getIOPlugin(std::string const& name);
     //! Delete all input and output types
     void Reset();
 #endif
@@ -65,13 +90,13 @@ class IOManager {
     //! Path to directory holding population files
     std::string path_;
     //! Map from plugin name to plugin
-    std::map<std::string, IO*> plugins_;
+    boost::ptr_map<std::string, IOInterface> plugins_;
     //! The current iteration number
     size_t iteration_;
     //! Input plugin
-    IO * inputPlugin_;
+    IOInterface * inputPlugin_;
     //! Output plugin
-    IO * outputPlugin_;
+    IOInterface * outputPlugin_;
 
     //! This is a singleton class. Disable manual instantiation
     IOManager();

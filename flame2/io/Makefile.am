@@ -12,6 +12,9 @@ module_headers = \
   io_interface.hpp \
   io_manager.hpp \
   io_xml_model.hpp \
+  io_xml_agents.hpp \
+  io_xml_variables.hpp \
+  io_xml_element.hpp \
 	plugins/io_sqlite_pop.hpp \
 	plugins/io_hdf5_pop.hpp \
   plugins/io_xml_pop.hpp \
@@ -22,6 +25,9 @@ module_headers = \
 module_sources = \
   io_manager.cpp \
   io_xml_model.cpp \
+  io_xml_agents.cpp \
+  io_xml_variables.cpp \
+  io_xml_element.cpp \
 	plugins/io_sqlite_pop.cpp \
 	plugins/io_hdf5_pop.cpp \
   plugins/io_xml_pop.cpp \

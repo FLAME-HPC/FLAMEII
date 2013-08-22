@@ -1,5 +1,5 @@
 /*!
- * \file flame2/mb/client.hpp
+ * \file flame2/mb/client.cpp
  * \author Shawn Chin
  * \date November 2012
  * \copyright Copyright (c) 2012 STFC Rutherford Appleton Laboratory
@@ -17,7 +17,7 @@
 namespace flame { namespace mb {
 
 Client::Client(acl_set_type acl_read, acl_set_type acl_post)
-    : acl_read_(acl_read) {
+    : writers_(), acl_read_(acl_read) {
   // we don't cache iterators since they can be modified by users, e.g.
   // randomisation, sorting, etc.
   // Instead we keep a set of msg names with read privs(acl_read_)

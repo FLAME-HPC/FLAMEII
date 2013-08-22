@@ -27,6 +27,9 @@ namespace flame { namespace mb {
  * type. The message board instance itself is type-agnostic and relies on
  * the underlying VectorWrapper to handle type-specific operations. This allows
  * us to treat all boards uniformly regardless of what message type it holds.
+ *
+ * \todo Reorganise class structure so `MessageBoard` (or its storage back) can 
+ *       be easily subclassed and used by framework users. 
  */
 class MessageBoard {
   public:
@@ -38,6 +41,8 @@ class MessageBoard {
     /*!
      * \brief Factory method to create a board storing messages of a
      * specific type
+     * \param msg_name message name
+     * \return pointer to MessageBoard instance
      *
      * We need to know the datatype of a message during instantiation so we can
      * assign an appropriate VectorWrapper to the board. We do not want to
@@ -80,6 +85,7 @@ class MessageBoard {
 
     /*!
      * \brief Returns the number of messages within the board
+     * \return number of messages
      *
      * Note that messages posted after the last Sync() may not be taken into
      * account.
@@ -88,7 +94,8 @@ class MessageBoard {
 
     /*!
      * \brief Returns an BoardWriter instance
-     * 
+     * \return board writer
+     *
      * Writes to the board are buffered and not immediately accessible. This
      * allows writes to be performed concurrently and in a distributed manner
      * without expensive locking and repeated communication.
@@ -100,6 +107,7 @@ class MessageBoard {
 
     /*!
      * \brief Returns a message iterator
+     * \return message iterator
      *
      * The returned iterator can be used to iterate through messages that are
      * in the board at the point where the iterator was created. Any messages
@@ -116,8 +124,8 @@ class MessageBoard {
     //! datatype for storing collection of active board writers
     typedef std::vector<writer> WriterVector;
 
-    std::string name_;  //! message name
-    WriterVector writers_;  //! collection of active board writers
+    std::string name_;  //!< message name
+    WriterVector writers_;  //!< collection of active board writers
     // store a reference board writer of the correct type
     // All writers for this board will be cloned from this one, thus allowing
     // the GetBoardWriter call to be typeless.
@@ -133,13 +141,14 @@ class MessageBoard {
     //! Pointer to VectorWrapper instance to store messages
     boost::scoped_ptr<flame::mem::VectorWrapperBase> data_;
 
-    boost::mutex mutex_;  //! mutex lock for orchestrating concurrent access
+    boost::mutex mutex_;  //!< mutex lock for orchestrating concurrent access
 
     //! Internal constructor used by factory method to instantiate board
     MessageBoard(const std::string& msg_name,
                  flame::mem::VectorWrapperBase *vec,
                  BoardWriter *board_writer)
-        : name_(msg_name), writer_template_(board_writer), data_(vec) {}
+        : name_(msg_name), writers_(), writer_template_(board_writer),
+          data_(vec), mutex_() {}
 
     //! Internal routine used to disconnect and delete collection of writers
     void _DeleteWriters(void);

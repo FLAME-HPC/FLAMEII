@@ -14,61 +14,99 @@
 #include <set>
 #include "xmachine.hpp"
 #include "xvariable.hpp"
-#include "xadt.hpp"
+#include "xdatatype.hpp"
 #include "xtimeunit.hpp"
 #include "xmessage.hpp"
 
 namespace flame { namespace model {
 
+/*!
+ * \brief This class is used to validate a model
+ */
 class XModelValidate {
   public:
+    /*!
+     * \brief Constructor
+     * \param[in] m The XModel to validate
+     */
     explicit XModelValidate(XModel * m);
+    /*!
+     * \brief Validate the model
+     * \return The number of errors found
+     * \todo Check condition op IN has valid variables (if implemented).
+     * \todo Check for no agents (if needed).
+     * \todo Remove agents with no memory variables (if needed).
+     * Detailed description.
+     */
     int validate();
 
   private:
+    //! \brief The model to validate
     XModel * model;
+    //! \brief List of function files
     std::vector<std::string> * functionFiles_;
+    //! \brief List of environment constants
     boost::ptr_vector<XVariable> * constants_;
-    boost::ptr_vector<XADT> * adts_;
+    //! \brief List of abstract data types
+    boost::ptr_vector<XDataType> * datatypes_;
+    //! \brief List of time units
     boost::ptr_vector<XTimeUnit> * timeUnits_;
+    //! \brief List of agents
     boost::ptr_vector<XMachine> * agents_;
+    //! \brief List of messages
     boost::ptr_vector<XMessage> * messages_;
-    void processVariableDynamicArray(XVariable * variable);
-    int processVariableStaticArray(XVariable * variable);
-    int processVariable(XVariable * variable);
-    int processVariables(boost::ptr_vector<XVariable> * variables_);
-    bool variableExists(std::string name,
-            boost::ptr_vector<XVariable> * variables);
-    int processMemoryAccessVariable(std::string name,
-            boost::ptr_vector<XVariable> * variables,
-            std::set<std::string> * usedVariables);
-    int processAgentFunction(XFunction * function,
-            boost::ptr_vector<XVariable> * variables);
-    void validateVariableName(XVariable * v, int * errors,
-            boost::ptr_vector<XVariable> * variables);
-    void validateVariableType(XVariable * v, int * errors,
-            bool allowDyamicArrays);
-    int validateVariables(boost::ptr_vector<XVariable> * variables_,
-            bool allowDyamicArrays);
+    /*!
+     * \brief Validate function file
+     * \param[in] name Function file name
+     * \return Number of errors
+     */
     int validateFunctionFile(std::string name);
+    /*!
+     * \brief Validate time unit
+     * \param[in] timeUnit The time unit
+     * \return Number of errors
+     */
     int validateTimeUnit(XTimeUnit * timeUnit);
+    /*!
+     * \brief process time unit period
+     * \param[in] timeUnit The time unit
+     * \return Number of errors
+     */
     int processTimeUnitPeriod(XTimeUnit * timeUnit);
+    /*!
+     * \brief Process time unit unit
+     * \param[in] timeUnit The time unit
+     * \return Number of errors
+     */
     int processTimeUnitUnit(XTimeUnit * timeUnit);
+    /*!
+     * \brief Process time unit
+     * \param[in] timeUnit The time unit
+     * \return Number of errors
+     */
     int processTimeUnit(XTimeUnit * timeUnit);
-    int validateADT(XADT * adt);
-    int validateAgent(XMachine * agent);
-    int validateAgentStateGraph(XMachine * agent);
-    int validateAgentFunctionIOput(XFunction * xfunction, XMachine * agent);
-    int validateAgentFunction(XFunction * xfunction, XMachine * agent);
-    int validateAgentCommunication(XIOput * xioput, XMachine * agent);
-    int validateAgentConditionOrFilter(XCondition * xcondition,
-            XMachine * agent, XMessage * xmessage);
-    int validateSort(XIOput * xioput, XMessage * xmessage);
-    int validateRandomString(XIOput * xioput);
+    /*!
+     * \brief Validate abstract data type
+     * \param[in] adt The abstract data type
+     * \return Number of errors
+     */
+    int validateDataType(XDataType * adt);
+    /*!
+     * \brief Validate message
+     * \param[in] xmessage The message
+     * \return Number of errors
+     */
     int validateMessage(XMessage * xmessage);
-    bool name_is_allowed(std::string name);
+    /*!
+     * \brief Validate time units
+     * \param[in] timeUnits The list of time units
+     * \return Number of errors
+     */
     int validateTimeUnits(boost::ptr_vector<XTimeUnit> * timeUnits);
-    int validateModelGraph();
+    /*!
+     * \brief Validate model graph
+     */
+    void validateModelGraph();
 };
 }}  // namespace flame::model
 #endif  // MODEL__XMODEL_VALIDATE_HPP_

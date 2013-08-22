@@ -15,11 +15,6 @@
 
 namespace flame { namespace exe {
 
-/*!
- * \brief constructor
- *
- * Initialies msg_name_ and op_, and checks that the specified board exists.
- */
 MessageBoardTask::MessageBoardTask(std::string task_name,
                                    std::string msg_name,
                                    Operation op)
@@ -30,11 +25,6 @@ MessageBoardTask::MessageBoardTask(std::string task_name,
   task_name_ = task_name;
 }
 
-/*!
- * \brief Operations to perform when task is executed
- *
- * Runs board operations defined by op_ on named message board.
- */
 void MessageBoardTask::Run(void) {
   switch (op_) {
     case OP_SYNC:

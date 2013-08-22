@@ -16,34 +16,15 @@
 
 namespace flame { namespace model {
 
-/*!
- * \brief Initialises XIOput
- *
- * Initialises XIOput with no random, no filter and no sort.
- */
-XIOput::XIOput() {
-  /* Set default options */
-  random_ = false;
-  filter_ = 0;
-  randomSet_ = false;
-  sort_ = false;
-}
+XIOput::XIOput()
+  : messageName_(), randomString_(), randomSet_(false), random_(false),
+    sort_(false), sortKey_(), sortOrder_(), filter_(0) {}
 
-/*!
- * \brief Cleans up XIOput
- *
- * Cleans up XIOput by deleting any filter.
- */
 XIOput::~XIOput() {
   /* Delete any filter */
   delete filter_;
 }
 
-/*!
- * \brief Prints XIOput
- *
- * Prints XIOput to standard out.
- */
 void XIOput::print() {
   std::fprintf(stdout, "\t\t\tMessage Name: %s\n", getMessageName().c_str());
   if (random_) std::fprintf(stdout, "\t\t\tRandom: true\n");

@@ -15,6 +15,7 @@
 
 namespace flame { namespace exe {
 
+//! Message Board task
 class MessageBoardTask : public Task {
   friend class TaskManager;
   public:
@@ -43,18 +44,28 @@ class MessageBoardTask : public Task {
       throw flame::exceptions::not_implemented("method not applicable");
     }
 
-    //! Runs the task
+    /*!
+     * \brief Operations to perform when task is executed
+     *
+     * Runs board operations defined by op_ on named message board.
+     */
     void Run(void);
 
   protected:
-    //! Constructor (Limited to TaskManager)
+    /*!
+     * \brief Constructor (Limited to TaskManager)
+     * \param task_name task name
+     * \param msg_name message name
+     * \param op Operation type
+     * Initialies msg_name_ and op_, and checks that the specified board exists.
+     */
     MessageBoardTask(std::string task_name,
                      std::string msg_name,
                      Operation op);
 
   private:
-    std::string msg_name_;  //! Message name
-    Operation op_;  //! Opearation to perform
+    std::string msg_name_;  //!< Message name
+    Operation op_;  //!< Opearation to perform
 };
 
 }}  // namespace flame::exe

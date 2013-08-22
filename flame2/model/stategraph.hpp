@@ -26,58 +26,124 @@
 
 namespace flame { namespace model {
 
+/*!
+ * \brief Class to hold a state graph
+ */
 class StateGraph {
   public:
-    //! Constructor
+    /*!
+     * \brief Constructor
+     */
     StateGraph();
-    //! Generate state graph from agent functions
-    int generateStateGraph(boost::ptr_vector<XFunction> * functions,
+    /*!
+     * \brief Generate state graph from agent functions
+     */
+    void generateStateGraph(boost::ptr_vector<XFunction> * functions,
             std::string startState, std::set<std::string> endStates);
-    //! Checks for cyclic dependencies within a graph
-    //! \return first integer for number of errors,
-    //!         second string for error message
+    /*!
+     * \brief Checks for cyclic dependencies within a graph
+     * \return first integer for number of errors,
+     *         second string for error message
+     */
     std::pair<int, std::string> checkCyclicDependencies();
-    //! Checks for conditions on functions from a state
-    //! with more than one out edge
-    //! \return first integer for number of errors,
-    //!         second string for error message
+    /*!
+     * \brief Checks for conditions on functions from a
+     *        state with more than one out edge
+     * \return first integer for number of errors,
+     *         second string for error message
+     */
     std::pair<int, std::string> checkFunctionConditions();
-    //! set graph name (agent name or model name)
+    /*!
+     * \brief set graph name (agent name or model name)
+     * \param[in] name Agent or model name
+     */
     void setName(std::string name);
-    //! \return edge dependency map
+    /*!
+     * \brief Get the edge dependnency map
+     * \return Edge dependency map
+     */
     EdgeMap * getEdgeDependencyMap();
-    //! write out graph dot file
+    /*!
+     * \brief Write out graph dot file
+     * \param[in] fileName The path to the file to write out to
+     */
     void writeGraphviz(const std::string& fileName) const;
-    //! import set of state graphs and combine
+    /*!
+     * \brief Import set of state graphs and combine
+     * \param[in] graphs Set of state graphs to import
+     */
     void importStateGraphs(std::set<StateGraph*> graphs);
-    //! \return Vertex source of edge
+    /*!
+     * \brief Get the source vertex of an edge
+     * \param[in] e The edge
+     * \return Vertex source of edge
+     */
     Vertex getEdgeSource(Edge e);
-    //! \return Vertex target of edge
+    /*!
+     * \brief Get the target vertex of an edge
+     * \param[in] e The edge
+     * \return Vertex target of edge
+     */
     Vertex getEdgeTarget(Edge e);
-    //! \return Edge iterators to iterate all edges
+    /*!
+     * \brief Get graph edges
+     * \return Edge iterators to iterate all edges
+     */
     std::pair<EdgeIterator, EdgeIterator> getEdges();
-    //! \return List of all tasks
+    /*!
+     * \brief Get the task list
+     * \return List of all tasks
+     */
     const TaskList * getTaskList() const;
 
   private:
-    //! Underlying graph
+    //! \brief Underlying graph
     XGraph graph_;
-    //! Name of graph (agent or model name)
+    //! \brief Name of graph (agent or model name)
     std::string name_;
 
-    //! Add state to graph or return task if already added
+    /*!
+     * \brief Add state to graph and return associated task
+     * \param[in] name State name
+     * \param[in] startState The start state name
+     * \return The associated task
+     *
+     * If the state has already been added its task is returned
+     */
     ModelTask * generateStateGraphStatesAddStateToGraph(
             std::string name, std::string startState);
-    //! Add current and next state task for a function task
+    /*!
+     * \brief Add current and next state task for a function task
+     * \param[in] function The function
+     * \param[in] task The associated task
+     * \param[in] startState The start state name
+     */
     void generateStateGraphStates(XFunction * function, ModelTask * task,
             std::string startState);
-    //! Add read write variables to the function task
+    /*!
+     * \brief Add read write variables to the function task
+     * \param[in] function The function
+     * \param[in] task The associated task
+     */
     void generateStateGraphVariables(XFunction * function, ModelTask * task);
-    //! Add message to graph or return task if already added
+    /*!
+     * \brief Add message to graph and return associated task
+     * \param[in] name The message name
+     * \return The associated task
+     */
     ModelTask * generateStateGraphMessagesAddMessageToGraph(std::string name);
-    //! Add input and output edges to graph
+    /*!
+     * \brief Add input and output edges to graph
+     * \param[in] function The functions
+     * \param[in] task The associated task
+     */
     void generateStateGraphMessages(XFunction * function, ModelTask * task);
-    //! Add tasks from another state graph
+    /*!
+     * \brief Add tasks from another state graph
+     * \param[in] graph The state graph to import
+     * \param[in,out] message2task The current graph message task map
+     * \param[out] import2new Map between imported and new tasks
+     */
     void importStateGraphTasks(StateGraph * graph,
             std::map<std::string, Vertex> * message2task,
             std::map<Vertex, Vertex> * import2new);
